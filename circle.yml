@@ -8,7 +8,7 @@ machine:
     # Module name to test. Change to your module name.
     MODULE_NAME: "drupal_circleci_template"
     # Module's tests to run: test group or class name. Change for your module.
-    MODULE_TESTS: "Drupal CircleCI Template"
+    MODULE_TESTS: "DrupalCircleciTemplateWebTestCase"
     #
     # Other variables for build configuration. Not needed to be changed.
     #
@@ -69,13 +69,13 @@ dependencies:
   # Download Drupal.
   - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
   # Install drupal.
-  - drush --yes  --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
+  - drush --yes --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
   # Show information about installed Drupal.
   - drush --root=$DOCROOT status
   # Enable testing module.
-  - drush --yes  --root=$DOCROOT en simpletest
+  - drush --yes --root=$DOCROOT en simpletest
   # Enable current module.
-  - drush --yes  --root=$DOCROOT en $MODULE_NAME
+  - drush --yes --root=$DOCROOT en $MODULE_NAME
 
 test:
   pre:
