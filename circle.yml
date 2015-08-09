@@ -1,0 +1,71 @@
+machine:
+  environment:
+    # Module name to test. Required.
+    MODULE_NAME: "drupal_circleci_template"
+    # Module's tests to run: test group or class name. Required.
+    MODULE_TESTS: "Drupal CircleCI Template"
+    # Other variables for build configuration. Do not need to be changed.
+    SERVER: $MODULE_NAME.local
+    BUILD_DIR: "build"
+    DATABASE: "circle_test"
+    DB_USERNAME: "ubuntu"
+    DB_PASSWORD: ""
+    DB_ENCODE: "utf8"
+    DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
+    MODULES_PATH: "$DOCROOT/sites/all/modules"
+    PATH: "$HOME/.composer/vendor/bin:$PATH"
+  php:
+    version: 5.3.10
+  hosts:
+    $MODULE_NAME.local: 127.0.0.1
+
+dependencies:
+  pre:
+  # Modify user to make sure that there will be no permission issues.
+  - sudo usermod -a -G ${GROUP} ${USER}
+  # Install apache config.
+  # @todo: Move apache config file inline to get rid of additional file.
+  - cp apache-vhost.conf /etc/apache2/sites-available/default
+  - sudo sed -e "s?%HOME%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
+  - sudo sed -e "s?%PROJECT_DIR%?docroot?g" --in-place /etc/apache2/sites-available/default
+  - sudo sed -e "s?%SERVER%?SERVER?g" --in-place /etc/apache2/sites-available/default
+  - sudo a2enmod rewrite
+  - sudo service apache2 restart
+  # Increase PHP memory size for running tests.
+  - echo "memory_limit = 512M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
+  - php -i
+  override:
+  # Install drush.
+  - composer global require drush/drush:6.6.0
+  # Create $DOCROOT directory and set ownership and permisions.
+  - mkdir -p $DOCROOT
+  - sudo chmod -f 775 $DOCROOT
+  - sudo chown -R $(whoami):www-data $DOCROOT
+  - sudo chmod g+s $DOCROOT
+  # Create sites/default/files directory and set ownership and permissions.
+  - mkdir -p $DOCROOT/sites/default/files
+  - sudo chown -R $(whoami):www-data $DOCROOT/sites/default/files
+  - sudo chmod g+s $DOCROOT/sites/default/files
+  # Create modules directory.
+  - mkdir -p $MODULES_PATH
+  # Copy currently checked out module into modules directory.
+  - git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
+  # Disable senmail binary to suppress any mailouts.
+  - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/circle.ini
+  post:
+  - cd $BUILD_DIR
+  # Install drupal.
+  - drush --yes  --root=$DOCROOT site-install minimal --db-url=mysql://${DRUPAL_MYSQL_USER}:${DRUPAL_MYSQL_PASSWORD}@127.0.0.1/${DRUPAL_MYSQL_DB} install_configure_form.update_status_module='array(FALSE,FALSE)'
+  # Show information about installed Drupal.
+  - drush --root=$DOCROOT status
+  # Enable testing module.
+  - drush --yes en simpletest
+  # Enable current module.
+  - drush --yes en $MODULE_NAME
+
+test:
+  pre:
+  - drush --root=$DOCROOT cache-clear drush
+
+  override:
+  - drush --root=$DOCROOT --uri=$SERVER --debug test-run $TESTS
