@@ -11,10 +11,9 @@ machine:
     WEB_USER: $(whoami)
     WEB_GROUP: www-data
     BUILD_DIR: "build"
-    DATABASE: "circle_test"
+    DB_NAME: "circle_test"
     DB_USERNAME: "ubuntu"
     DB_PASSWORD: ""
-    DB_ENCODE: "utf8"
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
     PATH: "$HOME/.composer/vendor/bin:$PATH"
@@ -61,7 +60,7 @@ dependencies:
   # Download Drupal.
   - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
   # Install drupal.
-  - drush --yes  --root=$DOCROOT site-install minimal --db-url=mysql://${DRUPAL_MYSQL_USER}:${DRUPAL_MYSQL_PASSWORD}@127.0.0.1/${DRUPAL_MYSQL_DB} install_configure_form.update_status_module='array(FALSE,FALSE)'
+  - drush --yes  --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
   # Show information about installed Drupal.
   - drush --root=$DOCROOT status
   # Enable testing module.
