@@ -85,4 +85,4 @@ test:
   - drush --root=$DOCROOT test-run --fields=group,class|grep "$MODULE_TESTS"
 
   override:
-  - drush --root=$DOCROOT --uri=$SERVER --xml=$TEST_RESULTS test-run $MODULE_TESTS
+  - drush --root=$DOCROOT --uri=$SERVER --xml=$TEST_RESULTS test-run "$MODULE_TESTS"
