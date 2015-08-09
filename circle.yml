@@ -74,4 +74,4 @@ test:
   - drush --root=$DOCROOT cache-clear drush
 
   override:
-  - drush --root=$DOCROOT --uri=$SERVER --debug --xml=$TEST_RESULTS test-run $MODULE_TESTS
+  - drush --root=$DOCROOT --uri=$SERVER --xml=$TEST_RESULTS test-run $MODULE_TESTS
