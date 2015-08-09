@@ -16,6 +16,7 @@ machine:
     DB_PASSWORD: ""
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
+    TEST_RESULTS: "$CIRCLE_ARTIFACTS"
     PATH: "$HOME/.composer/vendor/bin:$PATH"
   php:
     version: 5.3.25
@@ -73,4 +74,4 @@ test:
   - drush --root=$DOCROOT cache-clear drush
 
   override:
-  - drush --root=$DOCROOT --uri=$SERVER --debug test-run $TESTS
+  - drush --root=$DOCROOT --uri=$SERVER --debug --xml=$TEST_RESULTS test-run $TESTS
