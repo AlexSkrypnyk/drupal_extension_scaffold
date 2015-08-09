@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * CircleCI Drupal integration demo test.
+ */
+class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * @inheritdoc
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CircleCI integration demo',
+      'description' => 'Fixture test to make sure that CircleCI can receive positive test result.',
+      'group' => 'Drupal CircleCI Template',
+    );
+  }
+
+  /**
+   * Passing fixture assertion.
+   */
+  public function testTrue() {
+    $this->pass('Passing fixture assertion');
+  }
+}
