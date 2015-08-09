@@ -8,6 +8,8 @@ machine:
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal
     SERVER: server.local
+    WEB_USER: $(whoami)
+    WEB_GROUP: www-data
     BUILD_DIR: "build"
     DATABASE: "circle_test"
     DB_USERNAME: "ubuntu"
@@ -24,7 +26,7 @@ machine:
 dependencies:
   pre:
   # Modify user to make sure that there will be no permission issues.
-  - sudo usermod -a -G www-data $(whoami)
+  - sudo usermod -a -G $WEB_GROUP $WEB_USER
   # Install apache config.
   # @todo: Move apache config file inline to get rid of additional file.
   - cp apache-vhost.conf /etc/apache2/sites-available/default
@@ -42,11 +44,11 @@ dependencies:
   # Create $DOCROOT directory and set ownership and permisions.
   - mkdir -p $DOCROOT
   - sudo chmod -f 775 $DOCROOT
-  - sudo chown -R $(whoami):www-data $DOCROOT
+  - sudo chown -R $WEB_USER:$WEB_GROUP $DOCROOT
   - sudo chmod g+s $DOCROOT
   # Create sites/default/files directory and set ownership and permissions.
   - mkdir -p $DOCROOT/sites/default/files
-  - sudo chown -R $(whoami):www-data $DOCROOT/sites/default/files
+  - sudo chown -R $WEB_USER:$WEB_GROUP $DOCROOT/sites/default/files
   - sudo chmod g+s $DOCROOT/sites/default/files
   # Create modules directory.
   - mkdir -p $MODULES_PATH/$MODULE_NAME
