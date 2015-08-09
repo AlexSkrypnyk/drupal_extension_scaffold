@@ -80,6 +80,8 @@ dependencies:
 test:
   pre:
   - drush --root=$DOCROOT cache-clear drush
+  # Test that curren muldule's source was properly copied into modules dir.
+  - [ "$(ls -A $MODULES_PATH/$MODULE_NAME)" ]
   # Test that current module's tests are available.
   - drush --root=$DOCROOT test-run --fields=group,class|grep "$MODULE_TESTS"
 
