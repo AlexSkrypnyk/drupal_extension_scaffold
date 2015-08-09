@@ -35,8 +35,28 @@ dependencies:
   pre:
   # Modify user to make sure that there will be no permission issues.
   - sudo usermod -a -G $WEB_GROUP $WEB_USER
-  # Install apache config.
-  # @todo: Move apache config file inline to get rid of additional file.
+  # Add apache config.
+  - |
+    echo "<VirtualHost *:80>
+        UseCanonicalName Off
+        DocumentRoot %HOME%/%PROJECT_DIR%
+        ServerName %SERVER%
+      <Directory %HOME%/*>
+        Options FollowSymLinks
+        AllowOverride None
+        RewriteEngine On
+        RewriteBase /
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule %HOME%/%PROJECT_DIR%/(.*)$ index.php/?q=$1 [L,QSA]
+        Order allow,deny
+        Allow from all
+      </Directory>
+      <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+      </Directory>
+    </VirtualHost>" > apache-vhost.conf
   - cp apache-vhost.conf /etc/apache2/sites-available/default
   - sudo sed -e "s?%HOME%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo sed -e "s?%PROJECT_DIR%?docroot?g" --in-place /etc/apache2/sites-available/default
