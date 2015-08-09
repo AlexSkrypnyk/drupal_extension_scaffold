@@ -15,7 +15,7 @@ machine:
     MODULES_PATH: "$DOCROOT/sites/all/modules"
     PATH: "$HOME/.composer/vendor/bin:$PATH"
   php:
-    version: 5.3.10
+    version: 5.3.25
   hosts:
     server.local: 127.0.0.1
 
