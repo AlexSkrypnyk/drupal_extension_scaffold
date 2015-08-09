@@ -18,7 +18,7 @@ machine:
     BUILD_DIR: "build"
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
-    TEST_RESULTS: "$CIRCLE_ARTIFACTS"
+    TEST_RESULTS: "$CIRCLE_TEST_REPORTS"
     # DB config. Using default CircleCI's database.
     DB_NAME: "circle_test"
     DB_USERNAME: "ubuntu"
