@@ -1,25 +1,33 @@
+#
+# Configuration for contrib Drupal modules tesing on CircleCI.
+#
 machine:
+  php:
+    version: 5.3.25
   environment:
-    # Module name to test. Required.
+    # Module name to test. Change to your module name.
     MODULE_NAME: "drupal_circleci_template"
-    # Module's tests to run: test group or class name. Required.
+    # Module's tests to run: test group or class name. Change for your module.
     MODULE_TESTS: "Drupal CircleCI Template"
-    # Other variables for build configuration. Do not need to be changed.
+    #
+    # Other variables for build configuration. Not needed to be changed.
+    #
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal
-    SERVER: server.local
-    WEB_USER: $(whoami)
-    WEB_GROUP: www-data
+    # Build directories configuration.
     BUILD_DIR: "build"
-    DB_NAME: "circle_test"
-    DB_USERNAME: "ubuntu"
-    DB_PASSWORD: ""
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
     TEST_RESULTS: "$CIRCLE_ARTIFACTS"
+    # DB config. Using default CircleCI's database.
+    DB_NAME: "circle_test"
+    DB_USERNAME: "ubuntu"
+    DB_PASSWORD: ""
+    # Server configuration.
+    SERVER: server.local
+    WEB_USER: $(whoami)
+    WEB_GROUP: www-data
     PATH: "$HOME/.composer/vendor/bin:$PATH"
-  php:
-    version: 5.3.25
   hosts:
     server.local: 127.0.0.1
 
