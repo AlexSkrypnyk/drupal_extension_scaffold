@@ -64,9 +64,9 @@ dependencies:
   # Show information about installed Drupal.
   - drush --root=$DOCROOT status
   # Enable testing module.
-  - drush --yes en simpletest
+  - drush --yes  --root=$DOCROOT en simpletest
   # Enable current module.
-  - drush --yes en $MODULE_NAME
+  - drush --yes  --root=$DOCROOT en $MODULE_NAME
 
 test:
   pre:
