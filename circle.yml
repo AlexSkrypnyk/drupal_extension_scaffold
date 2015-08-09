@@ -5,7 +5,7 @@ machine:
     # Module's tests to run: test group or class name. Required.
     MODULE_TESTS: "Drupal CircleCI Template"
     # Other variables for build configuration. Do not need to be changed.
-    SERVER: $MODULE_NAME.local
+    SERVER: server.local
     BUILD_DIR: "build"
     DATABASE: "circle_test"
     DB_USERNAME: "ubuntu"
@@ -17,7 +17,7 @@ machine:
   php:
     version: 5.3.10
   hosts:
-    $MODULE_NAME.local: 127.0.0.1
+    server.local: 127.0.0.1
 
 dependencies:
   pre:
