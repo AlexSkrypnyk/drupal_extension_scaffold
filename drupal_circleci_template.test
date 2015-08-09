@@ -21,6 +21,6 @@ class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
    * Passing fixture assertion.
    */
   public function testTrue() {
-    $this->pass('Passing fixture assertion');
+    $this->fail('Passing fixture assertion');
   }
 }
