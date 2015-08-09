@@ -22,7 +22,7 @@ machine:
 dependencies:
   pre:
   # Modify user to make sure that there will be no permission issues.
-  - sudo usermod -a -G ${GROUP} ${USER}
+  - sudo usermod -a -G www-data $(whoami)
   # Install apache config.
   # @todo: Move apache config file inline to get rid of additional file.
   - cp apache-vhost.conf /etc/apache2/sites-available/default
