@@ -49,6 +49,7 @@ dependencies:
   override:
   # Install drush.
   - composer global require drush/drush:6.6.0
+  post:
   # Create $DOCROOT directory and set ownership and permisions.
   - mkdir -p $DOCROOT
   - sudo chmod -f 775 $DOCROOT
@@ -58,14 +59,8 @@ dependencies:
   - mkdir -p $DOCROOT/sites/default/files
   - sudo chown -R $WEB_USER:$WEB_GROUP $DOCROOT/sites/default/files
   - sudo chmod g+s $DOCROOT/sites/default/files
-  # Create modules directory.
-  - mkdir -p $MODULES_PATH/$MODULE_NAME
-  # Copy currently checked out module into modules directory.
-  - git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
-  # Disable senmail binary to suppress any mailouts.
+  # Disable sendmail binary to suppress any mailouts.
   - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/circle.ini
-  post:
-  - cd $BUILD_DIR
   # Download Drupal.
   - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
   # Install drupal.
@@ -74,6 +69,10 @@ dependencies:
   - drush --root=$DOCROOT status
   # Enable testing module.
   - drush --yes --root=$DOCROOT en simpletest
+  # Create this module's directory.
+  - mkdir -p $MODULES_PATH/$MODULE_NAME
+  # Copy currently checked out module into modules directory.
+  - git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
   # Enable current module.
   - drush --yes --root=$DOCROOT en $MODULE_NAME
 
