@@ -8,7 +8,7 @@ machine:
     # Module name to test. Change to your module name.
     MODULE_NAME: "drupal_circleci_template"
     # Module's tests to run: test group or class name. Change for your module.
-    MODULE_TESTS: "DrupalCircleciTemplateWebTestCase"
+    MODULE_TESTS: "Drupal CircleCI Template"
     #
     # Other variables for build configuration. Not needed to be changed.
     #
@@ -81,7 +81,7 @@ test:
   pre:
   - drush --root=$DOCROOT cache-clear drush
   # Test that current module's tests are available.
-  - drush test-run --fields=group,class|grep "$MODULE_TESTS"
+  - drush --root=$DOCROOT test-run --fields=group,class|grep "$MODULE_TESTS"
 
   override:
   - drush --root=$DOCROOT --uri=$SERVER --xml=$TEST_RESULTS test-run $MODULE_TESTS
