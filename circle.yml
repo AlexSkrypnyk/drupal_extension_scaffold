@@ -3,7 +3,7 @@
 #
 machine:
   php:
-    version: 5.3.25
+    version: 5.5.0
   environment:
     # Module name to test. Change to your module name.
     MODULE_NAME: "drupal_circleci_template"
