@@ -15,8 +15,7 @@ machine:
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal
     # Build directories configuration.
-    BUILD_DIR: "build"
-    DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/$BUILD_DIR"
+    DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/docroot"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
     TEST_RESULTS: "$CIRCLE_TEST_REPORTS"
     # DB config. Using default CircleCI's database.
@@ -39,28 +38,23 @@ dependencies:
   - |
     echo "<VirtualHost *:80>
         UseCanonicalName Off
-        DocumentRoot %HOME%/%PROJECT_DIR%
+        DocumentRoot %DOCROOT%
         ServerName %SERVER%
-      <Directory %HOME%/*>
+      <Directory %DOCROOT%>
         Options FollowSymLinks
-        AllowOverride None
+        AllowOverride All
         RewriteEngine On
         RewriteBase /
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule %HOME%/%PROJECT_DIR%/(.*)$ index.php/?q=$1 [L,QSA]
+        RewriteRule %DOCROOT%/(.*)$ index.php/?q=$1 [L,QSA]
         Order allow,deny
         Allow from all
       </Directory>
-      <Directory />
-        Options FollowSymLinks
-        AllowOverride None
-      </Directory>
     </VirtualHost>" > apache-vhost.conf
   - cp apache-vhost.conf /etc/apache2/sites-available/default
-  - sudo sed -e "s?%HOME%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
-  - sudo sed -e "s?%PROJECT_DIR%?docroot?g" --in-place /etc/apache2/sites-available/default
-  - sudo sed -e "s?%SERVER%?SERVER?g" --in-place /etc/apache2/sites-available/default
+  - sudo sed -e "s?%DOCROOT%?$DOCROOT?g" --in-place /etc/apache2/sites-available/default
+  - sudo sed -e "s?%SERVER%?$SERVER?g" --in-place /etc/apache2/sites-available/default
   - sudo a2enmod rewrite
   - sudo service apache2 restart
   # Increase PHP memory size for running tests.
