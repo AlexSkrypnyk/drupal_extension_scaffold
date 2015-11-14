@@ -2,7 +2,9 @@ name = Drupal CirleCI Demo
 description = DEmo module for CircleCI integration template testing.
 package = Testing
 
-dependencies[] = simpletest
+# Example of automatically downloadable dependencies.
+dependencies[] = views
+dependencies[] = ctools
 
 core = 7.x
 files[] = drupal_circleci_template.test

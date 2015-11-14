@@ -87,6 +87,8 @@ dependencies:
   - mkdir -p $MODULES_PATH/$MODULE_NAME
   # Copy currently checked out module into modules directory.
   - git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
+  # Download an enable all module dependencies.
+  - cd $MODULES_PATH/$MODULE_NAME && grep -aPoi "dependencies\[\]\s*=\s\K([^\s]+)" *.info|tr "\n" "," | xargs drush --yes --root=$DOCROOT en
   # Enable current module.
   - drush --yes --root=$DOCROOT en $MODULE_NAME
 
