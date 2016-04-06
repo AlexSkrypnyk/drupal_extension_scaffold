@@ -16,7 +16,7 @@ machine:
     DRUPAL_RELEASE: drupal-7.x
     # Build directories configuration.
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/docroot"
-    MODULES_PATH: "$DOCROOT/sites/all/modules"
+    MODULES_PATH: "$DOCROOT/sites/all/modules/custom"
     TEST_RESULTS: "$CIRCLE_TEST_REPORTS"
     # DB config. Using default CircleCI's database.
     DB_NAME: "circle_test"
@@ -65,6 +65,9 @@ dependencies:
   override:
   # Install drush.
   - composer global require --no-interaction drush/drush:8.*.*
+  # Install DCR code linter.
+  - cd $HOME/$CIRCLE_PROJECT_REPONAME && composer require --no-interaction alexdesignworks/dcr
+  - cd $HOME/$CIRCLE_PROJECT_REPONAME && bash vendor/bin/dcr install
   post:
   # Create $DOCROOT directory and set ownership and permisions.
   - mkdir -p $DOCROOT
@@ -103,4 +106,7 @@ test:
   - "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
 
   override:
+  # Run code linter.
+  - cd $DOCROOT && source ~/.profile && dcr $MODULES_PATH/$MODULE_NAME
+  # Run Drupal tests.
   - php $DOCROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
