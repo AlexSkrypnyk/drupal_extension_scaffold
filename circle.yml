@@ -3,7 +3,7 @@
 #
 machine:
   php:
-    version: 5.5.0
+    version: 5.6.2
   environment:
     # Module name to test. Change to your module name.
     MODULE_NAME: "drupal_circleci_template"
@@ -13,7 +13,7 @@ machine:
     # Other variables for build configuration. Not needed to be changed.
     #
     # Drupal release to use: drupal, drupal-7.x etc.
-    DRUPAL_RELEASE: drupal
+    DRUPAL_RELEASE: drupal-7.x
     # Build directories configuration.
     DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/docroot"
     MODULES_PATH: "$DOCROOT/sites/all/modules"
@@ -24,9 +24,11 @@ machine:
     DB_PASSWORD: ""
     # Server configuration.
     SERVER: server.local
+    WEB_URL: http://server.local
     WEB_USER: $(whoami)
     WEB_GROUP: www-data
     PATH: "$HOME/.composer/vendor/bin:$PATH"
+    PHP_EXECUTABLE: $(which php)
   hosts:
     server.local: 127.0.0.1
 
@@ -62,7 +64,7 @@ dependencies:
   - php -i
   override:
   # Install drush.
-  - composer global require drush/drush:6.6.0
+  - composer global require --no-interaction drush/drush:8.*.*
   post:
   # Create $DOCROOT directory and set ownership and permisions.
   - mkdir -p $DOCROOT
@@ -77,8 +79,10 @@ dependencies:
   - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/circle.ini
   # Download Drupal.
   - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
-  # Install drupal.
+  # Install Drupal.
   - drush --yes --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
+  # Patch Drupal's test runner, but only for Drupal 7.
+  - test $DRUPAL_RELEASE="drupal-7.x" && curl https://www.drupal.org/files/issues/2189345-39_0.patch|patch -f $DOCROOT/scripts/run-tests.sh
   # Show information about installed Drupal.
   - drush --root=$DOCROOT status
   # Enable testing module.
@@ -97,8 +101,6 @@ test:
   - drush --root=$DOCROOT cache-clear drush
   # Test that current module's source was properly copied into modules dir.
   - "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
-  # Test that current module's tests are available.
-  - drush --root=$DOCROOT test-run --fields=group,class|grep "$MODULE_TESTS"
 
   override:
-  - drush --root=$DOCROOT --uri=$SERVER --xml=$TEST_RESULTS test-run "$MODULE_TESTS"
+  - php $DOCROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
