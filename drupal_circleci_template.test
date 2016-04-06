@@ -1,20 +1,23 @@
 <?php
+/**
+ * @file
+ * Test example for CircleCI template.
+ */
 
 /**
  * @file
  * CircleCI Drupal integration demo test.
  */
 class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
-
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'CircleCI integration demo',
       'description' => 'Fixture test to make sure that CircleCI can receive positive test result.',
       'group' => 'Drupal CircleCI Template',
-    );
+    ];
   }
 
   /**
@@ -23,4 +26,5 @@ class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
   public function testTrue() {
     $this->pass('Passing fixture assertion');
   }
+
 }
