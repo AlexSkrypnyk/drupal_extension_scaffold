@@ -1,5 +1,7 @@
-# drupal_circleci_template [![Circle CI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template.svg?style=svg)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template)
-###Template `circle.yml` for contrib modules testing on CircleCI.
+# drupal_circleci_template
+##Template `circle.yml` for contrib modules testing on CircleCI.
+
+[![Circle CI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template.svg?style=shield)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template)
 
 ## Usage
 1. Create your module's repository on GitHub (and add it as additional remote to your local git repo).
