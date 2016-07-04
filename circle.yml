@@ -84,8 +84,6 @@ dependencies:
   - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
   # Install Drupal.
   - drush --yes --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
-  # Patch Drupal's test runner, but only for Drupal 7.
-  - test $DRUPAL_RELEASE="drupal-7.x" && curl https://www.drupal.org/files/issues/2189345-39_0.patch|patch -f $DOCROOT/scripts/run-tests.sh
   # Show information about installed Drupal.
   - drush --root=$DOCROOT status
   # Enable testing module.

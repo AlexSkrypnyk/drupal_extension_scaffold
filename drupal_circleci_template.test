@@ -9,6 +9,7 @@
  * CircleCI Drupal integration demo test.
  */
 class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
+
   /**
    * {@inheritdoc}
    */
