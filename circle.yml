@@ -41,6 +41,7 @@ machine:
 dependencies:
   cache_directories:
     - ~/.composer/cache
+    - ~/.composer/vendor
   pre:
     - printenv
     # Modify user to make sure that there will be no permission issues.
