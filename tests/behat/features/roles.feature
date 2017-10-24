@@ -1,6 +1,6 @@
 Feature: Roles
 
-  Ensure that roles installed
+  Ensure that roles were installed
 
   @api
   Scenario Outline: User with assigned role visits homepage
@@ -10,5 +10,4 @@ Feature: Roles
     Examples:
       | role          |
       | administrator |
-      | editor        |
       | approver      |
