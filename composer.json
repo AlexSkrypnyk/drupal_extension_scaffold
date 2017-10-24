@@ -1,0 +1,12 @@
+{
+    "name": "alexdesignworks/drupal_circleci_template",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex.designworks@gmail.com"
+        }
+    ],
+    "require": {}
+}
