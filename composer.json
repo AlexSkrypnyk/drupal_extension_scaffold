@@ -8,5 +8,13 @@
             "email": "alex.designworks@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "alexdesignworks/drupal8_example_dependee": "dev-master"
+    },
+    "repositories": {
+        "drupal8_example_dependee": {
+            "type": "vcs",
+            "url": "https://github.com/alexdesignworks/drupal8_example_dependee.git"
+        }
+    }
 }
