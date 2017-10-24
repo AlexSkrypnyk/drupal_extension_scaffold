@@ -5,9 +5,11 @@ Feature: Homepage
   @api
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
+    And I am in the "<front>" path
     And I save screenshot
 
   @api @javascript
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
+    And I am in the "<front>" path
     Then I save screenshot
