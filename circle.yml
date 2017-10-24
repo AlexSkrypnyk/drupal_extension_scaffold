@@ -10,16 +10,16 @@ machine:
     # Module name to test. Change to your module name.
     MODULE_NAME: $CIRCLE_PROJECT_REPONAME
     # Module's tests to run: test group or class name. Change for your module.
-    MODULE_TESTS: "Drupal CircleCI Template"
+    MODULE_TESTS: $CIRCLE_PROJECT_REPONAME
     #
     # Other variables for build configuration. Not needed to be changed.
     #
     # Drupal release to use: drupal, drupal-7.x etc.
-    DRUPAL_RELEASE: drupal-7.x
+    DRUPAL_RELEASE: drupal-8
     # Build directories configuration.
     WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/docroot
     PUBLIC_FILES_DIR: $WEB_ROOT/sites/default/files
-    MODULES_PATH: $WEB_ROOT/sites/all/modules/custom
+    MODULES_PATH: $WEB_ROOT/modules/custom
     TEST_RESULTS: $CIRCLE_TEST_REPORTS
     BEHAT_CONFIG_FILE: $HOME/$CIRCLE_PROJECT_REPONAME/behat.yml
     BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
@@ -108,6 +108,8 @@ dependencies:
     - drush --root=$WEB_ROOT status
     # Check that Drupal can be correctly bootstrapped.
     - drush --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+    # Install core dev dependencies.
+    - cd $WEB_ROOT && composer install --dev
     # Create sites/default/files directory and set ownership and permissions.
     - mkdir -p $WEB_ROOT/sites/default/files
     - sudo chown -R $WEB_USER:$WEB_GROUP $WEB_ROOT/sites/default/files
@@ -125,8 +127,6 @@ test:
       git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
       # Test that current module's source was properly copied into modules dir.
       "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
-      # Download an enable all module dependencies.
-      cd $MODULES_PATH/$MODULE_NAME && grep -aPoi "dependencies\[\]\s*=\s\K([^\s]+)" *.info|tr "\n" "," | xargs drush --yes --root=$WEB_ROOT en
       # Enable current module.
       drush --yes --root=$WEB_ROOT en $MODULE_NAME
       # Clear the cache to make the module's tests discoverable.
@@ -141,6 +141,6 @@ test:
     # Run code linter.
     - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p --standard=Drupal --extensions="css,inc,info,install,js,module,php,profile,test,theme" --ignore="*.md,*.yml" $MODULES_PATH/$MODULE_NAME
     # Run Drupal simpletest tests.
-    - php $WEB_ROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
+    - php $WEB_ROOT/core/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
     # Run Behat tests if config is present.
     - "if [ -f $BEHAT_CONFIG_FILE ]; then cd $HOME/$CIRCLE_PROJECT_REPONAME && behat --colors || behat --colors --rerun; fi"
