@@ -1,5 +1,5 @@
 # drupal_circleci_template
-##Template `circle.yml` for contrib modules testing on CircleCI.
+## Template CI configuration for contrib modules testing on CircleCI.
 
 [![Circle CI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template.svg?style=shield)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template)
 

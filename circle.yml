@@ -1,12 +1,14 @@
 #
-# Configuration for contrib Drupal modules tesing on CircleCI.
+# Configuration for contrib Drupal modules testing on CircleCI.
 #
 machine:
   php:
-    version: 5.6.2
+    version: 7.1.6
+  timezone:
+    Australia/Sydney
   environment:
     # Module name to test. Change to your module name.
-    MODULE_NAME: "drupal_circleci_template"
+    MODULE_NAME: $CIRCLE_PROJECT_REPONAME
     # Module's tests to run: test group or class name. Change for your module.
     MODULE_TESTS: "Drupal CircleCI Template"
     #
@@ -15,96 +17,114 @@ machine:
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal-7.x
     # Build directories configuration.
-    DOCROOT: "$HOME/$CIRCLE_PROJECT_REPONAME/docroot"
-    MODULES_PATH: "$DOCROOT/sites/all/modules/custom"
-    TEST_RESULTS: "$CIRCLE_TEST_REPORTS"
+    WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/web
+    PUBLIC_FILES_DIR: $WEB_ROOT/sites/default/files
+    MODULES_PATH: $WEB_ROOT/sites/all/modules/custom
+    TEST_RESULTS: $CIRCLE_TEST_REPORTS
     # DB config. Using default CircleCI's database.
-    DB_NAME: "circle_test"
-    DB_USERNAME: "ubuntu"
+    DB_NAME: circle_test
+    DB_USERNAME: ubuntu
     DB_PASSWORD: ""
     # Server configuration.
     SERVER: server.local
     WEB_URL: http://server.local
     WEB_USER: $(whoami)
     WEB_GROUP: www-data
-    PATH: "$HOME/.composer/vendor/bin:$PATH"
+    COMPOSER_GLOBAL_VENDOR: $HOME/.composer/vendor
+    PATH: $COMPOSER_GLOBAL_VENDOR/bin:$PATH
     PHP_EXECUTABLE: $(which php)
   hosts:
     server.local: 127.0.0.1
 
 dependencies:
+  cache_directories:
+    - ~/.composer/cache
   pre:
-  # Modify user to make sure that there will be no permission issues.
-  - sudo usermod -a -G $WEB_GROUP $WEB_USER
-  # Add apache config.
-  - |
-    echo "<VirtualHost *:80>
+    - printenv
+    # Modify user to make sure that there will be no permission issues.
+    - sudo usermod -a -G $WEB_GROUP $WEB_USER
+    # Create $WEB_ROOT directory and set ownership and permissions.
+    - |
+      mkdir -p $WEB_ROOT
+      sudo chmod -f 775 $WEB_ROOT
+      sudo chown -R $WEB_USER:$WEB_GROUP $WEB_ROOT
+      sudo chmod g+s $WEB_ROOT
+    # Update default PHP settings.
+    - |
+      rm /opt/circleci/php/$(phpenv global)/etc/conf.d/xdebug.ini
+      echo "date.timezone = Australia/Sydney" >> /opt/circleci/php/$(phpenv global)/etc/php.ini
+      echo "memory_limit = -1" > /opt/circleci/php/$(phpenv global)/etc/conf.d/memory.ini
+      echo 'sendmail_path = /bin/true' >> /opt/circleci/php/$(phpenv version-name)/etc/conf.d/circle.ini
+    # Enable PHP7 and modules.
+    - |
+      echo "LoadModule php7_module /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp7.so" | sudo tee /etc/apache2/mods-available/php7.load
+      sudo cp /etc/apache2/mods-available/php5.conf /etc/apache2/mods-available/php7.conf
+      sudo a2dismod php5 && sudo a2enmod php7
+      sudo a2enmod rewrite && sudo a2enmod proxy && sudo a2enmod proxy_http
+      sudo rm -f /usr/lib/apache2/modules/libphp7.so && sudo ln -s /opt/circleci/php/$(phpenv global)/usr/lib/apache2/modules/libphp7.so /usr/lib/apache2/modules/libphp7.so
+      php -i
+    # Add apache config.
+    - |
+      echo "
+      <VirtualHost *:80>
         UseCanonicalName Off
-        DocumentRoot %DOCROOT%
-        ServerName %SERVER%
-      <Directory %DOCROOT%>
-        Options FollowSymLinks
-        AllowOverride All
-        RewriteEngine On
-        RewriteBase /
-        RewriteCond %{REQUEST_FILENAME} !-f
-        RewriteCond %{REQUEST_FILENAME} !-d
-        RewriteRule %DOCROOT%/(.*)$ index.php/?q=$1 [L,QSA]
-        Order allow,deny
-        Allow from all
-      </Directory>
-    </VirtualHost>" > apache-vhost.conf
-  - cp apache-vhost.conf /etc/apache2/sites-available/default
-  - sudo sed -e "s?%DOCROOT%?$DOCROOT?g" --in-place /etc/apache2/sites-available/default
-  - sudo sed -e "s?%SERVER%?$SERVER?g" --in-place /etc/apache2/sites-available/default
-  - sudo a2enmod rewrite
-  - sudo service apache2 restart
-  # Increase PHP memory size for running tests.
-  - echo "memory_limit = 512M" > ~/.phpenv/versions/$(phpenv global)/etc/conf.d/memory.ini
-  - php -i
+        DocumentRoot $WEB_ROOT
+        ServerName $SERVER
+        <Directory $WEB_ROOT>
+          Options FollowSymLinks
+          AllowOverride All
+          RewriteEngine On
+          RewriteBase /
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule $WEB_ROOT/(.*)$ index.php/?q=$1 [L,QSA]
+          Require all granted
+        </Directory>
+      </VirtualHost>" > 000-default.conf
+      sudo mv -f 000-default.conf /etc/apache2/sites-available/000-default.conf
+    - sudo service apache2 restart
+    # Check that Apache was configured correctly.
+    - echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html
   override:
-  # Install drush.
-  - composer global require --no-interaction drush/drush:8.*.*
-  # Install DCR code linter.
-  - cd $HOME/$CIRCLE_PROJECT_REPONAME && composer require --no-interaction alexdesignworks/dcr
-  - cd $HOME/$CIRCLE_PROJECT_REPONAME && bash vendor/bin/dcr install
+    # Install Drush.
+    - composer global require --no-interaction drush/drush:8.*.*
+    # Install Drupal coding standards.
+    - composer global require --no-interaction drupal/coder:8.2
   post:
-  # Create $DOCROOT directory and set ownership and permisions.
-  - mkdir -p $DOCROOT
-  - sudo chmod -f 775 $DOCROOT
-  - sudo chown -R $WEB_USER:$WEB_GROUP $DOCROOT
-  - sudo chmod g+s $DOCROOT
-  # Create sites/default/files directory and set ownership and permissions.
-  - mkdir -p $DOCROOT/sites/default/files
-  - sudo chown -R $WEB_USER:$WEB_GROUP $DOCROOT/sites/default/files
-  - sudo chmod g+s $DOCROOT/sites/default/files
-  # Disable sendmail binary to suppress any mailouts.
-  - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/circle.ini
-  # Download Drupal.
-  - drush dl --destination="$(dirname $DOCROOT)" --drupal-project-rename="$(basename $DOCROOT)" $DRUPAL_RELEASE -y
-  # Install Drupal.
-  - drush --yes --root=$DOCROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
-  # Show information about installed Drupal.
-  - drush --root=$DOCROOT status
-  # Enable testing module.
-  - drush --yes --root=$DOCROOT en simpletest
-  # Create this module's directory.
-  - mkdir -p $MODULES_PATH/$MODULE_NAME
-  # Copy currently checked out module into modules directory.
-  - git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
-  # Download an enable all module dependencies.
-  - cd $MODULES_PATH/$MODULE_NAME && grep -aPoi "dependencies\[\]\s*=\s\K([^\s]+)" *.info|tr "\n" "," | xargs drush --yes --root=$DOCROOT en
-  # Enable current module.
-  - drush --yes --root=$DOCROOT en $MODULE_NAME
+    # Download Drupal.
+    - drush dl --destination="$(dirname $WEB_ROOT)" --drupal-project-rename="$(basename $WEB_ROOT)" $DRUPAL_RELEASE -y
+    # Install Drupal.
+    - drush --yes --root=$WEB_ROOT site-install minimal --db-url=mysql://$DB_USERNAME:$DB_PASSWORD@127.0.0.1/DB_NAME install_configure_form.update_status_module='array(FALSE,FALSE)'
+    # Show information about installed Drupal.
+    - drush --root=$WEB_ROOT status
+    # Check that Drupal can be correctly bootstrapped.
+    - drush --root=$WEB_ROOT status | grep -aqoi "Drupal bootstrap\s*:\s*Successful"
+    # Create sites/default/files directory and set ownership and permissions.
+    - mkdir -p $WEB_ROOT/sites/default/files
+    - sudo chown -R $WEB_USER:$WEB_GROUP $WEB_ROOT/sites/default/files
+    - sudo chmod g+s $WEB_ROOT/sites/default/files
 
 test:
   pre:
-  - drush --root=$DOCROOT cache-clear drush
-  # Test that current module's source was properly copied into modules dir.
-  - "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
+    # Enable Simpletest testing module.
+    - |
+      # Enable testing module.
+      drush --yes --root=$WEB_ROOT en simpletest
+      # Create this module's directory.
+      mkdir -p $MODULES_PATH/$MODULE_NAME
+      # Copy currently checked out module into modules directory.
+      git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
+      # Test that current module's source was properly copied into modules dir.
+      "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
+      # Download an enable all module dependencies.
+      cd $MODULES_PATH/$MODULE_NAME && grep -aPoi "dependencies\[\]\s*=\s\K([^\s]+)" *.info|tr "\n" "," | xargs drush --yes --root=$WEB_ROOT en
+      # Enable current module.
+      drush --yes --root=$WEB_ROOT en $MODULE_NAME
+      # Clear the cache to make the module's tests discoverable.
+      drush --root=$WEB_ROOT cache-clear drush
 
   override:
-  # Run code linter.
-  - cd $DOCROOT && source ~/.profile && dcr $MODULES_PATH/$MODULE_NAME
-  # Run Drupal tests.
-  - php $DOCROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
+    # Run code linter.
+    - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p $MODULES_PATH/$MODULE_NAME
+    # Run Drupal simpletest tests.
+    - php $WEB_ROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
