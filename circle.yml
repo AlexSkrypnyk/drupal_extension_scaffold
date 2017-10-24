@@ -17,10 +17,12 @@ machine:
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal-7.x
     # Build directories configuration.
-    WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/web
+    WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/docroot
     PUBLIC_FILES_DIR: $WEB_ROOT/sites/default/files
     MODULES_PATH: $WEB_ROOT/sites/all/modules/custom
     TEST_RESULTS: $CIRCLE_TEST_REPORTS
+    BEHAT_CONFIG_FILE: $HOME/$CIRCLE_PROJECT_REPONAME/behat.yml
+    BEHAT_SCREENSHOT_DIR: $CIRCLE_ARTIFACTS/behat
     # DB config. Using default CircleCI's database.
     DB_NAME: circle_test
     DB_USERNAME: ubuntu
@@ -39,6 +41,7 @@ machine:
 dependencies:
   cache_directories:
     - ~/.composer/cache
+    - ~/.composer/vendor
   pre:
     - printenv
     # Modify user to make sure that there will be no permission issues.
@@ -87,9 +90,15 @@ dependencies:
     - echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html
   override:
     # Install Drush.
-    - composer global require --no-interaction drush/drush:8.*.*
+    - composer global require --no-interaction drush/drush:8.*
     # Install Drupal coding standards.
-    - composer global require --no-interaction drupal/coder:8.2
+    - composer global require --no-interaction drupal/coder:8.2.12
+    # Install Behat extension if config file exists.
+    - |
+      if [ -f $BEHAT_CONFIG_FILE ] ; then
+        composer global require --no-interaction drupal/drupal-extension:3.3
+        composer global require --no-interaction integratedexperts/behat-screenshot
+      fi
   post:
     # Download Drupal.
     - drush dl --destination="$(dirname $WEB_ROOT)" --drupal-project-rename="$(basename $WEB_ROOT)" $DRUPAL_RELEASE -y
@@ -123,8 +132,15 @@ test:
       # Clear the cache to make the module's tests discoverable.
       drush --root=$WEB_ROOT cache-clear drush
 
+    # Download Selenium server and start in the background if Behat config is present.
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $HOME/selenium-server.jar; fi"
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then java -jar $HOME/selenium-server.jar -log $CIRCLE_ARTIFACTS/selenium.log; fi":
+        background: true
+
   override:
     # Run code linter.
-    - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p $MODULES_PATH/$MODULE_NAME
+    - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p --standard=Drupal --extensions="css,inc,info,install,js,module,php,profile,test,theme" --ignore="*.md,*.yml" $MODULES_PATH/$MODULE_NAME
     # Run Drupal simpletest tests.
     - php $WEB_ROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
+    # Run Behat tests if config is present.
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then cd $HOME/$CIRCLE_PROJECT_REPONAME && behat --colors || behat --colors --rerun; fi"
