@@ -1,7 +1,7 @@
 # drupal_circleci_template
 ## Template CI configuration for contrib modules testing on CircleCI.
 
-[![Circle CI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template.svg?style=shield)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template)
+[![CircleCI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template/tree/7.x.svg?style=shield)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template/tree/7.x)
 
 ## Usage
 1. Create your module's repository on GitHub (and add it as additional remote to your local git repo).
