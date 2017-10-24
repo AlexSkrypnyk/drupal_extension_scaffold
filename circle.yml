@@ -124,7 +124,7 @@ test:
       # Copy currently checked out module into modules directory.
       git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
       # Test that current module's source was properly copied into modules dir.
-      "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
+      [ -d "$MODULES_PATH/$MODULE_NAME" ]
       # Download an enable all module dependencies.
       cd $MODULES_PATH/$MODULE_NAME && grep -aPoi "dependencies\[\]\s*=\s\K([^\s]+)" *.info|tr "\n" "," | xargs drush --yes --root=$WEB_ROOT en
       # Enable current module.
