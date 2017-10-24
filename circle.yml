@@ -17,7 +17,7 @@ machine:
     # Drupal release to use: drupal, drupal-7.x etc.
     DRUPAL_RELEASE: drupal-7.x
     # Build directories configuration.
-    WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/web
+    WEB_ROOT: $HOME/$CIRCLE_PROJECT_REPONAME/docroot
     PUBLIC_FILES_DIR: $WEB_ROOT/sites/default/files
     MODULES_PATH: $WEB_ROOT/sites/all/modules/custom
     TEST_RESULTS: $CIRCLE_TEST_REPORTS
@@ -92,7 +92,11 @@ dependencies:
     # Install Drupal coding standards.
     - composer global require --no-interaction drupal/coder:8.2
     # Install Behat extension if config file exists.
-    - "if [ -f $BEHAT_CONFIG_FILE ] ; then composer global require --no-interaction drupal/drupal-extension:3.3; fi"
+    - |
+      if [ -f $BEHAT_CONFIG_FILE ] ; then
+        composer global require --no-interaction drupal/drupal-extension:3.3
+        composer global require --no-interaction integratedexperts/behat-screenshot
+      fi
   post:
     # Download Drupal.
     - drush dl --destination="$(dirname $WEB_ROOT)" --drupal-project-rename="$(basename $WEB_ROOT)" $DRUPAL_RELEASE -y
@@ -137,4 +141,4 @@ test:
     # Run Drupal simpletest tests.
     - php $WEB_ROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
     # Run Behat tests if config is present.
-    - "if [ -f $BEHAT_CONFIG_FILE ]; then behat --colors || behat --colors --rerun; fi"
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then cd $HOME/$CIRCLE_PROJECT_REPONAME && behat --colors || behat --colors --rerun; fi"
