@@ -1,0 +1,10 @@
+name: Drupal CirleCI Demo
+type: module
+description: Demo module for CircleCI integration template testing.
+package: Testing
+core: 8.x
+
+# Example of automatically downloadable dependencies.
+dependencies:
+  - views
+  - ctools
