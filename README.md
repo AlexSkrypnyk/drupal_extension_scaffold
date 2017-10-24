@@ -1,7 +1,7 @@
 # drupal_circleci_template
 ## Template CI configuration for contrib modules testing on CircleCI.
 
-[![CircleCI](https://circleci.com/gh/alexdesignworks/drupal_circleci_template/tree/7.x.svg?style=shield)](https://circleci.com/gh/alexdesignworks/drupal_circleci_template/tree/7.x)
+[![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci_template/tree/7.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci_template/tree/7.x)
 
 ## Usage
 1. Create your module's repository on GitHub (and add it as additional remote to your local git repo).
@@ -13,4 +13,4 @@
 You may put a build badge on your GitHub project page (like the one on this page). Unfortunately, it is not possible to put such bage on drupal.org project page (external sources are not supported), but you may put your GitHib project page as a homepage (resources tab in project settings).
 
 ----
-Drupal 8 version is available on [`8.x` branch](https://github.com/alexdesignworks/drupal_circleci_template/tree/8.x)
+Drupal 8 version is available on [`8.x` branch](https://github.com/integratedexperts/drupal_circleci_template/tree/8.x)
