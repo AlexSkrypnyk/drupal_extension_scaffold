@@ -114,6 +114,25 @@ dependencies:
     - mkdir -p $WEB_ROOT/sites/default/files
     - sudo chown -R $WEB_USER:$WEB_GROUP $WEB_ROOT/sites/default/files
     - sudo chmod g+s $WEB_ROOT/sites/default/files
+    # Place module into correct installation location.
+    - |
+      # Create this module's directory.
+      mkdir -p $MODULES_PATH/$MODULE_NAME
+      # Copy currently checked out module into modules directory.
+      git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
+      # Test that current module's source was properly copied into modules dir.
+      [ -d "$MODULES_PATH/$MODULE_NAME" ]
+    # Include current module's composer.json into core's composer.json.
+    - |
+      if [ -f composer.json ]; then
+        sudo apt-get install jq moreutils
+        jq --indent 4 --arg cj "$HOME/$CIRCLE_PROJECT_REPONAME/composer.json" '.extra."merge-plugin".include += [$cj]' $WEB_ROOT/composer.json | sponge $WEB_ROOT/composer.json
+        jq --indent 4 '.extra."merge-plugin"."merge-extra" = "true"' $WEB_ROOT/composer.json | sponge $WEB_ROOT/composer.json
+        COMPOSER_PROJECT_NAME=$(jq --indent 4 '.name' $HOME/$CIRCLE_PROJECT_REPONAME/composer.json)
+        cd $WEB_ROOT && composer update $COMPOSER_PROJECT_NAME
+      fi
+    # Enable current module.
+    - drush --yes --root=$WEB_ROOT en $MODULE_NAME
 
 test:
   pre:
@@ -121,14 +140,6 @@ test:
     - |
       # Enable testing module.
       drush --yes --root=$WEB_ROOT en simpletest
-      # Create this module's directory.
-      mkdir -p $MODULES_PATH/$MODULE_NAME
-      # Copy currently checked out module into modules directory.
-      git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
-      # Test that current module's source was properly copied into modules dir.
-      [ -d "$MODULES_PATH/$MODULE_NAME" ]
-      # Enable current module.
-      drush --yes --root=$WEB_ROOT en $MODULE_NAME
       # Clear the cache to make the module's tests discoverable.
       drush --root=$WEB_ROOT cache-clear drush
 
