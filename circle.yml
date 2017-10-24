@@ -134,7 +134,7 @@ test:
 
     # Download Selenium server and start in the background if Behat config is present.
     - "if [ -f $BEHAT_CONFIG_FILE ]; then curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $HOME/selenium-server.jar; fi"
-    - "if [ -f $BEHAT_CONFIG_FILE ]; java -jar $HOME/selenium-server.jar -log $CIRCLE_ARTIFACTS/selenium.log":
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then java -jar $HOME/selenium-server.jar -log $CIRCLE_ARTIFACTS/selenium.log; fi":
         background: true
 
   override:
