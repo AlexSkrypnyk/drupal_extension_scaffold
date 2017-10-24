@@ -1,12 +1,12 @@
 <?php
+
 /**
  * @file
  * Test example for CircleCI template.
  */
 
 /**
- * @file
- * CircleCI Drupal integration demo test.
+ * Class DrupalCircleciTemplateWebTestCase.
  */
 class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
 

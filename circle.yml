@@ -88,9 +88,9 @@ dependencies:
     - echo "<?php phpinfo();" > $WEB_ROOT/info.php && curl -k -s -o info.html $WEB_URL/info.php && cat info.html | grep -aqoi "Build Date" && cat info.html && rm $WEB_ROOT/info.php && rm info.html
   override:
     # Install Drush.
-    - composer global require --no-interaction drush/drush:8.*.*
+    - composer global require --no-interaction drush/drush:8.2.12
     # Install Drupal coding standards.
-    - composer global require --no-interaction drupal/coder:8.2
+    - composer global require --no-interaction drupal/coder:8.2.*
     # Install Behat extension if config file exists.
     - |
       if [ -f $BEHAT_CONFIG_FILE ] ; then
@@ -137,7 +137,7 @@ test:
 
   override:
     # Run code linter.
-    - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p $MODULES_PATH/$MODULE_NAME
+    - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p --standard=Drupal --extensions="css,inc,info,install,js,module,php,profile,test,theme" --ignore="*.md,*.yml" $MODULES_PATH/$MODULE_NAME
     # Run Drupal simpletest tests.
     - php $WEB_ROOT/scripts/run-tests.sh --php $PHP_EXECUTABLE --url $WEB_URL --xml $TEST_RESULTS "$MODULE_TESTS"
     # Run Behat tests if config is present.
