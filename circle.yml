@@ -126,7 +126,7 @@ test:
       # Copy currently checked out module into modules directory.
       git archive $(git rev-parse --abbrev-ref HEAD) | tar -x -C $MODULES_PATH/$MODULE_NAME
       # Test that current module's source was properly copied into modules dir.
-      "[ \"$(ls -A $MODULES_PATH/$MODULE_NAME)\" ]"
+      [ -d "$MODULES_PATH/$MODULE_NAME" ]
       # Enable current module.
       drush --yes --root=$WEB_ROOT en $MODULE_NAME
       # Clear the cache to make the module's tests discoverable.
