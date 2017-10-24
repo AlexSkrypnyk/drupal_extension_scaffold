@@ -1,5 +1,5 @@
 {
-    "name": "alexdesignworks/drupal_circleci_template",
+    "name": "integratedexperts/drupal_circleci_template",
     "type": "drupal-module",
     "license": "GPL-2.0+",
     "authors": [
@@ -9,12 +9,12 @@
         }
     ],
     "require": {
-        "alexdesignworks/drupal8_example_dependee": "dev-master"
+        "integratedexperts/drupal8_example_dependee": "dev-master"
     },
     "repositories": {
         "drupal8_example_dependee": {
             "type": "vcs",
-            "url": "https://github.com/alexdesignworks/drupal8_example_dependee.git"
+            "url": "https://github.com/integratedexperts/drupal8_example_dependee.git"
         }
     }
 }
