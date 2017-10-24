@@ -127,10 +127,9 @@ dependencies:
       if [ -f composer.json ]; then
         sudo apt-get install jq moreutils
         jq --indent 4 --arg cj "$HOME/$CIRCLE_PROJECT_REPONAME/composer.json" '.extra."merge-plugin".include += [$cj]' $WEB_ROOT/composer.json | sponge $WEB_ROOT/composer.json
-        cat $WEB_ROOT/composer.json
         jq --indent 4 '.extra."merge-plugin"."merge-extra" = "true"' $WEB_ROOT/composer.json | sponge $WEB_ROOT/composer.json
-        cat $WEB_ROOT/composer.json
-        cd $WEB_ROOT && composer update
+        COMPOSER_PROJECT_NAME=$(jq --indent 4 '.name' $HOME/$CIRCLE_PROJECT_REPONAME/composer.json)
+        cd $WEB_ROOT && composer update $COMPOSER_PROJECT_NAME
       fi
     # Enable current module.
     - drush --yes --root=$WEB_ROOT en $MODULE_NAME
