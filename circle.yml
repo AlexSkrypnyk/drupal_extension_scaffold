@@ -21,6 +21,7 @@ machine:
     PUBLIC_FILES_DIR: $WEB_ROOT/sites/default/files
     MODULES_PATH: $WEB_ROOT/sites/all/modules/custom
     TEST_RESULTS: $CIRCLE_TEST_REPORTS
+    BEHAT_CONFIG_FILE: $HOME/$CIRCLE_PROJECT_REPONAME/behat.yml
     # DB config. Using default CircleCI's database.
     DB_NAME: circle_test
     DB_USERNAME: ubuntu
@@ -90,6 +91,8 @@ dependencies:
     - composer global require --no-interaction drush/drush:8.*.*
     # Install Drupal coding standards.
     - composer global require --no-interaction drupal/coder:8.2
+    # Install Behat extension if config file exists.
+    - "if [ -f $BEHAT_CONFIG_FILE ] ; then composer global require --no-interaction drupal/drupal-extension:3.3; fi"
   post:
     # Download Drupal.
     - drush dl --destination="$(dirname $WEB_ROOT)" --drupal-project-rename="$(basename $WEB_ROOT)" $DRUPAL_RELEASE -y
