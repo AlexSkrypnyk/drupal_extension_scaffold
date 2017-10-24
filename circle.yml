@@ -126,6 +126,11 @@ test:
       # Clear the cache to make the module's tests discoverable.
       drush --root=$WEB_ROOT cache-clear drush
 
+    # Download Selenium server and start in the background if Behat config is present.
+    - "if [ -f $BEHAT_CONFIG_FILE ]; then curl -s -k -L http://selenium-release.storage.googleapis.com/3.5/selenium-server-standalone-3.5.3.jar -o $HOME/selenium-server.jar; fi"
+    - "if [ -f $BEHAT_CONFIG_FILE ]; java -jar $HOME/selenium-server.jar -log $CIRCLE_ARTIFACTS/selenium.log":
+        background: true
+
   override:
     # Run code linter.
     - phpcs --runtime-set installed_paths $COMPOSER_GLOBAL_VENDOR/drupal/coder/coder_sniffer --colors -s -p $MODULES_PATH/$MODULE_NAME
