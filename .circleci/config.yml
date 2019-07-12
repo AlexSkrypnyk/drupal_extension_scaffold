@@ -1,0 +1,53 @@
+version: 2
+aliases:
+  # Make sure to replace the fingerprint value below with your own.
+  - &deploy_ssh_fingerprint "2d:71:4d:aa:4d:34:38:b5:8f:af:ca:3b:d4:82:6a:21"
+  - &container_config
+    working_directory: /app
+    docker:
+      - image: amazeeio/php:7.2-cli-drupal
+    environment:
+      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+
+jobs:
+  build:
+    <<: *container_config
+    steps:
+      - checkout
+      - run: .circleci/build.sh
+      - run: .circleci/test.sh
+      - run:
+          command: .circleci/process-artifacts.sh
+          when: always
+      - store_test_results:
+          path: /tmp/test_results
+          when: always
+      - store_artifacts:
+          path: /tmp/artifacts
+          when: always
+
+  deploy:
+    <<: *container_config
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_fingerprint
+      - run: .circleci/deploy.sh
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^(?:7|8)\.x\-[0-9]+\.[0-9]+(?:[A-z0-9\-])*$/
+            branches:
+              ignore: /.*/
