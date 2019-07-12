@@ -5,12 +5,12 @@ with mirroring to Drupal.org.
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci)
 
 ## Use case 1
-Perform module development in GitHub and testing in CircleCI and push only 
-releases to drupal.org.
+Perform module development in GitHub and testing in CircleCI and push code only 
+in main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Use case 2
 Perform module developmentin GitHub and additional Behat testing in CircleCI 
-and push only releases to drupal.org.
+and push code only in main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
@@ -19,6 +19,7 @@ and push only releases to drupal.org.
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
+- Mirroring of the repo to drupal.org (or any other git repo) on release.  
 - This template is tested in the same way as a project using it.
 
 ## Todo
@@ -33,8 +34,10 @@ and push only releases to drupal.org.
    start momentarily.
    
 ## Deployment
-The CI supports deployment of releases (tags) to drupal.org mirror of the 
-project (to keep 2 repos in sync).
+The CI supports mirroring of main branches (`8.x-1.x` etc.) to drupal.org mirror 
+of the project (to keep 2 repos in sync).
+
+Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
 Configure deployment:
 1. In CircleCI UI, go to your project -> Settings -> SSH Permissions
