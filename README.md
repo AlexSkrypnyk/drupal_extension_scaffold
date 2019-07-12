@@ -19,6 +19,7 @@ and push only releases to drupal.org.
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
+- Mirroring of the repo to drupal.org (or any other git repo) on release.  
 - This template is tested in the same way as a project using it.
 
 ## Todo
@@ -35,6 +36,8 @@ and push only releases to drupal.org.
 ## Deployment
 The CI supports deployment of releases (tags) to drupal.org mirror of the 
 project (to keep 2 repos in sync).
+
+Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
 Configure deployment:
 1. In CircleCI UI, go to your project -> Settings -> SSH Permissions
