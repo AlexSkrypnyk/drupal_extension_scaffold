@@ -1,7 +1,7 @@
 langcode: en
 status: true
 dependencies: {  }
-id: approver
-label: Approver
+id: demorole
+label: Demorole
 weight: 3
 is_admin: null

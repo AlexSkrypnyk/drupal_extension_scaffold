@@ -1,20 +1,12 @@
 {
-    "name": "integratedexperts/drupal_circleci_template",
+    "name": "integratedexperts/drupal_circleci_example",
+    "description": "Example module for CircleCI integration template testing.",
     "type": "drupal-module",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Alex Skrypnyk",
             "email": "alex.designworks@gmail.com"
         }
-    ],
-    "require": {
-        "integratedexperts/drupal8_example_dependee": "dev-master"
-    },
-    "repositories": {
-        "drupal8_example_dependee": {
-            "type": "vcs",
-            "url": "https://github.com/integratedexperts/drupal8_example_dependee.git"
-        }
-    }
+    ]
 }
