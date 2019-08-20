@@ -1,4 +1,6 @@
-# drupal_circleci_template
+# OUTDATED. Refer to `8.x` branch
+
+# drupal_circleci
 ## Template CI configuration for contrib modules testing on CircleCI.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci_template/tree/7.x.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci_template/tree/7.x)
