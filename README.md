@@ -28,8 +28,9 @@ and push code only in main branches (`8.x-1.x` etc.) to drupal.org.
 ## Usage
 1. Create your module's repository on GitHub.
 2. Copy `.circle` from this repo into your module's repository.
-3. Copy `.gitattributes` from this repo into your module's repository and make sure 
-   to uncomment 2 lines to exclude `.circleci` and `.gitattributes` from exports.
+3. Copy `.gitattributes` from this repo into your module's repository and 
+   make sure to uncomment 2 lines to exclude `.circleci` and `.gitattributes`
+   from exports.
 4. Commit and push to your new GitHub repo.
 5. Login to CircleCI and add your new GitHub repository. Your project build will 
    start momentarily.
