@@ -28,7 +28,7 @@ DEPLOY_PROCEED="${DEPLOY_PROCEED:-0}"
 [ -z "${DEPLOY_REMOTE}" ] && echo "ERROR: Missing required value for DEPLOY_REMOTE" && exit 1
 [ -z "${DEPLOY_SSH_FINGERPRINT}" ] && echo "ERROR: Missing required value for DEPLOY_SSH_FINGERPRINT" && exit 1
 
-[ "${DEPLOY_PROCEED}" == "0" ] && echo "==> Skipping deployment" && exit 0
+[ "${DEPLOY_PROCEED}" != "1" ] && echo "==> Skipping deployment because \$DEPLOY_PROCEED is not set to 1" && exit 0
 
 # Configure git and SSH to connect to remote servers for deployment.
 mkdir -p "${HOME}/.ssh/"
