@@ -11,7 +11,7 @@ echo "==> Initialise Drupal site"
 composer create-project drupal-composer/drupal-project:8.x-dev build --no-interaction
 
 echo "==> Add additional dev dependencies"
-composer --working-dir=build require --dev dealerdirect/phpcodesniffer-composer-installer:^0.4.4
+composer --working-dir=build require --dev dealerdirect/phpcodesniffer-composer-installer:^0.5
 
 echo "==> Copy module code"
 MODULE=$(basename -s .info.yml -- ./*.info.yml)
