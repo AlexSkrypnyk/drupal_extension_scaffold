@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 ##
-# Deploy.
+# Deploy code to a remote repository.
+#
+# - configures local git
+# - adds deployment SH key
+# - force-pushes code to a remote code repository branch
 #
 # It is a good practice to create a separate Deployer user with own SSH key for
 # every project.
@@ -8,10 +12,12 @@
 # Add the following variables through CircleCI UI.
 # DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
 # DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
-# DEPLOY_REMOTE - remote repository to push artefact to.
+# DEPLOY_REMOTE - remote repository to push code to.
+# DEPLOY_PROCEED - set to 1 if the deployment should proceed. Useful for testing CI configuration before an actual code push.
+#
+# Other variables:
 # DEPLOY_BRANCH - git branch to deploy.
 # DEPLOY_SSH_FINGERPRINT - the fingerprint of the SSH key of the user on behalf of which the deployment is performed.
-# DEPLOY_PROCEED - if the deployment should proceed. Useful for testing of the CI config.
 
 set -e
 
@@ -20,7 +26,6 @@ DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL}"
 DEPLOY_REMOTE="${DEPLOY_REMOTE:-}"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-}"
 DEPLOY_SSH_FINGERPRINT="${DEPLOY_SSH_FINGERPRINT:-}"
-# Flag to actually proceed with deployment.
 DEPLOY_PROCEED="${DEPLOY_PROCEED:-0}"
 
 [ -z "${DEPLOY_USER_NAME}" ] && echo "ERROR: Missing required value for DEPLOY_USER_NAME" && exit 1
