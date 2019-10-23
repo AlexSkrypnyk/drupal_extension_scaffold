@@ -3,9 +3,9 @@ aliases:
   # Make sure to replace the fingerprint value below with your own.
   - &deploy_ssh_fingerprint "2d:71:4d:aa:4d:34:38:b5:8f:af:ca:3b:d4:82:6a:21"
   - &container_config
-    working_directory: /app
+    working_directory: ~/project
     docker:
-      - image: amazeeio/php:7.2-cli-drupal
+      - image: circleci/php:7.2.11-cli-browsers
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
 
@@ -14,6 +14,7 @@ jobs:
     <<: *container_config
     steps:
       - checkout
+      - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
       - run: .circleci/build.sh
       - run: .circleci/test.sh
       - run:
