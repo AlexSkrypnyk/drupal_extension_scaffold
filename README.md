@@ -9,12 +9,12 @@ Perform module development in GitHub and testing in CircleCI and push code only
 in main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Use case 2
-Perform module developmentin GitHub and additional Behat testing in CircleCI 
+Perform module development in GitHub and additional Behat testing in CircleCI 
 and push code only in main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
-- PHP code standards checking against Drupal and DrupalPractice standards.
+- PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as 
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
