@@ -31,7 +31,10 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
    
 ## Deployment
 The CI supports mirroring of main branches (`8.x-1.x` etc.) to drupal.org mirror 
-of the project (to keep 2 repos in sync).
+of the project (to keep 2 repos in sync). 
+
+The deployment job fires when commits are pushed to main branches 
+(`8.x-1.x` etc.) or when release tags created. 
 
 Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
