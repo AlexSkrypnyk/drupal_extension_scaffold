@@ -3,7 +3,7 @@
 # Deploy code to a remote repository.
 #
 # - configures local git
-# - adds deployment SH key
+# - adds deployment SSH key to SSH agent
 # - force-pushes code to a remote code repository branch
 #
 # It is a good practice to create a separate Deployer user with own SSH key for
