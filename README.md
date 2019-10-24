@@ -10,6 +10,7 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
+- PHP version matrix for [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as 
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
