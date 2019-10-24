@@ -4,13 +4,9 @@ with mirroring to Drupal.org.
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci)
 
-## Use case 1
-Perform module development in GitHub and testing in CircleCI and push code only 
-in main branches (`8.x-1.x` etc.) to drupal.org.
-
-## Use case 2
-Perform module development in GitHub and additional Behat testing in CircleCI 
-and push code only in main branches (`8.x-1.x` etc.) to drupal.org.
+## Use case
+Perform module development in GitHub with testing in CircleCI, and push code 
+committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
@@ -20,10 +16,8 @@ and push code only in main branches (`8.x-1.x` etc.) to drupal.org.
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
 - Mirroring of the repo to drupal.org (or any other git repo) on release.  
+- Builder container is based on official PHP docker image.
 - This template is tested in the same way as a project using it.
-
-## Todo
-- Behat testing    
 
 ## Usage
 1. Create your module's repository on GitHub.
