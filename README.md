@@ -54,6 +54,10 @@ Configure deployment:
    - `DEPLOY_REMOTE` - remote drupal.org repository.
    - `DEPLOY_PROCEED` - set to `1` once CI is working and you are ready to 
      deploy.
+
+## Local module development
+Run `.circleci/build.sh` to start inbuilt PHP server locally and run the same
+commands as in CI, plus installing a site and your module automatically.
         
 ----
 Drupal 7 version is available on [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x)
