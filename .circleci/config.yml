@@ -7,7 +7,7 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: circleci/php:7.3-cli-browsers
+      - image: circleci/php:7.4-cli-browsers
     environment:
       DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
 
@@ -29,8 +29,14 @@ job-build: &job-build
           when: always
 
 jobs:
+  build-php-7.4:
+    <<: *container_config
+    <<: *job-build
+
   build-php-7.3:
     <<: *container_config
+    docker:
+      - image: circleci/php:7.3-cli-browsers
     <<: *job-build
 
   build-php-7.2:
@@ -54,6 +60,10 @@ workflows:
   version: 2
   main:
     jobs:
+      - build-php-7.4:
+          filters:
+            tags:
+              only: /.*/
       - build-php-7.3:
           filters:
             tags:
