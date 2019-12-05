@@ -2,7 +2,6 @@
 
 .editorconfig             export-ignore
 .gitignore                export-ignore
-composer.json             export-ignore
 
 # Uncomment these lines in your project.
 # .circleci                 export-ignore
