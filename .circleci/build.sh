@@ -14,7 +14,7 @@ composer validate --ansi --strict
 echo "==> Initialise Drupal site"
 composer create-project drupal-composer/drupal-project:8.x-dev build --no-interaction
 
-echo "==> Add additional dev dependencies"
+echo "==> Install additional dev dependencies"
 composer --working-dir=build require --dev dealerdirect/phpcodesniffer-composer-installer:^0.5
 
 echo "==> Start inbuilt PHP server in $(pwd)/build/web"
@@ -26,9 +26,10 @@ netstat "${netstat_opts[@]}" | grep -q 8000 || (echo "ERROR: Unable to start inb
 curl -s -o /dev/null -w "%{http_code}" -L -I http://localhost:8000 | grep -q 200 || (echo "ERROR: Server is started, but site cannot be served" && exit 1)
 
 MODULE=$(basename -s .info.yml -- ./*.info.yml)
+DB_FILE="${DB_FILE:-/tmp/site_${MODULE}.sqlite}"
 
-echo "==> Install Drupal"
-build/vendor/bin/drush -r build/web si "${DRUPAL_PROFILE:-standard}" -y --db-url "sqlite:///tmp/site_${MODULE}.sqlite" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+echo "==> Install Drupal into SQLite database ${DB_FILE}"
+build/vendor/bin/drush -r build/web si "${DRUPAL_PROFILE:-standard}" -y --db-url "sqlite://${DB_FILE}" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
 
 echo "==> Symlink module code"
 rm -rf build/web/modules/"${MODULE}"/* > /dev/null
