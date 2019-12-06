@@ -11,8 +11,26 @@ composer validate --ansi --strict
 
 [ -d build ] && echo "==> Remove existing build directory" && chmod -Rf 777 build && rm -rf build
 
-echo "==> Initialise Drupal site"
-composer create-project drupal-composer/drupal-project:8.x-dev build --no-interaction
+# Allow installing custom version of Drupal core, but only coupled with
+# drupal-project SHA (required to get correct dependencies).
+if [ -n "${DRUPAL_PROJECT_SHA}" ] && [ -n "${DRUPAL_VERSION}" ] ; then
+  echo "==> Initialise Drupal site from the scaffold commit $DRUPAL_PROJECT_SHA"
+
+  git clone -n https://github.com/drupal-composer/drupal-project.git build
+  git --git-dir=build/.git --work-tree=build checkout "${DRUPAL_PROJECT_SHA}"
+  rm -rf build/.git > /dev/null
+
+  echo "==> Pin Drupal to a specific version"
+  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
+  sed "${sed_opts[@]}" 's|\(.*"drupal\/core"\): "\(.*\)",.*|\1: '"\"$DRUPAL_VERSION\",|" build/composer.json
+  cat build/composer.json
+
+  echo "==> Install dependencies"
+  composer --working-dir=build install
+else
+  echo "==> Initialise Drupal site from the latest scaffold"
+  composer create-project drupal-composer/drupal-project:8.x-dev build --no-interaction
+fi
 
 echo "==> Install additional dev dependencies"
 composer --working-dir=build require --dev dealerdirect/phpcodesniffer-composer-installer:^0.5
@@ -30,6 +48,7 @@ DB_FILE="${DB_FILE:-/tmp/site_${MODULE}.sqlite}"
 
 echo "==> Install Drupal into SQLite database ${DB_FILE}"
 build/vendor/bin/drush -r build/web si "${DRUPAL_PROFILE:-standard}" -y --db-url "sqlite://${DB_FILE}" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+build/vendor/bin/drush -r "$(pwd)/build/web" status
 
 echo "==> Symlink module code"
 rm -rf build/web/modules/"${MODULE}"/* > /dev/null
