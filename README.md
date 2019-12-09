@@ -11,9 +11,11 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
 - PHP version matrix for [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
+- Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as 
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
+- Support for testing recommended dependencies (for integration testing between modules).  
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
 - Mirroring of the repo to drupal.org (or any other git repo) on release.  
@@ -40,13 +42,13 @@ The deployment job fires when commits are pushed to main branches
 Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
 Configure deployment:
-1. In CircleCI UI, go to your project -> Settings -> SSH Permissions
+1. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
 2. Put your private SSH key into the box (this key must be added to your 
-   drupal.org account so that CI would push as you).  
+   drupal.org account so that CI would push as your git user).  
 3. Copy fingerprint string and replace `deploy_ssh_fingerprint` value in 
    `.circleci/config.yml`.
-4. In CircleCI UI go to your project -> Settings -> Environment Variables and 
-   add the following variables through CircleCI UI:
+4. In CircleCI UI go to your project -> **Settings** -> **Environment Variables** 
+   and add the following variables through CircleCI UI:
    - `DEPLOY_USER_NAME` - the name of the user who will be committing to a 
      remote repository (your name on drupal.org).  
    - `DEPLOY_USER_EMAIL` - the email address of the user who will be committing 
@@ -69,7 +71,7 @@ Run `.circleci/lint.sh` to lint your code according to the
 Run `.circleci/test.sh` to run all test for your module.         
 
 ### Browsing SQLite database
-To browse the content of created SQLite database 
+To browse the contents of created SQLite database 
 (located at `/tmp/site_[MODULE_NAME].sqlite`), use [DB Browser for SQLite](https://sqlitebrowser.org/).
         
 ----
