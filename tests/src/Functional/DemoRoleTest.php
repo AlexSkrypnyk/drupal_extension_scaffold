@@ -14,7 +14,7 @@ class DemoRoleTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['coffee', 'drupal_circleci_example'];
+  protected static $modules = ['pathauto', 'drupal_circleci_example'];
 
   /**
    * {@inheritdoc}
