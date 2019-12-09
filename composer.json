@@ -8,5 +8,8 @@
             "name": "Alex Skrypnyk",
             "email": "alex@integratedexperts.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "drupal/pathauto": "~1.0"
+    }
 }

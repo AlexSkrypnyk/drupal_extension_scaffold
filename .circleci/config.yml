@@ -10,21 +10,21 @@ aliases:
       - image: circleci/php:7.3-cli-browsers
 
 job-build: &job-build
-    steps:
-      - checkout
-      - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
-      - run: .circleci/build.sh
-      - run: .circleci/lint.sh
-      - run: .circleci/test.sh
-      - run:
-          command: .circleci/process-artifacts.sh
-          when: always
-      - store_test_results:
-          path: /tmp/test_results
-          when: always
-      - store_artifacts:
-          path: /tmp/artifacts
-          when: always
+  steps:
+    - checkout
+    - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
+    - run: .circleci/build.sh
+    - run: .circleci/lint.sh
+    - run: .circleci/test.sh
+    - run:
+        command: .circleci/process-artifacts.sh
+        when: always
+    - store_test_results:
+        path: /tmp/test_results
+        when: always
+    - store_artifacts:
+        path: /tmp/artifacts
+        when: always
 
 jobs:
   build-php-7.3:
