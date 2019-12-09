@@ -2,6 +2,7 @@
 ##
 # Run lint checks.
 #
+
 set -e
 
 MODULE=$(basename -s .info.yml -- ./*.info.yml)
