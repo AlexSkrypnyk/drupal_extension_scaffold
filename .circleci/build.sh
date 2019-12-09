@@ -2,7 +2,7 @@
 ##
 # Build.
 #
-# shellcheck disable=SC2015
+# shellcheck disable=SC2015,SC2094
 
 set -e
 
@@ -26,7 +26,7 @@ if [ -n "${DRUPAL_PROJECT_SHA}" ] && [ -n "${DRUPAL_VERSION}" ] ; then
   cat build/composer.json
 
   echo "==> Install dependencies"
-  php -d memory_limit=-1 $(which composer) --working-dir=build install
+  php -d memory_limit=-1 "$(command -v composer)" --working-dir=build install
 else
   echo "==> Initialise Drupal site from the latest scaffold"
   composer create-project drupal-composer/drupal-project:8.x-dev build --no-interaction
@@ -34,7 +34,7 @@ fi
 
 echo "==> Install additional dev dependencies from module's composer.json"
 cat <<< "$(jq --indent 4 -M -s '.[0] * .[1]' composer.json build/composer.json)" > build/composer.json
-php -d memory_limit=-1 $(which composer) --working-dir=build update --lock
+php -d memory_limit=-1 "$(command -v composer)" --working-dir=build update --lock
 
 echo "==> Install other dev dependencies"
 composer --working-dir=build require --dev dealerdirect/phpcodesniffer-composer-installer:^0.5
