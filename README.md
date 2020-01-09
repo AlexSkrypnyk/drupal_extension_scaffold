@@ -23,14 +23,15 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 - This template is tested in the same way as a project using it.
 
 ## Usage
+
 1. Create your module's repository on GitHub.
-2. Copy `.circle` from this repo into your module's repository.
-3. Copy `.gitattributes` from this repo into your module's repository and 
-   make sure to uncomment 2 lines to exclude `.circleci` and `.gitattributes`
-   from exports.
-4. Commit and push to your new GitHub repo.
-5. Login to CircleCI and add your new GitHub repository. Your project build will 
+2. Download this module's code by pressing 'Clone or download' button in GitHub UI. 
+3. Copy the contents of the downloaded archive into your module's repository.
+4. Adjust several lines in `.gitignore`.
+5. Commit and push to your new GitHub repo.
+6. Login to CircleCI and add your new GitHub repository. Your project build will 
    start momentarily.
+7. Configure deployment to Drupal.org (see below).
    
 ## Deployment
 The CI supports mirroring of main branches (`8.x-1.x` etc.) to drupal.org mirror 
@@ -41,7 +42,7 @@ The deployment job fires when commits are pushed to main branches
 
 Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
-Configure deployment:
+### Configure deployment:
 1. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
 2. Put your private SSH key into the box (this key must be added to your 
    drupal.org account so that CI would push as your git user).  
@@ -73,6 +74,3 @@ Run `.circleci/test.sh` to run all test for your module.
 ### Browsing SQLite database
 To browse the contents of created SQLite database 
 (located at `/tmp/site_[MODULE_NAME].sqlite`), use [DB Browser for SQLite](https://sqlitebrowser.org/).
-        
-----
-Drupal 7 version is available on [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x)
