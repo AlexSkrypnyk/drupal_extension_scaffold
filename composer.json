@@ -1,0 +1,15 @@
+{
+    "name": "integratedexperts/drupal_circleci_example",
+    "description": "Example module for CircleCI integration template testing.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@integratedexperts.com"
+        }
+    ],
+    "require-dev": {
+        "drupal/pathauto": "~1.0"
+    }
+}

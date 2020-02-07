@@ -6,9 +6,9 @@
  */
 
 /**
- * Class DrupalCircleciTemplateWebTestCase.
+ * Class DrupalCircleciExampleWebTestCase.
  */
-class DrupalCircleciTemplateWebTestCase extends DrupalWebTestCase {
+class DrupalCircleciExampleWebTestCase extends DrupalWebTestCase {
 
   /**
    * {@inheritdoc}

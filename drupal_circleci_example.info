@@ -1,0 +1,6 @@
+name = Drupal 7 CirleCI Example
+description = Example module for CircleCI integration template testing.
+package = Testing
+
+core = 7.x
+files[] = tests/drupal_circleci_example.test
