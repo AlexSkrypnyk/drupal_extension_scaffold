@@ -1,8 +1,10 @@
-# Drupal CircleCI
-Template CI configuration for Drupal contrib modules testing on CircleCI
+# Drupal 8 CircleCI
+Template CI configuration for Drupal 8 contrib modules testing on CircleCI
 with mirroring to Drupal.org. 
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci)
+
+For Drupal 7 support, see [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x).
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code 
