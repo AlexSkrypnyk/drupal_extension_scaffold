@@ -1,9 +1,14 @@
 # Ignore files for distribution archives.
+tests             export-ignore
 
-.editorconfig             export-ignore
-.gitignore                export-ignore
-composer.json             export-ignore
+# Uncomment the lines below in your project.
+# .circleci       export-ignore
+# .editorconfig   export-ignore
+# .gitattributes  export-ignore
+# .gitignore      export-ignore
 
-# Uncomment these lines in your project.
-# .circleci                 export-ignore
-# .gitattributes            export-ignore
+# Remove the lines below in your project.
+config                            export-ignore
+composer.json                     export-ignore
+drupal_circleci_example.info.yml  export-ignore
+README.md                         export-ignore

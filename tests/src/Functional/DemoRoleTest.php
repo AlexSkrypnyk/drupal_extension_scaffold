@@ -12,11 +12,14 @@ use Drupal\Tests\BrowserTestBase;
 class DemoRoleTest extends BrowserTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['drupal_circleci_example'];
+  protected static $modules = ['pathauto', 'drupal_circleci_example'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Test that the Demorole role is present.

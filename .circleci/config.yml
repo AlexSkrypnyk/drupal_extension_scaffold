@@ -8,25 +8,23 @@ aliases:
     working_directory: ~/project
     docker:
       - image: circleci/php:7.4-cli-browsers
-    environment:
-      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
 
 job-build: &job-build
-    steps:
-      - checkout
-      - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
-      - run: .circleci/build.sh
-      - run: .circleci/lint.sh
-      - run: .circleci/test.sh
-      - run:
-          command: .circleci/process-artifacts.sh
-          when: always
-      - store_test_results:
-          path: /tmp/test_results
-          when: always
-      - store_artifacts:
-          path: /tmp/artifacts
-          when: always
+  steps:
+    - checkout
+    - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
+    - run: .circleci/build.sh
+    - run: .circleci/lint.sh
+    - run: .circleci/test.sh
+    - run:
+        command: .circleci/process-artifacts.sh
+        when: always
+    - store_test_results:
+        path: /tmp/test_results
+        when: always
+    - store_artifacts:
+        path: /tmp/artifacts
+        when: always
 
 jobs:
   build-php-7.4:
@@ -43,6 +41,37 @@ jobs:
     <<: *container_config
     docker:
       - image: circleci/php:7.2-cli-browsers
+    <<: *job-build
+
+  build-php-7.4-legacy:
+    <<: *container_config
+    environment:
+      DRUPAL_VERSION: 8.7.6
+      # Drupal project commit before moving 8.8.0.
+      # https://github.com/drupal-composer/drupal-project/commit/53f6910c35db73d0b367d5b6f22be4af94dd1af3
+      DRUPAL_PROJECT_SHA: 53f6910c35db73d0b367d5b6f22be4af94dd1af3
+    <<: *job-build
+
+  build-php-7.3-legacy:
+    <<: *container_config
+    docker:
+      - image: circleci/php:7.3-cli-browsers
+    environment:
+      DRUPAL_VERSION: 8.7.6
+      # Drupal project commit before moving 8.8.0.
+      # https://github.com/drupal-composer/drupal-project/commit/53f6910c35db73d0b367d5b6f22be4af94dd1af3
+      DRUPAL_PROJECT_SHA: 53f6910c35db73d0b367d5b6f22be4af94dd1af3
+    <<: *job-build
+
+  build-php-7.2-legacy:
+    <<: *container_config
+    docker:
+      - image: circleci/php:7.2-cli-browsers
+    environment:
+      DRUPAL_VERSION: 8.7.6
+      # Drupal project commit before moving 8.8.0.
+      # https://github.com/drupal-composer/drupal-project/commit/53f6910c35db73d0b367d5b6f22be4af94dd1af3
+      DRUPAL_PROJECT_SHA: 53f6910c35db73d0b367d5b6f22be4af94dd1af3
     <<: *job-build
 
   deploy:
@@ -72,10 +101,26 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - build-php-7.4-legacy:
+          filters:
+            tags:
+              only: /.*/
+      - build-php-7.3-legacy:
+          filters:
+            tags:
+              only: /.*/
+      - build-php-7.2-legacy:
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
+            - build-php-7.4
             - build-php-7.3
             - build-php-7.2
+            - build-php-7.4-legacy
+            - build-php-7.3-legacy
+            - build-php-7.2-legacy
           filters:
             tags:
               only: /.*/

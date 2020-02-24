@@ -6,7 +6,10 @@
     "authors": [
         {
             "name": "Alex Skrypnyk",
-            "email": "alex.designworks@gmail.com"
+            "email": "alex@integratedexperts.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "drupal/pathauto": "~1.0"
+    }
 }

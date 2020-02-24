@@ -1,8 +1,10 @@
-# Drupal CircleCI
-Template CI configuration for Drupal contrib modules testing on CircleCI
+# Drupal 8 CircleCI
+Template CI configuration for Drupal 8 contrib modules testing on CircleCI
 with mirroring to Drupal.org. 
 
 [![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci)
+
+For Drupal 7 support, see [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x).
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code 
@@ -11,9 +13,11 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
 - PHP version matrix for [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
+- Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as 
   drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
+- Support for testing recommended dependencies (for integration testing between modules).  
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
 - Mirroring of the repo to drupal.org (or any other git repo) on release.  
@@ -21,14 +25,15 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 - This template is tested in the same way as a project using it.
 
 ## Usage
+
 1. Create your module's repository on GitHub.
-2. Copy `.circle` from this repo into your module's repository.
-3. Copy `.gitattributes` from this repo into your module's repository and 
-   make sure to uncomment 2 lines to exclude `.circleci` and `.gitattributes`
-   from exports.
-4. Commit and push to your new GitHub repo.
-5. Login to CircleCI and add your new GitHub repository. Your project build will 
+2. Download this module's code by pressing 'Clone or download' button in GitHub UI. 
+3. Copy the contents of the downloaded archive into your module's repository.
+4. Adjust several lines in `.gitignore`.
+5. Commit and push to your new GitHub repo.
+6. Login to CircleCI and add your new GitHub repository. Your project build will 
    start momentarily.
+7. Configure deployment to Drupal.org (see below).
    
 ## Deployment
 The CI supports mirroring of main branches (`8.x-1.x` etc.) to drupal.org mirror 
@@ -39,14 +44,14 @@ The deployment job fires when commits are pushed to main branches
 
 Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
 
-Configure deployment:
-1. In CircleCI UI, go to your project -> Settings -> SSH Permissions
+### Configure deployment:
+1. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
 2. Put your private SSH key into the box (this key must be added to your 
-   drupal.org account so that CI would push as you).  
+   drupal.org account so that CI would push as your git user).  
 3. Copy fingerprint string and replace `deploy_ssh_fingerprint` value in 
    `.circleci/config.yml`.
-4. In CircleCI UI go to your project -> Settings -> Environment Variables and 
-   add the following variables through CircleCI UI:
+4. In CircleCI UI go to your project -> **Settings** -> **Environment Variables** 
+   and add the following variables through CircleCI UI:
    - `DEPLOY_USER_NAME` - the name of the user who will be committing to a 
      remote repository (your name on drupal.org).  
    - `DEPLOY_USER_EMAIL` - the email address of the user who will be committing 
@@ -56,8 +61,18 @@ Configure deployment:
      deploy.
 
 ## Local module development
+
+### Build
 Run `.circleci/build.sh` to start inbuilt PHP server locally and run the same
 commands as in CI, plus installing a site and your module automatically.
-        
-----
-Drupal 7 version is available on [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x)
+
+### Code linting
+Run `.circleci/lint.sh` to lint your code according to the 
+[Drupal coding standards](https://www.drupal.org/docs/develop/standards).
+
+### Tests
+Run `.circleci/test.sh` to run all test for your module.         
+
+### Browsing SQLite database
+To browse the contents of created SQLite database 
+(located at `/tmp/site_[MODULE_NAME].sqlite`), use [DB Browser for SQLite](https://sqlitebrowser.org/).
