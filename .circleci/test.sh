@@ -8,6 +8,8 @@ set -e
 MODULE=$(basename -s .info -- ./*.info)
 
 echo "==> Run tests"
+[ ! -d tests ] && echo "==> No tests found. Skipping." && exit 0
+
 mkdir -p /tmp/test_results/simpletest
 rm -f /tmp/test.sqlite
 
