@@ -7,12 +7,16 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: circleci/php:7.3-cli-browsers
+      - image: circleci/php:7.4-cli-browsers
 
 job-build: &job-build
   steps:
     - checkout
-    - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
+    - run: |
+        sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq \
+        && sudo -E docker-php-ext-install -j$(nproc) iconv \
+        && if [ "$(php -r "echo PHP_MAJOR_VERSION;")" -gt 5 ] && [ "$(php -r "echo PHP_MINOR_VERSION;")" -gt 3 ] ; then sudo -E docker-php-ext-configure gd --with-freetype --with-jpeg; else sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/; fi \
+        && sudo -E docker-php-ext-install -j$(nproc) gd
     - run: .circleci/build.sh
     - run: .circleci/lint.sh
     - run: .circleci/test.sh
@@ -27,8 +31,14 @@ job-build: &job-build
         when: always
 
 jobs:
+  build-php-7.4:
+    <<: *container_config
+    <<: *job-build
+
   build-php-7.3:
     <<: *container_config
+    docker:
+      - image: circleci/php:7.3-cli-browsers
     <<: *job-build
 
   build-php-7.2:
@@ -37,8 +47,24 @@ jobs:
       - image: circleci/php:7.2-cli-browsers
     <<: *job-build
 
+  # @todo: Enable after Drupal core > 8.8.0 release, so that DRUPAL_VERSION
+  # would become 8.8.0. This is due to a core version < 8.8 does not support
+  # php 7.4. But we still want to provide the template for testing code with
+  # legacy cores.
+  # Also, enable in workflows below.
+  # build-php-7.4-legacy:
+  #   <<: *container_config
+  #   environment:
+  #     DRUPAL_VERSION: 8.7.6
+  #     # Drupal project commit before moving 8.8.0.
+  #     # https://github.com/drupal-composer/drupal-project/commit/53f6910c35db73d0b367d5b6f22be4af94dd1af3
+  #     DRUPAL_PROJECT_SHA: 53f6910c35db73d0b367d5b6f22be4af94dd1af3
+  #   <<: *job-build
+
   build-php-7.3-legacy:
     <<: *container_config
+    docker:
+      - image: circleci/php:7.3-cli-browsers
     environment:
       DRUPAL_VERSION: 8.7.6
       # Drupal project commit before moving 8.8.0.
@@ -72,6 +98,10 @@ workflows:
   version: 2
   main:
     jobs:
+      - build-php-7.4:
+          filters:
+            tags:
+              only: /.*/
       - build-php-7.3:
           filters:
             tags:
@@ -80,6 +110,11 @@ workflows:
           filters:
             tags:
               only: /.*/
+      # @todo: Enable after Drupal core version > 8.8.0 released.
+      # - build-php-7.4-legacy:
+      #     filters:
+      #       tags:
+      #         only: /.*/
       - build-php-7.3-legacy:
           filters:
             tags:
@@ -90,8 +125,11 @@ workflows:
               only: /.*/
       - deploy:
           requires:
+            - build-php-7.4
             - build-php-7.3
             - build-php-7.2
+            # @todo: Enable after Drupal core version > 8.8.0 released.
+            # - build-php-7.4-legacy
             - build-php-7.3-legacy
             - build-php-7.2-legacy
           filters:
