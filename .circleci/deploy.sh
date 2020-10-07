@@ -62,13 +62,13 @@ ssh-add "${DEPLOY_SSH_FILE}"
 
 # Configure git user name and email, but only if not already set.
 [ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name ${DEPLOY_USER_NAME}." && git config --global user.name "${DEPLOY_USER_NAME}"
-[ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email ${DEPLOY_USER_EMAIL}." && git config --global user.email "${}"
+[ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email ${DEPLOY_USER_EMAIL}." && git config --global user.email "${DEPLOY_USER_EMAIL}"
 
 # Set git to push to a matching remote branch.
 git config --global push.default matching
 
 echo "==> Adding remote ${DEPLOY_REMOTE}."
-git remote add deployremote "${DEPLOY_REMOTE}."
+git remote add deployremote "${DEPLOY_REMOTE}"
 
 echo "==> Deploying to remote ${DEPLOY_REMOTE}."
 # shellcheck disable=SC2086
