@@ -5,7 +5,21 @@
 
 set -e
 
-MODULE=$(basename -s .info.yml -- ./*.info.yml)
+#-------------------------------------------------------------------------------
+# Variables (passed from environment; provided for reference only).
+#-------------------------------------------------------------------------------
 
-echo "==> Lint code"
-build/vendor/bin/phpcs -s --standard=Drupal,DrupalPractice --extensions=module,php,install,inc,test,info.yml,js "build/web/modules/${MODULE}"
+# Directory where Drupal site will be built.
+BUILD_DIR="${BUILD_DIR:-build}"
+
+# Module name, taken from .info file.
+MODULE="$(basename -s .info.yml -- ./*.info.yml)"
+
+#-------------------------------------------------------------------------------
+
+echo "==> Lint code."
+build/vendor/bin/phpcs \
+  -s \
+  --standard=Drupal,DrupalPractice \
+  --extensions=module,php,install,inc,test,info.yml,js \
+  "build/web/modules/${MODULE}"

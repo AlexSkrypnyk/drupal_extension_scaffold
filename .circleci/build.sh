@@ -6,15 +6,23 @@
 # Allows to use the latest Drupal core as well as specified versions (for
 # testing backward compatibility).
 #
+# - builds Drupal site codebase with current module and it's dependencies.
+# - installs Drupal using SQLite database.
+# - starts in-built PHP-server
+# - enables module
+# - serves site
+# - generates one-time login link
+#
+# This script will re-build everything from scratch every time it runs.
+
 # shellcheck disable=SC2015,SC2094
 
 set -e
 
 #-------------------------------------------------------------------------------
-# Variables.
-#
-# Do not need to be changed for a specific project. Passed from environment.
+# Variables (passed from environment; provided for reference only).
 #-------------------------------------------------------------------------------
+
 # Directory where Drupal site will be built.
 BUILD_DIR="${BUILD_DIR:-build}"
 
@@ -37,7 +45,7 @@ DRUPAL_PROJECT_SHA="${DRUPAL_PROJECT_SHA:-}"
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 # Module name, taken from .info file.
-MODULE=$(basename -s .info.yml -- ./*.info.yml)
+MODULE="$(basename -s .info.yml -- ./*.info.yml)"
 
 # Database file path.
 DB_FILE="${DB_FILE:-/tmp/site_${MODULE}.sqlite}"
