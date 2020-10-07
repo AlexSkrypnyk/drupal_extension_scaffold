@@ -5,20 +5,48 @@
 
 set -e
 
-MODULE=$(basename -s .info.yml -- ./*.info.yml)
+#-------------------------------------------------------------------------------
+# Variables (passed from environment; provided for reference only).
+#-------------------------------------------------------------------------------
 
-echo "==> Run tests"
-[ ! -d tests ] && echo "==> No tests found. Skipping." && exit 0
+# Directory where Drupal site will be built.
+BUILD_DIR="${BUILD_DIR:-build}"
 
-mkdir -p /tmp/test_results/simpletest
-rm -f /tmp/test.sqlite
+# Webserver hostname.
+WEBSERVER_HOST="${WEBSERVER_HOST:-localhost}"
 
-php ./build/web/core/scripts/run-tests.sh \
-  --sqlite /tmp/test.sqlite \
-  --dburl sqlite://localhost//tmp/test.sqlite \
-  --url http://localhost:8000 \
+# Webserver port.
+WEBSERVER_PORT="${WEBSERVER_PORT:-8000}"
+
+# Module name, taken from .info file.
+MODULE="$(basename -s .info.yml -- ./*.info.yml)"
+
+# Test database file path.
+TEST_DB_FILE="${TEST_DB_FILE:-/tmp/test.sqlite}"
+
+# Directory to store test results.
+TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/tmp/test_results/simpletest}"
+
+#-------------------------------------------------------------------------------
+
+echo "==> Run tests."
+
+# Do not fail if there are no tests.
+[ ! -d "tests" ] && echo "==> No tests were found. Skipping." && exit 0
+
+# Re-create test results directory.
+rm -rf "${TEST_RESULTS_DIR}" > /dev/null
+mkdir -p "${TEST_RESULTS_DIR}"
+
+# Remove existing test DB file.
+rm -f "${TEST_DB_FILE}" > /dev/null
+
+php "./${BUILD_DIR}/web/core/scripts/run-tests.sh" \
+  --sqlite "${TEST_DB_FILE}" \
+  --dburl "sqlite://localhost/${TEST_DB_FILE}" \
+  --url "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" \
   --non-html \
-  --xml /tmp/test_results/simpletest \
+  --xml "${TEST_RESULTS_DIR}" \
   --color \
   --verbose \
   --suppress-deprecations \

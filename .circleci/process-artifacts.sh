@@ -2,6 +2,8 @@
 ##
 # Process test artifacts.
 #
+# This runs only in CircleCI.
+#
 set -e
 
 if [ -d "$(pwd)/build/web/sites/simpletest/browser_output" ]; then
