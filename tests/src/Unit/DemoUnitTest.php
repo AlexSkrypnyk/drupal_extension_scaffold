@@ -7,6 +7,8 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Class DemoUnitTest.
  *
+ * Demo test class to ensure that tests are discovered and can be ran.
+ *
  * @group drupal_circleci_example
  */
 class DemoUnitTest extends UnitTestCase {
