@@ -6,6 +6,8 @@ with mirroring to Drupal.org.
 
 For Drupal 7 support, see [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x).
 
+<img src="https://user-images.githubusercontent.com/378794/95288108-513c3300-08b3-11eb-8b95-c47bef180a70.png" alt="Screenshot of CI jobs" width="50%" />
+
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code 
 committed only to main branches (`8.x-1.x` etc.) to [drupal.org](https://drupal.org).
