@@ -8,19 +8,19 @@ For Drupal 7 support, see [`7.x` branch](https://github.com/integratedexperts/dr
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code 
-committed only to main branches (`8.x-1.x` etc.) to drupal.org.
+committed only to main branches (`8.x-1.x` etc.) to [drupal.org](https://drupal.org).
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
-- PHP version matrix for [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
+- PHP version matrix for [7.4](https://www.php.net/supported-versions.php), [7.2](https://www.php.net/supported-versions.php), [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
 - Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as 
-  drupal.org's Drupal CI bot (`core/scripts/run-tests.sh`).
+  [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
 - Support for testing recommended dependencies (for integration testing between modules).  
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project) 
   to provision Drupal site.
-- Mirroring of the repo to drupal.org (or any other git repo) on release.  
+- Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.  
 - Builder container is based on official PHP docker image.
 - This template is tested in the same way as a project using it.
 
@@ -33,31 +33,38 @@ committed only to main branches (`8.x-1.x` etc.) to drupal.org.
 5. Commit and push to your new GitHub repo.
 6. Login to CircleCI and add your new GitHub repository. Your project build will 
    start momentarily.
-7. Configure deployment to Drupal.org (see below).
+7. Configure deployment to [drupal.org](https://drupal.org) (see below).
    
 ## Deployment
-The CI supports mirroring of main branches (`8.x-1.x` etc.) to drupal.org mirror 
-of the project (to keep 2 repos in sync). 
+The CI supports mirroring of main branches (`8.x-1.x` etc.) to 
+[drupal.org](https://drupal.org) mirror  of the project (to keep 2 repos in
+sync). 
 
-The deployment job fires when commits are pushed to main branches 
-(`8.x-1.x` etc.) or when release tags created. 
+The deployment job runs when commits are pushed to main branches 
+(`8.x-1.x` etc.) or when release tags are created. 
 
-Example of deployment repo: https://github.com/integratedexperts/drupal_circleci_destination
+Example of deployment repository: https://github.com/integratedexperts/drupal_circleci_destination
 
 ### Configure deployment:
-1. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
-2. Put your private SSH key into the box (this key must be added to your 
-   drupal.org account so that CI would push as your git user).  
-3. Copy fingerprint string and replace `deploy_ssh_fingerprint` value in 
-   `.circleci/config.yml`.
+1. Generate a new SSH key without pass phrase:
+          
+       ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
+       
+2. Add public key to your [drupal.org](https://drupal.org) account:
+   **Drupal.org** -> **Profile** -> **SSH Keys**
+
+3. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
+2. Put your private SSH key into the box. Leave **Hostname** empty.  
+3. Copy fingerprint string in CircleCI UI and replace `deploy_ssh_fingerprint` 
+   value in `.circleci/config.yml`.
 4. In CircleCI UI go to your project -> **Settings** -> **Environment Variables** 
    and add the following variables through CircleCI UI:
    - `DEPLOY_USER_NAME` - the name of the user who will be committing to a 
-     remote repository (your name on drupal.org).  
+     remote repository (i.e., your name on drupal.org).  
    - `DEPLOY_USER_EMAIL` - the email address of the user who will be committing 
-     to a remote repository (your email on drupal.org).
-   - `DEPLOY_REMOTE` - remote drupal.org repository.
-   - `DEPLOY_PROCEED` - set to `1` once CI is working and you are ready to 
+     to a remote repository (i.e., your email on drupal.org).
+   - `DEPLOY_REMOTE` - your modules remote drupal.org repository (i.e. `git@git.drupal.org:project/mymodule.git`).
+   - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to 
      deploy.
 
 ## Local module development
