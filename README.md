@@ -85,3 +85,7 @@ Run `.circleci/test.sh` to run all test for your module.
 ### Browsing SQLite database
 To browse the contents of created SQLite database 
 (located at `/tmp/site_[MODULE_NAME].sqlite`), use [DB Browser for SQLite](https://sqlitebrowser.org/).
+
+---
+
+For an end-to-end website DevOps setup, check out [DrevOps](https://drevops.com) - Build, Test, Deploy scripts for Drupal using Docker and CI/CD
