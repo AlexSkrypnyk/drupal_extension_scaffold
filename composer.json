@@ -1,5 +1,5 @@
 {
-    "name": "integratedexperts/drupal_circleci_example",
+    "name": "drevops/drupal_circleci_example",
     "description": "Example module for CircleCI integration template testing.",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
