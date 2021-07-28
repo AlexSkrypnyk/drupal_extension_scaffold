@@ -2,11 +2,11 @@
 Template CI configuration for Drupal 8 contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
-[![CircleCI](https://circleci.com/gh/integratedexperts/drupal_circleci.svg?style=shield)](https://circleci.com/gh/integratedexperts/drupal_circleci)
+[![CircleCI](https://circleci.com/gh/drevops/drupal_circleci.svg?style=shield)](https://circleci.com/gh/drevops/drupal_circleci)
 
-For Drupal 8 support, see [`8.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/8.x).
+For Drupal 8 support, see [`8.x` branch](https://github.com/drevops/drupal_circleci/tree/8.x).
 
-For Drupal 7 support, see [`7.x` branch](https://github.com/integratedexperts/drupal_circleci/tree/7.x).
+For Drupal 7 support, see [`7.x` branch](https://github.com/drevops/drupal_circleci/tree/7.x).
 
 <img src="https://user-images.githubusercontent.com/378794/95288108-513c3300-08b3-11eb-8b95-c47bef180a70.png" alt="Screenshot of CI jobs" width="50%" />
 
@@ -47,7 +47,7 @@ sync).
 The deployment job runs when commits are pushed to main branches
 (`9.x-1.x` etc.) or when release tags are created.
 
-Example of deployment repository: https://github.com/integratedexperts/drupal_circleci_destination
+Example of deployment repository: https://github.com/drevops/drupal_circleci_destination
 
 ### Configure deployment:
 1. Generate a new SSH key without pass phrase:
