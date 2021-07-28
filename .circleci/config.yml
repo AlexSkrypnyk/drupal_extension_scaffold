@@ -38,8 +38,8 @@ jobs:
   build-php-7.4-legacy:
     <<: *container_config
     environment:
-      DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
+      DRUPAL_VERSION: 9.1.11
+      DRUPAL_PROJECT_SHA: 9.x
     <<: *job-build
 
   build-php-7.3-legacy:
@@ -47,8 +47,8 @@ jobs:
     docker:
       - image: circleci/php:7.3-cli-browsers
     environment:
-      DRUPAL_VERSION: 8.8.12
-      DRUPAL_PROJECT_SHA: 8.x
+      DRUPAL_VERSION: 9.1.11
+      DRUPAL_PROJECT_SHA: 9.x
     <<: *job-build
 
   deploy:

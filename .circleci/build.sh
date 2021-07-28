@@ -83,7 +83,7 @@ if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
   php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" install
 else
   echo "==> Initialise Drupal site from the latest scaffold."
-  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:8.x-dev "${BUILD_DIR}" --no-interaction
+  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:9.x-dev "${BUILD_DIR}" --no-interaction
 fi
 
 echo "==> Install additional dev dependencies from module's composer.json."
@@ -93,6 +93,7 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" upd
 echo "==> Install other dev dependencies."
 cat <<< "$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "${BUILD_DIR}/composer.json")" > "${BUILD_DIR}/composer.json"
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev dealerdirect/phpcodesniffer-composer-installer
+php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev phpspec/prophecy-phpunit:^2
 
 echo "==> Start inbuilt PHP server at http://${WEBSERVER_HOST}:${WEBSERVER_PORT} in $(pwd)/${BUILD_DIR}/web."
 # Stop previously started services.
