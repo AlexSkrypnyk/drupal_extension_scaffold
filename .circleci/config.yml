@@ -12,11 +12,7 @@ aliases:
 job-build: &job-build
   steps:
     - checkout
-    - run: |
-        sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq \
-        && sudo -E docker-php-ext-install -j$(nproc) iconv \
-        && if [ "$(php -r "echo PHP_MAJOR_VERSION;")" -gt 5 ] && [ "$(php -r "echo PHP_MINOR_VERSION;")" -gt 3 ] ; then sudo -E docker-php-ext-configure gd --with-freetype --with-jpeg; else sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/; fi \
-        && sudo -E docker-php-ext-install -j$(nproc) gd
+    - run: .circleci/install-dependencies.sh
     - run: .circleci/build.sh
     - run: .circleci/lint.sh
     - run: .circleci/test.sh
@@ -25,10 +21,8 @@ job-build: &job-build
         when: always
     - store_test_results:
         path: /tmp/test_results
-        when: always
     - store_artifacts:
         path: /tmp/artifacts
-        when: always
 
 jobs:
   build-php-7.4:
@@ -41,16 +35,10 @@ jobs:
       - image: circleci/php:7.3-cli-browsers
     <<: *job-build
 
-  build-php-7.2:
-    <<: *container_config
-    docker:
-      - image: circleci/php:7.2-cli-browsers
-    <<: *job-build
-
   build-php-7.4-legacy:
     <<: *container_config
     environment:
-      DRUPAL_VERSION: 8.8.10
+      DRUPAL_VERSION: 8.8.12
       DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
@@ -59,16 +47,7 @@ jobs:
     docker:
       - image: circleci/php:7.3-cli-browsers
     environment:
-      DRUPAL_VERSION: 8.8.10
-      DRUPAL_PROJECT_SHA: 8.x
-    <<: *job-build
-
-  build-php-7.2-legacy:
-    <<: *container_config
-    docker:
-      - image: circleci/php:7.2-cli-browsers
-    environment:
-      DRUPAL_VERSION: 8.8.10
+      DRUPAL_VERSION: 8.8.12
       DRUPAL_PROJECT_SHA: 8.x
     <<: *job-build
 
@@ -95,10 +74,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build-php-7.2:
-          filters:
-            tags:
-              only: /.*/
       - build-php-7.4-legacy:
           filters:
             tags:
@@ -107,18 +82,12 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build-php-7.2-legacy:
-          filters:
-            tags:
-              only: /.*/
       - deploy:
           requires:
             - build-php-7.4
             - build-php-7.3
-            - build-php-7.2
             - build-php-7.4-legacy
             - build-php-7.3-legacy
-            - build-php-7.2-legacy
           filters:
             tags:
               only: /.*/

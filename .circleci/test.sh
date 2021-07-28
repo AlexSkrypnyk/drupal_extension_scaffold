@@ -41,6 +41,7 @@ mkdir -p "${TEST_RESULTS_DIR}"
 # Remove existing test DB file.
 rm -f "${TEST_DB_FILE}" > /dev/null
 
+# Run tests using script provided by Drupal.
 php "./${BUILD_DIR}/web/core/scripts/run-tests.sh" \
   --sqlite "${TEST_DB_FILE}" \
   --dburl "sqlite://localhost/${TEST_DB_FILE}" \

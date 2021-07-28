@@ -61,6 +61,7 @@ echo "==> Validate requirements."
 echo "==> Validate Composer config."
 composer validate --ansi --strict
 
+# Reset the environment.
 [ -d "${BUILD_DIR}" ] && echo "==> Remove existing ${BUILD_DIR} directory." && chmod -Rf 777 "${BUILD_DIR}" && rm -rf "${BUILD_DIR}"
 
 # Allow installing custom version of Drupal core, but only coupled with
@@ -68,6 +69,7 @@ composer validate --ansi --strict
 if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
   echo "==> Initialise Drupal site from the scaffold commit ${DRUPAL_PROJECT_SHA}."
 
+  # Clone Drupal core at the specific commit SHA.
   git clone -n https://github.com/drupal-composer/drupal-project.git "${BUILD_DIR}"
   git --git-dir="${BUILD_DIR}/.git" --work-tree="${BUILD_DIR}" checkout "${DRUPAL_PROJECT_SHA}"
   rm -rf "${BUILD_DIR}/.git" > /dev/null
@@ -93,11 +95,15 @@ cat <<< "$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "${BUILD_D
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev dealerdirect/phpcodesniffer-composer-installer
 
 echo "==> Start inbuilt PHP server at http://${WEBSERVER_HOST}:${WEBSERVER_PORT} in $(pwd)/${BUILD_DIR}/web."
+# Stop previously started services.
 killall -9 php > /dev/null 2>&1 || true
+# Start the PHP webserver.
 nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/${BUILD_DIR}/web" "$(pwd)/${BUILD_DIR}/web/.ht.router.php" > /tmp/php.log 2>&1 &
 sleep 4 # Waiting for the server to be ready.
 netstat_opts='-tulpn'; [ "$(uname)" == "Darwin" ] && netstat_opts='-anv' || true;
+# Check that the server was started.
 netstat "${netstat_opts[@]}" | grep -q "${WEBSERVER_PORT}" || (echo "ERROR: Unable to start inbuilt PHP server" && cat /tmp/php.log && exit 1)
+# Check that the server can serve content.
 curl -s -o /dev/null -w "%{http_code}" -L -I "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" | grep -q 200 || (echo "ERROR: Server is started, but site cannot be served" && exit 1)
 
 echo "==> Install Drupal into SQLite database ${DB_FILE}."
