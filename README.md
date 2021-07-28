@@ -8,15 +8,13 @@ For Drupal 8 support, see [`8.x` branch](https://github.com/drevops/drupal_circl
 
 For Drupal 7 support, see [`7.x` branch](https://github.com/drevops/drupal_circleci/tree/7.x).
 
-<img src="https://user-images.githubusercontent.com/378794/95288108-513c3300-08b3-11eb-8b95-c47bef180a70.png" alt="Screenshot of CI jobs" width="50%" />
-
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code
 committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.org).
 
 ## Features
 - Turnkey CI configuration with artifacts and test results support.
-- PHP version matrix for [7.4](https://www.php.net/supported-versions.php), [7.3](https://www.php.net/supported-versions.php) and [7.2](https://www.php.net/supported-versions.php).
+- PHP version matrix for [8.0](https://www.php.net/supported-versions.php), [7.4](https://www.php.net/supported-versions.php) and [7.3](https://www.php.net/supported-versions.php).
 - Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as
@@ -27,6 +25,8 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
 - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.
 - Builder container is based on official PHP docker image.
 - This template is tested in the same way as a project using it.
+
+<img src="https://user-images.githubusercontent.com/378794/127291662-a4903d7a-1154-42df-9366-17707dd1381c.png" alt="Screenshot of CI jobs" width="30%" />
 
 ## Usage
 
