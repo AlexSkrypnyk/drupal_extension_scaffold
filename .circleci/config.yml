@@ -7,12 +7,12 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: circleci/php:7.3-cli-browsers
+      - image: circleci/php:7.4-cli-browsers
 
 job-build: &job-build
   steps:
     - checkout
-    - run: sudo -E apt-get update && sudo -E apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev jq sqlite && sudo -E docker-php-ext-install -j$(nproc) iconv && sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && sudo -E docker-php-ext-install -j$(nproc) gd
+    - run: .circleci/install-dependencies.sh
     - run: .circleci/build.sh
     - run: .circleci/lint.sh
     - run: .circleci/test.sh
@@ -21,20 +21,18 @@ job-build: &job-build
         when: always
     - store_test_results:
         path: /tmp/test_results
-        when: always
     - store_artifacts:
         path: /tmp/artifacts
-        when: always
 
 jobs:
-  build-php-7.3:
+  build-php-7.4:
     <<: *container_config
     <<: *job-build
 
-  build-php-7.2:
+  build-php-7.3:
     <<: *container_config
     docker:
-      - image: circleci/php:7.2-cli-browsers
+      - image: circleci/php:7.3-cli-browsers
     <<: *job-build
 
   deploy:
@@ -52,18 +50,18 @@ workflows:
   version: 2
   main:
     jobs:
-      - build-php-7.3:
+      - build-php-7.4:
           filters:
             tags:
               only: /.*/
-      - build-php-7.2:
+      - build-php-7.3:
           filters:
             tags:
               only: /.*/
       - deploy:
           requires:
+            - build-php-7.4
             - build-php-7.3
-            - build-php-7.2
           filters:
             tags:
               only: /.*/
