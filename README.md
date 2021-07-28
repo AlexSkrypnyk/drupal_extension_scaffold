@@ -1,4 +1,4 @@
-# Drupal 8 CircleCI
+# Drupal 9 CircleCI
 Template CI configuration for Drupal 8 contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
