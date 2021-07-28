@@ -14,6 +14,8 @@ sudo -E docker-php-ext-install -j"$(nproc)" iconv
 
 if [ "$(php -r "echo PHP_MAJOR_VERSION;")" -gt 5 ] && [ "$(php -r "echo PHP_MINOR_VERSION;")" -gt 3 ] ; then
   sudo -E docker-php-ext-configure gd --with-freetype --with-jpeg;
+elif [ "$(php -r "echo PHP_MAJOR_VERSION;")" -eq 8 ] ; then
+  sudo -E docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg;
 else
   sudo -E docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/;
 fi
