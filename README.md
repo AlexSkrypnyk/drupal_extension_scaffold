@@ -1,5 +1,5 @@
 # Drupal 9 CircleCI
-Template CI configuration for Drupal 8 contrib modules testing on CircleCI
+Template CI configuration for Drupal 9 contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
 [![CircleCI](https://circleci.com/gh/drevops/drupal_circleci.svg?style=shield)](https://circleci.com/gh/drevops/drupal_circleci)
