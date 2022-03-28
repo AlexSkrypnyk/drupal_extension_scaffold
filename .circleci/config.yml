@@ -7,12 +7,11 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: circleci/php:7.4-cli-browsers
+      - image: cimg/php:7.4-browsers
 
 job-build: &job-build
   steps:
     - checkout
-    - run: .circleci/install-ci-dependencies.sh
     - run: .circleci/build.sh
     - run: .circleci/lint.sh
     - run: .circleci/test.sh
@@ -32,13 +31,13 @@ jobs:
   build-php-8.0:
     <<: *container_config
     docker:
-      - image: circleci/php:8.0-cli-browsers
+      - image: cimg/php:8.0-browsers
     <<: *job-build
 
   build-php-8.1:
     <<: *container_config
     docker:
-      - image: circleci/php:8.1-cli-browsers
+      - image: cimg/php:8.1-browsers
     <<: *job-build
 
   build-php-7.4-legacy:
@@ -51,7 +50,7 @@ jobs:
   build-php-8.0-legacy:
     <<: *container_config
     docker:
-      - image: circleci/php:8.0-cli-browsers
+      - image: cimg/php:8.0-browsers
     environment:
       DRUPAL_VERSION: 9.2.16
       DRUPAL_PROJECT_SHA: 9.x
@@ -60,7 +59,7 @@ jobs:
   build-php-8.1-legacy:
     <<: *container_config
     docker:
-      - image: circleci/php:8.1-cli-browsers
+      - image: cimg/php:8.1-browsers
     environment:
       DRUPAL_VERSION: 9.2.16
       DRUPAL_PROJECT_SHA: 9.x
