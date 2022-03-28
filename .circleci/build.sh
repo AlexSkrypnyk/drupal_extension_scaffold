@@ -86,6 +86,9 @@ else
   php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:8.x-dev "${BUILD_DIR}" --no-interaction
 fi
 
+echo "==> Update composer.json with a list of allowed plugins."
+cat <<< "$(jq --indent 4 '.config["allow-plugins"]["dealerdirect/phpcodesniffer-composer-installer"] = true' "${BUILD_DIR}/composer.json")" > "${BUILD_DIR}/composer.json"
+
 echo "==> Install additional dev dependencies from module's composer.json."
 cat <<< "$(jq --indent 4 -M -s '.[0] * .[1]' composer.json "${BUILD_DIR}/composer.json")" > "${BUILD_DIR}/composer.json"
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" update --lock
