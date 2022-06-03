@@ -12,3 +12,4 @@ config                            export-ignore
 composer.json                     export-ignore
 drupal_circleci_example.info.yml  export-ignore
 README.md                         export-ignore
+LICENSE.                          export-ignore
