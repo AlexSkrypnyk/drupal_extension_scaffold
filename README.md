@@ -3,6 +3,9 @@ Template CI configuration for Drupal 9 contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
 [![CircleCI](https://circleci.com/gh/drevops/drupal_circleci.svg?style=shield)](https://circleci.com/gh/drevops/drupal_circleci)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drupal_circleci)
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
+![LICENSE](https://img.shields.io/github/license/drevops/drupal_circleci)
 
 For Drupal 8 support, see [`8.x` branch](https://github.com/drevops/drupal_circleci/tree/8.x).
 
