@@ -16,8 +16,9 @@ Perform module development in GitHub with testing in CircleCI, and push code
 committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.org).
 
 ## Features
+
 - Turnkey CI configuration with artifacts and test results support.
-- PHP version matrix for [8.0](https://www.php.net/supported-versions.php), [7.4](https://www.php.net/supported-versions.php) and [7.3](https://www.php.net/supported-versions.php).
+- PHP version matrix for [8.1](https://www.php.net/supported-versions.php) and [8.0](https://www.php.net/supported-versions.php).
 - Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - Drupal's Simpletest testing support - runs tests in the same way as
@@ -29,7 +30,7 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
 - Builder container is based on official PHP docker image.
 - This template is tested in the same way as a project using it.
 
-<img width="330" alt="Pipelines_-_drevops_drupal_circleci" src="https://user-images.githubusercontent.com/378794/172831355-790e055f-8ec4-44f6-bfa2-1dabd7118841.png" alt="Screenshot of CI jobs" width="30%">
+<img src="https://user-images.githubusercontent.com/378794/172831355-790e055f-8ec4-44f6-bfa2-1dabd7118841.png" alt="Screenshot of CI jobs" width="30%">
 
 ## Usage
 
@@ -44,7 +45,7 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
 
 ## Deployment
 The CI supports mirroring of main branches (`9.x-1.x` etc.) to
-[drupal.org](https://drupal.org) mirror  of the project (to keep 2 repos in
+[drupal.org](https://drupal.org) mirror of the project (to keep 2 repos in
 sync).
 
 The deployment job runs when commits are pushed to main branches
