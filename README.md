@@ -21,6 +21,8 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
 - PHP version matrix for [8.1](https://www.php.net/supported-versions.php) and [8.0](https://www.php.net/supported-versions.php).
 - Drupal version matrix: currently supported and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
+- PHP code static analysis with [drupal-check](https://github.com/mglaman/drupal-check).
+- PHP deprecated code analysis with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 - Drupal's Simpletest testing support - runs tests in the same way as
   [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
 - Support for testing recommended dependencies (for integration testing between modules).
@@ -78,15 +80,15 @@ Example of deployment repository: https://github.com/drevops/drupal_circleci_des
 ## Local module development
 
 ### Build
-Run `.circleci/build.sh` to start inbuilt PHP server locally and run the same
+Run `.circleci/build.sh` (or `ahoy build` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP server locally and run the same
 commands as in CI, plus installing a site and your module automatically.
 
 ### Code linting
-Run `.circleci/lint.sh` to lint your code according to the
+Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code according to the
 [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
 ### Tests
-Run `.circleci/test.sh` to run all test for your module.
+Run `.circleci/test.sh` (or `ahoy test` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for your module.
 
 ### Browsing SQLite database
 To browse the contents of created SQLite database
