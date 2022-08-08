@@ -5,11 +5,13 @@ namespace Drupal\Tests\drupal_circleci_example\Functional;
 use Drupal\Tests\BrowserTestBase;
 
 /**
+ * Class DemoRoleFunctionalTest.
+ *
  * Role testing for demo module.
  *
  * @group drupal_circleci_example
  */
-class DemoRoleTest extends BrowserTestBase {
+class DemoRoleFunctionalTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
