@@ -11,5 +11,8 @@
     ],
     "require-dev": {
         "drupal/pathauto": "~1.0"
+    },
+    "suggest": {
+        "drupal/config_ignore": "Ignore certain configuration during import."
     }
 }
