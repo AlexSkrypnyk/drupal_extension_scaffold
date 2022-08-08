@@ -104,6 +104,7 @@ echo "  > Installing other dev dependencies."
 cat <<< "$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "${BUILD_DIR}/composer.json")" > "${BUILD_DIR}/composer.json"
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev dealerdirect/phpcodesniffer-composer-installer
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev phpspec/prophecy-phpunit:^2
+php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev mglaman/drupal-check
 
 echo "==> Starting builtin PHP server at http://${WEBSERVER_HOST}:${WEBSERVER_PORT} in $(pwd)/${BUILD_DIR}/web."
 # Stop previously started services.
