@@ -29,7 +29,7 @@ class DemoRoleTest extends BrowserTestBase {
     $this->drupalLogin($admin);
 
     $this->drupalGet('admin/people/roles');
-    $this->assertText('Demorole');
+    $this->assertSession()->responseContains('Demorole');
   }
 
 }
