@@ -25,7 +25,7 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
 - PHP deprecated code analysis with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 - Drupal's Simpletest testing support - runs tests in the same way as
   [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
-- Support for testing recommended dependencies (for integration testing between modules).
+- Support for testing suggested dependencies (for integration testing between modules).
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
   to provision Drupal site.
 - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.
