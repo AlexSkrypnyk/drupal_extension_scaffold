@@ -8,6 +8,7 @@ tests             export-ignore
 # .gitignore      export-ignore
 
 # Remove the lines below in your project.
+.ahoy.yml                         export-ignore
 config                            export-ignore
 composer.json                     export-ignore
 drupal_circleci_example.info.yml  export-ignore
