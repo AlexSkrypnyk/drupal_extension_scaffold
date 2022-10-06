@@ -41,7 +41,7 @@ jobs:
     docker:
       - image: cimg/php:8.0-browsers
     environment:
-      DRUPAL_VERSION: 9.2.20
+      DRUPAL_VERSION: 9.3.22
       DRUPAL_PROJECT_SHA: 9.x
     <<: *job-build
 
@@ -50,8 +50,19 @@ jobs:
     docker:
       - image: cimg/php:8.1-browsers
     environment:
-      DRUPAL_VERSION: 9.2.20
+      DRUPAL_VERSION: 9.3.22
       DRUPAL_PROJECT_SHA: 9.x
+    <<: *job-build
+
+  build-php-8.1-next:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.1-browsers
+    environment:
+      DRUPAL_VERSION: 10@beta2
+      DRUPAL_PROJECT_SHA: 10.x
+      # @todo Remove once https://github.com/drupal-composer/drupal-project/pull/616 merged.
+      DRUPAL_PROJECT_REPO: https://github.com/drevops/drupal-project.git
     <<: *job-build
 
   deploy:
@@ -85,15 +96,20 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - build-php-8.1-next:
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
             - build-php-8.0
             - build-php-8.1
             - build-php-8.0-legacy
             - build-php-8.1-legacy
+            - build-php-8.1-next
           filters:
             tags:
               only: /.*/
             branches:
-              # 8.x, 9.x, 8.x-1.x, 8.x-1.x, 8.x-2.x, 9.x-2.x, ci
-              only: /^(?:8|9)\.x(?:\-[0-9]+\.x)?|ci$/
+              # 8.x, 9.x, 10.x, 8.x-1.x, 8.x-1.x, 8.x-2.x, 9.x-2.x, ci
+              only: /^[0-9]+.x(?:\-[0-9]+\.x)?|ci$/

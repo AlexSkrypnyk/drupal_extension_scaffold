@@ -32,7 +32,7 @@ WEBSERVER_HOST="${WEBSERVER_HOST:-localhost}"
 # Webserver port.
 WEBSERVER_PORT="${WEBSERVER_PORT:-8000}"
 
-# Drupal core version to use. If not provided - the latest version will be used.
+# Drupal core version to use. If not provided - the latest stable version will be used.
 # Must be coupled with DRUPAL_PROJECT_SHA below.
 DRUPAL_VERSION="${DRUPAL_VERSION:-}"
 
@@ -40,6 +40,11 @@ DRUPAL_VERSION="${DRUPAL_VERSION:-}"
 # provided - the latest version will be used.
 # Must be coupled with DRUPAL_VERSION above.
 DRUPAL_PROJECT_SHA="${DRUPAL_PROJECT_SHA:-}"
+
+# Repository for "drupal-composer/drupal-project" project.
+# May be overwritten to use forked repos that may have not been accepted
+# yet (i.e., when major Drupal version is about to be released).
+DRUPAL_PROJECT_REPO="${DRUPAL_PROJECT_REPO:-https://github.com/drupal-composer/drupal-project.git}"
 
 # Drupal profile to use when installing site.
 DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
@@ -73,10 +78,10 @@ echo "==> Installing Drupal."
 # Allow installing custom version of Drupal core, but only coupled with
 # drupal-project SHA (required to get correct dependencies).
 if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
-  echo "  > Initialising Drupal site from the scaffold commit ${DRUPAL_PROJECT_SHA}."
+  echo "  > Initialising Drupal site from the scaffold repo ${DRUPAL_PROJECT_REPO} commit ${DRUPAL_PROJECT_SHA}."
 
   # Clone Drupal core at the specific commit SHA.
-  git clone -n https://github.com/drupal-composer/drupal-project.git "${BUILD_DIR}"
+  git clone -n "${DRUPAL_PROJECT_REPO}" "${BUILD_DIR}"
   git --git-dir="${BUILD_DIR}/.git" --work-tree="${BUILD_DIR}" checkout "${DRUPAL_PROJECT_SHA}"
   rm -rf "${BUILD_DIR}/.git" > /dev/null
 
@@ -89,7 +94,8 @@ if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
   php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" install
 else
   echo "  > Initialising Drupal site from the latest scaffold."
-  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:9.x-dev "${BUILD_DIR}" --no-interaction
+  # There are no releases in "drupal-composer/drupal-project", so have to use "@dev".
+  php -d memory_limit=-1 "$(command -v composer)" create-project drupal-composer/drupal-project:@dev "${BUILD_DIR}" --no-interaction
 fi
 
 echo "  > Installing suggested dependencies from module's composer.json."
