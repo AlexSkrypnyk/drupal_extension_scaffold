@@ -1,25 +1,23 @@
-# Drupal 9 CircleCI
-Template CI configuration for Drupal 9 contrib modules testing on CircleCI
+# Drupal CircleCI
+Template CI configuration for Drupal contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
 [![CircleCI](https://circleci.com/gh/drevops/drupal_circleci.svg?style=shield)](https://circleci.com/gh/drevops/drupal_circleci)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drupal_circleci)
-![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg)
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/drevops/drupal_circleci)
-
-For Drupal 8 support, see [`8.x` branch](https://github.com/drevops/drupal_circleci/tree/8.x).
 
 For Drupal 7 support, see [`7.x` branch](https://github.com/drevops/drupal_circleci/tree/7.x).
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code
-committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.org).
+committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drupal.org).
 
 ## Features
 
 - Turnkey CI configuration with artifacts and test results support.
 - PHP version matrix for [8.1](https://www.php.net/supported-versions.php) and [8.0](https://www.php.net/supported-versions.php).
-- Drupal version matrix: currently supported and last EOL version.
+- Drupal version matrix: stable, next and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with [drupal-check](https://github.com/mglaman/drupal-check).
 - PHP deprecated code analysis with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
@@ -27,12 +25,12 @@ committed only to main branches (`9.x-1.x` etc.) to [drupal.org](https://drupal.
   [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
 - Support for testing suggested dependencies (for integration testing between modules).
 - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-  to provision Drupal site.
+  to provision Drupal site or custom fork.
 - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.
-- Builder container is based on official PHP docker image.
+- CI builder container is based on official PHP docker image.
 - This template is tested in the same way as a project using it.
 
-<img src="https://user-images.githubusercontent.com/378794/172831355-790e055f-8ec4-44f6-bfa2-1dabd7118841.png" alt="Screenshot of CI jobs" width="30%">
+<img src="https://user-images.githubusercontent.com/378794/194235441-6da4914e-3114-4f54-8b43-d3f728e6ec60.png" alt="Screenshot of CI jobs" width="30%">
 
 ## Usage
 
@@ -51,7 +49,7 @@ The CI supports mirroring of main branches (`9.x-1.x` etc.) to
 sync).
 
 The deployment job runs when commits are pushed to main branches
-(`9.x-1.x` etc.) or when release tags are created.
+(`1.x`, `2.x`, `9.x-1.x` etc.) or when release tags are created.
 
 Example of deployment repository: https://github.com/drevops/drupal_circleci_destination
 
@@ -61,7 +59,7 @@ Example of deployment repository: https://github.com/drevops/drupal_circleci_des
        ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
 
 2. Add public key to your [drupal.org](https://drupal.org) account:
-   **Drupal.org** -> **Profile** -> **SSH Keys**
+   https://git.drupalcode.org/-/profile/keys
 
 3. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
 2. Put your private SSH key into the box. Leave **Hostname** empty.

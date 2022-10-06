@@ -2,7 +2,7 @@ name: Drupal CircleCI Example
 type: module
 description: Example module for CircleCI integration template testing.
 package: Testing
-core_version_requirement: ^9
+core_version_requirement: ^9 || ^10
 
 dependencies:
   - drupal:user
