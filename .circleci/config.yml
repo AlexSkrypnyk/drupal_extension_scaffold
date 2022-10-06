@@ -61,8 +61,6 @@ jobs:
     environment:
       DRUPAL_VERSION: 10@beta2
       DRUPAL_PROJECT_SHA: 10.x
-      # @todo Remove once https://github.com/drupal-composer/drupal-project/pull/616 merged.
-      DRUPAL_PROJECT_REPO: https://github.com/drevops/drupal-project.git
     <<: *job-build
 
   deploy:
