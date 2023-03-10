@@ -6,9 +6,16 @@
     "authors": [
         {
             "name": "Alex Skrypnyk",
-            "email": "alex@drevops.com"
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drupal.org/u/alexskrypnyk",
+            "role": "Maintainer"
         }
     ],
+    "homepage": "https://drupal.org/project/drupal_circleci_example",
+    "support": {
+        "issues": "https://drupal.org/project/issues/drupal_circleci_example",
+        "source": "https://git.drupalcode.org/project/drupal_circleci_example"
+    },
     "require-dev": {
         "drupal/pathauto": "~1.0"
     },
