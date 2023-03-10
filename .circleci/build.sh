@@ -183,6 +183,6 @@ echo -n "  > One-time login link: "
 "${BUILD_DIR}/vendor/bin/drush" -r "${BUILD_DIR}/web" -l "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" uli --no-browser
 echo "  > Available commands:"
 echo "    ahoy build  # rebuild"
-echo "    ahoy lint   # check coding standards"
+echo "    ahoy lint   # check code standards"
 echo "    ahoy test   # run tests"
 echo
