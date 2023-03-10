@@ -37,13 +37,15 @@ committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drup
 1. Create your module's repository on GitHub.
 2. Download this module's code by pressing 'Clone or download' button in GitHub UI.
 3. Copy the contents of the downloaded archive into your module's repository.
-4. Adjust several lines in `.gitignore`.
-5. Commit and push to your new GitHub repo.
-6. Login to CircleCI and add your new GitHub repository. Your project build will
+4. Replace `drupal_circleci_example` with the machine name of your module.
+5. Adjust several lines in `.gitignore`.
+6. Commit and push to your new GitHub repo.
+7. Login to CircleCI and add your new GitHub repository. Your project build will
    start momentarily.
-7. Configure deployment to [drupal.org](https://drupal.org) (see below).
+8. Configure deployment to [drupal.org](https://drupal.org) (see below).
 
 ## Deployment
+
 The CI supports mirroring of main branches (`9.x-1.x` etc.) to
 [drupal.org](https://drupal.org) mirror of the project (to keep 2 repos in
 sync).
@@ -76,6 +78,9 @@ Example of deployment repository: https://github.com/drevops/drupal_circleci_des
      deploy.
 
 ## Local module development
+
+Provided that you have PHP installed locally, you can develop a module using
+the provided scripts.
 
 ### Build
 Run `.circleci/build.sh` (or `ahoy build` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP server locally and run the same
