@@ -88,14 +88,20 @@ the provided scripts.
 Run `.circleci/build.sh` (or `ahoy build` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP server locally and run the same
 commands as in CI, plus installing a site and your module automatically.
 
+![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
+
 ### Code linting
 
 Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code according to the
 [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
+![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
+
 ### Tests
 
 Run `.circleci/test.sh` (or `ahoy test` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for your module.
+
+![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
 
 ### Browsing SQLite database
 
