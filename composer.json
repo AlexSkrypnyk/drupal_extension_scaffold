@@ -21,11 +21,5 @@
     },
     "suggest": {
         "drupal/config_ignore": "Ignore certain configuration during import."
-    },
-    "repositories": {
-        "drupal": {
-            "type": "composer",
-            "url": "https://packages.drupal.org/8"
-        }
     }
 }
