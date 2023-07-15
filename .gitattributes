@@ -1,5 +1,4 @@
 # Ignore files for distribution archives.
-tests             export-ignore
 
 # Uncomment the lines below in your project.
 # .ahoy.yml       export-ignore
@@ -7,6 +6,7 @@ tests             export-ignore
 # .editorconfig   export-ignore
 # .gitattributes  export-ignore
 # .gitignore      export-ignore
+# tests           export-ignore
 
 # Remove the lines below in your project.
 config                            export-ignore
