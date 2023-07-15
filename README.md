@@ -16,7 +16,7 @@ committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drup
 ## Features
 
 - Turnkey CI configuration with artifacts and test results support.
-- PHP version matrix for [8.1](https://www.php.net/supported-versions.php) and [8.0](https://www.php.net/supported-versions.php).
+- PHP version matrix for [8.2](https://www.php.net/supported-versions.php) and [8.1](https://www.php.net/supported-versions.php).
 - Drupal version matrix: stable, next and last EOL version.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with [drupal-check](https://github.com/mglaman/drupal-check).
@@ -46,27 +46,28 @@ committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drup
 
 ## Deployment
 
-The CI supports mirroring of main branches (`9.x-1.x` etc.) to
-[drupal.org](https://drupal.org) mirror of the project (to keep 2 repos in
+The CI supports mirroring of main branches (`1.x`, `10.x-1.x` etc.) to
+[drupal.org](https://drupal.org) mirror of the project (to keep both repos in
 sync).
 
 The deployment job runs when commits are pushed to main branches
-(`1.x`, `2.x`, `9.x-1.x` etc.) or when release tags are created.
+(`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created.
 
 Example of deployment repository: https://github.com/drevops/drupal_circleci_destination
 
-### Configure deployment:
+### Configure deployment
+
 1. Generate a new SSH key without pass phrase:
-
-       ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
-
+```bash
+ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
+```
 2. Add public key to your [drupal.org](https://drupal.org) account:
    https://git.drupalcode.org/-/profile/keys
-
 3. In CircleCI UI, go to your project -> **Settings** -> **SSH Permissions**
 2. Put your private SSH key into the box. Leave **Hostname** empty.
-3. Copy fingerprint string in CircleCI UI and replace `deploy_ssh_fingerprint`
-   value in `.circleci/config.yml`.
+3. Copy the fingerprint string from the CircleCI User Interface. Then, replace
+   the `deploy_ssh_fingerprint` value in the `.circleci/config.yml` file with
+   this copied fingerprint string.
 4. In CircleCI UI go to your project -> **Settings** -> **Environment Variables**
    and add the following variables through CircleCI UI:
    - `DEPLOY_USER_NAME` - the name of the user who will be committing to a
@@ -83,20 +84,24 @@ Provided that you have PHP installed locally, you can develop a module using
 the provided scripts.
 
 ### Build
+
 Run `.circleci/build.sh` (or `ahoy build` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP server locally and run the same
 commands as in CI, plus installing a site and your module automatically.
 
 ### Code linting
+
 Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code according to the
 [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
 ### Tests
+
 Run `.circleci/test.sh` (or `ahoy test` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for your module.
 
 ### Browsing SQLite database
+
 To browse the contents of created SQLite database
 (located at `/tmp/site_[MODULE_NAME].sqlite`), use [DB Browser for SQLite](https://sqlitebrowser.org/).
 
 ---
 
-For an end-to-end website DevOps setup, check out [DrevOps](https://drevops.com) - Build, Test, Deploy scripts for Drupal using Docker and CI/CD
+For an end-to-end website DevOps setup, check out [DrevOps](https://drevops.com) - Drupal project template
