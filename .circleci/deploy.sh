@@ -56,8 +56,8 @@ mkdir -p "${HOME}/.ssh/"
 echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
 DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}"
 DEPLOY_SSH_FILE="${HOME}/.ssh/id_rsa_${DEPLOY_SSH_FILE//\"}"
-[ ! -f "${DEPLOY_SSH_FILE}" ] && echo "ERROR: Unable to find Deploy SSH key file ${DEPLOY_SSH_FILE}." && exit 1
-if [ -z "${SSH_AGENT_PID}" ]; then eval "$(ssh-agent)"; fi
+[ ! -f "${DEPLOY_SSH_FILE:-}" ] && echo "ERROR: Unable to find Deploy SSH key file ${DEPLOY_SSH_FILE}." && exit 1
+if [ -z "${SSH_AGENT_PID:-}" ]; then eval "$(ssh-agent)"; fi
 ssh-add -D > /dev/null
 ssh-add "${DEPLOY_SSH_FILE}"
 
