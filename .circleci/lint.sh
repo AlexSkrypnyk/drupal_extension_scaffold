@@ -3,7 +3,8 @@
 # Run lint checks.
 #
 
-set -e
+set -eu
+[ -n "${DEBUG:-}" ] && set -x
 
 #-------------------------------------------------------------------------------
 # Variables (passed from environment; provided for reference only).
@@ -24,15 +25,15 @@ build/vendor/bin/phpcs \
   -p \
   --standard=Drupal,DrupalPractice \
   --extensions=module,php,install,inc,test,info.yml,js \
-  "build/web/modules/${MODULE}"
+  "${BUILD_DIR}/web/modules/${MODULE}"
 
 echo "  > Running drupal-check."
 build/vendor/bin/drupal-check \
   --drupal-root=build/web \
-  "build/web/modules/${MODULE}"
+  "${BUILD_DIR}/web/modules/${MODULE}"
 
 echo "  > Running Drupal Rector."
-pushd "build" >/dev/null || exit 1
+pushd "${BUILD_DIR}" >/dev/null || exit 1
 vendor/bin/rector process \
   "web/modules/${MODULE}" \
   --dry-run

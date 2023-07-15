@@ -15,17 +15,18 @@
 # - DEPLOY_REMOTE - remote repository to push code to.
 # - DEPLOY_PROCEED - set to 1 if the deployment should proceed. Useful for testing CI configuration before an actual code push.
 
-set -e
+set -eu
+[ -n "${DEBUG:-}" ] && set -x
 
 #-------------------------------------------------------------------------------
 # Variables (passed from environment; provided for reference only).
 #-------------------------------------------------------------------------------
 
 # Name of the user who will be committing to a remote repository.
-DEPLOY_USER_NAME="${DEPLOY_USER_NAME}"
+DEPLOY_USER_NAME="${DEPLOY_USER_NAME:-}"
 
 # Email address of the user who will be committing to a remote repository.
-DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL}"
+DEPLOY_USER_EMAIL="${DEPLOY_USER_EMAIL:-}"
 
 # Remote repository to push code to.
 DEPLOY_REMOTE="${DEPLOY_REMOTE:-}"
