@@ -174,14 +174,15 @@ done
 # Visit site to pre-warm caches.
 curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" > /dev/null
 
+echo
 echo "-------------------------------"
 echo " Build finished 🚀🚀🚀"
 echo "-------------------------------"
-
 echo
 echo "  > Site URL:            http://${WEBSERVER_HOST}:${WEBSERVER_PORT}"
 echo -n "  > One-time login link: "
 "${BUILD_DIR}/vendor/bin/drush" -r "${BUILD_DIR}/web" -l "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" uli --no-browser
+echo
 echo "  > Available commands:"
 echo "    ahoy build  # rebuild"
 echo "    ahoy lint   # check code standards"
