@@ -4,7 +4,9 @@
 #
 # This runs only in CircleCI.
 #
-set -e
+
+set -eu
+[ -n "${DEBUG:-}" ] && set -x
 
 #-------------------------------------------------------------------------------
 # Variables (passed from environment; provided for reference only).

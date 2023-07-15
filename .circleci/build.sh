@@ -17,7 +17,8 @@
 
 # shellcheck disable=SC2015,SC2094,SC2002
 
-set -e
+set -eu
+[ -n "${DEBUG:-}" ] && set -x
 
 #-------------------------------------------------------------------------------
 # Variables (passed from environment; provided for reference only).
@@ -83,7 +84,7 @@ echo "-------------------------------"
 
 # Allow installing custom version of Drupal core from drupal-composer/drupal-project,
 # but only coupled with drupal-project SHA (required to get correct dependencies).
-if [ -n "${DRUPAL_VERSION}" ] && [ -n "${DRUPAL_PROJECT_SHA}" ]; then
+if [ -n "${DRUPAL_VERSION:-}" ] && [ -n "${DRUPAL_PROJECT_SHA:-}" ]; then
   echo "  > Initialising Drupal site from the scaffold repo ${DRUPAL_PROJECT_REPO} commit ${DRUPAL_PROJECT_SHA}."
 
   # Clone Drupal core at the specific commit SHA.
@@ -109,7 +110,7 @@ echo "  > Merging configuration from module's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('${BUILD_DIR}/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" > "${BUILD_DIR}/composer2.json" && mv -f "${BUILD_DIR}/composer2.json" "${BUILD_DIR}/composer.json"
 
 echo "  > Creating GitHub authentication token if provided."
-[ -n "$GITHUB_TOKEN" ] && composer config --global github-oauth.github.com "$GITHUB_TOKEN" && echo "Token: " && composer config --global github-oauth.github.com
+[ -n "${GITHUB_TOKEN:-}" ] && composer config --global github-oauth.github.com "$GITHUB_TOKEN" && echo "Token: " && composer config --global github-oauth.github.com
 
 echo "  > Installing dependencies."
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" install
