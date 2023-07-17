@@ -16,21 +16,26 @@ committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drup
 ## Features
 
 - Turnkey CI configuration with artifacts and test results support.
-- PHP version matrix for [8.2](https://www.php.net/supported-versions.php) and [8.1](https://www.php.net/supported-versions.php).
-- Drupal version matrix: stable, next and last EOL version.
-- PHP code standards checking against `Drupal` and `DrupalPractice` standards.
-- PHP code static analysis with [drupal-check](https://github.com/mglaman/drupal-check).
-- PHP deprecated code analysis with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
-- Drupal's Simpletest testing support - runs tests in the same way as
-  [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
-- Support for testing suggested dependencies (for integration testing between modules).
-- Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
+  - PHP version matrix for [8.2](https://www.php.net/supported-versions.php) and [8.1](https://www.php.net/supported-versions.php).
+  - Drupal version matrix: stable, next and last EOL version.
+  - CI builder container is based on official PHP docker image.
+- Tools:
+  - [Develop locally](#local-development) using PHP running on your host using identical scripts as CI.
+  - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
+  - PHP code static analysis with [drupal-check](https://github.com/mglaman/drupal-check).
+  - PHP deprecated code analysis with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
+  - Drupal's Simpletest testing support - runs tests in the same way as
+    [drupal.org](https://drupal.org)'s Drupal CI bot (`core/scripts/run-tests.sh`).
+  - Support for including of additional dependencies for integration testing between modules (add dependency into [`suggest`](composer.json#L22) section of `composer.json`).
+  - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
   to provision Drupal site or custom fork.
-- Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.
-- CI builder container is based on official PHP docker image.
+- Deployment:
+  - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git repo) on release.
+  - Deploy to a destination branch different from the source branch.
+  - Tags mirroring.
 - This template is tested in the same way as a project using it.
 
-<img src="https://user-images.githubusercontent.com/378794/194235441-6da4914e-3114-4f54-8b43-d3f728e6ec60.png" alt="Screenshot of CI jobs" width="30%">
+<img src="https://user-images.githubusercontent.com/378794/253860380-7a702bf6-71f5-4c8c-a271-8dd3b25eaabf.png" alt="Screenshot of CI jobs" width="30%">
 
 ## Usage
 
@@ -78,7 +83,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
    - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
      deploy.
 
-## Local module development
+## Local development
 
 Provided that you have PHP installed locally, you can develop a module using
 the provided scripts.
