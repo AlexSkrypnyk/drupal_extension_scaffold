@@ -72,8 +72,12 @@ echo "==> Adding remote ${DEPLOY_REMOTE}."
 git remote add deployremote "${DEPLOY_REMOTE}"
 
 echo "==> Deploying to remote ${DEPLOY_REMOTE}."
-# shellcheck disable=SC2086
-git push --force --tags deployremote ${DEPLOY_BRANCH}
+
+echo "  > Pushing code to branch ${DEPLOY_BRANCH}."
+git push --force deployremote HEAD:"${DEPLOY_BRANCH}"
+
+echo "  > Pushing tags."
+git push --force --tags deployremote || true
 
 echo
 echo "==> Deployment finished."
