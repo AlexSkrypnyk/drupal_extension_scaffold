@@ -71,7 +71,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
-      - run: DEPLOY_BRANCH=${CIRCLE_BRANCH} .circleci/deploy.sh
+      - run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH}} .circleci/deploy.sh
 
 workflows:
   version: 2
