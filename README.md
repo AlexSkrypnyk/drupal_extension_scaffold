@@ -2,12 +2,12 @@
 Template CI configuration for Drupal contrib modules testing on CircleCI
 with mirroring to Drupal.org.
 
-[![CircleCI](https://circleci.com/gh/drevops/drupal_circleci.svg?style=shield)](https://circleci.com/gh/drevops/drupal_circleci)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/drupal_circleci)
+[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_circleci.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_circleci)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_circleci)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
-![LICENSE](https://img.shields.io/github/license/drevops/drupal_circleci)
+![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_circleci)
 
-For Drupal 7 support, see [`7.x` branch](https://github.com/drevops/drupal_circleci/tree/7.x).
+For Drupal 7 support, see [`7.x` branch](https://github.com/AlexSkrypnyk/drupal_circleci/tree/7.x).
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code
@@ -58,7 +58,7 @@ sync).
 The deployment job runs when commits are pushed to main branches
 (`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created.
 
-Example of deployment repository: https://github.com/drevops/drupal_circleci_destination
+Example of deployment repository: https://github.com/AlexSkrypnyk/drupal_circleci_destination
 
 ### Configure deployment
 

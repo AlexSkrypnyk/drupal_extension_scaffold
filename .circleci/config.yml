@@ -1,4 +1,4 @@
-# @see https://github.com/drevops/drupal_circleci
+# @see https://github.com/AlexSkrypnyk/drupal_circleci
 version: 2
 aliases:
   # SSH deployment key fingerprint from CircleCI App -> Project -> Settings -> SSH Permissions.
