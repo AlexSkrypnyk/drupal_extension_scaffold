@@ -128,7 +128,6 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" req
   dealerdirect/phpcodesniffer-composer-installer \
   phpspec/prophecy-phpunit:^2 \
   mglaman/drupal-check \
-  rector/rector:0.15.13 \
   palantirnet/drupal-rector
 cp "${BUILD_DIR}/vendor/palantirnet/drupal-rector/rector.php" "${BUILD_DIR}/."
 
