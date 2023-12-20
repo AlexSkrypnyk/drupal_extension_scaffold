@@ -1,13 +1,33 @@
-# Drupal CircleCI
-Template CI configuration for Drupal contrib modules testing on CircleCI
-with mirroring to Drupal.org.
+<p align="center">
+  <a href="" rel="noopener">
+  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+CircleCI&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
+</p>
 
+<h1 align="center">Drupal CircleCI</h1>
+
+<div align="center">
+
+[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_circleci.svg)](https://github.com/AlexSkrypnyk/drupal_circleci/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_circleci.svg)](https://github.com/AlexSkrypnyk/drupal_circleci/pulls)
 [![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_circleci.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_circleci)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_circleci)
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_circleci)
+![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
+
+</div>
+
+---
+
+<p align="center">
+
+Template CI configuration for Drupal contrib modules testing on CircleCI
+with mirroring to Drupal.org.
 
 For Drupal 7 support, see [`7.x` branch](https://github.com/AlexSkrypnyk/drupal_circleci/tree/7.x).
+
+</p>
+
 
 ## Use case
 Perform module development in GitHub with testing in CircleCI, and push code
@@ -83,7 +103,8 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
    - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
      deploy.
 
-## Local development
+
+## Maintenance / Local development
 
 Provided that you have PHP installed locally, you can develop a module using
 the provided scripts.
