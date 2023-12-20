@@ -16,6 +16,9 @@
         "issues": "https://drupal.org/project/issues/drupal_circleci_example",
         "source": "https://git.drupalcode.org/project/drupal_circleci_example"
     },
+    "require": {
+        "php": ">=8.1"
+    },
     "require-dev": {
         "drupal/pathauto": "~1.0"
     },
