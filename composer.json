@@ -26,5 +26,10 @@
     },
     "suggest": {
         "drupal/config_ignore": "Ignore certain configuration during import."
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
     }
 }

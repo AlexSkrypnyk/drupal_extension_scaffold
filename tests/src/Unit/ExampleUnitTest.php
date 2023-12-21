@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\Tests\drupal_circleci_example\Unit;
 
 use Drupal\Tests\UnitTestCase;
