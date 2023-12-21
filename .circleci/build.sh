@@ -124,6 +124,7 @@ for composer_suggest in $composer_suggests; do
 done
 
 echo "  > Installing other dev dependencies."
+php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" config allow-plugins.phpstan/extension-installer true
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev \
   dealerdirect/phpcodesniffer-composer-installer \
   phpspec/prophecy-phpunit:^2 \
@@ -133,6 +134,7 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" req
   mglaman/phpstan-drupal:^1.2 \
   palantirnet/drupal-rector:^0.18 \
   friendsoftwig/twigcs:^6.2
+
 
 echo " > Copying tools configuration files."
 cp phpcs.xml "${BUILD_DIR}/phpcs.xml"
