@@ -121,6 +121,14 @@ commands as in CI, plus installing a site and your module automatically.
 Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code according to the
 [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
+PHPCS config: phpcs.xml
+
+PHPSTAN config: phpstan.neon
+
+PHPMD config: phpmd.xml
+
+TWIGCS config: .twig_cs.php
+
 ![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
 
 ### Tests

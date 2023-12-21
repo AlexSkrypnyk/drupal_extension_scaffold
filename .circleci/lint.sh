@@ -18,23 +18,18 @@ MODULE="$(basename -s .info.yml -- ./*.info.yml)"
 
 #-------------------------------------------------------------------------------
 
-echo "==> Lint code for module $MODULE."
-echo "  > Running PHPCS."
-build/vendor/bin/phpcs \
-  -s \
-  -p \
-  --standard=Drupal,DrupalPractice \
-  --extensions=module,php,install,inc,test,info.yml,js \
-  "${BUILD_DIR}/web/modules/${MODULE}"
+pushd "${BUILD_DIR}" >/dev/null || exit 1
 
-echo "  > Running drupal-check."
-build/vendor/bin/drupal-check \
-  --drupal-root=build/web \
-  "${BUILD_DIR}/web/modules/${MODULE}"
+echo "==> Lint code."
+echo "  > Running PHPCS, PHPMD, TWIGCS"
+vendor/bin/phpcs
+vendor/bin/phpmd --exclude vendor,vendor-bin,node_modules . text phpmd.xml
+vendor/bin/twigcs
+
+echo " > Running phpstan."
+vendor/bin/phpstan
 
 echo "  > Running Drupal Rector."
-pushd "${BUILD_DIR}" >/dev/null || exit 1
-vendor/bin/rector process \
-  "web/modules/${MODULE}" \
-  --dry-run
+vendor/bin/rector --dry-run
+
 popd >/dev/null || exit 1

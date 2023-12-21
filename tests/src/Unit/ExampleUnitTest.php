@@ -16,7 +16,7 @@ class ExampleUnitTest extends UnitTestCase {
   /**
    * Test that unit tests are working.
    */
-  public function testPass() {
+  public function testPass(): void {
     $this->assertTrue(TRUE);
   }
 
