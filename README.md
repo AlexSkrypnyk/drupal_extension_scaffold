@@ -123,7 +123,7 @@ Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ah
 
 PHPCS config: phpcs.xml
 
-PHPSTAN config: phpstan.neon
+PHPStan config: phpstan.neon
 
 PHPMD config: phpmd.xml
 
