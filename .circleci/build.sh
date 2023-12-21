@@ -128,23 +128,17 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" req
   dealerdirect/phpcodesniffer-composer-installer \
   phpspec/prophecy-phpunit:^2 \
   phpstan/extension-installer \
+  phpcompatibility/php-compatibility \
+  phpmd/phpmd \
   mglaman/phpstan-drupal:^1.2 \
   palantirnet/drupal-rector:^0.18 \
   friendsoftwig/twigcs:^6.2
 
-# PHPCS config.
+echo " > Copying tools configuration files."
 cp phpcs.xml "${BUILD_DIR}/phpcs.xml"
-
-# PHPstan config.
 cp phpstan.neon "${BUILD_DIR}/phpstan.neon"
-
-# PHPmd.
 cp phpmd.xml "${BUILD_DIR}/phpmd.xml"
-
-# Rector config.
 cp rector.php "${BUILD_DIR}/."
-
-# Twigcs config.
 cp .twig_cs.php "${BUILD_DIR}/."
 
 echo "-------------------------------"
@@ -173,7 +167,6 @@ echo "  > Installing Drupal into SQLite database ${DB_FILE}."
 
 echo "  > Symlinking module code."
 rm -rf "${BUILD_DIR}/web/modules/custom"
-mkdir -p "${BUILD_DIR}/web/modules/custom"
 mkdir -p "${BUILD_DIR}/web/modules/custom/${MODULE}"
 ln -s "$(pwd)"/* "${BUILD_DIR}/web/modules/custom/${MODULE}" && rm "${BUILD_DIR}/web/modules/custom/${MODULE}/${BUILD_DIR}"
 

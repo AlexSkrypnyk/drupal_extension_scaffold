@@ -20,10 +20,14 @@ MODULE="$(basename -s .info.yml -- ./*.info.yml)"
 
 pushd "${BUILD_DIR}" >/dev/null || exit 1
 
-echo "==> Lint code."
+echo "==> Lint code for module $MODULE."
 echo "  > Running PHPCS, PHPMD, TWIGCS"
 vendor/bin/phpcs
+
+echo "  > Running PHPMD"
 vendor/bin/phpmd --exclude vendor,vendor-bin,node_modules . text phpmd.xml
+
+echo "  > Running TWIGCS"
 vendor/bin/twigcs
 
 echo " > Running phpstan."
