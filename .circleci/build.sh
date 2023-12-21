@@ -124,12 +124,23 @@ for composer_suggest in $composer_suggests; do
 done
 
 echo "  > Installing other dev dependencies."
+php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" config allow-plugins.phpstan/extension-installer true
 php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" require --dev \
   dealerdirect/phpcodesniffer-composer-installer \
   phpspec/prophecy-phpunit:^2 \
-  mglaman/drupal-check \
-  palantirnet/drupal-rector
-cp "${BUILD_DIR}/vendor/palantirnet/drupal-rector/rector.php" "${BUILD_DIR}/."
+  phpstan/extension-installer \
+  phpcompatibility/php-compatibility \
+  phpmd/phpmd \
+  mglaman/phpstan-drupal:^1.2 \
+  palantirnet/drupal-rector:^0.18 \
+  friendsoftwig/twigcs:^6.2
+
+echo "  > Copying tools configuration files."
+cp phpcs.xml "${BUILD_DIR}/phpcs.xml"
+cp phpstan.neon "${BUILD_DIR}/phpstan.neon"
+cp phpmd.xml "${BUILD_DIR}/phpmd.xml"
+cp rector.php "${BUILD_DIR}/."
+cp .twig_cs.php "${BUILD_DIR}/."
 
 echo "-------------------------------"
 echo " Starting builtin PHP server   "
@@ -156,9 +167,8 @@ echo "  > Installing Drupal into SQLite database ${DB_FILE}."
 "${BUILD_DIR}/vendor/bin/drush" -r "$(pwd)/${BUILD_DIR}/web" status
 
 echo "  > Symlinking module code."
-rm -rf "${BUILD_DIR}/web/modules/${MODULE}"/* > /dev/null
-mkdir -p "${BUILD_DIR}/web/modules/${MODULE}"
-ln -s "$(pwd)"/* "${BUILD_DIR}/web/modules/${MODULE}" && rm "${BUILD_DIR}/web/modules/${MODULE}/${BUILD_DIR}"
+rm -rf "${BUILD_DIR}/web/modules/custom" > /dev/null && mkdir -p "${BUILD_DIR}/web/modules/custom/${MODULE}"
+ln -s "$(pwd)"/* "${BUILD_DIR}/web/modules/custom/${MODULE}" && rm "${BUILD_DIR}/web/modules/custom/${MODULE}/${BUILD_DIR}"
 
 echo "  > Enabling module ${MODULE}."
 "${BUILD_DIR}/vendor/bin/drush" -r "${BUILD_DIR}/web" pm:enable "${MODULE}" -y

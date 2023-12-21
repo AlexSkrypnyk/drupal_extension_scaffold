@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\Tests\drupal_circleci_example\Functional;
 
 use Drupal\Tests\BrowserTestBase;
@@ -26,7 +28,7 @@ class DemoRoleFunctionalTest extends BrowserTestBase {
   /**
    * Test that the Demorole role is present.
    */
-  public function testRolePresent() {
+  public function testRolePresent(): void {
     $admin = $this->createUser([], NULL, TRUE);
     $this->drupalLogin($admin);
 
