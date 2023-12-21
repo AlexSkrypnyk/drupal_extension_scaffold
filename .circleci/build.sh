@@ -135,8 +135,7 @@ php -d memory_limit=-1 "$(command -v composer)" --working-dir="${BUILD_DIR}" req
   palantirnet/drupal-rector:^0.18 \
   friendsoftwig/twigcs:^6.2
 
-
-echo " > Copying tools configuration files."
+echo "  > Copying tools configuration files."
 cp phpcs.xml "${BUILD_DIR}/phpcs.xml"
 cp phpstan.neon "${BUILD_DIR}/phpstan.neon"
 cp phpmd.xml "${BUILD_DIR}/phpmd.xml"
@@ -168,8 +167,7 @@ echo "  > Installing Drupal into SQLite database ${DB_FILE}."
 "${BUILD_DIR}/vendor/bin/drush" -r "$(pwd)/${BUILD_DIR}/web" status
 
 echo "  > Symlinking module code."
-rm -rf "${BUILD_DIR}/web/modules/custom"
-mkdir -p "${BUILD_DIR}/web/modules/custom/${MODULE}"
+rm -rf "${BUILD_DIR}/web/modules/custom" > /dev/null && mkdir -p "${BUILD_DIR}/web/modules/custom/${MODULE}"
 ln -s "$(pwd)"/* "${BUILD_DIR}/web/modules/custom/${MODULE}" && rm "${BUILD_DIR}/web/modules/custom/${MODULE}/${BUILD_DIR}"
 
 echo "  > Enabling module ${MODULE}."

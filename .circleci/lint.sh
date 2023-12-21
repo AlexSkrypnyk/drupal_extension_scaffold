@@ -25,12 +25,12 @@ echo "  > Running PHPCS, PHPMD, TWIGCS"
 vendor/bin/phpcs
 
 echo "  > Running PHPMD"
-vendor/bin/phpmd --exclude vendor,vendor-bin,node_modules . text phpmd.xml
+vendor/bin/phpmd --exclude vendor . text phpmd.xml
 
 echo "  > Running TWIGCS"
 vendor/bin/twigcs
 
-echo " > Running phpstan."
+echo "  > Running phpstan."
 vendor/bin/phpstan
 
 echo "  > Running Drupal Rector."
