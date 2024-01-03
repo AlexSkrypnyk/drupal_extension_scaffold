@@ -6,21 +6,12 @@
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
 
-#-------------------------------------------------------------------------------
-# Variables (passed from environment; provided for reference only).
-#-------------------------------------------------------------------------------
-
-# Directory where Drupal site will be built.
-BUILD_DIR="${BUILD_DIR:-build}"
-
 # Module name, taken from .info file.
-MODULE="$(basename -s .info.yml -- ./*.info.yml)"
+module="$(basename -s .info.yml -- ./*.info.yml)"
 
-#-------------------------------------------------------------------------------
+pushd "build" >/dev/null || exit 1
 
-pushd "${BUILD_DIR}" >/dev/null || exit 1
-
-echo "==> Lint code for module $MODULE."
+echo "==> Lint code for module $module."
 echo "  > Running PHPCS, PHPMD, TWIGCS"
 vendor/bin/phpcs
 
