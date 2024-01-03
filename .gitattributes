@@ -5,11 +5,18 @@
 # .circleci       export-ignore
 # .editorconfig   export-ignore
 # .gitattributes  export-ignore
+# .github         export-ignore
 # .gitignore      export-ignore
+# .twig_cs.php    export-ignore
+# phpcs.xml       export-ignore
+# phpmd.xml       export-ignore
+# phpstan.neon    export-ignore
+# rector.php      export-ignore
+# renovate.json   export-ignore
 # tests           export-ignore
 
 # Remove the lines below in your project.
 config                            export-ignore
 drupal_circleci_example.info.yml  export-ignore
 README.md                         export-ignore
-LICENSE.                          export-ignore
+LICENSE                           export-ignore
