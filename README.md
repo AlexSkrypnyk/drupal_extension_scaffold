@@ -20,15 +20,7 @@
 
 ---
 
-<p align="center">
-
-Template CI configuration for Drupal contrib modules testing on your CI provider
-with mirroring to Drupal.org.
-
-For Drupal 7 support,
-see [`7.x` branch](https://github.com/AlexSkrypnyk/drupal_module_scaffold/tree/7.x).
-
-</p>
+<p align="center">Drupal module template for development and testing in CI of your choice with mirroring to Drupal.org</p>
 
 ## Use case
 
@@ -41,25 +33,26 @@ to [drupal.org](https://drupal.org).
 - Turnkey CI configuration with artifacts and test results support.
   - PHP version matrix for [8.2](https://www.php.net/supported-versions.php)
     and [8.1](https://www.php.net/supported-versions.php).
-  - Drupal version matrix: stable, next and last EOL version.
-  - CI builder container is based on official PHP docker image.
+  - Drupal version matrix: `stable`, `next` and `last EOL` version.
+  - CI providers: [CircleCI](.circleci/config.yml), (GitHub Actions coming soon)
 - Tools:
-  - [Develop locally](#local-development) using PHP running on your host using
-    identical scripts as CI.
+  - Develop locally using PHP running on your host using
+    identical [`.devtools`](.devtools) scripts as in CI.
   - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
   - PHP code static analysis
-    with [drupal-check](https://github.com/mglaman/drupal-check).
+    with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).  
   - PHP deprecated code analysis
     with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
+  - Twig code analysis with [TwigCS](https://github.com/friendsoftwig/twigcs).
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
   - Support for including of additional dependencies for integration testing
-    between modules (add dependency into [`suggest`](composer.json#L22) section
+    between modules (add dependency into [`suggest`](composer.json#L25) section
     of `composer.json`).
-  -
-  Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-  to provision Drupal site or custom fork.
+  - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
+  to provision Drupal site. Providing a custom fork of `drupal-project` is also supported.
+  - Renovate configuration to keep your repository dependencies up-to-date.
 - Deployment:
   - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git
     repo) on release.
