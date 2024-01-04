@@ -16,7 +16,4 @@
 # tests           export-ignore
 
 # Remove the lines below in your project.
-config                            export-ignore
-drupal_circleci_example.info.yml  export-ignore
-README.md                         export-ignore
-LICENSE                           export-ignore
+LICENSE           export-ignore

@@ -30,6 +30,7 @@ For Drupal 7 support, see [`7.x` branch](https://github.com/AlexSkrypnyk/drupal_
 
 
 ## Use case
+
 Perform module development in GitHub with testing in CircleCI, and push code
 committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drupal.org).
 
@@ -63,7 +64,7 @@ committed only to main branches (`1.x`, `2.x` etc.) to [drupal.org](https://drup
 2. Download this module's code by pressing 'Clone or download' button in GitHub UI.
 3. Copy the contents of the downloaded archive into your module's repository.
 4. Replace `drupal_circleci_example` with the machine name of your module.
-5. Adjust several lines in `.gitignore`.
+5. Adjust several lines in `.gitattributes`.
 6. Commit and push to your new GitHub repo.
 7. Login to CircleCI and add your new GitHub repository. Your project build will
    start momentarily.
@@ -103,7 +104,6 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
    - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
      deploy.
 
-
 ## Maintenance / Local development
 
 Provided that you have PHP installed locally, you can develop a module using
@@ -121,13 +121,13 @@ commands as in CI, plus installing a site and your module automatically.
 Run `.circleci/lint.sh` (or `ahoy lint` if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code according to the
 [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
-PHPCS config: phpcs.xml
+PHPCS config: `phpcs.xml`
 
-PHPStan config: phpstan.neon
+PHPStan config: `phpstan.neon`
 
-PHPMD config: phpmd.xml
+PHPMD config: `phpmd.xml`
 
-TWIGCS config: .twig_cs.php
+TWIGCS config: `.twig_cs.php`
 
 ![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
 
