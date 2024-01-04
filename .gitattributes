@@ -3,6 +3,7 @@
 # Uncomment the lines below in your project.
 # .ahoy.yml       export-ignore
 # .circleci       export-ignore
+# .devtools       export-ignore
 # .editorconfig   export-ignore
 # .gitattributes  export-ignore
 # .github         export-ignore

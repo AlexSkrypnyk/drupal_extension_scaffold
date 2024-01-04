@@ -6,12 +6,8 @@
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
 
-# Module name, taken from .info file.
-module="$(basename -s .info.yml -- ./*.info.yml)"
-
 pushd "build" >/dev/null || exit 1
 
-echo "==> Lint code for module $module."
 echo "  > Running PHPCS, PHPMD, TWIGCS"
 vendor/bin/phpcs
 
