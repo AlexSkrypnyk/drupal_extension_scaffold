@@ -11,9 +11,10 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_module_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_module_scaffold/pulls)
 [![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_module_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_module_scaffold)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_module_scaffold)
-![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_module_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
+
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 
 </div>
 
