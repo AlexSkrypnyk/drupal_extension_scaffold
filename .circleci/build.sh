@@ -67,6 +67,7 @@ drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
 
 # Module name, taken from the .info file.
 module="$(basename -s .info.yml -- ./*.info.yml)"
+[ "${module}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
 
 # Database file path.
 db_file="/tmp/site_${module}.sqlite"
