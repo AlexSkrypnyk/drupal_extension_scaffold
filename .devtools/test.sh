@@ -28,6 +28,7 @@ echo "==> Run tests."
 
 # Module name, taken from .info file.
 module="$(basename -s .info.yml -- ./*.info.yml)"
+[ "${module}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
 
 # Test database file path.
 test_db_file="/tmp/test_${module}.sqlite"
