@@ -9,7 +9,7 @@
 # It is a good practice to create a separate Deployer user with own SSH key for
 # every project.
 #
-# Add the following variables through CircleCI UI.
+# Add the following variables through CI provider UI.
 # - DEPLOY_USER_NAME - name of the user who will be committing to a remote repository.
 # - DEPLOY_USER_EMAIL - email address of the user who will be committing to a remote repository.
 # - DEPLOY_REMOTE - remote repository to push code to.

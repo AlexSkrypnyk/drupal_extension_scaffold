@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\Tests\drupal_circleci_example\Functional;
+namespace Drupal\Tests\drupal_module_scaffold\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 
@@ -11,14 +11,14 @@ use Drupal\Tests\BrowserTestBase;
  *
  * Role testing for demo module.
  *
- * @group drupal_circleci_example
+ * @group drupal_module_scaffold
  */
 class DemoRoleFunctionalTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['pathauto', 'drupal_circleci_example'];
+  protected static $modules = ['pathauto', 'drupal_module_scaffold'];
 
   /**
    * {@inheritdoc}

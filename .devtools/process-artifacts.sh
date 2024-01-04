@@ -2,7 +2,7 @@
 ##
 # Process test artifacts.
 #
-# This runs only in CircleCI.
+# This runs only in CI.
 #
 
 set -eu

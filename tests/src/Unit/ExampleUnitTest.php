@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\Tests\drupal_circleci_example\Unit;
+namespace Drupal\Tests\drupal_module_scaffold\Unit;
 
 use Drupal\Tests\UnitTestCase;
 
@@ -11,7 +11,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * Demo test class to ensure that tests are discovered and can be ran.
  *
- * @group drupal_circleci_example
+ * @group drupal_module_scaffold
  */
 class ExampleUnitTest extends UnitTestCase {
 

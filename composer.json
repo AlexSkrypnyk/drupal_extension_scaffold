@@ -1,6 +1,6 @@
 {
-    "name": "drupal/drupal_circleci_example",
-    "description": "Example module for CircleCI integration template testing.",
+    "name": "drupal/drupal_module_scaffold",
+    "description": "Drupal module scaffold example used for template testing.",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -11,10 +11,10 @@
             "role": "Maintainer"
         }
     ],
-    "homepage": "https://drupal.org/project/drupal_circleci_example",
+    "homepage": "https://drupal.org/project/drupal_module_scaffold",
     "support": {
-        "issues": "https://drupal.org/project/issues/drupal_circleci_example",
-        "source": "https://git.drupalcode.org/project/drupal_circleci_example"
+        "issues": "https://drupal.org/project/issues/drupal_module_scaffold",
+        "source": "https://git.drupalcode.org/project/drupal_module_scaffold"
     },
     "require": {
         "php": ">=8.1"
