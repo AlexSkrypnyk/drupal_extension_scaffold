@@ -27,16 +27,17 @@ echo "   Start built-in PHP server   "
 echo "-------------------------------"
 
 echo "> Stop previously started services, if any."
-killall -9 php > /dev/null 2>&1 || true
+killall -9 php >/dev/null 2>&1 || true
 
 echo "> Start the PHP webserver."
-nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/build/web" "$(pwd)/build/web/.ht.router.php" > /tmp/php.log 2>&1 &
+nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/build/web" "$(pwd)/build/web/.ht.router.php" >/tmp/php.log 2>&1 &
 
 echo "> Wait ${WEBSERVER_WAIT_TIMEOUT} seconds for the server to be ready."
 sleep "${WEBSERVER_WAIT_TIMEOUT}"
 
 echo "> Check that the server was started."
-netstat_opts='-tulpn'; [ "$(uname)" == "Darwin" ] && netstat_opts='-anv' || true;
+netstat_opts='-tulpn'
+[ "$(uname)" == "Darwin" ] && netstat_opts='-anv' || true
 netstat "${netstat_opts[@]}" | grep -q "${WEBSERVER_PORT}" || (echo "ERROR: Unable to start inbuilt PHP server" && cat /tmp/php.log && exit 1)
 
 echo "> Check that the server can serve content."

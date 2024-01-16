@@ -54,7 +54,7 @@ for drupal_suggest in $drupal_suggests; do
 done
 
 # Visit site to pre-warm caches.
-curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" > /dev/null
+curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" >/dev/null
 
 echo
 echo "-------------------------------"

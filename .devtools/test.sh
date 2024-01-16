@@ -34,11 +34,11 @@ module="$(basename -s .info.yml -- ./*.info.yml)"
 test_db_file="/tmp/test_${module}.sqlite"
 
 # Re-create test results directory.
-rm -rf "${TEST_RESULTS_DIR}" > /dev/null
+rm -rf "${TEST_RESULTS_DIR}" >/dev/null
 mkdir -p "${TEST_RESULTS_DIR}"
 
 # Remove existing test DB file.
-rm -f "${test_db_file}" > /dev/null
+rm -f "${test_db_file}" >/dev/null
 
 # Run tests using script provided by Drupal.
 php "./build/web/core/scripts/run-tests.sh" \

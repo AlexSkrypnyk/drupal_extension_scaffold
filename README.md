@@ -40,7 +40,7 @@ to [drupal.org](https://drupal.org).
     identical [`.devtools`](.devtools) scripts as in CI.
   - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
   - PHP code static analysis
-    with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).  
+    with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
   - PHP deprecated code analysis
     with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
   - Twig code analysis with [TwigCS](https://github.com/friendsoftwig/twigcs).
@@ -70,10 +70,11 @@ to [drupal.org](https://drupal.org).
 3. Copy the contents of the downloaded archive into your module's repository.
 4. Replace `drupal_module_scaffold` with the machine name of your module.
 5. Adjust several lines in `.gitattributes`.
-6. Commit and push to your new GitHub repo.
-7. Login to your CI and add your new GitHub repository. Your project build will
+6. Remove `.github/test-scaffold.yml` file.
+7. Commit and push to your new GitHub repo.
+8. Login to your CI and add your new GitHub repository. Your project build will
    start momentarily.
-8. Configure deployment to [drupal.org](https://drupal.org) (see below).
+9. Configure deployment to [drupal.org](https://drupal.org) (see below).
 
 ## Deployment
 

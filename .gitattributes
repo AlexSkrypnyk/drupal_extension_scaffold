@@ -17,4 +17,5 @@
 # tests           export-ignore
 
 # Remove the lines below in your project.
-LICENSE           export-ignore
+.github/FUNDING.yml export-ignore
+LICENSE             export-ignore
