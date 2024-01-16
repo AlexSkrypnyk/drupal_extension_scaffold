@@ -1,20 +1,21 @@
 # Ignore files for distribution archives.
 
 # Uncomment the lines below in your project.
-# .ahoy.yml       export-ignore
-# .circleci       export-ignore
-# .devtools       export-ignore
-# .editorconfig   export-ignore
-# .gitattributes  export-ignore
-# .github         export-ignore
-# .gitignore      export-ignore
-# .twig_cs.php    export-ignore
-# phpcs.xml       export-ignore
-# phpmd.xml       export-ignore
-# phpstan.neon    export-ignore
-# rector.php      export-ignore
-# renovate.json   export-ignore
-# tests           export-ignore
+# .ahoy.yml         export-ignore
+# .circleci         export-ignore
+# .devtools         export-ignore
+# .editorconfig     export-ignore
+# .gitattributes    export-ignore
+# .github           export-ignore
+# .gitignore        export-ignore
+# .twig_cs.php      export-ignore
+# composer.dev.json export-ignore
+# phpcs.xml         export-ignore
+# phpmd.xml         export-ignore
+# phpstan.neon      export-ignore
+# rector.php        export-ignore
+# renovate.json     export-ignore
+# tests             export-ignore
 
 # Remove the lines below in your project.
 .github/FUNDING.yml export-ignore
