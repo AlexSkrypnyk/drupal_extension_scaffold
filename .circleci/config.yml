@@ -17,11 +17,19 @@ job-build: &job-build
     - checkout
 
     - run:
-        name: Build site
-        command: .devtools/build.sh
+        name: Build the codebase
+        command: .devtools/build-codebase.sh
 
     - run:
-        name: Lint code
+        name: Start built-in PHP server
+        command: .devtools/start-server.sh
+
+    - run:
+        name: Provision site
+        command: .devtools/provision.sh
+
+    - run:
+        name: Check coding standards
         command: .devtools/lint.sh
 
     - run:
