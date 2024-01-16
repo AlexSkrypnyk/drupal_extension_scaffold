@@ -29,8 +29,29 @@ job-build: &job-build
         command: .devtools/provision.sh
 
     - run:
-        name: Check coding standards
-        command: .devtools/lint.sh
+        name: Lint code with PHPCS
+        command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+
+    - run:
+        name: Lint code with PHPStan
+        command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+
+    - run:
+        name: Lint code with Rector
+        command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+
+    - run:
+        name: Lint code with PHPMD
+        command: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+
+    - run:
+        name: Lint code with Twigcs
+        command: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
 
     - run:
         name: Run tests
