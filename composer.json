@@ -5,9 +5,9 @@
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "Alex Skrypnyk",
-            "email": "alex@drevops.com",
-            "homepage": "https://www.drupal.org/u/alexskrypnyk",
+            "name": "Your Name",
+            "email": "yourproject@yournamespace.com",
+            "homepage": "https://www.drupal.org/u/yourusername",
             "role": "Maintainer"
         }
     ],
