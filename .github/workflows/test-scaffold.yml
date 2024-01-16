@@ -1,0 +1,26 @@
+name: Test Scaffold
+
+# Workflow to **validate** the **integrity** of the scaffold template itself.
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+      - 'feature/**'
+
+jobs:
+  test-scaffold:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check coding standards
+        uses: luizm/action-sh-checker@v0.8.0
+        env:
+          SHFMT_OPTS: -i 2 -ci -s -d

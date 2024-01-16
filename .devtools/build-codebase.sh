@@ -45,10 +45,10 @@ echo "-------------------------------"
 export COMPOSER_MEMORY_LIMIT=-1
 
 echo "> Validate tools."
-! command -v git > /dev/null && echo "ERROR: Git is required for this script to run." && exit 1
-! command -v php > /dev/null && echo "ERROR: PHP is required for this script to run." && exit 1
-! command -v composer > /dev/null && echo "ERROR: Composer (https://getcomposer.org/) is required for this script to run." && exit 1
-! command -v jq > /dev/null && echo "ERROR: jq (https://stedolan.github.io/jq/) is required for this script to run." && exit 1
+! command -v git >/dev/null && echo "ERROR: Git is required for this script to run." && exit 1
+! command -v php >/dev/null && echo "ERROR: PHP is required for this script to run." && exit 1
+! command -v composer >/dev/null && echo "ERROR: Composer (https://getcomposer.org/) is required for this script to run." && exit 1
+! command -v jq >/dev/null && echo "ERROR: jq (https://stedolan.github.io/jq/) is required for this script to run." && exit 1
 
 # Module name, taken from the .info file.
 module="$(basename -s .info.yml -- ./*.info.yml)"
@@ -68,7 +68,7 @@ if [ -n "${DRUPAL_VERSION:-}" ] && [ -n "${DRUPAL_PROJECT_SHA:-}" ]; then
   # Clone Drupal core at the specific commit SHA.
   git clone -n "${DRUPAL_PROJECT_REPO}" "build"
   git --git-dir="build/.git" --work-tree="build" checkout "${DRUPAL_PROJECT_SHA}"
-  rm -rf "build/.git" > /dev/null
+  rm -rf "build/.git" >/dev/null
 
   echo "> Pin Drupal to a specific version ${DRUPAL_VERSION}."
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
@@ -81,7 +81,7 @@ else
 fi
 
 echo "> Merge configuration from module's composer.json."
-php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" > "build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
+php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
 echo "> Create GitHub authentication token if provided."
 [ -n "${GITHUB_TOKEN:-}" ] && composer config --global github-oauth.github.com "${GITHUB_TOKEN}" && echo "Token: " && composer config --global github-oauth.github.com
@@ -108,13 +108,13 @@ composer --working-dir="build" require --dev \
   phpmd/phpmd \
   phpspec/prophecy-phpunit:^2 \
   phpstan/extension-installer
-cat <<< "$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "build/composer.json")" > "build/composer.json"
+cat <<<"$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "build/composer.json")" >"build/composer.json"
 
 echo "> Copy tools configuration files."
 cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig_cs.php "build/"
 
 echo "> Symlink module code."
-rm -rf "build/web/modules/custom" > /dev/null && mkdir -p "build/web/modules/custom/${module}"
+rm -rf "build/web/modules/custom" >/dev/null && mkdir -p "build/web/modules/custom/${module}"
 ln -s "$(pwd)"/* "build/web/modules/custom/${module}" && rm "build/web/modules/custom/${module}/build"
 
 echo
