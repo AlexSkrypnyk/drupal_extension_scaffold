@@ -27,7 +27,7 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 #-------------------------------------------------------------------------------
 
 echo "-------------------------------"
-echo " Installing Drupal and modules "
+echo "   Install Drupal and modules  "
 echo "-------------------------------"
 
 drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
@@ -39,15 +39,15 @@ module="$(basename -s .info.yml -- ./*.info.yml)"
 # Database file path.
 db_file="/tmp/site_${module}.sqlite"
 
-echo "> Installing Drupal into SQLite database ${db_file}."
+echo "> Install Drupal into SQLite database ${db_file}."
 drush si "${DRUPAL_PROFILE}" -y --db-url "sqlite://${db_file}" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
 drush status
 
-echo "> Enabling module ${module}."
+echo "> Enable module ${module}."
 drush pm:enable "${module}" -y
 drush cr
 
-echo "> Enabling suggested modules, if any."
+echo "> Enable suggested modules, if any."
 drupal_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .suggest | keys[]' | sed "s/drupal\///" | cut -f1 -d":")
 for drupal_suggest in $drupal_suggests; do
   drush pm:enable "${drupal_suggest}" -y

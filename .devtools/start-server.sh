@@ -23,22 +23,23 @@ WEBSERVER_WAIT_TIMEOUT="${WEBSERVER_WAIT_TIMEOUT:-5}"
 #-------------------------------------------------------------------------------
 
 echo "-------------------------------"
-echo " Starting built-in PHP server  "
+echo "   Start built-in PHP server   "
 echo "-------------------------------"
 
-echo "> Stopping previously started services, if any."
+echo "> Stop previously started services, if any."
 killall -9 php > /dev/null 2>&1 || true
 
-echo "> Starting the PHP webserver."
+echo "> Start the PHP webserver."
 nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/build/web" "$(pwd)/build/web/.ht.router.php" > /tmp/php.log 2>&1 &
-echo "> Waiting ${WEBSERVER_WAIT_TIMEOUT} seconds for the server to be ready."
+
+echo "> Wait ${WEBSERVER_WAIT_TIMEOUT} seconds for the server to be ready."
 sleep "${WEBSERVER_WAIT_TIMEOUT}"
-netstat_opts='-tulpn'; [ "$(uname)" == "Darwin" ] && netstat_opts='-anv' || true;
 
 echo "> Check that the server was started."
+netstat_opts='-tulpn'; [ "$(uname)" == "Darwin" ] && netstat_opts='-anv' || true;
 netstat "${netstat_opts[@]}" | grep -q "${WEBSERVER_PORT}" || (echo "ERROR: Unable to start inbuilt PHP server" && cat /tmp/php.log && exit 1)
 
-# Check that the server can serve content.
+echo "> Check that the server can serve content."
 curl -s -o /dev/null -w "%{http_code}" -L -I "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" | grep -q 200 || (echo "ERROR: Server is started, but site cannot be served" && exit 1)
 
 echo

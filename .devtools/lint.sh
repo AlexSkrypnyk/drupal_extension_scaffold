@@ -8,19 +8,19 @@ set -eu
 
 pushd "build" >/dev/null || exit 1
 
-echo "> Running PHPCS, PHPMD, TWIGCS"
+echo "> Run PHPCS, PHPMD, TWIGCS"
 vendor/bin/phpcs
 
-echo "> Running PHPMD"
+echo "> Run PHPMD"
 vendor/bin/phpmd --exclude vendor . text phpmd.xml
 
-echo "> Running TWIGCS"
+echo "> Run TWIGCS"
 vendor/bin/twigcs
 
-echo "> Running phpstan."
+echo "> Run PHPStan"
 vendor/bin/phpstan
 
-echo "> Running Drupal Rector."
+echo "> Run Rector"
 vendor/bin/rector --dry-run
 
 popd >/dev/null || exit 1

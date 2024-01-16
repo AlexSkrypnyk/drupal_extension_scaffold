@@ -21,10 +21,10 @@ TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/tmp/test_results/simpletest}"
 
 #-------------------------------------------------------------------------------
 
-echo "==> Run tests."
+echo "> Run tests."
 
 # Do not fail if there are no tests.
-[ ! -d "tests" ] && echo "==> No tests were found. Skipping." && exit 0
+[ ! -d "tests" ] && echo "> No tests were found. Skipping." && exit 0
 
 # Module name, taken from .info file.
 module="$(basename -s .info.yml -- ./*.info.yml)"
