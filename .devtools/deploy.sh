@@ -44,14 +44,18 @@ DEPLOY_PROCEED="${DEPLOY_PROCEED:-0}"
 
 #-------------------------------------------------------------------------------
 
+echo "-------------------------------"
+echo "          Deploy code          "
+echo "-------------------------------"
+
 [ -z "${DEPLOY_USER_NAME}" ] && echo "ERROR: Missing required value for DEPLOY_USER_NAME" && exit 1
 [ -z "${DEPLOY_USER_EMAIL}" ] && echo "ERROR: Missing required value for DEPLOY_USER_EMAIL" && exit 1
 [ -z "${DEPLOY_REMOTE}" ] && echo "ERROR: Missing required value for DEPLOY_REMOTE" && exit 1
 [ -z "${DEPLOY_SSH_FINGERPRINT}" ] && echo "ERROR: Missing required value for DEPLOY_SSH_FINGERPRINT" && exit 1
 
-[ "${DEPLOY_PROCEED}" != "1" ] && echo "==> Skipping deployment because \$DEPLOY_PROCEED is not set to 1" && exit 0
+[ "${DEPLOY_PROCEED}" != "1" ] && echo "> Skip deployment because \$DEPLOY_PROCEED is not set to 1" && exit 0
 
-# Configure git and SSH to connect to remote servers for deployment.
+echo "> Configure git and SSH to connect to remote servers for deployment."
 mkdir -p "${HOME}/.ssh/"
 echo -e "Host *\n\tStrictHostKeyChecking no\n" > "${HOME}/.ssh/config"
 DEPLOY_SSH_FILE="${DEPLOY_SSH_FINGERPRINT//:}"
@@ -61,24 +65,29 @@ if [ -z "${SSH_AGENT_PID:-}" ]; then eval "$(ssh-agent)"; fi
 ssh-add -D > /dev/null
 ssh-add "${DEPLOY_SSH_FILE}"
 
-# Configure git user name and email, but only if not already set.
-[ "$(git config --global user.name)" == "" ] && echo "==> Configuring global git user name ${DEPLOY_USER_NAME}." && git config --global user.name "${DEPLOY_USER_NAME}"
-[ "$(git config --global user.email)" == "" ] && echo "==> Configuring global git user email ${DEPLOY_USER_EMAIL}." && git config --global user.email "${DEPLOY_USER_EMAIL}"
+echo "> Configure git user name and email, but only if not already set."
+[ "$(git config --global user.name)" == "" ] && echo "> Configure global git user name ${DEPLOY_USER_NAME}." && git config --global user.name "${DEPLOY_USER_NAME}"
+[ "$(git config --global user.email)" == "" ] && echo "> Configure global git user email ${DEPLOY_USER_EMAIL}." && git config --global user.email "${DEPLOY_USER_EMAIL}"
 
-# Set git to push to a matching remote branch.
+echo "> Set git to push to a matching remote branch."
 git config --global push.default matching
 
-echo "==> Adding remote ${DEPLOY_REMOTE}."
+echo "> Add remote ${DEPLOY_REMOTE}."
 git remote add deployremote "${DEPLOY_REMOTE}"
 
-echo "==> Deploying to remote ${DEPLOY_REMOTE}."
-
-echo "> Pushing code to branch ${DEPLOY_BRANCH}."
+echo "> Push code to branch ${DEPLOY_BRANCH}."
 git push --force deployremote HEAD:"${DEPLOY_BRANCH}"
 
-echo "> Pushing tags."
+echo "> Push tags."
 git push --force --tags deployremote || true
 
+echo "-------------------------------"
+echo "        Deployed code          "
+echo "-------------------------------"
 echo
-echo "==> Deployment finished."
+echo "Remote URL    : ${DEPLOY_REMOTE}"
+echo "Remote branch : ${DEPLOY_BRANCH}"
+echo
+echo "> Next steps:"
+echo "  Navigate to Drupal.org and check that the code was successfully pushed."
 echo
