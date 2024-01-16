@@ -107,6 +107,18 @@ echo "> Symlink module code."
 rm -rf "build/web/modules/custom" >/dev/null && mkdir -p "build/web/modules/custom/${module}"
 ln -s "$(pwd)"/* "build/web/modules/custom/${module}" && rm "build/web/modules/custom/${module}/build"
 
+# If front-end dependencies are used in the project, package-lock.json is
+# expected to be committed to the repository.
+if [ -f "build/web/modules/custom/${module}/package-lock.json" ]; then
+  pushd "build/web/modules/custom/${module}" >/dev/null || exit 1
+  echo "> Install front-end dependencies."
+  [ -f ".nvmrc" ] && nvm use || true
+  [ ! -d "node_modules" ] && npm ci || true
+  echo "> Build front-end dependencies."
+  npm run build
+  popd >/dev/null || exit 1
+fi
+
 echo
 echo "-------------------------------"
 echo "        Codebase built 🚀      "
