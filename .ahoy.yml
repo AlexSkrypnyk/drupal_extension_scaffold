@@ -26,7 +26,22 @@ commands:
 
   lint:
     usage: Lint code.
-    cmd: ./.devtools/lint.sh
+    cmd: |
+      pushd "build" >/dev/null || exit 1
+      vendor/bin/phpcs
+      vendor/bin/phpstan
+      vendor/bin/rector --clear-cache --dry-run
+      vendor/bin/phpmd . text phpmd.xml
+      vendor/bin/twigcs
+      popd >/dev/null || exit 1
+
+  lint-fix:
+    usage: Fix coding standards.
+    cmd: |
+      pushd "build" >/dev/null || exit 1
+      vendor/bin/rector --clear-cache
+      vendor/bin/phpcbf
+      popd >/dev/null || exit 1
 
   test:
     usage: Run all tests.
