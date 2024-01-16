@@ -80,6 +80,9 @@ else
   composer create-project drupal-composer/drupal-project:@dev "build" --no-interaction --no-install
 fi
 
+echo "> Merge configuration from composer.dev.json."
+php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.dev.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
+
 echo "> Merge configuration from module's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
@@ -96,19 +99,6 @@ composer_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .sugge
 for composer_suggest in $composer_suggests; do
   composer --working-dir="build" require "${composer_suggest}"
 done
-
-echo "> Install other dev dependencies."
-composer --working-dir="build" config allow-plugins.phpstan/extension-installer true
-composer --working-dir="build" require --dev \
-  dealerdirect/phpcodesniffer-composer-installer \
-  friendsoftwig/twigcs:^6.2 \
-  mglaman/phpstan-drupal:^1.2 \
-  palantirnet/drupal-rector:^0.18 \
-  phpcompatibility/php-compatibility \
-  phpmd/phpmd \
-  phpspec/prophecy-phpunit:^2 \
-  phpstan/extension-installer
-cat <<<"$(jq --indent 4 '.extra["phpcodesniffer-search-depth"] = 10' "build/composer.json")" >"build/composer.json"
 
 echo "> Copy tools configuration files."
 cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig_cs.php "build/"
