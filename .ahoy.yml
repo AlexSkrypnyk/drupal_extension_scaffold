@@ -1,8 +1,5 @@
-#
 # Ahoy configuration file.
 # http://www.ahoycli.com/
-#
-# Provides development experience shortcuts.
 ---
 ahoyapi: v2
 
@@ -10,7 +7,22 @@ commands:
 
   build:
     usage: Build or rebuild the project.
-    cmd: ./.devtools/build.sh
+    cmd: |
+      ahoy build-codebase
+      ahoy start-server
+      ahoy provision
+
+  build-codebase:
+    usage: Build the codebase.
+    cmd: ./.devtools/build-codebase.sh
+
+  start-server:
+    usage: Start built-in PHP-server.
+    cmd: ./.devtools/start-server.sh
+
+  provision:
+    usage: Provision a website.
+    cmd: ./.devtools/provision.sh
 
   lint:
     usage: Lint code.
