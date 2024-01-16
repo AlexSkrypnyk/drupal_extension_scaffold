@@ -4,5 +4,9 @@
     "dependencyDashboard": true,
     "extends": [
         "config:base"
+    ],
+    "ignorePaths": [
+        ".circleci/config.yml",
+        ".github/workflows/test-php.yml"
     ]
 }
