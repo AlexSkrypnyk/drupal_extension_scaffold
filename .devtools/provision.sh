@@ -26,25 +26,25 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 #-------------------------------------------------------------------------------
 
-echo "-------------------------------"
-echo "   Install Drupal and modules  "
-echo "-------------------------------"
+echo "----------------------------------"
+echo "   Install Drupal and extensions  "
+echo "----------------------------------"
 
 drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
 
-# Module name, taken from .info file.
-module="$(basename -s .info.yml -- ./*.info.yml)"
-[ "${module}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+# Extension name, taken from .info file.
+extension="$(basename -s .info.yml -- ./*.info.yml)"
+[ "${extension}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
 
 # Database file path.
-db_file="/tmp/site_${module}.sqlite"
+db_file="/tmp/site_${extension}.sqlite"
 
 echo "> Install Drupal into SQLite database ${db_file}."
 drush si "${DRUPAL_PROFILE}" -y --db-url "sqlite://${db_file}" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
 drush status
 
-echo "> Enable module ${module}."
-drush pm:enable "${module}" -y
+echo "> Enable extension ${extension}."
+drush pm:enable "${extension}" -y
 drush cr
 
 echo "> Enable suggested modules, if any."

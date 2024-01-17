@@ -9,4 +9,7 @@ return Twigcs\Config\Config::create()
   ->setSeverity('error')
   ->setReporter('console')
   ->setRuleSet(Twigcs\Ruleset\Official::class)
-  ->addFinder(Twigcs\Finder\TemplateFinder::create()->in(__DIR__ . '/web/modules/custom'));
+  ->addFinder(Twigcs\Finder\TemplateFinder::create()->in([
+    __DIR__ . '/web/modules/custom',
+    __DIR__ . '/web/themes/custom',
+  ]));

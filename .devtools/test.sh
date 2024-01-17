@@ -26,12 +26,12 @@ echo "> Run tests."
 # Do not fail if there are no tests.
 [ ! -d "tests" ] && echo "> No tests were found. Skipping." && exit 0
 
-# Module name, taken from .info file.
-module="$(basename -s .info.yml -- ./*.info.yml)"
-[ "${module}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+# Extension name, taken from .info file.
+extension="$(basename -s .info.yml -- ./*.info.yml)"
+[ "${extension}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
 
 # Test database file path.
-test_db_file="/tmp/test_${module}.sqlite"
+test_db_file="/tmp/test_${extension}.sqlite"
 
 # Re-create test results directory.
 rm -rf "${TEST_RESULTS_DIR}" >/dev/null
@@ -50,4 +50,4 @@ php "./build/web/core/scripts/run-tests.sh" \
   --color \
   --verbose \
   --suppress-deprecations \
-  --module "${module}"
+  --module "${extension}"

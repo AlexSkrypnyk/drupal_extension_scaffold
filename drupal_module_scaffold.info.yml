@@ -1,8 +1,0 @@
-name: Drupal module scaffold
-type: module
-description: Drupal module scaffold example used for template testing.
-package: Testing
-core_version_requirement: ^9 || ^10
-
-dependencies:
-  - drupal:user
