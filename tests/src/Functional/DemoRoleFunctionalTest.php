@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\Tests\drupal_extension_scaffold\Functional;
+namespace Drupal\Tests\your_extension\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 
@@ -11,14 +11,14 @@ use Drupal\Tests\BrowserTestBase;
  *
  * Role testing for demo module.
  *
- * @group drupal_extension_scaffold
+ * @group your_extension
  */
 class DemoRoleFunctionalTest extends BrowserTestBase {
 
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['pathauto', 'drupal_extension_scaffold'];
+  protected static $modules = ['pathauto', 'your_extension'];
 
   /**
    * {@inheritdoc}

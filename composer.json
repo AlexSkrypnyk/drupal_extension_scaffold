@@ -1,5 +1,5 @@
 {
-    "name": "drupal/drupal_extension_scaffold",
+    "name": "drupal/your_extension",
     "description": "Drupal module scaffold example.",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
@@ -11,10 +11,10 @@
             "role": "Maintainer"
         }
     ],
-    "homepage": "https://drupal.org/project/drupal_extension_scaffold",
+    "homepage": "https://drupal.org/project/your_extension",
     "support": {
-        "issues": "https://drupal.org/project/issues/drupal_extension_scaffold",
-        "source": "https://git.drupalcode.org/project/drupal_extension_scaffold"
+        "issues": "https://drupal.org/project/issues/your_extension",
+        "source": "https://git.drupalcode.org/project/your_extension"
     },
     "require": {
         "php": ">=8.1"
