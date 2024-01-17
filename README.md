@@ -69,16 +69,17 @@ to [drupal.org](https://drupal.org).
    UI.
 3. Copy the contents of the downloaded archive into your extension's repository.
 4. Adjust the codebase:
-   a. Replace `drupal_extension_scaffold` with the machine name of your extension:
-   b. Update `type: theme` in the `info.yml` file if your extension is a theme.
-   c. Adjust several lines in `.gitattributes`.
-   d. Remove `.github/test-scaffold.yml` file.
+     1. Replace `drupal_extension_scaffold` with the machine name of your extension:
+     2. Update `type: theme` in the `info.yml` file if your extension is a theme.
+     3. Adjust several lines in `.gitattributes`.
+     4. Remove `.github/test-scaffold.yml` file.
+     5. Remove this content from `README.md` file.
 7. Commit and push to your new GitHub repo.
 8. Login to your CI and add your new GitHub repository. Your project build will
    start momentarily.
 9. Configure deployment to [drupal.org](https://drupal.org) (see below).
-
-## Deployment
+<details>
+  <summary>Configure deployment (click to expand)</summary>
 
 The CI supports mirroring of main branches (`1.x`, `10.x-1.x` etc.) to
 [drupal.org](https://drupal.org) mirror of the project (to keep both repos in
@@ -90,7 +91,6 @@ The deployment job runs when commits are pushed to main branches
 Example of deployment
 repository: https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination
 
-### Configure deployment
 
 1. Generate a new SSH key without pass phrase:
 
@@ -121,7 +121,50 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
 - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
   deploy.
 
-## Maintenance / Local development
+</details>
+
+---
+
+**Below is a content of the <code>README.md</code> file that will be added to your project.**
+
+**The content above this line should be removed.**
+
+---
+
+<p align="center">
+  <a href="" rel="noopener">
+  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+Extension+Scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
+</p>
+
+<h1 align="center">Drupal extension scaffold</h1>
+
+<div align="center">
+
+[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/pulls)
+[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
+![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
+![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
+
+![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+
+</div>
+
+---
+
+<p align="center"> Few lines describing your project.
+    <br>
+</p>
+
+## Features
+
+- Your first feature as a list item
+- Your second feature as a list item
+- Your third feature as a list item
+
+
+## Local development
 
 Provided that you have PHP installed locally, you can develop an extension using
 the provided scripts.
@@ -141,6 +184,16 @@ Run tools individually (or `ahoy lint` to run all tools
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code
 according to
 the [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
+
+```
+cd build
+
+vendor/bin/phpcs
+vendor/bin/phpstan
+vendor/bin/rector --clear-cache --dry-run
+vendor/bin/phpmd . text phpmd.xml
+vendor/bin/twigcs
+```
 
 - PHPCS config: [`phpcs.xml`](phpcs.xml)
 - PHPStan config: [`phpstan.neon`](phpstan.neon)
@@ -163,8 +216,3 @@ your extension.
 To browse the contents of created SQLite database
 (located at `/tmp/site_[EXTENSION_NAME].sqlite`),
 use [DB Browser for SQLite](https://sqlitebrowser.org/).
-
----
-
-For an end-to-end website DevOps setup, check
-out [DrevOps](https://drevops.com) - Drupal project template
