@@ -1,17 +1,17 @@
 <p align="center">
   <a href="" rel="noopener">
-  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+Module+Scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
+  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+Extension+Scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
 </p>
 
-<h1 align="center">Drupal module scaffold</h1>
+<h1 align="center">Drupal extension scaffold</h1>
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_module_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_module_scaffold/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_module_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_module_scaffold/pulls)
-[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_module_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_module_scaffold)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_module_scaffold)
-![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_module_scaffold)
+[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/pulls)
+[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
+![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
@@ -20,11 +20,11 @@
 
 ---
 
-<p align="center">Drupal module template for development and testing in CI of your choice with mirroring to Drupal.org</p>
+<p align="center">Drupal extension template for development and testing in CI of your choice with mirroring to Drupal.org</p>
 
 ## Use case
 
-Perform module development in GitHub with testing in CI, and push code
+Perform extension development in GitHub with testing in CI, and push code
 committed only to main branches (`1.x`, `2.x` etc.)
 to [drupal.org](https://drupal.org).
 
@@ -48,7 +48,7 @@ to [drupal.org](https://drupal.org).
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
   - Support for including of additional dependencies for integration testing
-    between modules (add dependency into [`suggest`](composer.json#L25) section
+    between extensions (add dependency into [`suggest`](composer.json#L25) section
     of `composer.json`).
   - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
   to provision Drupal site. Providing a custom fork of `drupal-project` is also supported.
@@ -62,15 +62,17 @@ to [drupal.org](https://drupal.org).
 
 <img src="https://user-images.githubusercontent.com/378794/253860380-7a702bf6-71f5-4c8c-a271-8dd3b25eaabf.png" alt="Screenshot of CI jobs" width="30%">
 
-## Usage
+## Setup
 
-1. Create your module's repository on GitHub.
-2. Download this module's code by pressing 'Clone or download' button in GitHub
+1. Create your extension's repository on GitHub.
+2. Download this extension's code by pressing 'Clone or download' button in GitHub
    UI.
-3. Copy the contents of the downloaded archive into your module's repository.
-4. Replace `drupal_module_scaffold` with the machine name of your module.
-5. Adjust several lines in `.gitattributes`.
-6. Remove `.github/test-scaffold.yml` file.
+3. Copy the contents of the downloaded archive into your extension's repository.
+4. Adjust the codebase:
+   a. Replace `drupal_extension_scaffold` with the machine name of your extension:
+   b. Update `type: theme` in the `info.yml` file if your extension is a theme.
+   c. Adjust several lines in `.gitattributes`.
+   d. Remove `.github/test-scaffold.yml` file.
 7. Commit and push to your new GitHub repo.
 8. Login to your CI and add your new GitHub repository. Your project build will
    start momentarily.
@@ -86,7 +88,7 @@ The deployment job runs when commits are pushed to main branches
 (`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created.
 
 Example of deployment
-repository: https://github.com/AlexSkrypnyk/drupal_module_scaffold_destination
+repository: https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination
 
 ### Configure deployment
 
@@ -114,14 +116,14 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
   remote repository (i.e., your name on drupal.org).
 - `DEPLOY_USER_EMAIL` - the email address of the user who will be committing
   to a remote repository (i.e., your email on drupal.org).
-- `DEPLOY_REMOTE` - your modules remote drupal.org repository (
-  i.e. `git@git.drupal.org:project/mymodule.git`).
+- `DEPLOY_REMOTE` - your extensions remote drupal.org repository (
+  i.e. `git@git.drupal.org:project/myextension.git`).
 - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
   deploy.
 
 ## Maintenance / Local development
 
-Provided that you have PHP installed locally, you can develop a module using
+Provided that you have PHP installed locally, you can develop an extension using
 the provided scripts.
 
 ### Build
@@ -129,13 +131,13 @@ the provided scripts.
 Run `.devtools/build.sh` (or `ahoy build`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP
 server locally and run the same commands as in CI, plus installing a site and
-your module automatically.
+your extension automatically.
 
 ![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
 
 ### Code linting
 
-Run `.devtools/lint.sh` (or `ahoy lint`
+Run tools individually (or `ahoy lint` to run all tools
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to lint your code
 according to
 the [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
@@ -152,14 +154,14 @@ the [Drupal coding standards](https://www.drupal.org/docs/develop/standards).
 
 Run `.devtools/test.sh` (or `ahoy test`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for
-your module.
+your extension.
 
 ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
 
 ### Browsing SQLite database
 
 To browse the contents of created SQLite database
-(located at `/tmp/site_[MODULE_NAME].sqlite`),
+(located at `/tmp/site_[EXTENSION_NAME].sqlite`),
 use [DB Browser for SQLite](https://sqlitebrowser.org/).
 
 ---

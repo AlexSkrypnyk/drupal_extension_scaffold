@@ -6,7 +6,7 @@
 # testing backward compatibility).
 #
 # - Retrieves the scaffold from drupal-composer/drupal-project or custom scaffold.
-# - Builds Drupal site codebase with current module and it's dependencies.
+# - Builds Drupal site codebase with current extension and it's dependencies.
 # - Adds development dependencies.
 # - Installs composer dependencies.
 #
@@ -50,9 +50,12 @@ echo "> Validate tools."
 ! command -v composer >/dev/null && echo "ERROR: Composer (https://getcomposer.org/) is required for this script to run." && exit 1
 ! command -v jq >/dev/null && echo "ERROR: jq (https://stedolan.github.io/jq/) is required for this script to run." && exit 1
 
-# Module name, taken from the .info file.
-module="$(basename -s .info.yml -- ./*.info.yml)"
-[ "${module}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+# Extension name, taken from the .info file.
+extension="$(basename -s .info.yml -- ./*.info.yml)"
+[ "${extension}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+
+# Extension type.
+type=$(grep -q "type: theme" "${extension}.info.yml" && echo "themes" || echo "modules")
 
 echo "> Validate Composer configuration."
 composer validate --ansi --strict
@@ -83,18 +86,21 @@ fi
 echo "> Merge configuration from composer.dev.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.dev.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
-echo "> Merge configuration from module's composer.json."
+echo "> Merge configuration from extension's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
 echo "> Create GitHub authentication token if provided."
 [ -n "${GITHUB_TOKEN:-}" ] && composer config --global github-oauth.github.com "${GITHUB_TOKEN}" && echo "Token: " && composer config --global github-oauth.github.com
 
+echo "> Create custom directories."
+mkdir -p build/web/modules/custom build/web/themes/custom
+
 echo "> Install dependencies."
 composer --working-dir="build" install
 
 # Suggested dependencies allow to install them for testing without requiring
-# them in module's composer.json.
-echo "> Install suggested dependencies from module's composer.json."
+# them in extension's composer.json.
+echo "> Install suggested dependencies from extension's composer.json."
 composer_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .suggest | keys[]')
 for composer_suggest in $composer_suggests; do
   composer --working-dir="build" require "${composer_suggest}"
@@ -103,14 +109,14 @@ done
 echo "> Copy tools configuration files."
 cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig_cs.php "build/"
 
-echo "> Symlink module code."
-rm -rf "build/web/modules/custom" >/dev/null && mkdir -p "build/web/modules/custom/${module}"
-ln -s "$(pwd)"/* "build/web/modules/custom/${module}" && rm "build/web/modules/custom/${module}/build"
+echo "> Symlink extension's code."
+rm -rf "build/web/${type}/custom" >/dev/null && mkdir -p "build/web/${type}/custom/${extension}"
+ln -s "$(pwd)"/* "build/web/${type}/custom/${extension}" && rm "build/web/${type}/custom/${extension}/build"
 
 # If front-end dependencies are used in the project, package-lock.json is
 # expected to be committed to the repository.
-if [ -f "build/web/modules/custom/${module}/package-lock.json" ]; then
-  pushd "build/web/modules/custom/${module}" >/dev/null || exit 1
+if [ -f "build/web/${type}/custom/${extension}/package-lock.json" ]; then
+  pushd "build/web/${type}/custom/${extension}" >/dev/null || exit 1
   echo "> Install front-end dependencies."
   [ -f ".nvmrc" ] && nvm use || true
   [ ! -d "node_modules" ] && npm ci || true
