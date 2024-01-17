@@ -1,5 +1,5 @@
 {
-    "name": "@drupal/drupal_extension_scaffold",
+    "name": "@drupal/your_extension",
     "version": "0.1.0",
     "description": "Drupal module scaffold FE example used for template testing.",
     "license": "GPL-2.0-or-later",

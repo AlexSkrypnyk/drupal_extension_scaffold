@@ -34,19 +34,25 @@ to [drupal.org](https://drupal.org).
   - PHP version matrix for [8.2](https://www.php.net/supported-versions.php)
     and [8.1](https://www.php.net/supported-versions.php).
   - Drupal version matrix: `stable`, `next` and `last EOL` version.
-  - CI providers: [CircleCI](.circleci/config.yml), (GitHub Actions coming soon)
+  - CI providers:
+      - [CircleCI](.circleci/config.yml)
+      - GitHub Actions (coming soon)
 - Tools:
   - Develop locally using PHP running on your host using
     identical [`.devtools`](.devtools) scripts as in CI.
-  - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
-  - PHP code static analysis
-    with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
-  - PHP deprecated code analysis
-    with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
-  - Twig code analysis with [TwigCS](https://github.com/friendsoftwig/twigcs).
+    ![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
+  - Codings standards checking:
+    - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
+    - PHP code static analysis
+      with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
+    - PHP deprecated code analysis
+      with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
+    - Twig code analysis with [TwigCS](https://github.com/friendsoftwig/twigcs).
+      ![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
+    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
   - Support for including of additional dependencies for integration testing
     between extensions (add dependency into [`suggest`](composer.json#L25) section
     of `composer.json`).
@@ -69,7 +75,7 @@ to [drupal.org](https://drupal.org).
    UI.
 3. Copy the contents of the downloaded archive into your extension's repository.
 4. Adjust the codebase:
-     1. Replace `drupal_extension_scaffold` with the machine name of your extension:
+     1. Replace `your_extension` with the machine name of your extension:
      2. Update `type: theme` in the `info.yml` file if your extension is a theme.
      3. Adjust several lines in `.gitattributes`.
      4. Remove `.github/test-scaffold.yml` file.
@@ -133,18 +139,18 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
 
 <p align="center">
   <a href="" rel="noopener">
-  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+Extension+Scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
+  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Your+Extension&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
 </p>
 
-<h1 align="center">Drupal extension scaffold</h1>
+<h1 align="center">Your extension</h1>
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/pulls)
-[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
-![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
+[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/your_extension.svg)](https://github.com/AlexSkrypnyk/your_extension/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/your_extension.svg)](https://github.com/AlexSkrypnyk/your_extension/pulls)
+[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/your_extension.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/your_extension)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/your_extension)
+![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/your_extension)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
 ![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
@@ -171,12 +177,10 @@ the provided scripts.
 
 ### Build
 
-Run `.devtools/build.sh` (or `ahoy build`
+Run `.devtools/build-codebase.sh` (or `ahoy build-codebase`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP
 server locally and run the same commands as in CI, plus installing a site and
 your extension automatically.
-
-![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
 
 ### Code linting
 
@@ -201,15 +205,11 @@ vendor/bin/twigcs
 - Rector config: [`rector.php`](rector.php)
 - TwigCS config: [`.twig_cs.php`](.twig_cs.php)
 
-![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
-
 ### Tests
 
 Run `.devtools/test.sh` (or `ahoy test`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for
 your extension.
-
-![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
 
 ### Browsing SQLite database
 

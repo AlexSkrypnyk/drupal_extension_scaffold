@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Drupal\Tests\drupal_extension_scaffold\Unit;
+namespace Drupal\Tests\your_extension\Unit;
 
 use Drupal\Tests\UnitTestCase;
 
@@ -11,7 +11,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * Demo test class to ensure that tests are discovered and can be ran.
  *
- * @group drupal_extension_scaffold
+ * @group your_extension
  */
 class ExampleUnitTest extends UnitTestCase {
 
