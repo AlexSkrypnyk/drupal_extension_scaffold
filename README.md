@@ -40,6 +40,13 @@ to [drupal.org](https://drupal.org).
 - Tools:
   - Develop locally using PHP running on your host using
     identical [`.devtools`](.devtools) scripts as in CI.
+    - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
+  to create drupal site structure. Providing a custom fork of `drupal-project` is also supported.
+    - Additional development dependenices provided in [`composer.dev.json`](composer.dev.json). These are merged during the codebase build.
+    - The extension can installed as a module or a theme: modify `type` property set in the `info.yml` file.
+    - Additional dependencies can be added for integration testing
+    between extensions: add dependency into [`suggest`](composer.json#L25) section
+    of `composer.json`.      
     ![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
   - Codings standards checking:
     - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
@@ -52,12 +59,7 @@ to [drupal.org](https://drupal.org).
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
-    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
-  - Support for including of additional dependencies for integration testing
-    between extensions (add dependency into [`suggest`](composer.json#L25) section
-    of `composer.json`).
-  - Uses [drupal-composer/drupal-project](https://github.com/drupal-composer/drupal-project)
-  to provision Drupal site. Providing a custom fork of `drupal-project` is also supported.
+    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)  
   - Renovate configuration to keep your repository dependencies up-to-date.
 - Deployment:
   - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git
