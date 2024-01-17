@@ -1,9 +1,9 @@
-# @see https://github.com/AlexSkrypnyk/your_extension
+# @see https://github.com/AlexSkrypnyk/drupal_extension_scaffold
 version: 2
 
 aliases:
   # SSH deployment key fingerprint from CircleCI App -> Project -> Settings -> SSH Permissions.
-  # Replace the value for your project.
+  # Replace with the value used for your project.
   - &deploy_ssh_fingerprint "2d:71:4d:aa:4d:34:38:b5:8f:af:ca:3b:d4:82:6a:21"
 
   # Configuration for shared runner containers, applied to each job.
@@ -55,7 +55,7 @@ job-build: &job-build
 
     - run:
         name: Run tests
-        command: .devtools/test.sh
+        command: .devtools/test.sh || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
     - run:
         name: Process artifacts
