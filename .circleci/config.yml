@@ -120,6 +120,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_fingerprint
+      - run: .devtools/add-ssh-key.sh
       - run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH}} .devtools/deploy.sh
 
 workflows:

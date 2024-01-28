@@ -1,0 +1,138 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - main
+      - ci-test
+      - 9.x
+      - 10.x
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: 'ubuntu-20.04'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php-versions: '8.1'
+            drupal-versions: 'stable'
+
+          - php-versions: '8.2'
+            drupal-versions: 'stable'
+
+          - php-versions: '8.1'
+            drupal-versions: '9.5'
+            drupal-project-hash: '9.x'
+
+          - php-versions: '8.2'
+            drupal-versions: '9.5'
+            drupal-project-hash: '9.x'
+
+          - php-versions: '8.2'
+            drupal-version: '10@beta'
+
+    env:
+      DRUPAL_VERSION: ${{ matrix.drupal-versions }}
+      DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-hash }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Test
+        run: echo "$DRUPAL_PROJECT_SHA $DRUPAL_VERSION. Today is $DAY_OF_WEEK!"
+
+      - name: Build the codebase
+        run: .devtools/build-codebase.sh
+
+      - name: Start built-in PHP server
+        run: .devtools/start-server.sh
+
+      - name: Provision site
+        run: .devtools/provision.sh
+
+      - name: Lint code with PHPCS
+        working-directory: build
+        run: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPStan
+        working-directory: build
+        run: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with Rector
+        working-directory: build
+        run: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPMD
+        working-directory: build
+        run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with Twigcs
+        working-directory: build
+        run: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Run tests
+        run: .devtools/test.sh || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Process artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artifacts (${{ join(matrix.*, ', ') }})
+          path: build/web/sites/simpletest/browser_output
+
+  deploy:
+    needs: [ build-and-test ]
+    if: |
+
+        github.event_name == 'push' && (github.event.ref_type == 'tag'
+        || github.event.ref == 'refs/heads/10.x'
+        || github.event.ref == 'refs/heads/9.x'
+        || github.event.ref == 'refs/heads/main'
+        || github.event.ref == 'refs/heads/ci-test')
+
+    runs-on: 'ubuntu-20.04'
+
+    env:
+      DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
+      DEPLOY_USER_EMAIL: ${{ secrets.DEPLOY_USER_NAME }}
+      DEPLOY_REMOTE: ${{ secrets.DEPLOY_REMOTE }}
+      DEPLOY_PROCEED: ${{ secrets.DEPLOY_PROCEED }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_rsa
+          known_hosts: unnecessary
+          config: |
+            Host *
+              StrictHostKeyChecking no
+
+      - name: Deploy to Remote
+        run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${GITHUB_REF_NAME}} .devtools/deploy.sh
+
+
