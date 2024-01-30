@@ -1,4 +1,4 @@
-name: CI-CD
+name: CI
 
 on:
   push:
@@ -18,24 +18,23 @@ jobs:
     runs-on: 'ubuntu-20.04'
 
     strategy:
-      fail-fast: false
       matrix:
         include:
-          - php-versions: '8.1'
-            drupal-versions: 'stable'
+          - php-version: '8.1'
+            drupal-version: 'stable'
 
-          - php-versions: '8.2'
-            drupal-versions: 'stable'
+          - php-version: '8.2'
+            drupal-version: 'stable'
 
-          - php-versions: '8.1'
-            drupal-versions: '9.5'
+          - php-version: '8.1'
+            drupal-version: '9.5'
             drupal-project-hash: '9.x'
 
-          - php-versions: '8.2'
-            drupal-versions: '9.5'
+          - php-version: '8.2'
+            drupal-version: '9.5'
             drupal-project-hash: '9.x'
 
-          - php-versions: '8.2'
+          - php-version: '8.2'
             drupal-version: '10@beta'
 
     env:
@@ -56,9 +55,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-
-      - name: Test
-        run: echo "$DRUPAL_PROJECT_SHA $DRUPAL_VERSION. Today is $DAY_OF_WEEK!"
 
       - name: Build the codebase
         run: .devtools/build-codebase.sh
@@ -99,9 +95,9 @@ jobs:
           path: build/web/sites/simpletest/browser_output
 
   deploy:
-    needs: [ build-and-test ]
+    needs:
+      - build-and-test
     if: |
-
         github.event_name == 'push' && (github.event.ref_type == 'tag'
         || github.event.ref == 'refs/heads/10.x'
         || github.event.ref == 'refs/heads/9.x'
@@ -134,5 +130,3 @@ jobs:
 
       - name: Deploy to Remote
         run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${GITHUB_REF_NAME}} .devtools/deploy.sh
-
-
