@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
 
     strategy:
       matrix:
@@ -108,7 +108,7 @@ jobs:
       || github.event.ref == 'refs/heads/ci-test'
       || github.event.ref == 'refs/heads/ci')
 
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
 
     env:
       DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
