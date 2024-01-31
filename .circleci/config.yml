@@ -4,7 +4,7 @@ version: 2
 aliases:
   # SSH deployment key fingerprint from CircleCI App -> Project -> Settings -> SSH Permissions.
   # Replace with the value used for your project.
-  - &deploy_ssh_fingerprint "2d:71:4d:aa:4d:34:38:b5:8f:af:ca:3b:d4:82:6a:21"
+  - &deploy_ssh_key_fingerprint "2d:71:4d:aa:4d:34:38:b5:8f:af:ca:3b:d4:82:6a:21"
 
   # Configuration for shared runner containers, applied to each job.
   - &container_config
@@ -114,14 +114,19 @@ jobs:
   deploy:
     <<: *container_config
     environment:
-      DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
+      SSH_KEY_FINGERPRINT: *deploy_ssh_key_fingerprint
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - *deploy_ssh_fingerprint
-      - run: .devtools/setup-ssh.sh
-      - run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH}} .devtools/deploy.sh
+            - *deploy_ssh_key_fingerprint
+      - run:
+          name: Setup SSH
+          command: .devtools/setup-ssh.sh
+
+      - run:
+          name: Deploy
+          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH}} .devtools/deploy.sh
 
 workflows:
   version: 2
