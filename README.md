@@ -14,7 +14,7 @@
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
-![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 
 </div>
 
@@ -35,8 +35,8 @@ to [drupal.org](https://drupal.org).
     and [8.1](https://www.php.net/supported-versions.php).
   - Drupal version matrix: `stable`, `next` and `last EOL` version.
   - CI providers:
+      - [GitHub Actions](.github/workflows/test.yml)
       - [CircleCI](.circleci/config.yml)
-      - GitHub Actions (coming soon)
 - Tools:
   - Develop locally using PHP running on your host using
     identical [`.devtools`](.devtools) scripts as in CI.
@@ -97,7 +97,9 @@ The deployment job runs when commits are pushed to main branches
 (`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created.
 
 Example of deployment
-repository: https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination
+repository:
+- from GitHub Actions: https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github
+- from CircleCI: https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_circleci
 
 
 1. Generate a new SSH key without pass phrase:
@@ -155,7 +157,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/your_extension)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
-![Drupal 9](https://img.shields.io/badge/Drupal-9-blue.svg) ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 
 </div>
 

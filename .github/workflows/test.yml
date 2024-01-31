@@ -1,4 +1,4 @@
-name: CI
+name: Build, test and deploy
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - feature/**
 
 jobs:
-  build:
+  build_and_test:
     runs-on: 'ubuntu-22.04'
 
     strategy:
@@ -94,7 +94,7 @@ jobs:
 
   deploy:
     needs:
-      - build
+      - build_and_test
 
     runs-on: 'ubuntu-22.04'
 
