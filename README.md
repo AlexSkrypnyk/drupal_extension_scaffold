@@ -9,6 +9,7 @@
 
 [![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/pulls)
+[![Build, test and deploy](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/actions/workflows/test.yml/badge.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/actions/workflows/test.yml)
 [![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
@@ -150,11 +151,12 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/your_extension.svg)](https://github.com/AlexSkrypnyk/your_extension/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/your_extension.svg)](https://github.com/AlexSkrypnyk/your_extension/pulls)
-[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/your_extension.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/your_extension)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/your_extension)
-![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/your_extension)
+[![GitHub Issues](https://img.shields.io/github/issues/YourNamespace/your_extension.svg)](https://github.com/YourNamespace/your_extension/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/YourNamespace/your_extension.svg)](https://github.com/YourNamespace/your_extension/pulls)
+[![Build, test and deploy](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml/badge.svg)](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml)
+[![CircleCI](https://circleci.com/gh/YourNamespace/your_extension.svg?style=shield)](https://circleci.com/gh/YourNamespace/your_extension)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/YourNamespace/your_extension)
+![LICENSE](https://img.shields.io/github/license/YourNamespace/your_extension)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
