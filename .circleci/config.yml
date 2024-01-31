@@ -114,15 +114,13 @@ jobs:
   deploy:
     <<: *container_config
     environment:
-      SSH_KEY_FINGERPRINT: *deploy_ssh_key_fingerprint
+      DEPLOY_SSH_KEY_FINGERPRINT: *deploy_ssh_key_fingerprint
     steps:
       - checkout
+
       - add_ssh_keys:
           fingerprints:
             - *deploy_ssh_key_fingerprint
-      - run:
-          name: Setup SSH
-          command: .devtools/setup-ssh.sh
 
       - run:
           name: Deploy

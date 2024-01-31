@@ -36,7 +36,7 @@ jobs:
             drupal-version: '10@beta'
 
     env:
-      DRUPAL_VERSION: ${{ matrix.drupal-versions }}
+      DRUPAL_VERSION: ${{ matrix.drupal-version }}
       DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-hash }}
 
     steps:
@@ -52,7 +52,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-version }}
 
       - name: Build the codebase
         run: .devtools/build-codebase.sh

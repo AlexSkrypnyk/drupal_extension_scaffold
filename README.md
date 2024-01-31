@@ -121,7 +121,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
     file with this copied fingerprint string.
   - Push the code to your repository.
 
-4. In CI, UI add the following variables:
+4. In CI, use UI to add the following variables:
 
 - `DEPLOY_USER_NAME` - the name of the user who will be committing to a
   remote repository (i.e., your name on drupal.org).
@@ -131,6 +131,10 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email@example.com"
   i.e. `git@git.drupal.org:project/myextension.git`).
 - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
   deploy.
+
+To debug SSH connection used by Git, add `GIT_SSH_COMMAND` variable with value
+`ssh -vvv`. This will output verbose information about the SSH connection and
+key used.
 
 </details>
 
