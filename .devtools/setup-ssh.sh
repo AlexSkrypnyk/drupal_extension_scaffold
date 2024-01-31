@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Add ssh key.
+# Setup SSH.
 #
 # - adds deployment SSH key to SSH agent
 #
