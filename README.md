@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
-  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+Extension+Scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
+  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+extension+scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Drupal extension scaffold"></a>
 </p>
 
 <h1 align="center">Drupal extension scaffold</h1>
@@ -25,7 +25,7 @@
 ## Use case
 
 Perform extension development in GitHub with testing in CI, and push code
-committed only to main branches (`1.x`, `2.x` etc.)
+committed only to the main branches (`1.x`, `2.x` etc.)
 to [drupal.org](https://drupal.org).
 
 ## Features
@@ -46,7 +46,7 @@ to [drupal.org](https://drupal.org).
     - The extension can installed as a module or a theme: modify `type` property set in the `info.yml` file.
     - Additional dependencies can be added for integration testing
     between extensions: add dependency into [`suggest`](composer.json#L25) section
-    of `composer.json`.      
+    of `composer.json`.
     ![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
   - Codings standards checking:
     - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
@@ -59,7 +59,7 @@ to [drupal.org](https://drupal.org).
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
-    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)  
+    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
   - Renovate configuration to keep your repository dependencies up-to-date.
 - Deployment:
   - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git
