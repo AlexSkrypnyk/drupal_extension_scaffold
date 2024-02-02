@@ -3,6 +3,8 @@ name: Test
 on:
   push:
   pull_request:
+    tags:
+      - '**'
     branches:
       - 1.x
 
