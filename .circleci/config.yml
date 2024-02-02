@@ -12,7 +12,7 @@ aliases:
     docker:
       - image: cimg/php:8.2-browsers
 
-job-build: &job-build
+job-test: &job-test
   steps:
     - checkout
 
@@ -73,43 +73,43 @@ job-build: &job-build
         path: /tmp/artifacts
 
 jobs:
-  build-php-8.1:
+  test-php-8.1:
     <<: *container_config
     docker:
       - image: cimg/php:8.1-browsers
-    <<: *job-build
+    <<: *job-test
 
-  build-php-8.2:
+  test-php-8.2:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers
-    <<: *job-build
+    <<: *job-test
 
-  build-php-8.1-legacy:
+  test-php-8.1-legacy:
     <<: *container_config
     docker:
       - image: cimg/php:8.1-browsers
     environment:
       DRUPAL_VERSION: 9.5
       DRUPAL_PROJECT_SHA: 9.x
-    <<: *job-build
+    <<: *job-test
 
-  build-php-8.2-legacy:
+  test-php-8.2-legacy:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers
     environment:
       DRUPAL_VERSION: 9.5
       DRUPAL_PROJECT_SHA: 9.x
-    <<: *job-build
+    <<: *job-test
 
-  build-php-8.2-next:
+  test-php-8.2-next:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers
     environment:
       DRUPAL_VERSION: 10@beta
-    <<: *job-build
+    <<: *job-test
 
   deploy:
     <<: *container_config
@@ -130,33 +130,33 @@ workflows:
   version: 2
   commit:
     jobs:
-      - build-php-8.1:
+      - test-php-8.1:
           filters:
             tags:
               only: /.*/
-      - build-php-8.2:
+      - test-php-8.2:
           filters:
             tags:
               only: /.*/
-      - build-php-8.1-legacy:
+      - test-php-8.1-legacy:
           filters:
             tags:
               only: /.*/
-      - build-php-8.2-legacy:
+      - test-php-8.2-legacy:
           filters:
             tags:
               only: /.*/
-      - build-php-8.2-next:
+      - test-php-8.2-next:
           filters:
             tags:
               only: /.*/
       - deploy:
           requires:
-            - build-php-8.1
-            - build-php-8.2
-            - build-php-8.1-legacy
-            - build-php-8.2-legacy
-            - build-php-8.2-next
+            - test-php-8.1
+            - test-php-8.2
+            - test-php-8.1-legacy
+            - test-php-8.2-legacy
+            - test-php-8.2-next
           filters:
             tags:
               only: /.*/
