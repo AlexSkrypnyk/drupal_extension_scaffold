@@ -121,4 +121,6 @@ jobs:
               StrictHostKeyChecking no
 
       - name: Deploy to Remote
-        run: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${GITHUB_REF_NAME}} .devtools/deploy.sh
+        run: |
+          REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}
+          DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
