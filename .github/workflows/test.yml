@@ -2,42 +2,37 @@ name: Build, test and deploy
 
 on:
   push:
-    branches:
-      - 1.x
-    tags:
-      - '**'
   pull_request:
     branches:
       - 1.x
-      - feature/**
 
 jobs:
-  build_and_test:
-    runs-on: 'ubuntu-22.04'
+  build:
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
         include:
-          - php-version: '8.1'
+          - php-version: 8.1
             drupal-version: stable
 
-          - php-version: '8.2'
+          - php-version: 8.2
             drupal-version: stable
 
-          - php-version: '8.1'
-            drupal-version: '9.5'
-            drupal-project-hash: '9.x'
+          - php-version: 8.1
+            drupal-version: 9.5
+            drupal-project-sha: 9.x
 
-          - php-version: '8.2'
-            drupal-version: '9.5'
-            drupal-project-hash: '9.x'
+          - php-version: 8.2
+            drupal-version: 9.5
+            drupal-project-sha: 9.x
 
-          - php-version: '8.2'
-            drupal-version: '10@beta'
+          - php-version: 8.2
+            drupal-version: 10@beta
 
     env:
       DRUPAL_VERSION: ${{ matrix.drupal-version }}
-      DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-hash }}
+      DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-sha }}
 
     steps:
       - name: Checkout code
@@ -94,9 +89,9 @@ jobs:
 
   deploy:
     needs:
-      - build_and_test
+      - build
 
-    runs-on: 'ubuntu-22.04'
+    runs-on: ubuntu-22.04
 
     env:
       DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
@@ -114,13 +109,14 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          name: id_rsa
           known_hosts: unnecessary
           config: |
             Host *
               StrictHostKeyChecking no
 
       - name: Deploy to Remote
+        env:
+          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
         run: |
           REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}
           DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
