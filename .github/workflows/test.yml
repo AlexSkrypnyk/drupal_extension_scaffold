@@ -1,4 +1,4 @@
-name: Build, test and deploy
+name: Test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - 1.x
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-22.04
 
     strategy:
@@ -86,37 +86,3 @@ jobs:
         with:
           name: Artifacts (${{ join(matrix.*, ', ') }})
           path: build/web/sites/simpletest/browser_output
-
-  deploy:
-    needs:
-      - build
-
-    runs-on: ubuntu-22.04
-
-    env:
-      DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
-      DEPLOY_USER_EMAIL: ${{ secrets.DEPLOY_USER_NAME }}
-      DEPLOY_REMOTE: ${{ secrets.DEPLOY_REMOTE }}
-      DEPLOY_PROCEED: ${{ secrets.DEPLOY_PROCEED }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          known_hosts: unnecessary
-          config: |
-            Host *
-              StrictHostKeyChecking no
-
-      - name: Deploy to Remote
-        env:
-          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
-        run: |
-          REF=${{ github.event.pull_request && github.head_ref || github.ref_name }}
-          DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
