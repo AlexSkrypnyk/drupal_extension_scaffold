@@ -13,22 +13,33 @@ jobs:
     strategy:
       matrix:
         include:
-          - php-version: 8.1
+          - name: test-php-8.1
+            php-version: 8.1
             drupal-version: stable
 
-          - php-version: 8.2
+          - name: test-php-8.2
+            php-version: 8.2
             drupal-version: stable
+            drupal-version-alias: stable
 
-          - php-version: 8.1
+          - name: test-php-8.1-legacy
+            php-version: 8.1
             drupal-version: 9.5
             drupal-project-sha: 9.x
+            drupal-version-alias: legacy
 
-          - php-version: 8.2
+          - name: test-php-8.2-legacy
+            php-version: 8.2
             drupal-version: 9.5
             drupal-project-sha: 9.x
+            drupal-version-alias: legacy
 
-          - php-version: 8.2
+          - name: test-php-8.2-next
+            php-version: 8.2
             drupal-version: 10@beta
+            drupal-version-alias: next
+
+    name: ${{ matrix.name }}
 
     env:
       DRUPAL_VERSION: ${{ matrix.drupal-version }}
