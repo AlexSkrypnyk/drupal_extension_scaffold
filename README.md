@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
-  <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Drupal+extension+scaffold&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Drupal extension scaffold"></a>
+  <img width=200px height=200px src="https://github.com/AlexSkrypnyk/drupal_extension_scaffold/assets/378794/31658686-7a8a-4203-9c8b-a8bc0b99f002" alt="Drupal extension scaffold"></a>
 </p>
 
 <h1 align="center">Drupal extension scaffold</h1>
