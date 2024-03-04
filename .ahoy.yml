@@ -46,3 +46,11 @@ commands:
   test:
     usage: Run all tests.
     cmd: ./.devtools/test.sh
+
+# Override entrypoint to alter default behaviour of Ahoy.
+entrypoint:
+  - bash
+  - -c
+  - -e
+  - '{{cmd}}'
+  - '{{name}}'
