@@ -124,7 +124,9 @@ jobs:
 
       - run:
           name: Deploy
-          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH}} .devtools/deploy.sh
+          command: |
+            REF="${CIRCLE_TAG:-${CIRCLE_BRANCH}}"
+            DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
 
 workflows:
   version: 2
