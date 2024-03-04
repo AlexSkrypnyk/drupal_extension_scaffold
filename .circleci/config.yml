@@ -2,6 +2,9 @@
 version: 2
 
 aliases:
+  # Default git branch name used for deploying tagged releases.
+  - &default_branch "1.x"
+
   # SSH deployment key fingerprint from CircleCI App -> Project -> Settings -> SSH Permissions.
   # Replace with the value used for your project.
   - &deploy_ssh_key_fingerprint "SHA256:AND4unJGhp4XCwNKyLj6uY3eJtUCZrVbpAtogtvxHbs"
@@ -115,6 +118,7 @@ jobs:
     <<: *container_config
     environment:
       DEPLOY_SSH_KEY_FINGERPRINT: *deploy_ssh_key_fingerprint
+      DEFAULT_BRANCH: *default_branch
     steps:
       - checkout
 
@@ -124,9 +128,7 @@ jobs:
 
       - run:
           name: Deploy
-          command: |
-            REF="${CIRCLE_TAG:-${CIRCLE_BRANCH}}"
-            DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
+          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH:-${DEFAULT_BRANCH}}} .devtools/deploy.sh
 
 workflows:
   version: 2
