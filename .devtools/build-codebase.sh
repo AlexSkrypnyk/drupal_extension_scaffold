@@ -118,8 +118,8 @@ ln -s "$(pwd)"/* "build/web/${type}/custom/${extension}" && rm "build/web/${type
 if [ -f "build/web/${type}/custom/${extension}/package-lock.json" ]; then
   pushd "build/web/${type}/custom/${extension}" >/dev/null || exit 1
   echo "> Install front-end dependencies."
-  [ -f ".nvmrc" ] && nvm use || true
-  [ ! -d "node_modules" ] && npm ci || true
+  if [ -f ".nvmrc" ]; then nvm use; fi
+  if [ ! -d "node_modules" ]; then npm ci; fi
   echo "> Build front-end dependencies."
   npm run build
   popd >/dev/null || exit 1
