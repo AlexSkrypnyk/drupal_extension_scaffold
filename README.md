@@ -74,8 +74,8 @@ to [drupal.org](https://drupal.org).
    <th>CircleCI</th>
   </tr>
   <tr>
-    <td><img src=".scaffold/assets/ci-gha.png" alt="Screenshot of CI jobs in GitHub Actions" width="30%"></td>
-    <td><img src=".scaffold/assets/ci-circleci.png" alt="Screenshot of CI jobs in CircleCi" width="30%"></td>
+    <td><img src=".scaffold/assets/ci-gha.png" alt="Screenshot of CI jobs in GitHub Actions"></td>
+    <td><img src=".scaffold/assets/ci-circleci.png" alt="Screenshot of CI jobs in CircleCi"></td>
   </tr>
 </table>
 
