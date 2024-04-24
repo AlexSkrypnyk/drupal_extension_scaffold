@@ -68,7 +68,16 @@ to [drupal.org](https://drupal.org).
   - Tags mirroring.
 - This template is tested in the same way as a project using it.
 
-<img src="https://user-images.githubusercontent.com/378794/253860380-7a702bf6-71f5-4c8c-a271-8dd3b25eaabf.png" alt="Screenshot of CI jobs" width="30%">
+<table>
+  <tr>
+    <th>GitHub Actions</th>
+   <th>CircleCI</th>
+  </tr>
+  <tr>
+    <td><img src=".scaffold/assets/ci-gha.png" alt="Screenshot of CI jobs in GitHub Actions" width="30%"></td>
+    <td><img src=".scaffold/assets/ci-circleci.png" alt="Screenshot of CI jobs in CircleCi" width="30%"></td>
+  </tr>
+</table>
 
 ## Setup
 
@@ -82,6 +91,7 @@ to [drupal.org](https://drupal.org).
      3. Adjust several lines in `.gitattributes`.
      4. Remove `.github/test-scaffold.yml` file.
      5. Remove this content from `README.md` file.
+     6. Remove `.scaffold` directory.
 7. Commit and push to your new GitHub repo.
 8. Login to your CI and add your new GitHub repository. Your project build will
    start momentarily.
