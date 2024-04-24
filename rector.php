@@ -18,6 +18,7 @@ use DrupalRector\Set\Drupal8SetList;
 use DrupalRector\Set\Drupal9SetList;
 use Rector\Config\RectorConfig;
 use Rector\Set\ValueObject\SetList;
+use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return static function (RectorConfig $rectorConfig): void {
   $rectorConfig->sets([
@@ -28,6 +29,8 @@ return static function (RectorConfig $rectorConfig): void {
     Drupal9SetList::DRUPAL_9,
     Drupal10SetList::DRUPAL_10,
   ]);
+
+  $rectorConfig->rule(DeclareStrictTypesRector::class);
 
   $drupalFinder = new DrupalFinder();
   $drupalFinder->locateRoot(__DIR__);

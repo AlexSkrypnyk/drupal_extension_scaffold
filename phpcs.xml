@@ -9,6 +9,7 @@
   <rule ref="DrupalPractice"/>
   <rule ref="Generic.Debug.ESLint"/>
   <rule ref="PHPCompatibility"/>
+  <rule ref="Generic.PHP.RequireStrictTypes" />
 
   <arg name="extensions" value="inc,info,install,module,php,profile,test,theme,js,css"/>
   <arg name="colors"/>
