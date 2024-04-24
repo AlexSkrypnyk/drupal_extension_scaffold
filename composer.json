@@ -17,7 +17,7 @@
         "source": "https://git.drupalcode.org/project/your_extension"
     },
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.2"
     },
     "require-dev": {
         "drupal/pathauto": "~1.0"
