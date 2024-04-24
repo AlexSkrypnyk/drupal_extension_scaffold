@@ -36,12 +36,6 @@ jobs:
             drupal-version: stable
             drupal-version-alias: stable
 
-          - name: test-php-8.3-legacy
-            php-version: 8.3
-            drupal-version: 9.5
-            drupal-project-sha: 9.x
-            drupal-version-alias: legacy
-
           - name: test-php-8.3-next
             php-version: 8.3
             drupal-version: 10@beta
