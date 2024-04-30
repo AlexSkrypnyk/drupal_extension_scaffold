@@ -213,6 +213,7 @@ process_internal() {
   replace_string_content "Your+Extension" "${extension_machine_name}"
   replace_string_content "Yourproject logo" "${extension_name} logo"
   replace_string_content "Provides your_extension functionality." "Provides ${extension_machine_name} functionality."
+  replace_string_content "drupal-module" "drupal-${extension_type}"
   replace_string_content "Drupal module scaffold FE example used for template testing" "${extension_name}"
 
   remove_string_content "Generic project scaffold template"
