@@ -208,8 +208,10 @@ process_internal() {
   replace_string_content "yourproject" "${extension_machine_name}"
   replace_string_content "Your Name" "${author}"
   replace_string_content "Alex Skrypnyk" "${author}"
-  replace_string_content "Your extension" "${extension_machine_name}"
-  replace_string_content "your extension" "${extension_machine_name}"
+  replace_string_content "Your extension" "${extension_name}"
+  replace_string_content "your extension" "${extension_name}"
+  replace_string_content "Your+Extension" "${extension_machine_name}"
+  replace_string_content "Yourproject logo" "${extension_name} logo"
   replace_string_content "Drupal module scaffold example" "${extension_name}"
   replace_string_content "Drupal module scaffold FE example used for template testing" "${extension_name}"
 
@@ -243,6 +245,7 @@ process_internal() {
   rm -f LICENSE >/dev/null || true
   rm -Rf "tests/scaffold" >/dev/null || true
   rm -f ".github/workflows/test-scaffold.yml" >/dev/null || true
+  rm -Rf .scaffold >/dev/null || true
 
   rm -f "docs/static/img/init.gif" >/dev/null || true
 
