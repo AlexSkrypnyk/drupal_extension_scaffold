@@ -306,7 +306,7 @@ main() {
 
   process_readme "${extension_name}"
 
-  process_internal "${namespace}" "${extension_machine_name}" "${extension_name}" "${extension_type}" "${author}"``
+  process_internal "${namespace}" "${extension_machine_name}" "${extension_name}" "${extension_type}" "${author}"
 
   [ "${remove_self}" != "n" ] && rm -- "$0" || true
 
