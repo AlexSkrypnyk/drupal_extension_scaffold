@@ -1,5 +1,5 @@
 {
-  "name": "scaffold",
+  "name": "drupal_extension_scaffold",
   "version": "1.0.0",
   "private": true,
   "scripts": {

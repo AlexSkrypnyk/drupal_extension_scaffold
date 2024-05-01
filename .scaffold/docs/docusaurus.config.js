@@ -89,7 +89,7 @@ const config = {
       image: 'img/social-card.jpg',
       navbar: {
         logo: {
-          alt: 'Scaffold Logo',
+          alt: 'Drupal Extension Scaffold Logo',
           src: 'img/logo.svg',
         },
         items: [
