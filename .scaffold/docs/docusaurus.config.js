@@ -16,7 +16,7 @@ const config = {
   url: 'https://alexSkrypnyk.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/drupal_extension_scaffold/',
 
   // GitHub pages deployment config.
   organizationName: 'AlexSkrypnyk',
