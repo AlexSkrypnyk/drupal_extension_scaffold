@@ -144,3 +144,14 @@ assert_workflow() {
 
   popd >/dev/null || exit 1
 }
+
+assert_files_present_nodejs() {
+  local dir="${1:-$(pwd)}"
+
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_contains "package.json" '"name": "@drupal/force_crystal"'
+  assert_file_contains "package.json" '"description": "Provides force_crystal functionality."'
+
+  popd >/dev/null || exit 1
+}

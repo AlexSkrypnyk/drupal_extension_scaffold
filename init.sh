@@ -7,7 +7,7 @@
 # ./init.sh
 #
 # Silent:
-# ./init.sh yournamespace yourproject "Your Name"
+# ./init.sh yournamespace extension_machine_name "Extension Name" extension_type author
 #
 # shellcheck disable=SC2162,SC2015
 
@@ -203,7 +203,7 @@ process_internal() {
   replace_string_content "Yourproject logo" "${extension_name} logo"
   replace_string_content "Provides your_extension functionality." "Provides ${extension_machine_name} functionality."
   replace_string_content "drupal-module" "drupal-${extension_type}"
-  replace_string_content "Drupal module scaffold FE example used for template testing" "${extension_name}"
+  replace_string_content "Drupal module scaffold FE example used for template testing" "Provides ${extension_machine_name} functionality."
 
   remove_string_content "Generic project scaffold template"
   replace_string_content "drupal_extension_scaffold" "${extension_machine_name}"
