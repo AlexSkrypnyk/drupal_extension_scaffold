@@ -1,0 +1,50 @@
+name: Test Docs
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - 'main'
+      - 'feature/**'
+
+jobs:
+  test-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: '${{ github.workspace }}/docs'
+
+      - name: Build documentation site
+        run: npm run build
+        working-directory: '${{ github.workspace }}/docs'
+
+      - name: Run tests
+        run: npm run test
+        working-directory: '${{ github.workspace }}/docs'
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          publish-dir: 'docs/build'
+          production-branch: main
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        timeout-minutes: 1
