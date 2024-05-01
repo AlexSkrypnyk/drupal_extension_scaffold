@@ -14,7 +14,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 export SCRIPT_FILE="init.sh"
 
 # bats test_tags=smoke
-@test "Init, defaults, workflow" {
+@test "Init, defaults - extension module, workflow" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -37,7 +37,7 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_output_contains "Initialization complete."
 
-  #assert_workflow "${BUILD_DIR}"
+  assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
