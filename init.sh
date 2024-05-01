@@ -212,7 +212,7 @@ process_internal() {
 
   if [ "${extension_type}" = "theme" ]; then
     rm -rf tests >/dev/null || true
-    echo 'base theme: false' "${extension_machine_name}.info.yml"
+    echo 'base theme: false' >> "${extension_machine_name}.info.yml"
   fi
 
   if [ "${ci_provider}" = "GitHub Actions" ]; then
