@@ -64,11 +64,11 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_theme "${BUILD_DIR}"
   assert_output_contains "Initialization complete."
 
-  #assert_workflow "${BUILD_DIR}"
+  assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
-@test "Init, no release drafter, workflow" {
+@test "Init, no release drafter" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -92,12 +92,10 @@ export SCRIPT_FILE="init.sh"
   assert_file_not_exists ".github/workflows/draft-release-notes.yml"
   assert_file_not_exists ".github/release-drafter.yml"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
-@test "Init, no PR auto-assign, workflow" {
+@test "Init, no PR auto-assign" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -120,11 +118,9 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_not_exists ".github/assign-author.yml"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
-@test "Init, no funding, workflow" {
+@test "Init, no funding" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -147,11 +143,9 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_not_exists ".github/FUNDING.yml"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
-@test "Init, no PR template, workflow" {
+@test "Init, no PR template" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -174,11 +168,9 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_not_exists ".github/PULL_REQUEST_TEMPLATE.md"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
-@test "Init, no Renovate, workflow" {
+@test "Init, no Renovate" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -201,11 +193,9 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_not_exists "renovate.json"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
-@test "Init, do not remove script, workflow" {
+@test "Init, do not remove script" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -228,11 +218,9 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_exists "init.sh"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }
 
-@test "Init, remove script, workflow" {
+@test "Init, remove script" {
   answers=(
     "YodasHut"      # organisation
     "force_crystal" # project
@@ -255,6 +243,4 @@ export SCRIPT_FILE="init.sh"
   assert_files_present_extension_type_module "${BUILD_DIR}"
   assert_file_not_exists "init.sh"
   assert_output_contains "Initialization complete."
-
-  #assert_workflow "${BUILD_DIR}"
 }

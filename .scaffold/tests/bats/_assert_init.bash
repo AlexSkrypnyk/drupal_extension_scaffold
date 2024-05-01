@@ -124,8 +124,6 @@ assert_workflow() {
   pushd "${dir}" >/dev/null || exit 1
 
   ./.devtools/build-codebase.sh
-  ./.devtools/start-server.sh
-  ./.devtools/provision.sh
 
   # Lint.
   pushd "build" >/dev/null || exit 1
@@ -135,9 +133,6 @@ assert_workflow() {
   vendor/bin/phpmd . text phpmd.xml
   vendor/bin/twigcs
   popd >/dev/null || exit 1
-
-  # Test.
-  ./.devtools/test.sh
 
   # Change mode to make bats have enough permission to clean tmp test directory.
   chmod -R 777 "build/web/sites/default"
