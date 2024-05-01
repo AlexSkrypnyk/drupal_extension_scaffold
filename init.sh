@@ -139,7 +139,6 @@ remove_nodejs() {
   rm -f package.lock >/dev/null || true
   rm -f yarn.lock >/dev/null || true
   rm -Rf node_modules >/dev/null || true
-  rm -Rf docs/nodejs || true
 
   remove_string_content_line "\/.npmignore" ".gitattributes"
 
@@ -153,12 +152,10 @@ remove_release_drafter() {
   rm -f .github/workflows/draft-release-notes.yml || true
   rm -f .github/release-drafter.yml
   remove_tokens_with_content "RELEASEDRAFTER"
-  rm -Rf docs/content/ci/release-drafter.mdx || true
 }
 
 remove_pr_autoassign() {
   rm -f .github/workflows/assign-author.yml || true
-  rm -Rf docs/content/ci/auto-assign-pr.mdx || true
 }
 
 remove_funding() {
@@ -171,14 +168,6 @@ remove_pr_template() {
 
 remove_renovate() {
   rm -f renovate.json || true
-  rm -Rf docs/content/ci/renovate.mdx || true
-}
-
-remove_docs() {
-  rm -Rf docs || true
-  rm -f .github/workflows/test-docs.yml || true
-  rm -f .github/workflows/release-docs.yml || true
-  remove_string_content_line "\/docs" ".gitattributes"
 }
 
 process_readme() {
@@ -249,8 +238,6 @@ process_internal() {
   rm -f ".github/workflows/test-scaffold.yml" >/dev/null || true
   rm -Rf .scaffold >/dev/null || true
 
-  rm -f "docs/static/img/init.gif" >/dev/null || true
-
   remove_tokens_with_content "META"
   remove_special_comments
 
@@ -284,7 +271,6 @@ main() {
   use_funding="$(ask_yesno "Use GitHub funding")"
   use_pr_template="$(ask_yesno "Use GitHub PR template")"
   use_renovate="$(ask_yesno "Use Renovate")"
-  use_docs="$(ask_yesno "Use docs")"
   remove_self="$(ask_yesno "Remove this script")"
 
   echo
@@ -301,7 +287,6 @@ main() {
   echo "Use GitHub funding               : ${use_funding}"
   echo "Use GitHub PR template           : ${use_pr_template}"
   echo "Use Renovate                     : ${use_renovate}"
-  echo "Use Docs                         : ${use_docs}"
   echo "Remove this script               : ${remove_self}"
   echo "---------------------------------"
   echo
@@ -330,7 +315,6 @@ main() {
   [ "${use_funding}" != "y" ] && remove_funding
   [ "${use_pr_template}" != "y" ] && remove_pr_template
   [ "${use_renovate}" != "y" ] && remove_renovate
-  [ "${use_docs}" != "y" ] && remove_docs
 
   process_readme "${extension_name}"
 

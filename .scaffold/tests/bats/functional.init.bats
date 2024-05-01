@@ -27,7 +27,6 @@ export SCRIPT_FILE="init.sh"
     "nothing"       # use GitHub funding
     "nothing"       # use GitHub PR template
     "nothing"       # use Renovate
-    "nothing"       # remove docs
     "nothing"       # remove init script
     "nothing"       # proceed with init
   )
@@ -52,7 +51,6 @@ export SCRIPT_FILE="init.sh"
     "nothing"       # use GitHub funding
     "nothing"       # use GitHub PR template
     "nothing"       # use Renovate
-    "nothing"       # remove docs
     "nothing"       # remove init script
     "nothing"       # proceed with init
   )
