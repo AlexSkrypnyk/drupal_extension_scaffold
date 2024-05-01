@@ -13,10 +13,10 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://alexSkrypnyk.github.io',
+  url: 'https://drupal-extension-scaffold.alexskrypnyk.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/drupal_extension_scaffold/',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'AlexSkrypnyk',
@@ -51,10 +51,7 @@ const config = {
           customCss: './src/css/custom.css',
         },
         gtag: {
-          // #;< META
-          trackingID: 'G-6TBPDE9SZY',
-          // #;> META
-          // trackingID: 'G-',
+          trackingID: 'G-RYLTERGLX4',
           anonymizeIP: true,
         },
       }),
