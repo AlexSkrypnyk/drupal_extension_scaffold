@@ -1,6 +1,6 @@
 {
     "name": "drupal/your_extension",
-    "description": "Drupal module scaffold example.",
+    "description": "Provides your_extension functionality.",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
     "authors": [
