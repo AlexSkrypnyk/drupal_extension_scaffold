@@ -14,6 +14,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b128f90d-8211-4a24-a520-9e08a02235f5/deploy-status)](https://app.netlify.com/sites/drupal-extension-scaffold-docs/deploys)
 
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
 
