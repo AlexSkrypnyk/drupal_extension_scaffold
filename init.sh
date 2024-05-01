@@ -257,9 +257,11 @@ process_internal() {
   if [ "${extension_type}" = "theme" ]; then
     rm -rf tests >/dev/null || true
     uncomment_line "${extension_machine_name}.info.yml" "#type: theme"
+    uncomment_line "${extension_machine_name}.info.yml" "#base theme: false"
     remove_string_content_line "type: module" "${extension_machine_name}.info.yml"
   else
     remove_string_content_line "#type: theme" "${extension_machine_name}.info.yml"
+    remove_string_content_line "#base theme: false" "${extension_machine_name}.info.yml"
   fi
 }
 
