@@ -8,12 +8,12 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Scaffold',
-  tagline: 'Scaffold documentation',
+  title: 'Drupal extension scaffold',
+  tagline: 'Drupal extension scaffold documentation',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'http://localhost:8080',
+  url: 'https://alexSkrypnyk.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
