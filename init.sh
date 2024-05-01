@@ -228,22 +228,22 @@ main() {
   echo "Please follow the prompts to adjust your extension configuration"
   echo
 
-  [ -z "${namespace}" ] && namespace="$(ask "namespace")"
-  [ -z "${extension_name}" ] && extension_name="$(ask "name")"
-  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "machine_name")"
-  [ -z "${extension_type}" ] && extension_type="$(ask "type: module or theme")"
-  [ -z "${ci_provider}" ] && ci_provider="$(ask "ci_provider: GitHub Actions or CircleCI")"
+  [ -z "${namespace}" ] && namespace="$(ask "Namespace")"
+  [ -z "${extension_name}" ] && extension_name="$(ask "Name")"
+  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Machine name")"
+  [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme")"
+  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI")"
 
   remove_self="$(ask_yesno "Remove this script")"
 
   echo
   echo "            Summary"
   echo "---------------------------------"
-  echo "namespace                        : ${namespace}"
-  echo "name                             : ${extension_name}"
-  echo "machine_name                     : ${extension_machine_name}"
-  echo "type: module or theme            : ${extension_type}"
-  echo "ci_provider                      : ${ci_provider}"
+  echo "Namespace                        : ${namespace}"
+  echo "Name                             : ${extension_name}"
+  echo "Machine name                     : ${extension_machine_name}"
+  echo "Type                             : ${extension_type}"
+  echo "CI Provider                      : ${ci_provider}"
   echo "Remove this script               : ${remove_self}"
   echo "---------------------------------"
   echo
