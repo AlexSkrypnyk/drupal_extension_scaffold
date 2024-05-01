@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - 'feature/adding-scaffold-docs'
 
 permissions:
   contents: read
