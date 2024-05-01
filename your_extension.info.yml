@@ -1,10 +1,9 @@
 name: Drupal extension scaffold
 type: module
-#type: theme
-#base theme: false
 description: Drupal extension scaffold example.
 package: Testing
 core_version_requirement: ^9 || ^10
 
 dependencies:
   - drupal:user
+base theme: false

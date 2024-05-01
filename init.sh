@@ -7,7 +7,7 @@
 # ./init.sh
 #
 # Silent:
-# ./init.sh yournamespace extension_machine_name "Extension Name" extension_type author
+# ./init.sh yournamespace "Extension Name" extension_machine_name extension_type "CI Provider"
 #
 # shellcheck disable=SC2162,SC2015
 
@@ -15,10 +15,10 @@ set -euo pipefail
 [ "${SCRIPT_DEBUG-}" = "1" ] && set -x
 
 namespace=${1-}
-extension_machine_name=${2-}
-extension_name=${3-}
+extension_name=${2-}
+extension_machine_name=${3-}
 extension_type=${4-}
-author=${5-}
+ci_provider=${5-}
 
 #-------------------------------------------------------------------------------
 
@@ -134,40 +134,13 @@ ask_yesno() {
 
 #-------------------------------------------------------------------------------
 
-remove_nodejs() {
-  rm -f package.json >/dev/null || true
-  rm -f package.lock >/dev/null || true
-  rm -f yarn.lock >/dev/null || true
-  rm -Rf node_modules >/dev/null || true
-
-  remove_string_content_line "\/.npmignore" ".gitattributes"
-
-  rm -f .github/workflows/test-nodejs.yml || true
-  rm -f .github/workflows/release-nodejs.yml || true
-
-  remove_tokens_with_content "NODEJS"
+remove_ci_provider_github_actions() {
+  # Remove only workflows dir.
+  rm -rf .github/workflows >/dev/null 2>&1 || true
 }
 
-remove_release_drafter() {
-  rm -f .github/workflows/draft-release-notes.yml || true
-  rm -f .github/release-drafter.yml
-  remove_tokens_with_content "RELEASEDRAFTER"
-}
-
-remove_pr_autoassign() {
-  rm -f .github/workflows/assign-author.yml || true
-}
-
-remove_funding() {
-  rm -f .github/FUNDING.yml || true
-}
-
-remove_pr_template() {
-  rm -f .github/PULL_REQUEST_TEMPLATE.md || true
-}
-
-remove_renovate() {
-  rm -f renovate.json || true
+remove_ci_provider_circleci() {
+  rm -rf .circleci >/dev/null 2>&1 || true
 }
 
 process_readme() {
@@ -182,34 +155,30 @@ process_readme() {
 
 process_internal() {
   local namespace="${1}"
-  local extension_machine_name="${2}"
-  local extension_name="${3}"
+  local extension_name="${2}"
+  local extension_machine_name="${3}"
   local extension_type="${4}"
-  local author="${5}"
+  local ci_provider="${5}"
   local namespace_lowercase
 
   namespace_lowercase="$(to_lowercase "${namespace}")"
 
   replace_string_content "YourNamespace" "${namespace}"
-  replace_string_content "AlexSkrypnyk" "${namespace}"
   replace_string_content "yournamespace" "${namespace_lowercase}"
+  replace_string_content "AlexSkrypnyk" "${namespace}"
   replace_string_content "alexskrypnyk" "${namespace_lowercase}"
   replace_string_content "yourproject" "${extension_machine_name}"
-  replace_string_content "Your Name" "${author}"
-  replace_string_content "Alex Skrypnyk" "${author}"
+  replace_string_content "Yourproject logo" "${extension_name} logo"
   replace_string_content "Your extension" "${extension_name}"
   replace_string_content "your extension" "${extension_name}"
   replace_string_content "Your+Extension" "${extension_machine_name}"
-  replace_string_content "Yourproject logo" "${extension_name} logo"
+  replace_string_content "your_extension" "${extension_machine_name}"
   replace_string_content "Provides your_extension functionality." "Provides ${extension_machine_name} functionality."
   replace_string_content "drupal-module" "drupal-${extension_type}"
   replace_string_content "Drupal module scaffold FE example used for template testing" "Provides ${extension_machine_name} functionality."
-
-  remove_string_content "Generic project scaffold template"
   replace_string_content "drupal_extension_scaffold" "${extension_machine_name}"
   replace_string_content "Drupal extension scaffold" "${extension_name}"
   replace_string_content "type: module" "type: ${extension_type}"
-  replace_string_content "your_extension" "${extension_machine_name}"
 
   remove_string_content "# Uncomment the lines below in your project."
   uncomment_line ".gitattributes" ".ahoy.yml"
@@ -243,12 +212,13 @@ process_internal() {
 
   if [ "${extension_type}" = "theme" ]; then
     rm -rf tests >/dev/null || true
-    uncomment_line "${extension_machine_name}.info.yml" "#type: theme"
-    uncomment_line "${extension_machine_name}.info.yml" "#base theme: false"
-    remove_string_content_line "type: module" "${extension_machine_name}.info.yml"
+    echo 'base theme: false' "${extension_machine_name}.info.yml"
+  fi
+
+  if [ "${ci_provider}" = "GitHub Actions" ]; then
+    remove_ci_provider_circleci
   else
-    remove_string_content_line "#type: theme" "${extension_machine_name}.info.yml"
-    remove_string_content_line "#base theme: false" "${extension_machine_name}.info.yml"
+    remove_ci_provider_github_actions
   fi
 }
 
@@ -258,35 +228,22 @@ main() {
   echo "Please follow the prompts to adjust your extension configuration"
   echo
 
-  [ -z "${namespace}" ] && namespace="$(ask "Namespace (PascalCase)")"
-  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Extension Machine Name (machine_name)")"
-  [ -z "${extension_name}" ] && extension_name="$(ask "Extension Name")"
-  [ -z "${extension_type}" ] && extension_type="$(ask "Extension Type")"
-  [ -z "${author}" ] && author="$(ask "Author")"
+  [ -z "${namespace}" ] && namespace="$(ask "namespace")"
+  [ -z "${extension_name}" ] && extension_name="$(ask "name")"
+  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "machine_name")"
+  [ -z "${extension_type}" ] && extension_type="$(ask "type: module or theme")"
+  [ -z "${ci_provider}" ] && ci_provider="$(ask "ci_provider: GitHub Actions or CircleCI")"
 
-  use_nodejs="$(ask_yesno "Use NodeJS")"
-
-  use_release_drafter="$(ask_yesno "Use GitHub release drafter")"
-  use_pr_autoassign="$(ask_yesno "Use GitHub PR author auto-assign")"
-  use_funding="$(ask_yesno "Use GitHub funding")"
-  use_pr_template="$(ask_yesno "Use GitHub PR template")"
-  use_renovate="$(ask_yesno "Use Renovate")"
   remove_self="$(ask_yesno "Remove this script")"
 
   echo
   echo "            Summary"
   echo "---------------------------------"
-  echo "Namespace                        : ${namespace}"
-  echo "Extension Machine Name           : ${extension_machine_name}"
-  echo "Extension Name                   : ${extension_name}"
-  echo "Extension Type                   : ${extension_type}"
-  echo "Author                           : ${author}"
-  echo "Use NodeJS                       : ${use_nodejs}"
-  echo "Use GitHub release drafter       : ${use_release_drafter}"
-  echo "Use GitHub PR author auto-assign : ${use_pr_autoassign}"
-  echo "Use GitHub funding               : ${use_funding}"
-  echo "Use GitHub PR template           : ${use_pr_template}"
-  echo "Use Renovate                     : ${use_renovate}"
+  echo "namespace                        : ${namespace}"
+  echo "name                             : ${extension_name}"
+  echo "machine_name                     : ${extension_machine_name}"
+  echo "type: module or theme            : ${extension_type}"
+  echo "ci_provider                      : ${ci_provider}"
   echo "Remove this script               : ${remove_self}"
   echo "---------------------------------"
   echo
@@ -303,11 +260,11 @@ main() {
   # Processing.
   #
 
-  : "${namespace:?Namespace is required}"
-  : "${extension_machine_name:?Extension machine name is required}"
-  : "${extension_name:?Extension name is required}"
-  : "${extension_type:?Extension type is required}"
-  : "${author:?Author is required}"
+  : "${namespace:?namespace is required}"
+  : "${extension_name:?name is required}"
+  : "${extension_machine_name:?machine_name is required}"
+  : "${extension_type:?type is required}"
+  : "${ci_provider:?ci_provider is required}"
 
   [ "${use_nodejs}" != "y" ] && remove_nodejs
   [ "${use_release_drafter}" != "y" ] && remove_release_drafter
@@ -318,7 +275,7 @@ main() {
 
   process_readme "${extension_name}"
 
-  process_internal "${namespace}" "${extension_machine_name}" "${extension_name}" "${extension_type}" "${author}"
+  process_internal "${namespace}" "${extension_name}" "${extension_machine_name}" "${extension_type}" "${ci_provider}"
 
   [ "${remove_self}" != "n" ] && rm -- "$0" || true
 

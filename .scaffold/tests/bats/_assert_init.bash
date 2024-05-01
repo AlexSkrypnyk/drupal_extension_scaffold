@@ -19,9 +19,6 @@ assert_files_present_common() {
   assert_file_exists ".gitignore"
   assert_file_exists "README.md"
   assert_file_exists "logo.png"
-  assert_file_exists ".github/workflows/test.yml"
-  assert_file_exists ".github/workflows/deploy.yml"
-  assert_file_exists ".circleci/config.yml"
 
   # Assert that some files must not be exist.
   assert_file_not_exists "README.dist.md"
@@ -38,7 +35,6 @@ assert_files_present_common() {
   assert_file_not_contains ".gitignore" "/coverage"
 
   # Assert that documentation was processed correctly.
-  assert_file_not_contains README.md "Generic project scaffold template"
   assert_file_not_contains README.md "META"
 
   # Assert that .gitattributes were processed correctly.
@@ -136,17 +132,6 @@ assert_workflow() {
 
   # Change mode to make bats have enough permission to clean tmp test directory.
   chmod -R 777 "build/web/sites/default"
-
-  popd >/dev/null || exit 1
-}
-
-assert_files_present_nodejs() {
-  local dir="${1:-$(pwd)}"
-
-  pushd "${dir}" >/dev/null || exit 1
-
-  assert_file_contains "package.json" '"name": "@drupal/force_crystal"'
-  assert_file_contains "package.json" '"description": "Provides force_crystal functionality."'
 
   popd >/dev/null || exit 1
 }

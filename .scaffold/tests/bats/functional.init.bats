@@ -16,25 +16,20 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, defaults - extension module, workflow" {
   answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
+    "YodasHut"       # namespace
+    "Force Crystal"  # name
+    "force_crystal"  # machine_name
+    "module"         # type
+    "GitHub Actions" # ci_provider
+    "nothing"        # remove init script
+    "nothing"        # proceed with init
   )
   tui_run "${answers[@]}"
 
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
   assert_files_present_extension_type_module "${BUILD_DIR}"
+  assert_file_not_exists ".circleci/config.yml"
   assert_output_contains "Initialization complete."
 
   assert_workflow "${BUILD_DIR}"
@@ -43,173 +38,55 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, extension theme, workflow" {
   answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "theme"         # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
+    "YodasHut"       # namespace
+    "Force Crystal"  # name
+    "force_crystal"  # machine_name
+    "theme"          # type
+    "GitHub Actions" # ci_provider
+    "nothing"        # remove init script
+    "nothing"        # proceed with init
   )
   tui_run "${answers[@]}"
 
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
   assert_files_present_extension_type_theme "${BUILD_DIR}"
+  assert_file_not_exists ".circleci/config.yml"
   assert_output_contains "Initialization complete."
 
   assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
-@test "Init, no release drafter" {
+@test "Init, CircleCI" {
   answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "n"             # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
+    "YodasHut"       # namespace
+    "Force Crystal"  # name
+    "force_crystal"  # machine_name
+    "module"         # type
+    "CircleCI"       # ci_provider
+    "nothing"        # remove init script
+    "nothing"        # proceed with init
   )
   tui_run "${answers[@]}"
 
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
   assert_files_present_extension_type_module "${BUILD_DIR}"
-  assert_file_not_exists ".github/workflows/draft-release-notes.yml"
-  assert_file_not_exists ".github/release-drafter.yml"
-  assert_output_contains "Initialization complete."
-}
-
-# bats test_tags=smoke
-@test "Init, no PR auto-assign" {
-  answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "n"             # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
-  )
-  tui_run "${answers[@]}"
-
-  assert_output_contains "Please follow the prompts to adjust your extension configuration"
-  assert_files_present_common "${BUILD_DIR}"
-  assert_files_present_extension_type_module "${BUILD_DIR}"
-  assert_file_not_exists ".github/assign-author.yml"
-  assert_output_contains "Initialization complete."
-}
-
-@test "Init, no funding" {
-  answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "n"             # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
-  )
-  tui_run "${answers[@]}"
-
-  assert_output_contains "Please follow the prompts to adjust your extension configuration"
-  assert_files_present_common "${BUILD_DIR}"
-  assert_files_present_extension_type_module "${BUILD_DIR}"
-  assert_file_not_exists ".github/FUNDING.yml"
-  assert_output_contains "Initialization complete."
-}
-
-@test "Init, no PR template" {
-  answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "n"             # use GitHub PR template
-    "nothing"       # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
-  )
-  tui_run "${answers[@]}"
-
-  assert_output_contains "Please follow the prompts to adjust your extension configuration"
-  assert_files_present_common "${BUILD_DIR}"
-  assert_files_present_extension_type_module "${BUILD_DIR}"
-  assert_file_not_exists ".github/PULL_REQUEST_TEMPLATE.md"
-  assert_output_contains "Initialization complete."
-}
-
-@test "Init, no Renovate" {
-  answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "n"             # use Renovate
-    "nothing"       # remove init script
-    "nothing"       # proceed with init
-  )
-  tui_run "${answers[@]}"
-
-  assert_output_contains "Please follow the prompts to adjust your extension configuration"
-  assert_files_present_common "${BUILD_DIR}"
-  assert_files_present_extension_type_module "${BUILD_DIR}"
-  assert_file_not_exists "renovate.json"
+  assert_file_exists ".circleci/config.yml"
+  assert_dir_not_exists ".github/workflows"
   assert_output_contains "Initialization complete."
 }
 
 @test "Init, do not remove script" {
   answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "n"             # remove init script
-    "nothing"       # proceed with init
+    "YodasHut"       # namespace
+    "Force Crystal"  # name
+    "force_crystal"  # machine_name
+    "module"         # type
+    "CircleCI"       # ci_provider
+    "n"              # remove init script
+    "nothing"        # proceed with init
   )
   tui_run "${answers[@]}"
 
@@ -222,19 +99,13 @@ export SCRIPT_FILE="init.sh"
 
 @test "Init, remove script" {
   answers=(
-    "YodasHut"      # organisation
-    "force_crystal" # project
-    "Force Crystal" # name
-    "module"        # type
-    "Jane Doe"      # author
-    "nothing"       # use NodeJS
-    "nothing"       # use GitHub release drafter
-    "nothing"       # use GitHub pr auto-assign
-    "nothing"       # use GitHub funding
-    "nothing"       # use GitHub PR template
-    "nothing"       # use Renovate
-    "y"             # remove init script
-    "nothing"       # proceed with init
+    "YodasHut"       # namespace
+    "Force Crystal"  # name
+    "force_crystal"  # machine_name
+    "module"         # type
+    "CircleCI"       # ci_provider
+    "y"              # remove init script
+    "nothing"        # proceed with init
   )
   tui_run "${answers[@]}"
 
