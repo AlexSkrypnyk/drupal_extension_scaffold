@@ -201,12 +201,6 @@ process_internal() {
 
   namespace_lowercase="$(to_lowercase "${namespace}")"
 
-  if [ "${extension_type}" != "theme" ]; then
-    rm -rf tests >/dev/null || true
-    uncomment_line "${extension_machine_name}.info.yml" "#type: theme"
-    remove_string_content_line "type: module" "${extension_machine_name}.info.yml"
-  fi
-
   replace_string_content "YourNamespace" "${namespace}"
   replace_string_content "AlexSkrypnyk" "${namespace}"
   replace_string_content "yournamespace" "${namespace_lowercase}"
@@ -259,6 +253,12 @@ process_internal() {
 
   remove_tokens_with_content "META"
   remove_special_comments
+
+  if [ "${extension_type}" = "theme" ]; then
+    rm -rf tests >/dev/null || true
+    uncomment_line "${extension_machine_name}.info.yml" "#type: theme"
+    remove_string_content_line "type: module" "${extension_machine_name}.info.yml"
+  fi
 }
 
 #-------------------------------------------------------------------------------
