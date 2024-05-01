@@ -4,7 +4,8 @@ on:
   push:
     tags:
       - '*'
-      - '1.x'
+    branches:
+      - 1.x
 
 permissions:
   contents: read
