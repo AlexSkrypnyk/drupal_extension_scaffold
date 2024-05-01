@@ -44,7 +44,7 @@ export SCRIPT_FILE="init.sh"
     "YodasHut"      # organisation
     "force_crystal" # project
     "Force Crystal" # name
-    "module"        # theme
+    "theme"         # type
     "Jane Doe"      # author
     "nothing"       # use NodeJS
     "nothing"       # use GitHub release drafter

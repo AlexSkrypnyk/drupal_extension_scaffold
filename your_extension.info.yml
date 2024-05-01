@@ -1,5 +1,6 @@
 name: Drupal extension scaffold
 type: module
+#type: theme
 description: Drupal extension scaffold example.
 package: Testing
 core_version_requirement: ^9 || ^10

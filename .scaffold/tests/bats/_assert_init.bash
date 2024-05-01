@@ -108,11 +108,11 @@ assert_files_present_extension_type_theme() {
   assert_file_not_contains "force_crystal.info.yml" 'type: module'
 
   # Assert that composer.json file were processed correctly.
-    assert_file_contains "composer.json" '"type": "drupal-theme"'
+  assert_file_contains "composer.json" '"type": "drupal-theme"'
 
   # Assert some dirs/files must not be exist.
-  assert_dir_not_exist "tests/src/Unit"
-  assert_dir_not_exist "tests/src/Functional"
+  assert_dir_not_exists "tests/src/Unit"
+  assert_dir_not_exists "tests/src/Functional"
 
   popd >/dev/null || exit 1
 }
