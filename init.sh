@@ -266,13 +266,6 @@ main() {
   : "${extension_type:?type is required}"
   : "${ci_provider:?ci_provider is required}"
 
-  [ "${use_nodejs}" != "y" ] && remove_nodejs
-  [ "${use_release_drafter}" != "y" ] && remove_release_drafter
-  [ "${use_pr_autoassign}" != "y" ] && remove_pr_autoassign
-  [ "${use_funding}" != "y" ] && remove_funding
-  [ "${use_pr_template}" != "y" ] && remove_pr_template
-  [ "${use_renovate}" != "y" ] && remove_renovate
-
   process_readme "${extension_name}"
 
   process_internal "${namespace}" "${extension_name}" "${extension_machine_name}" "${extension_type}" "${ci_provider}"
