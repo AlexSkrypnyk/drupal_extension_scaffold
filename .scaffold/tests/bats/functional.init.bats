@@ -35,7 +35,30 @@ export SCRIPT_FILE="init.sh"
 
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
-  assert_files_present_php "${BUILD_DIR}"
-  assert_file_contains "composer.json" '"type": "drupal-module"'
-  assert_workflow_php "${BUILD_DIR}"
+  assert_files_present_extension_type_module "${BUILD_DIR}"
+}
+
+# bats test_tags=smoke
+@test "Init, theme" {
+  answers=(
+    "YodasHut"      # organisation
+    "force_crystal" # project
+    "Force Crystal" # name
+    "module"        # theme
+    "Jane Doe"      # author
+    "nothing"       # use NodeJS
+    "nothing"       # use GitHub release drafter
+    "nothing"       # use GitHub pr auto-assign
+    "nothing"       # use GitHub funding
+    "nothing"       # use GitHub PR template
+    "nothing"       # use Renovate
+    "nothing"       # remove docs
+    "nothing"       # remove init script
+    "nothing"       # proceed with init
+  )
+  tui_run "${answers[@]}"
+
+  assert_output_contains "Please follow the prompts to adjust your extension configuration"
+  assert_files_present_common "${BUILD_DIR}"
+  assert_files_present_extension_type_theme "${BUILD_DIR}"
 }

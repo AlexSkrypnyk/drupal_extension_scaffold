@@ -20,7 +20,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+
       - name: Check coding standards
         uses: luizm/action-sh-checker@v0.8.0
         env:
           SHFMT_OPTS: -i 2 -ci -s -d
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Setup kcov
+        run: wget https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz && tar -xf kcov-amd64.tar.gz && sudo mv ./usr/local/bin/kcov /usr/local/bin/kcov && kcov --version
+
+      - name: Install dependencies
+        run: npm --prefix=tests/scaffold ci
+        working-directory: .scaffold/tests
+
+      - name: Run tests
+        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html "$(pwd)"/.scaffold-coverage-html .scaffold/tests/node_modules/.bin/bats .scaffold/tests
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report
+          path: ./.scaffold-coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./.scaffold-coverage-html
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
