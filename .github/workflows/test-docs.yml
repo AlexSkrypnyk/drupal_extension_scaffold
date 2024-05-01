@@ -24,21 +24,21 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: '${{ github.workspace }}/docs'
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
 
       - name: Build documentation site
         run: npm run build
-        working-directory: '${{ github.workspace }}/docs'
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
 
       - name: Run tests
         run: npm run test
-        working-directory: '${{ github.workspace }}/docs'
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          publish-dir: 'docs/build'
+          publish-dir: '.scaffold/docs/build'
           production-branch: main
           deploy-message: "Deploy from GitHub Actions"
           enable-pull-request-comment: true
