@@ -16,7 +16,7 @@ setup() {
   # @see https://bats-core.readthedocs.io/en/stable/writing-tests.html#special-variables
 
   # Register a path to libraries.
-  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/node_modules"
+  export BATS_LIB_PATH="${BATS_TEST_DIRNAME}/../node_modules"
 
   # Load 'bats-helpers' library.
   bats_load_library bats-helpers
