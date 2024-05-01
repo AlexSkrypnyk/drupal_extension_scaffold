@@ -211,6 +211,7 @@ process_internal() {
   remove_special_comments
 
   if [ "${extension_type}" = "theme" ]; then
+    echo "${extension_type}"
     rm -rf tests >/dev/null || true
     echo 'base theme: false' >> "${extension_machine_name}.info.yml"
   fi
