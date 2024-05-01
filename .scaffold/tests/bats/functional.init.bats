@@ -60,13 +60,13 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, CircleCI" {
   answers=(
-    "YodasHut"       # namespace
-    "Force Crystal"  # name
-    "force_crystal"  # machine_name
-    "module"         # type
-    "CircleCI"       # ci_provider
-    "nothing"        # remove init script
-    "nothing"        # proceed with init
+    "YodasHut"      # namespace
+    "Force Crystal" # name
+    "force_crystal" # machine_name
+    "module"        # type
+    "CircleCI"      # ci_provider
+    "nothing"       # remove init script
+    "nothing"       # proceed with init
   )
   tui_run "${answers[@]}"
 
@@ -80,13 +80,13 @@ export SCRIPT_FILE="init.sh"
 
 @test "Init, do not remove script" {
   answers=(
-    "YodasHut"       # namespace
-    "Force Crystal"  # name
-    "force_crystal"  # machine_name
-    "module"         # type
-    "CircleCI"       # ci_provider
-    "n"              # remove init script
-    "nothing"        # proceed with init
+    "YodasHut"      # namespace
+    "Force Crystal" # name
+    "force_crystal" # machine_name
+    "module"        # type
+    "CircleCI"      # ci_provider
+    "n"             # remove init script
+    "nothing"       # proceed with init
   )
   tui_run "${answers[@]}"
 
@@ -99,13 +99,13 @@ export SCRIPT_FILE="init.sh"
 
 @test "Init, remove script" {
   answers=(
-    "YodasHut"       # namespace
-    "Force Crystal"  # name
-    "force_crystal"  # machine_name
-    "module"         # type
-    "CircleCI"       # ci_provider
-    "y"              # remove init script
-    "nothing"        # proceed with init
+    "YodasHut"      # namespace
+    "Force Crystal" # name
+    "force_crystal" # machine_name
+    "module"        # type
+    "CircleCI"      # ci_provider
+    "y"             # remove init script
+    "nothing"       # proceed with init
   )
   tui_run "${answers[@]}"
 
