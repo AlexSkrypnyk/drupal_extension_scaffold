@@ -35,7 +35,7 @@ jobs:
         run: wget https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz && tar -xf kcov-amd64.tar.gz && sudo mv ./usr/local/bin/kcov /usr/local/bin/kcov && kcov --version
 
       - name: Install dependencies
-        run: npm --prefix=tests/scaffold ci
+        run: npm ci
         working-directory: .scaffold/tests
 
       - name: Run tests
