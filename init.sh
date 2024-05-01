@@ -258,6 +258,8 @@ process_internal() {
     rm -rf tests >/dev/null || true
     uncomment_line "${extension_machine_name}.info.yml" "#type: theme"
     remove_string_content_line "type: module" "${extension_machine_name}.info.yml"
+  else
+    remove_string_content_line "#type: theme" "${extension_machine_name}.info.yml"
   fi
 }
 
