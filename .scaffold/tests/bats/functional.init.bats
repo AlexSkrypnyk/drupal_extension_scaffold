@@ -35,6 +35,7 @@ export SCRIPT_FILE="init.sh"
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
   assert_files_present_extension_type_module "${BUILD_DIR}"
+  assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
@@ -59,4 +60,5 @@ export SCRIPT_FILE="init.sh"
   assert_output_contains "Please follow the prompts to adjust your extension configuration"
   assert_files_present_common "${BUILD_DIR}"
   assert_files_present_extension_type_theme "${BUILD_DIR}"
+  assert_workflow "${BUILD_DIR}"
 }
