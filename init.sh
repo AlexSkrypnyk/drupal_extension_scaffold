@@ -179,7 +179,7 @@ process_internal() {
   replace_string_content "drupal_extension_scaffold" "${extension_machine_name}"
   replace_string_content "Drupal extension scaffold" "${extension_name}"
   replace_string_content "type: module" "type: ${extension_type}"
-  replace_string_content "[EXTENSION_NAME]" "${extension_machine_name}"
+  replace_string_content "\[EXTENSION_NAME\]" "${extension_machine_name}"
 
   remove_string_content "# Uncomment the lines below in your project."
   uncomment_line ".gitattributes" ".ahoy.yml"
