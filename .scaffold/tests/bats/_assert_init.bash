@@ -25,6 +25,8 @@ assert_files_present_common() {
   assert_file_not_exists "logo.tmp.png"
   assert_file_not_exists "LICENSE"
   assert_file_not_exists ".github/workflows/test-scaffold.yml"
+  assert_file_not_exists ".github/workflows/release-docs.yml"
+  assert_file_not_exists ".github/workflows/test-docs.yml"
 
   # Assert some dirs/files must not be exist.
   assert_dir_not_exists ".scaffold"
