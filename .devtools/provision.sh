@@ -48,7 +48,7 @@ drush si "${DRUPAL_PROFILE}" -y --db-url "sqlite://${db_file}" --account-name=ad
 drush status
 
 echo "> Enable extension ${extension}."
-if [ extension_type = "theme" ]; then
+if [ "${extension_type}" = "theme" ]; then
   drush theme:enable "${extension}" -y
 else
   drush pm:enable "${extension}" -y
