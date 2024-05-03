@@ -119,6 +119,8 @@ assert_workflow() {
   pushd "${dir}" >/dev/null || exit 1
 
   ./.devtools/build-codebase.sh
+  ./.devtools/start-server.sh
+  ./.devtools/provision.sh
 
   # Lint.
   pushd "build" >/dev/null || exit 1
