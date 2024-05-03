@@ -35,6 +35,10 @@ drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
 # Extension name, taken from .info file.
 extension="$(basename -s .info.yml -- ./*.info.yml)"
 [ "${extension}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+extension_type="module"
+if cat "${extension}.info.yml" | grep -Fq "type: theme"; then
+  extension_type="theme"
+fi
 
 # Database file path.
 db_file="/tmp/site_${extension}.sqlite"
@@ -44,7 +48,11 @@ drush si "${DRUPAL_PROFILE}" -y --db-url "sqlite://${db_file}" --account-name=ad
 drush status
 
 echo "> Enable extension ${extension}."
-drush pm:enable "${extension}" -y
+if [ extension_type = "theme" ]; then
+  drush theme:enable "${extension}" -y
+else
+  drush pm:enable "${extension}" -y
+fi
 drush cr
 
 echo "> Enable suggested modules, if any."
