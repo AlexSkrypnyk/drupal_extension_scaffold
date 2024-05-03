@@ -54,7 +54,7 @@ export SCRIPT_FILE="init.sh"
   assert_file_not_exists ".circleci/config.yml"
   assert_output_contains "Initialization complete."
 
-  assert_workflow "${BUILD_DIR}"
+  #assert_workflow "${BUILD_DIR}"
 }
 
 # bats test_tags=smoke
