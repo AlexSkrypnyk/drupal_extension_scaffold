@@ -131,8 +131,14 @@ assert_workflow() {
   vendor/bin/twigcs
   popd >/dev/null || exit 1
 
+  # Test.
+  ./.devtools/test.sh
+
   # Change mode to make bats have enough permission to clean tmp test directory.
   chmod -R 777 "build/web/sites/default"
+
+  # Allow bats finish this assert, we need kill php process because it run in background in start server step.
+  killall -9 php >/dev/null 2>&1 || true
 
   popd >/dev/null || exit 1
 }
