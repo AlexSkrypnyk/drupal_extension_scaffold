@@ -1,0 +1,113 @@
+name: Test Scaffold
+
+# Workflow to **validate** the **integrity** of the scaffold template itself.
+
+on:
+  push:
+    branches:
+      - 1.x
+
+  pull_request:
+    branches:
+      - 1.x
+      - 'feature/**'
+
+jobs:
+  scaffold-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+
+      - name: Check coding standards
+        uses: luizm/action-sh-checker@v0.8.0
+        env:
+          SHFMT_OPTS: -i 2 -ci -s -d
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Setup kcov
+        run: wget https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz && tar -xf kcov-amd64.tar.gz && sudo mv ./usr/local/bin/kcov /usr/local/bin/kcov && kcov --version
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: .scaffold/tests
+
+      - name: Run tests
+        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html "$(pwd)"/.scaffold-coverage-html .scaffold/tests/node_modules/.bin/bats .scaffold/tests/bats
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report
+          path: ./.scaffold-coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          directory: ./.scaffold-coverage-html
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  scaffold-test-actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check coding standards with yamllint
+        run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
+        continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
+
+      - name: Check coding standards with actionlint
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:'
+        continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
+
+  scaffold-test-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
+
+      - name: Build documentation site
+        run: npm run build
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
+
+      - name: Run tests
+        run: npm run test
+        working-directory: '${{ github.workspace }}/.scaffold/docs'
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          publish-dir: '.scaffold/docs/build'
+          production-branch: 1.x
+          deploy-message: "Deploy from GitHub Actions"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        timeout-minutes: 1

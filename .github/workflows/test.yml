@@ -2,9 +2,11 @@ name: Test
 
 on:
   push:
-  pull_request:
     tags:
       - '**'
+    branches:
+      - 1.x
+  pull_request:
     branches:
       - 1.x
 
@@ -97,5 +99,5 @@ jobs:
       - name: Process artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Artifacts (${{ join(matrix.*, ', ') }})
+          name: Artifacts (${{ matrix.name }})
           path: build/web/sites/simpletest/browser_output
