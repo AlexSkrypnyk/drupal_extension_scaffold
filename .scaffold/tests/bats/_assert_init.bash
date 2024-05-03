@@ -9,27 +9,28 @@ assert_files_present_common() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  # Assert that some files must be exist.
-  assert_file_exists "force_crystal.info.yml"
-  assert_file_exists "phpcs.xml"
-  assert_file_exists "phpmd.xml"
-  assert_file_exists "phpstan.neon"
+  # Assert that some files must exist.
+  assert_file_exists ".ahoy.yml"
   assert_file_exists ".editorconfig"
   assert_file_exists ".gitattributes"
   assert_file_exists ".gitignore"
   assert_file_exists "README.md"
+  assert_file_exists "composer.dev.json"
+  assert_file_exists "composer.json"
+  assert_file_exists "force_crystal.info.yml"
   assert_file_exists "logo.png"
+  assert_file_exists "phpcs.xml"
+  assert_file_exists "phpmd.xml"
+  assert_file_exists "phpstan.neon"
+  assert_file_exists "rector.php"
 
-  # Assert that some files must not be exist.
+  # Assert that some files must not exist.
+  assert_dir_not_exists ".scaffold"
+  assert_file_not_exists ".github/workflows/scaffold-release.yml"
+  assert_file_not_exists ".github/workflows/scaffold-test.yml"
+  assert_file_not_exists "LICENSE"
   assert_file_not_exists "README.dist.md"
   assert_file_not_exists "logo.tmp.png"
-  assert_file_not_exists "LICENSE"
-  assert_file_not_exists ".github/workflows/test-scaffold.yml"
-  assert_file_not_exists ".github/workflows/release-docs.yml"
-  assert_file_not_exists ".github/workflows/test-docs.yml"
-
-  # Assert some dirs/files must not be exist.
-  assert_dir_not_exists ".scaffold"
 
   # Assert that .gitignore were processed correctly.
   assert_file_contains ".gitignore" "composer.lock"
@@ -58,14 +59,14 @@ assert_files_present_common() {
   assert_file_not_contains ".gitattributes" "# phpmd.xml"
   assert_file_not_contains ".gitattributes" "# phpstan.neon"
 
-  # Assert that composer.json were processed correctly.
+  # Assert that composer.json was processed correctly.
   assert_file_contains "composer.json" '"name": "drupal/force_crystal"'
   assert_file_contains "composer.json" '"description": "Provides force_crystal functionality."'
   assert_file_contains "composer.json" '"homepage": "https://drupal.org/project/force_crystal"'
   assert_file_contains "composer.json" '"issues": "https://drupal.org/project/issues/force_crystal"'
   assert_file_contains "composer.json" '"source": "https://git.drupalcode.org/project/force_crystal"'
 
-  # Assert that extension info file were processed correctly.
+  # Assert that extension info file was processed correctly.
   assert_file_contains "force_crystal.info.yml" 'name: Force Crystal'
 
   # Assert other things.
@@ -85,10 +86,10 @@ assert_files_present_extension_type_module() {
   assert_file_not_contains "force_crystal.info.yml" 'type: theme'
   assert_file_not_contains "force_crystal.info.yml" 'base theme: false'
 
-  # Assert that composer.json file were processed correctly.
+  # Assert that composer.json file was processed correctly.
   assert_file_contains "composer.json" '"type": "drupal-module"'
 
-  # Assert some dirs/files must be exist.
+  # Assert some dirs/files must exist.
   assert_dir_exists "tests/src/Unit"
   assert_dir_exists "tests/src/Functional"
 
@@ -108,7 +109,7 @@ assert_files_present_extension_type_theme() {
   # Assert that composer.json file were processed correctly.
   assert_file_contains "composer.json" '"type": "drupal-theme"'
 
-  # Assert some dirs/files must not be exist.
+  # Assert some dirs/files must not exist.
   assert_dir_not_exists "tests/src/Unit"
   assert_dir_not_exists "tests/src/Functional"
 
@@ -124,11 +125,13 @@ assert_workflow() {
 
   # Lint.
   pushd "build" >/dev/null || exit 1
+
   vendor/bin/phpcs
   vendor/bin/phpstan
   vendor/bin/rector --clear-cache --dry-run
   vendor/bin/phpmd . text phpmd.xml
   vendor/bin/twigcs
+
   popd >/dev/null || exit 1
 
   # Change mode to make bats have enough permission to clean tmp test directory.

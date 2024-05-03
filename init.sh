@@ -205,9 +205,7 @@ process_internal() {
 
   rm -f LICENSE >/dev/null || true
   rm -Rf "tests/scaffold" >/dev/null || true
-  rm -f ".github/workflows/test-scaffold.yml" >/dev/null || true
-  rm -f ".github/workflows/test-docs.yml" >/dev/null || true
-  rm -f ".github/workflows/release-docs.yml" >/dev/null || true
+  rm -f .github/workflows/scaffold*.yml >/dev/null || true
   rm -Rf .scaffold >/dev/null || true
 
   remove_tokens_with_content "META"
