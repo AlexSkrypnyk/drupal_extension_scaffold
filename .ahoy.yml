@@ -24,6 +24,14 @@ commands:
     usage: Provision a website.
     cmd: ./.devtools/provision.sh
 
+  drush:
+    usage: Run Drush command.
+    cmd: build/vendor/bin/drush -l http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000} $*
+
+  login:
+    usage: Login to a website.
+    cmd: ahoy drush uli
+
   lint:
     usage: Lint code.
     cmd: |
