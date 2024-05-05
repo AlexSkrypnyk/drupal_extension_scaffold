@@ -2,6 +2,7 @@
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "friendsoftwig/twigcs": "^6.2",
+        "jangregor/phpstan-prophecy": "^1.0",
         "mglaman/phpstan-drupal": "^1.2",
         "palantirnet/drupal-rector": "^0.18",
         "phpcompatibility/php-compatibility": "^9.3",

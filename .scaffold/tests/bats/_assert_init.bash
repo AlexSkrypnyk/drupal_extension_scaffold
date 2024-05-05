@@ -71,7 +71,6 @@ assert_files_present_common() {
 
   # Assert other things.
   assert_dir_not_contains_string "${dir}" "your_extension"
-  assert_dir_contains_string "${dir}" "YodasHut"
 
   popd >/dev/null || exit 1
 }

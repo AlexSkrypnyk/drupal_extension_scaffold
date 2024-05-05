@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Code for your_extension module.
+ *
+ * This module adds a content, set in the configuration form, to the bottom of
+ * the page and shows it if JavaScript is disabled.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_page_bottom().
+ */
+function your_extension_page_bottom(array &$page_bottom) {
+  /** @var \Drupal\your_extension\YourExtensionService $your_extension_service */
+  $your_extension_service = \Drupal::getContainer()->get('your_extension.service');
+
+  $text = $your_extension_service->getText();
+
+  if (!empty($text)) {
+    $page_bottom['your_extension'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'noscript',
+      '#value' => $text,
+    ];
+  }
+}

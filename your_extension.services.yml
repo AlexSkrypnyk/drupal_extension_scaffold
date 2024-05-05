@@ -1,0 +1,5 @@
+services:
+  your_extension.service:
+    class: Drupal\your_extension\YourExtensionService
+    arguments:
+      - '@config.factory'
