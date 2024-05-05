@@ -24,8 +24,8 @@ jobs:
 
           - name: test-php-8.2-legacy
             php-version: 8.2
-            drupal-version: 9.5
-            drupal-project-sha: 9.x
+            drupal-version: 10.1
+            drupal-project-sha: 10.x
             drupal-version-alias: legacy
 
           - name: test-php-8.2-next
