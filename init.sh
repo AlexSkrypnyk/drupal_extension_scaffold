@@ -60,23 +60,11 @@ replace_string_content() {
   set -e
 }
 
-to_lowercase() {
-  echo "${1}" | tr '[:upper:]' '[:lower:]'
-}
-
 remove_string_content() {
   local token="${1}"
   local sed_opts
   sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
   grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" -l "${token}" "$(pwd)" | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/^${token}/d" || true
-}
-
-remove_string_content_line() {
-  local token="${1}"
-  local target="${2:-.}"
-  local sed_opts
-  sed_opts=(-i) && [ "$(uname)" == "Darwin" ] && sed_opts=(-i '')
-  grep -rI --exclude-dir=".git" --exclude-dir=".idea" --exclude-dir="vendor" --exclude-dir="node_modules" -l "${token}" "$(pwd)/${target}" | LC_ALL=C.UTF-8 xargs sed "${sed_opts[@]}" -e "/${token}/d" || true
 }
 
 remove_tokens_with_content() {
@@ -239,9 +227,12 @@ main() {
   echo
 
   [ -z "${extension_name}" ] && extension_name="$(ask "Name")"
-  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Machine name")"
-  [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme")"
-  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI")"
+  extension_machine_name_default="$(convert_string "${extension_name}" "file_name")"
+  [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Machine name" "${extension_machine_name_default}")"
+  extension_type_default="module"
+  [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme" "${extension_type_default}")"
+  ci_provider_default="GitHub Actions"
+  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI" "${ci_provider_default}")"
 
   remove_self="$(ask_yesno "Remove this script")"
 
