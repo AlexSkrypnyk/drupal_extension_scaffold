@@ -3,7 +3,7 @@
   <img width=200px height=200px src="https://placehold.jp/000000/ffffff/200x200.png?text=Your+Extension&css=%7B%22border-radius%22%3A%22%20100px%22%7D" alt="Yourproject logo"></a>
 </p>
 
-<h1 align="center">Your extension</h1>
+<h1 align="center">Your Extension</h1>
 
 <div align="center">
 

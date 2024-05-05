@@ -47,8 +47,28 @@ commands:
     usage: Run all tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
-      export SIMPLETEST_BASE_URL=http://localhost:8000
       vendor/bin/phpunit
+      popd >/dev/null || exit 1
+
+  test-unit:
+    usage: Run unit tests.
+    cmd: |
+      pushd "build" >/dev/null || exit 1
+      vendor/bin/phpunit --testsuite unit
+      popd >/dev/null || exit 1
+
+  test-kernel:
+    usage: Run kernel tests.
+    cmd: |
+      pushd "build" >/dev/null || exit 1
+      vendor/bin/phpunit --testsuite kernel
+      popd >/dev/null || exit 1
+
+  test-functional:
+    usage: Run functional tests.
+    cmd: |
+      pushd "build" >/dev/null || exit 1
+      vendor/bin/phpunit --testsuite functional
       popd >/dev/null || exit 1
 
 # Override entrypoint to alter default behaviour of Ahoy.
@@ -56,5 +76,10 @@ entrypoint:
   - bash
   - -c
   - -e
+  - |
+    extension="$(basename -s .info.yml -- ./*.info.yml)"
+    export SIMPLETEST_BASE_URL=http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000}
+    export SIMPLETEST_DB=sqlite://localhost/drupal_test_${extension}.sqlite
+    bash -e -c "$0" "$@"
   - '{{cmd}}'
   - '{{name}}'

@@ -1,0 +1,5 @@
+your_extension.settings_form:
+  title: 'Your Extension'
+  description: 'Your Extension settings'
+  route_name: your_extension.settings_form
+  parent: system.admin_config_development

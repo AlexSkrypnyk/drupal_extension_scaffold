@@ -94,10 +94,28 @@ jobs:
         run: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - name: Run tests
-        run: .devtools/test.sh || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        working-directory: build
+        run: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - name: Process artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Artifacts (${{ matrix.name }})
           path: build/web/sites/simpletest/browser_output
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+          path: ./.logs/coverage/phpunit/.coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          files: ./.logs/coverage/phpunit/cobertura.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
