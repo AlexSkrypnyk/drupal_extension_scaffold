@@ -89,9 +89,9 @@ jobs:
         working-directory: build
         run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - name: Lint code with Twigcs
+      - name: Lint code with Twig CS Fixer
         working-directory: build
-        run: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - name: Run tests
         working-directory: build

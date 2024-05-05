@@ -58,14 +58,14 @@ vendor/bin/phpcs
 vendor/bin/phpstan
 vendor/bin/rector --clear-cache --dry-run
 vendor/bin/phpmd . text phpmd.xml
-vendor/bin/twigcs
+vendor/bin/twig-cs-fixer
 ```
 
 - PHPCS config: [`phpcs.xml`](phpcs.xml)
 - PHPStan config: [`phpstan.neon`](phpstan.neon)
 - PHPMD config: [`phpmd.xml`](phpmd.xml)
 - Rector config: [`rector.php`](rector.php)
-- TwigCS config: [`.twig_cs.php`](.twig_cs.php)
+- Twig CS Fixer config: [`.twig-cs-fixer.php`](.twig-cs-fixer.php)
 
 ### Tests
 

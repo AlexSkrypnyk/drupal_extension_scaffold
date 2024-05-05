@@ -32,7 +32,7 @@ commands:
       vendor/bin/phpstan
       vendor/bin/rector --clear-cache --dry-run
       vendor/bin/phpmd . text phpmd.xml
-      vendor/bin/twigcs
+      vendor/bin/twig-cs-fixer
       popd >/dev/null || exit 1
 
   lint-fix:
@@ -70,6 +70,14 @@ commands:
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpunit --testsuite functional
       popd >/dev/null || exit 1
+
+  reset:
+    usage: Reset the project.
+    cmd: |
+      killall -9 php >/dev/null 2>&1 || true
+      chmod -Rf 777 build > /dev/null
+      rm -Rf build > /dev/null || true
+      rm -Rf .logs > /dev/null || true
 
 # Override entrypoint to alter default behaviour of Ahoy.
 entrypoint:

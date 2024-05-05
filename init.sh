@@ -187,7 +187,7 @@ process_internal() {
   uncomment_line ".gitattributes" ".gitattributes"
   uncomment_line ".gitattributes" ".github"
   uncomment_line ".gitattributes" ".gitignore"
-  uncomment_line ".gitattributes" ".twig_cs.php"
+  uncomment_line ".gitattributes" ".twig-cs-fixer.php"
   uncomment_line ".gitattributes" "composer.dev.json"
   uncomment_line ".gitattributes" "phpcs.xml"
   uncomment_line ".gitattributes" "phpmd.xml"
