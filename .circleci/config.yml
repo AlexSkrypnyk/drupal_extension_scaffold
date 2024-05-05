@@ -52,8 +52,8 @@ job-test: &job-test
         working_directory: build
 
     - run:
-        name: Lint code with Twigcs
-        command: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        name: Lint code with Twig CS Fixer
+        command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build
 
     - run:
