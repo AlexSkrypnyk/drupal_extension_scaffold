@@ -16,7 +16,6 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, defaults - extension module, workflow" {
   answers=(
-    "YodasHut"       # namespace
     "Force Crystal"  # name
     "force_crystal"  # machine_name
     "module"         # type
@@ -38,7 +37,6 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, extension theme, workflow" {
   answers=(
-    "YodasHut"       # namespace
     "Force Crystal"  # name
     "force_crystal"  # machine_name
     "theme"          # type
@@ -60,7 +58,6 @@ export SCRIPT_FILE="init.sh"
 # bats test_tags=smoke
 @test "Init, CircleCI" {
   answers=(
-    "YodasHut"      # namespace
     "Force Crystal" # name
     "force_crystal" # machine_name
     "module"        # type
@@ -80,7 +77,6 @@ export SCRIPT_FILE="init.sh"
 
 @test "Init, do not remove script" {
   answers=(
-    "YodasHut"      # namespace
     "Force Crystal" # name
     "force_crystal" # machine_name
     "module"        # type
@@ -99,7 +95,6 @@ export SCRIPT_FILE="init.sh"
 
 @test "Init, remove script" {
   answers=(
-    "YodasHut"      # namespace
     "Force Crystal" # name
     "force_crystal" # machine_name
     "module"        # type

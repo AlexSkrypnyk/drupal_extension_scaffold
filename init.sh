@@ -7,18 +7,17 @@
 # ./init.sh
 #
 # Silent:
-# ./init.sh yournamespace "Extension Name" extension_machine_name extension_type "CI Provider"
+# ./init.sh "Extension Name" extension_machine_name extension_type "CI Provider"
 #
 # shellcheck disable=SC2162,SC2015
 
 set -euo pipefail
 [ "${SCRIPT_DEBUG-}" = "1" ] && set -x
 
-namespace=${1-}
-extension_name=${2-}
-extension_machine_name=${3-}
-extension_type=${4-}
-ci_provider=${5-}
+extension_name=${1-}
+extension_machine_name=${2-}
+extension_type=${3-}
+ci_provider=${4-}
 
 #-------------------------------------------------------------------------------
 
@@ -34,7 +33,7 @@ convert_string() {
       echo "${input_string}" | tr ' ' '_' | tr '[:upper:]' '[:lower:]' | tr -d '-'
       ;;
     "namespace" | "class_name")
-      echo "${input_string}" | awk -F" " '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));} 1' | tr -d ' -'
+      echo "${input_string}" | tr '-' ' ' | tr '_' ' ' | awk -F" " '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));} 1' | tr -d ' -'
       ;;
     "package_name")
       echo "${input_string}" | tr ' ' '-' | tr '[:upper:]' '[:lower:]'
@@ -154,30 +153,29 @@ process_readme() {
 }
 
 process_internal() {
-  local namespace="${1}"
-  local extension_name="${2}"
-  local extension_machine_name="${3}"
-  local extension_type="${4}"
-  local ci_provider="${5}"
-  local namespace_lowercase
+  local extension_name="${1}"
+  local extension_machine_name="${2}"
+  local extension_type="${3}"
+  local ci_provider="${4}"
 
-  namespace_lowercase="$(to_lowercase "${namespace}")"
+  extension_machine_name_class="$(convert_string "${extension_machine_name}" "class_name")"
 
-  replace_string_content "YourNamespace" "${namespace}"
-  replace_string_content "yournamespace" "${namespace_lowercase}"
-  replace_string_content "AlexSkrypnyk" "${namespace}"
-  replace_string_content "alexskrypnyk" "${namespace_lowercase}"
+  replace_string_content "YourNamespace" "${extension_machine_name}"
+  replace_string_content "yournamespace" "${extension_machine_name}"
+  replace_string_content "AlexSkrypnyk" "${extension_machine_name}"
+  replace_string_content "alexskrypnyk" "${extension_machine_name}"
   replace_string_content "yourproject" "${extension_machine_name}"
   replace_string_content "Yourproject logo" "${extension_name} logo"
-  replace_string_content "Your extension" "${extension_name}"
+  replace_string_content "Your Extension" "${extension_name}"
   replace_string_content "your extension" "${extension_name}"
   replace_string_content "Your+Extension" "${extension_machine_name}"
   replace_string_content "your_extension" "${extension_machine_name}"
+  replace_string_content "YourExtension" "${extension_machine_name_class}"
   replace_string_content "Provides your_extension functionality." "Provides ${extension_machine_name} functionality."
   replace_string_content "drupal-module" "drupal-${extension_type}"
   replace_string_content "Drupal module scaffold FE example used for template testing" "Provides ${extension_machine_name} functionality."
-  replace_string_content "drupal_extension_scaffold" "${extension_machine_name}"
   replace_string_content "Drupal extension scaffold" "${extension_name}"
+  replace_string_content "drupal_extension_scaffold" "${extension_machine_name}"
   replace_string_content "type: module" "type: ${extension_type}"
   replace_string_content "\[EXTENSION_NAME\]" "${extension_machine_name}"
 
@@ -202,6 +200,17 @@ process_internal() {
   remove_string_content "LICENSE             export-ignore"
 
   mv "your_extension.info.yml" "${extension_machine_name}.info.yml"
+  mv "your_extension.install" "${extension_machine_name}.install"
+  mv "your_extension.links.menu.yml" "${extension_machine_name}.links.menu.yml"
+  mv "your_extension.module" "${extension_machine_name}.module"
+  mv "your_extension.routing.yml" "${extension_machine_name}.routing.yml"
+  mv "your_extension.services.yml" "${extension_machine_name}.services.yml"
+  mv "config/schema/your_extension.schema.yml" "config/schema/${extension_machine_name}.schema.yml"
+  mv "src/Form/YourExtensionForm.php" "src/Form/${extension_machine_name_class}Form.php"
+  mv "src/YourExtensionService.php" "src/${extension_machine_name_class}Service.php"
+  mv "tests/src/Unit/YourExtensionServiceUnitTest.php" "tests/src/Unit/${extension_machine_name_class}ServiceUnitTest.php"
+  mv "tests/src/Kernel/YourExtensionServiceKernelTest.php" "tests/src/Kernel/${extension_machine_name_class}ServiceKernelTest.php"
+  mv "tests/src/Functional/YourExtensionFunctionalTest.php" "tests/src/Functional/${extension_machine_name_class}FunctionalTest.php"
 
   rm -f LICENSE >/dev/null || true
   rm -Rf "tests/scaffold" >/dev/null || true
@@ -229,7 +238,6 @@ main() {
   echo "Please follow the prompts to adjust your extension configuration"
   echo
 
-  [ -z "${namespace}" ] && namespace="$(ask "Namespace")"
   [ -z "${extension_name}" ] && extension_name="$(ask "Name")"
   [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Machine name")"
   [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme")"
@@ -240,7 +248,6 @@ main() {
   echo
   echo "            Summary"
   echo "---------------------------------"
-  echo "Namespace                        : ${namespace}"
   echo "Name                             : ${extension_name}"
   echo "Machine name                     : ${extension_machine_name}"
   echo "Type                             : ${extension_type}"
@@ -261,7 +268,6 @@ main() {
   # Processing.
   #
 
-  : "${namespace:?namespace is required}"
   : "${extension_name:?name is required}"
   : "${extension_machine_name:?machine_name is required}"
   : "${extension_type:?type is required}"
@@ -269,7 +275,7 @@ main() {
 
   process_readme "${extension_name}"
 
-  process_internal "${namespace}" "${extension_name}" "${extension_machine_name}" "${extension_type}" "${ci_provider}"
+  process_internal "${extension_name}" "${extension_machine_name}" "${extension_type}" "${ci_provider}"
 
   [ "${remove_self}" != "n" ] && rm -- "$0" || true
 

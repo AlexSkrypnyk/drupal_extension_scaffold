@@ -23,3 +23,15 @@ parameters:
     drupal_root: web
 
   ignoreErrors:
+    -
+      # Hook implementations do not provide docblocks for parameters, so there
+      # is no way to provide this information.
+      messages:
+        - '#.* no value type specified in iterable type array#'
+        - '#.* has no return type specified#'
+      paths:
+        - web/modules/custom/*
+        - web/themes/custom/*
+      reportUnmatched: false
+
+  reportUnmatchedIgnoredErrors: false

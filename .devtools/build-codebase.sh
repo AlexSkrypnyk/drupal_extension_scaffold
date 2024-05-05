@@ -107,7 +107,7 @@ for composer_suggest in $composer_suggests; do
 done
 
 echo "> Copy tools configuration files."
-cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig_cs.php "build/"
+cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig_cs.php phpunit.xml "build/"
 
 echo "> Symlink extension's code."
 rm -rf "build/web/${type}/custom" >/dev/null && mkdir -p "build/web/${type}/custom/${extension}"

@@ -58,7 +58,8 @@ job-test: &job-test
 
     - run:
         name: Run tests
-        command: .devtools/test.sh || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        command: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
 
     - run:
         name: Process artifacts
