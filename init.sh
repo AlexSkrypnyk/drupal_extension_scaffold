@@ -232,7 +232,7 @@ main() {
   extension_type_default="module"
   [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme" "${extension_type_default}")"
   ci_provider_default="GitHub Actions"
-  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI" "${ci_provider_defaultz}")"
+  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI" "${ci_provider_default}")"
 
   remove_self="$(ask_yesno "Remove this script")"
 
