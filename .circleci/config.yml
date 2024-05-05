@@ -88,8 +88,7 @@ jobs:
     docker:
       - image: cimg/php:8.2-browsers
     environment:
-      DRUPAL_VERSION: 9.5
-      DRUPAL_PROJECT_SHA: 9.x
+      DRUPAL_VERSION: 10.1
     <<: *job-test
 
   test-php-8.2-next:
