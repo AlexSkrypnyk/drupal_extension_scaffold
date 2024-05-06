@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Build the codebase.
+# Assemble a codebase using project code and all required dependencies.
 #
 # Allows to use the latest Drupal core as well as specified versions (for
 # testing backward compatibility).
@@ -37,9 +37,10 @@ DRUPAL_PROJECT_REPO="${DRUPAL_PROJECT_REPO:-https://github.com/drupal-composer/d
 
 #-------------------------------------------------------------------------------
 
-echo "-------------------------------"
-echo "         Build codebase        "
-echo "-------------------------------"
+echo "==============================="
+echo "         🏗️ ASSEMBLE           "
+echo "==============================="
+echo
 
 # Make sure Composer doesn't run out of memory.
 export COMPOSER_MEMORY_LIMIT=-1
@@ -126,11 +127,11 @@ if [ -f "build/web/${type}/custom/${extension}/package-lock.json" ]; then
 fi
 
 echo
-echo "-------------------------------"
-echo "        Codebase built 🚀      "
-echo "-------------------------------"
+echo "==============================="
+echo "     🏗 ASSEMBLE COMPLETE      "
+echo "==============================="
 echo
 echo "> Next steps:"
-echo "  .devtools/start-server.sh # Start the webserver"
+echo "  .devtools/start.sh # Start the webserver"
 echo "  .devtools/provision.sh    # Provision the website"
 echo

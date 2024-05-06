@@ -76,9 +76,10 @@ if [ -n "${DEPLOY_SSH_KEY_FINGERPRINT}" ]; then
   ssh-add -l
 fi
 
-echo "-------------------------------"
-echo "          Deploy code          "
-echo "-------------------------------"
+echo "==============================="
+echo "           🚚 DEPLOY           "
+echo "==============================="
+echo
 
 [ -z "${DEPLOY_USER_NAME}" ] && echo "ERROR: Missing required value for DEPLOY_USER_NAME" && exit 1
 [ -z "${DEPLOY_USER_EMAIL}" ] && echo "ERROR: Missing required value for DEPLOY_USER_EMAIL" && exit 1
@@ -106,9 +107,9 @@ git push --force deployremote HEAD:"${DEPLOY_BRANCH}"
 echo "> Push tags."
 git push --force --tags deployremote || true
 
-echo "-------------------------------"
-echo "        Deployed code          "
-echo "-------------------------------"
+echo "==============================="
+echo "      🚚 DEPLOY COMPLETE       "
+echo "==============================="
 echo
 echo "Remote URL    : ${DEPLOY_REMOTE}"
 echo "Remote branch : ${DEPLOY_BRANCH}"

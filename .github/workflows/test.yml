@@ -65,10 +65,10 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
       - name: Build the codebase
-        run: .devtools/build-codebase.sh
+        run: .devtools/assemble.sh
 
       - name: Start built-in PHP server
-        run: .devtools/start-server.sh
+        run: .devtools/start.sh
 
       - name: Provision site
         run: .devtools/provision.sh

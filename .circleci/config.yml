@@ -21,11 +21,11 @@ job-test: &job-test
 
     - run:
         name: Build the codebase
-        command: .devtools/build-codebase.sh
+        command: .devtools/assemble.sh
 
     - run:
         name: Start built-in PHP server
-        command: .devtools/start-server.sh
+        command: .devtools/start.sh
 
     - run:
         name: Provision site

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Start built-in PHP-server.
+# Start development environment.
 #
 # shellcheck disable=SC2015,SC2094,SC2002
 
@@ -22,9 +22,10 @@ WEBSERVER_WAIT_TIMEOUT="${WEBSERVER_WAIT_TIMEOUT:-5}"
 
 #-------------------------------------------------------------------------------
 
-echo "-------------------------------"
-echo "   Start built-in PHP server   "
-echo "-------------------------------"
+echo "==============================="
+echo "      💻 START ENVIRONMENT     "
+echo "==============================="
+echo
 
 echo "> Stop previously started services, if any."
 killall -9 php >/dev/null 2>&1 || true
@@ -44,9 +45,9 @@ echo "> Check that the server can serve content."
 curl -s -o /dev/null -w "%{http_code}" -L -I "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" | grep -q 200 || (echo "ERROR: Server is started, but site cannot be served" && exit 1)
 
 echo
-echo "-----------------------------------"
-echo "  Started built-in PHP server 🚀🚀 "
-echo "-----------------------------------"
+echo "==============================="
+echo "      💻 ENVIRONMENT READY     "
+echo "==============================="
 echo
 echo "Directory : $(pwd)/build/web"
 echo "URL       : http://${WEBSERVER_HOST}:${WEBSERVER_PORT}"
