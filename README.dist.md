@@ -39,7 +39,7 @@ the provided scripts.
 
 ### Build
 
-Run `.devtools/build-codebase.sh` (or `ahoy build-codebase`
+Run `.devtools/assemble.sh` (or `ahoy assemble`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to start inbuilt PHP
 server locally and run the same commands as in CI, plus installing a site and
 your extension automatically.

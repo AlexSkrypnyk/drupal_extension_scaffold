@@ -120,7 +120,7 @@ assert_workflow() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  ./.devtools/build-codebase.sh
+  ./.devtools/assemble.sh
 
   # Lint.
   pushd "build" >/dev/null || exit 1

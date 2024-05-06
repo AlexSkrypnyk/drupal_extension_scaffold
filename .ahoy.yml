@@ -8,20 +8,20 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
-      ahoy build-codebase
-      ahoy start-server
+      ahoy assemble
+      ahoy start
       ahoy provision
 
-  build-codebase:
-    usage: Build the codebase.
-    cmd: ./.devtools/build-codebase.sh
+  assemble:
+    usage: Assemble a codebase using project code and all required dependencies.
+    cmd: ./.devtools/assemble.sh
 
-  start-server:
-    usage: Start built-in PHP-server.
-    cmd: ./.devtools/start-server.sh
+  start:
+    usage: Start development environment.
+    cmd: ./.devtools/start.sh
 
   provision:
-    usage: Provision a website.
+    usage: Provision application within assembled codebase.
     cmd: ./.devtools/provision.sh
 
   drush:
@@ -33,7 +33,7 @@ commands:
     cmd: ahoy drush uli
 
   lint:
-    usage: Lint code.
+    usage: Check coding standards for violations.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpcs
@@ -44,7 +44,7 @@ commands:
       popd >/dev/null || exit 1
 
   lint-fix:
-    usage: Fix coding standards.
+    usage: Fix violations in coding standards.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/rector --clear-cache
@@ -52,7 +52,7 @@ commands:
       popd >/dev/null || exit 1
 
   test:
-    usage: Run all tests.
+    usage: Run tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpunit
@@ -80,7 +80,7 @@ commands:
       popd >/dev/null || exit 1
 
   reset:
-    usage: Reset the project.
+    usage: Reset project to the default state.
     cmd: |
       killall -9 php >/dev/null 2>&1 || true
       chmod -Rf 777 build > /dev/null
