@@ -9,7 +9,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_success
 
   assert_output_contains "ASSEMBLE COMPLETE"
-  assert_dir_exists  "${BUILD_DIR}/build/vendor"
+  assert_dir_exists "${BUILD_DIR}/build/vendor"
   assert_file_exists "${BUILD_DIR}/build/composer.json"
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
 
@@ -44,7 +44,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   run ahoy reset
 }
-
 
 @test "ahoy build - basic workflow" {
   run ahoy build
