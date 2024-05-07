@@ -95,3 +95,45 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   ahoy reset
 }
+
+@test "ahoy test unit failure" {
+  run ahoy assemble
+  assert_success
+
+  run ahoy test-unit
+  assert_success
+
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${BUILD_DIR}/tests/src/Unit/YourExtensionServiceUnitTest.php"
+  run ahoy test-unit
+  assert_failure
+
+  ahoy reset
+}
+
+@test "ahoy test functional failure" {
+  run ahoy build
+  assert_success
+
+  run ahoy test-functional
+  assert_success
+
+  sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionServiceFunctionalTest.php"
+  run ahoy test-functional
+  assert_failure
+
+  ahoy reset
+}
+
+@test "ahoy test kernel failure" {
+  run ahoy build
+  assert_success
+
+  run ahoy test-kernel
+  assert_success
+
+  sed -i -e "s/assertEquals/assertNotEquals/g" "${BUILD_DIR}/tests/src/Kernel/YourExtensionServiceKernelTest.php"
+  run ahoy test-kernel
+  assert_failure
+
+  ahoy reset
+}
