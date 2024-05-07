@@ -120,6 +120,7 @@ assert_workflow() {
 
   pushd "${dir}" >/dev/null || exit 1
 
+  # Very basic workflow.
   ahoy build
   ahoy lint
   ahoy test
