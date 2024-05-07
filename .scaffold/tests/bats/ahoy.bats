@@ -52,7 +52,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   ahoy lint
   assert_success
 
-  echo '$a=123;echo $a;' >>your_extension.module
+  echo "\$a=123;echo \$a;" >>your_extension.module
   run ahoy lint
   assert_failure
 
