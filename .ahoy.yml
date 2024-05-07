@@ -8,6 +8,7 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
+      ahoy stop > /dev/null 2>&1 || true
       ahoy assemble
       ahoy start
       ahoy provision
@@ -19,6 +20,10 @@ commands:
   start:
     usage: Start development environment.
     cmd: ./.devtools/start.sh
+
+  stop:
+    usage: Stop development environment.
+    cmd: ./.devtools/stop.sh
 
   provision:
     usage: Provision application within assembled codebase.
