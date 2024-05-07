@@ -1,6 +1,7 @@
 #!/usr/bin/env bats
 
 load _helper
+load _helper.workflow
 
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
@@ -13,7 +14,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_file_exists "${BUILD_DIR}/build/composer.json"
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy start" {
@@ -26,7 +27,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   assert_output_contains "ENVIRONMENT READY"
 
-  run ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy stop" {
@@ -42,7 +43,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   assert_output_contains "ENVIRONMENT STOPPED"
 
-  run ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy lint, lint-fix" {
@@ -61,7 +62,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy lint
   assert_success
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy build - basic workflow" {
@@ -93,7 +94,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   ahoy test-functional
   assert_success
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test unit failure" {
@@ -107,7 +108,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy test-unit
   assert_failure
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test functional failure" {
@@ -121,7 +122,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy test-functional
   assert_failure
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test kernel failure" {
@@ -135,5 +136,5 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy test-kernel
   assert_failure
 
-  ahoy reset
+  workflow_prepare_cleanup "${BUILD_DIR}"
 }
