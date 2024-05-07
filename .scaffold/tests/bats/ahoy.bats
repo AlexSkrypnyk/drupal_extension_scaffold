@@ -117,7 +117,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy test-functional
   assert_success
 
-  sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionServiceFunctionalTest.php"
+  sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionFunctionalTest.php"
   run ahoy test-functional
   assert_failure
 
