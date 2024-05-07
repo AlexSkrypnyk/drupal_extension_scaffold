@@ -26,40 +26,54 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 #-------------------------------------------------------------------------------
 
+# @formatter:off
+note() { printf "       %s\n" "${1}"; }
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+# @formatter:on
+
+drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
+
+#-------------------------------------------------------------------------------
+
 echo "==============================="
 echo "         🚀 PROVISION          "
 echo "==============================="
 echo
 
-drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
-
 # Extension name, taken from .info file.
 extension="$(basename -s .info.yml -- ./*.info.yml)"
-[ "${extension}" == "*" ] && echo "ERROR: No .info.yml file found." && exit 1
+[ "${extension}" == "*" ] && fail "ERROR: No .info.yml file found." && exit 1
 
 # Database file path.
 db_file="/tmp/site_${extension}.sqlite"
 
-echo "> Install Drupal into SQLite database ${db_file}."
+info "Installing Drupal into SQLite database ${db_file}."
 drush si "${DRUPAL_PROFILE}" -y --db-url "sqlite://${db_file}" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL
+pass "Drupal installed."
+
 drush status
 
-echo "> Enable extension ${extension}."
+info "Enabling extension ${extension}."
 drush pm:enable "${extension}" -y
+
+info "Clearing caches."
 drush cr
 
-echo "> Enable suggested modules, if any."
+info "Enabling suggested modules, if any."
 drupal_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .suggest | keys[]' | sed "s/drupal\///" | cut -f1 -d":")
 for drupal_suggest in $drupal_suggests; do
   drush pm:enable "${drupal_suggest}" -y
 done
+pass "Suggested modules enabled."
 
-# Visit site to pre-warm caches.
+info "Pre-warming caches."
 curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" >/dev/null
 
 echo
 echo "==============================="
-echo "    🚀 PROVISION COMPLETE      "
+echo "   🚀 PROVISION COMPLETE  ✅  "
 echo "==============================="
 echo
 echo "Site URL:            http://${WEBSERVER_HOST}:${WEBSERVER_PORT}"
