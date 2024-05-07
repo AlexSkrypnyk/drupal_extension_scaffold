@@ -4,7 +4,49 @@ load _helper
 
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
-@test "ahoy build" {
+@test "ahoy assemble" {
+  run ahoy assemble
+  assert_success
+
+  assert_output_contains "ASSEMBLE COMPLETE"
+  assert_dir_exists  "${BUILD_DIR}/build/vendor"
+  assert_file_exists "${BUILD_DIR}/build/composer.json"
+  assert_file_exists "${BUILD_DIR}/build/composer.lock"
+
+  ahoy reset
+}
+
+@test "ahoy start" {
+  ahoy start
+  assert_failure
+
+  ahoy assemble
+  run ahoy start
+  assert_success
+
+  assert_output_contains "ENVIRONMENT READY"
+
+  run ahoy reset
+}
+
+@test "ahoy stop" {
+  run ahoy stop
+  assert_success
+  assert_output_contains "ENVIRONMENT STOPPED"
+
+  ahoy assemble
+  ahoy start
+
+  run ahoy stop
+  assert_success
+
+  assert_output_contains "ENVIRONMENT STOPPED"
+
+  run ahoy reset
+}
+
+
+@test "ahoy build - basic workflow" {
   run ahoy build
   assert_success
   assert_output_contains "PROVISION COMPLETE"
