@@ -8,35 +8,43 @@ commands:
   build:
     usage: Build or rebuild the project.
     cmd: |
-      ahoy build-codebase
-      ahoy start-server
+      ahoy assemble
+      ahoy start
       ahoy provision
 
-  build-codebase:
-    usage: Build the codebase.
-    cmd: ./.devtools/build-codebase.sh
+  assemble:
+    usage: Assemble a codebase using project code and all required dependencies.
+    cmd: ./.devtools/assemble.sh
 
-  start-server:
-    usage: Start built-in PHP-server.
-    cmd: ./.devtools/start-server.sh
+  start:
+    usage: Start development environment.
+    cmd: ./.devtools/start.sh
 
   provision:
-    usage: Provision a website.
+    usage: Provision application within assembled codebase.
     cmd: ./.devtools/provision.sh
 
+  drush:
+    usage: Run Drush command.
+    cmd: build/vendor/bin/drush -l http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000} $*
+
+  login:
+    usage: Login to a website.
+    cmd: ahoy drush uli
+
   lint:
-    usage: Lint code.
+    usage: Check coding standards for violations.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpcs
       vendor/bin/phpstan
       vendor/bin/rector --clear-cache --dry-run
       vendor/bin/phpmd . text phpmd.xml
-      vendor/bin/twigcs
+      vendor/bin/twig-cs-fixer
       popd >/dev/null || exit 1
 
   lint-fix:
-    usage: Fix coding standards.
+    usage: Fix violations in coding standards.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/rector --clear-cache
@@ -44,7 +52,7 @@ commands:
       popd >/dev/null || exit 1
 
   test:
-    usage: Run all tests.
+    usage: Run tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpunit
@@ -70,6 +78,14 @@ commands:
       pushd "build" >/dev/null || exit 1
       vendor/bin/phpunit --testsuite functional
       popd >/dev/null || exit 1
+
+  reset:
+    usage: Reset project to the default state.
+    cmd: |
+      killall -9 php >/dev/null 2>&1 || true
+      chmod -Rf 777 build > /dev/null
+      rm -Rf build > /dev/null || true
+      rm -Rf .logs > /dev/null || true
 
 # Override entrypoint to alter default behaviour of Ahoy.
 entrypoint:

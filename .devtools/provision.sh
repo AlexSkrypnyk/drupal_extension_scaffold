@@ -26,9 +26,10 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 #-------------------------------------------------------------------------------
 
-echo "----------------------------------"
-echo "   Install Drupal and extensions  "
-echo "----------------------------------"
+echo "==============================="
+echo "         🚀 PROVISION          "
+echo "==============================="
+echo
 
 drush() { "build/vendor/bin/drush" -r "$(pwd)/build/web" -y "$@"; }
 
@@ -65,9 +66,9 @@ done
 curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" >/dev/null
 
 echo
-echo "-------------------------------"
-echo "    Install finished 🚀🚀🚀   "
-echo "-------------------------------"
+echo "==============================="
+echo "    🚀 PROVISION COMPLETE      "
+echo "==============================="
 echo
 echo "Site URL:            http://${WEBSERVER_HOST}:${WEBSERVER_PORT}"
 echo -n "One-time login link: "

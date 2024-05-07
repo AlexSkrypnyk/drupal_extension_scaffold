@@ -55,7 +55,7 @@ to [drupal.org](https://drupal.org).
       with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
     - PHP deprecated code analysis
       with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
-    - Twig code analysis with [TwigCS](https://github.com/friendsoftwig/twigcs).
+    - Twig code analysis with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
       ![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI

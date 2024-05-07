@@ -24,8 +24,8 @@ jobs:
 
           - name: test-php-8.2-legacy
             php-version: 8.2
-            drupal-version: 9.5
-            drupal-project-sha: 9.x
+            drupal-version: 10.1
+            drupal-project-sha: 10.x
             drupal-version-alias: legacy
 
           - name: test-php-8.2-next
@@ -65,10 +65,10 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
       - name: Build the codebase
-        run: .devtools/build-codebase.sh
+        run: .devtools/assemble.sh
 
       - name: Start built-in PHP server
-        run: .devtools/start-server.sh
+        run: .devtools/start.sh
 
       - name: Provision site
         run: .devtools/provision.sh
@@ -89,9 +89,9 @@ jobs:
         working-directory: build
         run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - name: Lint code with Twigcs
+      - name: Lint code with Twig CS Fixer
         working-directory: build
-        run: vendor/bin/twigcs || [ "${CI_TWIGCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - name: Run tests
         working-directory: build

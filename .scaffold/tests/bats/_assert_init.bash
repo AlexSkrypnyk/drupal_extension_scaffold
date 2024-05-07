@@ -120,29 +120,10 @@ assert_workflow() {
 
   pushd "${dir}" >/dev/null || exit 1
 
-  ./.devtools/build-codebase.sh
-  ./.devtools/start-server.sh
-  ./.devtools/provision.sh
-
-  # Lint.
-  pushd "build" >/dev/null || exit 1
-
-  vendor/bin/phpcs
-  vendor/bin/phpstan
-  vendor/bin/rector --clear-cache --dry-run
-  vendor/bin/phpmd . text phpmd.xml
-  vendor/bin/twigcs
-
-  popd >/dev/null || exit 1
-
-  # Test.
-  ./.devtools/test.sh
-
-  # Change mode to make bats have enough permission to clean tmp test directory.
-  chmod -R 777 "build/web/sites/default"
-
-  # Allow bats finish this assert, we need kill php process because it run in background in start server step.
-  killall -9 php >/dev/null 2>&1 || true
+  ahoy build
+  ahoy lint
+  ahoy test
+  ahoy reset
 
   popd >/dev/null || exit 1
 }
