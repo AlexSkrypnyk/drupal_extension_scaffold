@@ -5,7 +5,7 @@ load _helper
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
 @test "ahoy build" {
-  ahoy build
+  run ahoy build
   assert_success
   assert_output_contains "PROVISION COMPLETE"
 
