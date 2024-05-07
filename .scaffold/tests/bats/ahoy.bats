@@ -17,7 +17,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 }
 
 @test "ahoy start" {
-  ahoy start
+  run ahoy start
   assert_failure
 
   ahoy assemble
@@ -43,6 +43,24 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_output_contains "ENVIRONMENT STOPPED"
 
   run ahoy reset
+}
+
+@test "ahoy lint, lint-fix" {
+  ahoy assemble
+  assert_success
+
+  ahoy lint
+  assert_success
+
+  echo '$a=123;echo $a;' >>your_extension.module
+  run ahoy lint
+  assert_failure
+
+  run ahoy lint-fix
+  run ahoy lint
+  assert_success
+
+  ahoy reset
 }
 
 @test "ahoy build - basic workflow" {
