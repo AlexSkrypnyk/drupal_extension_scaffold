@@ -56,11 +56,11 @@ to [drupal.org](https://drupal.org).
     - PHP deprecated code analysis
       with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
     - Twig code analysis with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
-      ![Lint process](https://user-images.githubusercontent.com/378794/253732548-9403e4cc-db03-4696-b114-32517ab0a571.gif)
+      ![Lint process](.scaffold/docs/static/img/lint.gif)
   - Drupal's Simpletest testing support - runs tests in the same way as
     [drupal.org](https://drupal.org)'s Drupal CI
     bot (`core/scripts/run-tests.sh`).
-    ![Test process](https://user-images.githubusercontent.com/378794/253732542-ea1b2f29-ce89-41bd-b92a-169b119731d3.gif)
+    ![Test process](.scaffold/docs/static/img/test.gif)
   - Renovate configuration to keep your repository dependencies up-to-date.
 - Deployment:
   - Mirroring of the repo to [drupal.org](https://drupal.org) (or any other git
