@@ -86,13 +86,8 @@ to [drupal.org](https://drupal.org).
 2. Download this extension's code by pressing 'Clone or download' button in GitHub
    UI.
 3. Copy the contents of the downloaded archive into your extension's repository.
-4. Adjust the codebase:
-     1. Replace `your_extension` with the machine name of your extension:
-     2. Update `type: theme` in the `info.yml` file if your extension is a theme.
-     3. Adjust several lines in `.gitattributes`.
-     4. Remove `.github/test-scaffold.yml` file.
-     5. Remove this content from `README.md` file.
-     6. Remove `.scaffold` directory.
+4. Run the initial setup script: `./init.sh`.
+   ![Init process](.scaffold/docs/static/img/init.gif)
 7. Commit and push to your new GitHub repo.
 8. Login to your CI and add your new GitHub repository. Your project build will
    start momentarily.
