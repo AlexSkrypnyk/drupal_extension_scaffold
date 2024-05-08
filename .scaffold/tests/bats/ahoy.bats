@@ -75,7 +75,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_success
 }
 
-
 @test "ahoy lint, lint-fix" {
   ahoy assemble
   assert_success

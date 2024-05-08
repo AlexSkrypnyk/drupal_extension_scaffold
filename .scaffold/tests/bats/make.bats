@@ -16,7 +16,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
 }
 
-
 @test "make assemble" {
   run make assemble
   assert_success
