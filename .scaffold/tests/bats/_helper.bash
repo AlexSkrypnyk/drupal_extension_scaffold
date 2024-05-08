@@ -56,6 +56,15 @@ setup() {
 }
 
 teardown() {
+  # Some tests start php in background, we need kill it for bats able to finish the test.
+  # This make break tests in parallel.
+  killall -9 php >/dev/null 2>&1 || true
+  sleep 1
+  # Give bats enought permission to clean the build dir.
+  if [ -d "build" ]; then
+    chmod -Rf 777 build >/dev/null || true
+  fi
+
   # Move back to the original directory.
   popd >/dev/null || cd "${CUR_DIR}" || exit 1
 }

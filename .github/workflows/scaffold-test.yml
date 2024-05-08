@@ -34,6 +34,12 @@ jobs:
       - name: Setup kcov
         run: wget https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz && tar -xf kcov-amd64.tar.gz && sudo mv ./usr/local/bin/kcov /usr/local/bin/kcov && kcov --version
 
+      - name: Install Ahoy
+        run: |
+          os=$(uname -s | tr '[:upper:]' '[:lower:]') && architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac)
+          sudo wget -q https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-"${os}-${architecture}" -O /usr/local/bin/ahoy
+          sudo chown "$USER" /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
+
       - name: Install dependencies
         run: npm ci
         working-directory: .scaffold/tests
