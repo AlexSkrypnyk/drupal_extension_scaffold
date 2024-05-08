@@ -16,7 +16,8 @@
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
-![Drupal 10](https://img.shields.io/badge/Drupal-10-blue.svg)
+![Drupal 10](https://img.shields.io/badge/Drupal-10-009CDE.svg)
+![Drupal 11](https://img.shields.io/badge/Drupal-11-006AA9.svg)
 
 </div>
 
