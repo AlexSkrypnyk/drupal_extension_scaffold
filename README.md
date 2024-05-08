@@ -33,7 +33,7 @@ to [drupal.org](https://drupal.org).
 ## Features
 
 - Turnkey CI configuration with artifacts and test results support.
-  - PHP version matrix for [8.2](https://www.php.net/supported-versions.php).
+  - PHP version matrix for [8.2](https://www.php.net/supported-versions.php), [8.3](https://www.php.net/supported-versions.php).
   - Drupal version matrix: `stable`, `next` and `last EOL` version.
   - CI providers:
       - [GitHub Actions](.github/workflows/test.yml)
