@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-use DrupalFinder\DrupalFinder;
+use DrupalFinder\DrupalFinderComposerRuntime;
 use DrupalRector\Set\Drupal10SetList;
 use DrupalRector\Set\Drupal8SetList;
 use DrupalRector\Set\Drupal9SetList;
@@ -32,8 +32,7 @@ return static function (RectorConfig $rectorConfig): void {
 
   $rectorConfig->rule(DeclareStrictTypesRector::class);
 
-  $drupalFinder = new DrupalFinder();
-  $drupalFinder->locateRoot(__DIR__);
+  $drupalFinder = new DrupalFinderComposerRuntime();
   $drupalRoot = $drupalFinder->getDrupalRoot();
   $rectorConfig->autoloadPaths([
     $drupalRoot . '/core',
