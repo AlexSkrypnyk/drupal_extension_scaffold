@@ -1,4 +1,3 @@
-#!/usr/bin/make -f
 SHELL=/bin/bash
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
