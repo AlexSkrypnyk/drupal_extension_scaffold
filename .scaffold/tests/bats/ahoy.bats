@@ -1,7 +1,6 @@
 #!/usr/bin/env bats
 
 load _helper
-load _helper.workflow
 
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
@@ -13,8 +12,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_dir_exists "${BUILD_DIR}/build/vendor"
   assert_file_exists "${BUILD_DIR}/build/composer.json"
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy start" {
@@ -26,8 +23,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_success
 
   assert_output_contains "ENVIRONMENT READY"
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy stop" {
@@ -42,8 +37,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_success
 
   assert_output_contains "ENVIRONMENT STOPPED"
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy lint, lint-fix" {
@@ -61,8 +54,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy lint-fix
   run ahoy lint
   assert_success
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy build - basic workflow" {
@@ -93,8 +84,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   ahoy test-functional
   assert_success
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test unit failure" {
@@ -107,8 +96,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   sed -i -e "s/assertEquals/assertNotEquals/g" "${BUILD_DIR}/tests/src/Unit/YourExtensionServiceUnitTest.php"
   run ahoy test-unit
   assert_failure
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test functional failure" {
@@ -121,8 +108,6 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionFunctionalTest.php"
   run ahoy test-functional
   assert_failure
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
 
 @test "ahoy test kernel failure" {
@@ -135,6 +120,4 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   sed -i -e "s/assertEquals/assertNotEquals/g" "${BUILD_DIR}/tests/src/Kernel/YourExtensionServiceKernelTest.php"
   run ahoy test-kernel
   assert_failure
-
-  workflow_prepare_cleanup "${BUILD_DIR}"
 }
