@@ -57,9 +57,7 @@ to [drupal.org](https://drupal.org).
       with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
     - Twig code analysis with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
       ![Lint process](.scaffold/docs/static/img/lint.gif)
-  - Drupal's Simpletest testing support - runs tests in the same way as
-    [drupal.org](https://drupal.org)'s Drupal CI
-    bot (`core/scripts/run-tests.sh`).
+  - PHPUnit testing support
     ![Test process](.scaffold/docs/static/img/test.gif)
   - Renovate configuration to keep your repository dependencies up-to-date.
 - Deployment:
