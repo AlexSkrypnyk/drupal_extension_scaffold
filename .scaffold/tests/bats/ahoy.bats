@@ -4,6 +4,12 @@ load _helper
 
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
+@test "ahoy build" {
+  run ahoy build
+  assert_success
+  assert_output_contains "PROVISION COMPLETE"
+}
+
 @test "ahoy assemble" {
   run ahoy assemble
   assert_success
@@ -17,6 +23,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 @test "ahoy start" {
   run ahoy start
   assert_failure
+  assert_output_not_contains "ENVIRONMENT READY"
 
   ahoy assemble
   run ahoy start
@@ -35,25 +42,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   run ahoy stop
   assert_success
-
   assert_output_contains "ENVIRONMENT STOPPED"
-}
-
-@test "ahoy lint, lint-fix" {
-  ahoy assemble
-  assert_success
-
-  ahoy lint
-  assert_success
-
-  # shellcheck disable=SC2016
-  echo '$a=123;echo $a;' >>your_extension.module
-  run ahoy lint
-  assert_failure
-
-  run ahoy lint-fix
-  run ahoy lint
-  assert_success
 }
 
 @test "ahoy build - basic workflow" {
@@ -83,6 +72,24 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_success
 
   ahoy test-functional
+  assert_success
+}
+
+
+@test "ahoy lint, lint-fix" {
+  ahoy assemble
+  assert_success
+
+  ahoy lint
+  assert_success
+
+  # shellcheck disable=SC2016
+  echo '$a=123;echo $a;' >>your_extension.module
+  run ahoy lint
+  assert_failure
+
+  run ahoy lint-fix
+  run ahoy lint
   assert_success
 }
 
