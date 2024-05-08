@@ -9,6 +9,7 @@
 # .github            export-ignore
 # .gitignore         export-ignore
 # .twig-cs-fixer.php export-ignore
+# Makefile           export-ignore
 # composer.dev.json  export-ignore
 # phpcs.xml          export-ignore
 # phpmd.xml          export-ignore

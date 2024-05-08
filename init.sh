@@ -7,7 +7,7 @@
 # ./init.sh
 #
 # Silent:
-# ./init.sh "Extension Name" extension_machine_name extension_type "CI Provider"
+# ./init.sh "Extension Name" extension_machine_name extension_type ci_provider command_wrapper
 #
 # shellcheck disable=SC2162,SC2015
 
@@ -18,6 +18,7 @@ extension_name=${1-}
 extension_machine_name=${2-}
 extension_type=${3-}
 ci_provider=${4-}
+command_wrapper=${5-}
 
 #-------------------------------------------------------------------------------
 
@@ -122,12 +123,19 @@ ask_yesno() {
 #-------------------------------------------------------------------------------
 
 remove_ci_provider_github_actions() {
-  # Remove only workflows dir.
   rm -rf .github/workflows >/dev/null 2>&1 || true
 }
 
 remove_ci_provider_circleci() {
   rm -rf .circleci >/dev/null 2>&1 || true
+}
+
+remove_command_wrapper_ahoy() {
+  rm -rf .ahoy.yml >/dev/null 2>&1 || true
+}
+
+remove_command_wrapper_makefile() {
+  rm -rf Makefile >/dev/null 2>&1 || true
 }
 
 process_readme() {
@@ -144,7 +152,6 @@ process_internal() {
   local extension_name="${1}"
   local extension_machine_name="${2}"
   local extension_type="${3}"
-  local ci_provider="${4}"
 
   extension_machine_name_class="$(convert_string "${extension_machine_name}" "class_name")"
 
@@ -176,6 +183,7 @@ process_internal() {
   uncomment_line ".gitattributes" ".github"
   uncomment_line ".gitattributes" ".gitignore"
   uncomment_line ".gitattributes" ".twig-cs-fixer.php"
+  uncomment_line ".gitattributes" "Makefile"
   uncomment_line ".gitattributes" "composer.dev.json"
   uncomment_line ".gitattributes" "phpcs.xml"
   uncomment_line ".gitattributes" "phpmd.xml"
@@ -212,12 +220,6 @@ process_internal() {
     rm -rf tests >/dev/null || true
     echo 'base theme: false' >>"${extension_machine_name}.info.yml"
   fi
-
-  if [ "${ci_provider}" = "GitHub Actions" ]; then
-    remove_ci_provider_circleci
-  else
-    remove_ci_provider_github_actions
-  fi
 }
 
 #-------------------------------------------------------------------------------
@@ -231,8 +233,10 @@ main() {
   [ -z "${extension_machine_name}" ] && extension_machine_name="$(ask "Machine name" "${extension_machine_name_default}")"
   extension_type_default="module"
   [ -z "${extension_type}" ] && extension_type="$(ask "Type: module or theme" "${extension_type_default}")"
-  ci_provider_default="GitHub Actions"
-  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions or CircleCI" "${ci_provider_default}")"
+  ci_provider_default="gha"
+  [ -z "${ci_provider}" ] && ci_provider="$(ask "CI Provider: GitHub Actions (gha) or CircleCI (circleci)" "${ci_provider_default}")"
+  command_wrapper_default="ahoy"
+  [ -z "${command_wrapper}" ] && command_wrapper="$(ask "Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none)" "${command_wrapper_default}")"
 
   remove_self="$(ask_yesno "Remove this script")"
 
@@ -243,6 +247,7 @@ main() {
   echo "Machine name                     : ${extension_machine_name}"
   echo "Type                             : ${extension_type}"
   echo "CI Provider                      : ${ci_provider}"
+  echo "Command wrapper                  : ${command_wrapper}"
   echo "Remove this script               : ${remove_self}"
   echo "---------------------------------"
   echo
@@ -263,6 +268,22 @@ main() {
   : "${extension_machine_name:?machine_name is required}"
   : "${extension_type:?type is required}"
   : "${ci_provider:?ci_provider is required}"
+  : "${command_wrapper:?command_wrapper is required}"
+
+  if [ "${ci_provider}" = "circleci" ]; then
+    remove_ci_provider_github_actions
+  else
+    remove_ci_provider_circleci
+  fi
+
+  if [ "${command_wrapper}" = "ahoy" ]; then
+    remove_command_wrapper_makefile
+  elif [ "${command_wrapper}" = "makefile" ]; then
+    remove_command_wrapper_ahoy
+  else
+    remove_command_wrapper_ahoy
+    remove_command_wrapper_makefile
+  fi
 
   process_readme "${extension_name}"
 

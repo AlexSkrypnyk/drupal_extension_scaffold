@@ -10,7 +10,6 @@ assert_files_present_common() {
   pushd "${dir}" >/dev/null || exit 1
 
   # Assert that some files must exist.
-  assert_file_exists ".ahoy.yml"
   assert_file_exists ".editorconfig"
   assert_file_exists ".gitattributes"
   assert_file_exists ".gitignore"
@@ -115,25 +114,73 @@ assert_files_present_extension_type_theme() {
   popd >/dev/null || exit 1
 }
 
-assert_workflow() {
+assert_ci_provider_circleci() {
+  local dir="${1:-$(pwd)}"
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_exists ".circleci/config.yml"
+
+  popd >/dev/null || exit 1
+}
+
+assert_ci_provider_gha() {
+  local dir="${1:-$(pwd)}"
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_exists ".circleci/config.yml"
+
+  popd >/dev/null || exit 1
+}
+
+assert_command_wrapper_ahoy() {
+  local dir="${1:-$(pwd)}"
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_exists ".ahoy.yml"
+  assert_file_not_exists "Makefile"
+
+  popd >/dev/null || exit 1
+}
+
+assert_command_wrapper_makefile() {
+  local dir="${1:-$(pwd)}"
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_exists ".ahoy.yml"
+  assert_file_exists "Makefile"
+
+  popd >/dev/null || exit 1
+}
+
+assert_command_wrapper_none() {
+  local dir="${1:-$(pwd)}"
+  pushd "${dir}" >/dev/null || exit 1
+
+  assert_file_not_exists ".ahoy.yml"
+  assert_file_not_exists "Makefile"
+
+  popd >/dev/null || exit 1
+}
+
+assert_workflow_run() {
   local dir="${1:-$(pwd)}"
 
   pushd "${dir}" >/dev/null || exit 1
 
-  # Very basic workflow.
   ./.devtools/assemble.sh
   ./.devtools/start.sh
   ./.devtools/provision.sh
 
   pushd "build" >/dev/null || exit 1
-  # Lint.
+
   vendor/bin/phpcs
   vendor/bin/phpstan
   vendor/bin/rector --clear-cache --dry-run
   vendor/bin/phpmd . text phpmd.xml
   vendor/bin/twig-cs-fixer
-  # Test.
+
   vendor/bin/phpunit
+
   popd >/dev/null || exit 1
 
   popd >/dev/null || exit 1
