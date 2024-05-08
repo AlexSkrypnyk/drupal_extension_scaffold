@@ -20,7 +20,18 @@ job-test: &job-test
     - checkout
 
     - run:
-        name: Build the codebase
+        name: Upgrade sqlite3
+        command: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+          echo "export LD_LIBRARY_PATH=/usr/local/lib" >> $BASH_ENV
+
+    - run:
+        name: Assemble the codebase
         command: .devtools/assemble.sh
 
     - run:
@@ -111,7 +122,7 @@ jobs:
       - image: cimg/php:8.3-browsers
     environment:
       DRUPAL_VERSION: 11@alpha
-      DRUPAL_PROJECT_REPO: https://github.com/AlexSkrypnyk/drupal-project.git
+      DRUPAL_PROJECT_SHA: 11.x
     <<: *job-test
 
   deploy:

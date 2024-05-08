@@ -37,14 +37,13 @@ jobs:
           - name: test-php-8.3-next
             php-version: 8.3
             drupal-version: 11@alpha
-            drupal-project-repo: https://github.com/AlexSkrypnyk/drupal-project.git
+            drupal-project-sha: 11.x
 
     name: ${{ matrix.name }}
 
     env:
       DRUPAL_VERSION: ${{ matrix.drupal-version }}
       DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-sha }}
-      DRUPAL_PROJECT_REPO: ${{ matrix.drupal-project-repo }}
 
     steps:
       - name: Checkout code
@@ -56,12 +55,22 @@ jobs:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
+      - name: Upgrade sqlite3
+        run: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: gd, sqlite, pdo_sqlite
 
-      - name: Build the codebase
+      - name: Assemble the codebase
         run: .devtools/assemble.sh
 
       - name: Start built-in PHP server
