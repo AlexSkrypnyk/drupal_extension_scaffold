@@ -7,7 +7,7 @@ workflow_prepare_cleanup() {
 
   killall -9 php >/dev/null 2>&1 || true
   sleep 1
-  chmod -Rf 777 build/sites/default > /dev/null
+  chmod -Rf 777 build/sites/default >/dev/null
 
   popd >/dev/null || exit 1
 }
