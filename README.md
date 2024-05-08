@@ -48,7 +48,7 @@ to [drupal.org](https://drupal.org).
     - Additional dependencies can be added for integration testing
     between extensions: add dependency into [`suggest`](composer.json#L25) section
     of `composer.json`.
-    ![Build process](https://user-images.githubusercontent.com/378794/253732550-20bd3877-cabb-4a5a-b9a6-ffb5fe6c8e3e.gif)
+    ![Build process](.scaffold/docs/static/img/build.gif)
   - Codings standards checking:
     - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
     - PHP code static analysis
