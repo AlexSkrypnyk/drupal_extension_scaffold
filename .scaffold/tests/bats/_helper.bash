@@ -62,7 +62,7 @@ teardown() {
   sleep 1
   # Give bats enought permission to clean the build dir.
   if [ -d "build" ]; then
-    chmod -Rf 777 build >/dev/null
+    chmod -Rf 777 build >/dev/null || true
   fi
 
   # Move back to the original directory.
