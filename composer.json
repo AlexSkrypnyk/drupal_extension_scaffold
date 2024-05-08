@@ -20,7 +20,7 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "drupal/pathauto": "~1.0"
+        "drupal/role_delegation": "~1"
     },
     "suggest": {
         "drupal/config_ignore": "Ignore certain configuration during import."
