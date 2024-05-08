@@ -20,34 +20,31 @@ jobs:
           - name: test-php-8.2
             php-version: 8.2
             drupal-version: stable
-            drupal-version-alias: stable
 
           - name: test-php-8.2-legacy
             php-version: 8.2
             drupal-version: 10.1
             drupal-project-sha: 10.x
-            drupal-version-alias: legacy
 
           - name: test-php-8.2-next
             php-version: 8.2
             drupal-version: 10@beta
-            drupal-version-alias: next
 
           - name: test-php-8.3
             php-version: 8.3
             drupal-version: stable
-            drupal-version-alias: stable
 
           - name: test-php-8.3-next
             php-version: 8.3
-            drupal-version: 10@beta
-            drupal-version-alias: next
+            drupal-version: 11@alpha
+            drupal-project-repo: https://github.com/AlexSkrypnyk/drupal-project.git
 
     name: ${{ matrix.name }}
 
     env:
       DRUPAL_VERSION: ${{ matrix.drupal-version }}
       DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-sha }}
+      DRUPAL_PROJECT_REPO: ${{ matrix.drupal-project-repo }}
 
     steps:
       - name: Checkout code
