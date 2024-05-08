@@ -110,7 +110,8 @@ jobs:
     docker:
       - image: cimg/php:8.3-browsers
     environment:
-      DRUPAL_VERSION: 10@beta
+      DRUPAL_VERSION: 11@alpha
+      DRUPAL_PROJECT_REPO: https://github.com/AlexSkrypnyk/drupal-project.git
     <<: *job-test
 
   deploy:
