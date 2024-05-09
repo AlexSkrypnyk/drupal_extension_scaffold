@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Scaffold;
 
+use Composer\IO\IOInterface;
 use Composer\Script\Event;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 class Customizer {
 
-  protected string $extenstion_name;
-  protected string $extenstion_machine_name;
-  protected string $extenstion_type;
-  protected string $ci_provider;
-  protected string $command_wrapper;
+  protected IOInterface $io;
+  protected string $workingDir;
+  protected string $extenstionName;
+  protected string $extenstionMachineName;
+  protected string $extenstionType;
+  protected string $ciProvider;
+  protected string $commandWrapper;
 
   /**
    * Construct.
@@ -29,20 +34,26 @@ class Customizer {
    *   Command wrapper: ahoy, makefile or none.
    */
   public function __construct(
+    IOInterface $io,
+    string $working_dir,
     string $extenstion_name,
     string $extenstion_machine_name,
     string $extenstion_type = 'module',
     string $ci_provider = 'gha',
     string $command_wrapper = 'ahoy') {
 
-    $this->extenstion_name = $extenstion_name;
-    $this->extenstion_machine_name = $extenstion_machine_name;
-    $this->extenstion_type = $extenstion_type;
-    $this->ci_provider = $ci_provider;
-    $this->command_wrapper = $command_wrapper;
+    $this->workingDir = $working_dir;
+    $this->io = $io;
+    $this->extenstionName = $extenstion_name;
+    $this->extenstionMachineName = $extenstion_machine_name;
+    $this->extenstionType = $extenstion_type;
+    $this->ciProvider = $ci_provider;
+    $this->commandWrapper = $command_wrapper;
   }
 
   public function process() {
+    // Display summary.
+    $this->displaySummary();
     // Remove CI Provider.
     $this->removeCiProvider();
     // Remove command wrapper.
@@ -51,6 +62,20 @@ class Customizer {
     $this->processReadme();
     // Process internal replacement.
     $this->processInternalReplacement();
+  }
+
+  /**
+   * Display summary input.
+   */
+  protected function displaySummary(): void {
+    $this->io->write('            Summary');
+    $this->io->write('---------------------------------');
+    $this->io->write("Name                             : {$this->extenstionName}");
+    $this->io->write("Machine name                     : {$this->extenstionMachineName}");
+    $this->io->write("Type                             : {$this->extenstionType}");
+    $this->io->write("CI Provider                      : {$this->ciProvider}");
+    $this->io->write("Command wrapper                  : {$this->commandWrapper}");
+    $this->io->write("Working dir                      : {$this->workingDir}");
   }
 
   /**
@@ -71,7 +96,7 @@ class Customizer {
    * Remove CI provider depends on CI provider selected.
    */
   protected function removeCiProvider(): void {
-    $ci_provider = $this->ci_provider;
+    $ci_provider = $this->ciProvider;
     if ($ci_provider === 'gha') {
       $this->removeCircleciCiProvider();
     }else {
@@ -97,7 +122,7 @@ class Customizer {
    * Remove command wrappers depends on command wrapper selected.
    */
   protected function removeCommandWrapper(): void {
-    $command_wrapper = $this->command_wrapper;
+    $command_wrapper = $this->commandWrapper;
     switch ($command_wrapper) {
       case 'ahoy':
         $this->removeMakeCommandWrapper();
@@ -127,20 +152,31 @@ class Customizer {
   }
 
   public static function main(Event $event) {
-    $extension_name = $event->getIO()->ask('Name', 'Your Extenstion');
-    $extension_machine_name = $event->getIO()->ask('Machine Name', 'your_extension');
+    $io = $event->getIO();
+    $extension_name = $io->ask('Name: ', 'Your Extenstion');
+    $extension_machine_name = $io->ask('Machine Name: ', 'your_extension');
     $extension_type = 'module';
-    $extension_type = $event->getIO()->ask('Type: module or theme', $extension_type);
+    $extension_type = $io->ask('Type: module or theme: ', $extension_type);
     $ci_provider = 'gha';
-    $ci_provider = $event->getIO()->ask('CI Provider: GitHub Actions (gha) or CircleCI (circleci)', $ci_provider);
+    $ci_provider = $io->ask('CI Provider: GitHub Actions (gha) or CircleCI (circleci): ', $ci_provider);
     $command_wrapper = 'ahoy';
-    $command_wrapper = $event->getIO()->ask('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none)', $command_wrapper);
+    $command_wrapper = $io->ask('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): ', $command_wrapper);
+    $working_dir = Path::makeAbsolute('..', __DIR__);
 
-    $customizer = new static($extension_name, $extension_machine_name, $extension_type, $ci_provider, $command_wrapper);
+    $customizer = new static(
+      $io,
+      $working_dir,
+      $extension_name,
+      $extension_machine_name,
+      $extension_type,
+      $ci_provider,
+      $command_wrapper
+    );
+
     try {
       $customizer->process();
     } catch (\Exception $exception) {
-      throw new \Exception(printf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
+      throw new \Exception(sprintf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
     }
   }
 }

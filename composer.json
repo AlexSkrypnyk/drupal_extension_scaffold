@@ -19,10 +19,17 @@
     "require": {
         "php": ">=8.2"
     },
-    "require-dev": {
-        "drupal/role_delegation": "~1"
+    "scripts": {
+        "post-create-project-cmd": [
+            "Scaffold\\Customizer::main"
+        ]
     },
-    "suggest": {
-        "drupal/config_ignore": "Ignore certain configuration during import."
+    "require-dev": {
+        "symfony/filesystem": "^7.0"
+    },
+    "autoload":{
+        "psr-4":{
+            "Scaffold\\": ".scaffold"
+        }
     }
 }
