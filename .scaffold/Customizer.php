@@ -108,10 +108,11 @@ class Customizer {
     $this->io->notice('Processing internal replacement.');
 
     $extension_machine_name_class = self::convertString($this->extensionMachineName, 'class_name');
+    self::replaceStringInFilesInDirectory('YourExtension', $extension_machine_name_class, $this->workingDir);
+    self::replaceStringInFilesInDirectory('AlexSkrypnyk', $this->extension_machine_name_class, $this->workingDir);
 
     self::replaceStringInFilesInDirectory('YourNamespace', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('yournamespace', $this->extensionMachineName, $this->workingDir);
-    self::replaceStringInFilesInDirectory('AlexSkrypnyk', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('alexskrypnyk', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('yourproject', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('Your+Extension', $this->extensionMachineName, $this->workingDir);
@@ -136,8 +137,6 @@ class Customizer {
 
     self::replaceStringInFilesInDirectory('drupal-module', "drupal-$this->extensionType", $this->workingDir);
     self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
-
-    self::replaceStringInFilesInDirectory('YourExtension', $extension_machine_name_class, $this->workingDir);
   }
 
   /**
@@ -275,7 +274,7 @@ class Customizer {
         break;
       case 'namespace':
       case 'class_name':
-        $string_out = str_replace(['-', ' '], ['_', ''], $string);
+        $string_out = str_replace(['-', ' '], ['_', ' '], $string);
         $string_array = explode(' ', $string_out);
         $new_string_array = [];
         foreach ($string_array as $str) {
