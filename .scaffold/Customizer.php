@@ -409,7 +409,7 @@ class Customizer {
     $file_content = file_get_contents($file_path);
     if (!empty($file_content)) {
       $new_file_content = str_replace($string_search, $string_replace, $file_content);
-      file_put_contents($file->getRealPath(), $new_file_content);
+      file_put_contents($file_path, $new_file_content);
     }
   }
 }
