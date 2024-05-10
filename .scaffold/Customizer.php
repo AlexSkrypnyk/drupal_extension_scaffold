@@ -11,6 +11,7 @@ use Symfony\Component\Filesystem\Path;
 
 class Customizer {
 
+  protected Filesystem $fileSystem;
   protected IOInterface $io;
   protected string $workingDir;
   protected string $extenstionName;
@@ -34,6 +35,7 @@ class Customizer {
    *   Command wrapper: ahoy, makefile or none.
    */
   public function __construct(
+    Filesystem $filesystem,
     IOInterface $io,
     string $working_dir,
     string $extenstion_name,
@@ -42,6 +44,7 @@ class Customizer {
     string $ci_provider = 'gha',
     string $command_wrapper = 'ahoy') {
 
+    $this->fileSystem = $filesystem;
     $this->workingDir = $working_dir;
     $this->io = $io;
     $this->extenstionName = $extenstion_name;
@@ -82,7 +85,17 @@ class Customizer {
    * Process README.md.
    */
   protected function processReadme(): void {
-
+    $this->fileSystem->remove("$this->workingDir/README.md");
+    $this->fileSystem->rename("$this->workingDir/README.dist.md", "$this->workingDir/README.md");
+    $logo_url = sprintf(
+      'https://placehold.jp/000000/ffffff/200x200.png?text=%s&css=%s',
+      urlencode($this->extenstionName),
+      urlencode('{"border-radius":" 100px"}'),
+    );
+    $logo_data = file_get_contents($logo_url);
+    if ($logo_data) {
+      file_put_contents("$this->workingDir/logo.png", $logo_data);
+    }
   }
 
   /**
@@ -112,7 +125,7 @@ class Customizer {
   }
 
   /**
-   * Remove Github Action (gha) CI provider.
+   * Remove GitHub Action (gha) CI provider.
    */
   protected function removeGhaCiProvider(): void {
 
@@ -151,7 +164,10 @@ class Customizer {
 
   }
 
-  public static function main(Event $event) {
+  /**
+   * @throws \Exception
+   */
+  public static function main(Event $event): void {
     $io = $event->getIO();
     $extension_name = $io->ask('Name: ', 'Your Extenstion');
     $extension_machine_name = $io->ask('Machine Name: ', 'your_extension');
@@ -162,8 +178,9 @@ class Customizer {
     $command_wrapper = 'ahoy';
     $command_wrapper = $io->ask('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): ', $command_wrapper);
     $working_dir = Path::makeAbsolute('..', __DIR__);
-
+    $fileSystem = new Filesystem();
     $customizer = new static(
+      $fileSystem,
       $io,
       $working_dir,
       $extension_name,
