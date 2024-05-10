@@ -125,9 +125,9 @@ class Customizer {
     $this->io->notice('Processing internal replacement.');
 
     $extension_machine_name_class = self::convertString($this->extensionMachineName, 'class_name');
+
     self::replaceStringInFilesInDirectory('YourExtension', $extension_machine_name_class, $this->workingDir);
     self::replaceStringInFilesInDirectory('AlexSkrypnyk', $extension_machine_name_class, $this->workingDir);
-
     self::replaceStringInFilesInDirectory('YourNamespace', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('yournamespace', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('alexskrypnyk', $this->extensionMachineName, $this->workingDir);
@@ -146,14 +146,33 @@ class Customizer {
       "Provides $this->extensionMachineName functionality.",
       $this->workingDir,
     );
-
     self::replaceStringInFilesInDirectory('Drupal extension scaffold', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('Yourproject', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('Your Extension', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('your extension', $this->extensionName, $this->workingDir);
-
     self::replaceStringInFilesInDirectory('drupal-module', "drupal-$this->extensionType", $this->workingDir);
     self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
+    self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
+
+    self::replaceStringInFile('# Uncomment the lines below in your project.', '', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('.github/FUNDING.yml export-ignore', '', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('LICENSE             export-ignore', '', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .ahoy.yml          export-ignore', '.ahoy.yml          export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .circleci          export-ignore', '.circleci          export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .devtools          export-ignore', '.devtools          export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .editorconfig      export-ignore', '.editorconfig      export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .gitattributes     export-ignore', '.gitattributes     export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .github            export-ignore', '.github            export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .gitignore         export-ignore', '.gitignore         export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# .twig-cs-fixer.php export-ignore', '.twig-cs-fixer.php export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# Makefile           export-ignore', 'Makefile           export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# composer.dev.json  export-ignore', 'composer.dev.json  export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# phpcs.xml          export-ignore', 'phpcs.xml          export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# phpmd.xml          export-ignore', 'phpmd.xml          export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# phpstan.neon       export-ignore', 'phpstan.neon       export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# rector.php         export-ignore', 'rector.php         export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# renovate.json      export-ignore', 'renovate.json      export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# tests              export-ignore', 'tests              export-ignore', "$this->workingDir/.gitattributes");
 
     $this->fileSystem->rename("$this->workingDir/your_extension.info.yml", "$this->workingDir/$this->extensionMachineName.info.yml");
     $this->fileSystem->rename("$this->workingDir/your_extension.install", "$this->workingDir/$this->extensionMachineName.install");
@@ -170,7 +189,6 @@ class Customizer {
 
     $this->fileSystem->remove("$this->workingDir/LICENSE");
     $this->fileSystem->remove("$this->workingDir/tests/scaffold");
-    $this->fileSystem->remove("$this->workingDir/.github/workflows/scaffold*.yml");
     $this->fileSystem->remove("$this->workingDir/.scaffold");
     $finder = Finder::create();
     $finder
@@ -367,10 +385,26 @@ class Customizer {
       ->in($directory);
     if ($finder->hasResults()) {
       foreach ($finder as $file) {
-        $file_content = $file->getContents();
-        $new_file_content = str_replace($string_search, $string_replace, $file_content);
-        file_put_contents($file->getRealPath(), $new_file_content);
+        self::replaceStringInFile($string_search, $string_replace, $file->getRealPath());
       }
+    }
+  }
+
+  /**
+   * Replace string in files in a directory.
+   *
+   * @param string $string_search
+   *   String to search.
+   * @param string $string_replace
+   *   String to replace.
+   * @param string $file_path
+   *   File path.
+   */
+  public static function replaceStringInFile(string $string_search, string $string_replace, string $file_path): void {
+    $file_content = file_get_contents($file_path);
+    if (!empty($file_content)) {
+      $new_file_content = str_replace($string_search, $string_replace, $file_content);
+      file_put_contents($file->getRealPath(), $new_file_content);
     }
   }
 }
