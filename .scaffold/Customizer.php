@@ -273,6 +273,9 @@ class Customizer {
    */
   public static function main(Event $event): void {
     $io = $event->getIO();
+
+    $io->notice('Please follow the prompts to adjust your extension configuration');
+
     $extension_name = $io->ask('Name: ', 'Your Extension');
     $default_extension_machine_name = self::convertString($extension_name, 'file_name');
     $extension_machine_name = $io->ask("Machine Name: [$default_extension_machine_name]", $default_extension_machine_name);
@@ -317,6 +320,8 @@ class Customizer {
     } catch (\Exception $exception) {
       throw new \Exception(sprintf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
     }
+
+    $io->notice('Initialization complete.');
   }
 
   /**
