@@ -269,12 +269,12 @@ class Customizer {
         break;
       case 'domain_name':
       case 'package_namespace':
-        $string_out = str_replace([' ', '-'], ['_', ''], $string);
+        $string_out = str_replace([' ', '-'], ['_', '_'], $string);
         $string_out = strtolower($string_out);
         break;
       case 'namespace':
       case 'class_name':
-        $string_out = str_replace(['-', ' '], ['_', ' '], $string);
+        $string_out = str_replace(['-', '_'], [' ', ' '], $string);
         $string_array = explode(' ', $string_out);
         $new_string_array = [];
         foreach ($string_array as $str) {
