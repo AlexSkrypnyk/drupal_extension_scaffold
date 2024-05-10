@@ -112,7 +112,7 @@ class Customizer {
    */
   protected function processComposer(): void {
     $this->fileSystem->remove("$this->workingDir/composer.json");
-    $this->fileSystem->remove("$this->workingDir/composer.json.lock");
+    $this->fileSystem->remove("$this->workingDir/composer.lock");
     $this->fileSystem->remove("$this->workingDir/vendor");
     $this->fileSystem->rename("$this->workingDir/composer.dist.json", "$this->workingDir/composer.json");
   }
