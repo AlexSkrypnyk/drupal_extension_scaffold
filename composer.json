@@ -25,7 +25,8 @@
         ]
     },
     "require-dev": {
-        "symfony/filesystem": "^7.0"
+        "symfony/filesystem": "^7.0",
+        "symfony/finder": "^7.0"
     },
     "autoload":{
         "psr-4":{
