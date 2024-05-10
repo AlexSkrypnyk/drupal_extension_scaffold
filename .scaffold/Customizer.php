@@ -137,6 +137,39 @@ class Customizer {
 
     self::replaceStringInFilesInDirectory('drupal-module', "drupal-$this->extensionType", $this->workingDir);
     self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
+
+    $this->fileSystem->rename("$this->workingDir/your_extension.info.yml", "$this->workingDir/$this->extensionMachineName.info.yml");
+    $this->fileSystem->rename("$this->workingDir/your_extension.install", "$this->workingDir/$this->extensionMachineName.install");
+    $this->fileSystem->rename("$this->workingDir/your_extension.links.menu.yml", "$this->workingDir/$this->extensionMachineName.links.menu.yml");
+    $this->fileSystem->rename("$this->workingDir/your_extension.module", "$this->workingDir/$this->extensionMachineName.module");
+    $this->fileSystem->rename("$this->workingDir/your_extension.routing.yml", "$this->workingDir/$this->extensionMachineName.routing.yml");
+    $this->fileSystem->rename("$this->workingDir/your_extension.services.yml", "$this->workingDir/$this->extensionMachineName.services.yml");
+    $this->fileSystem->rename("$this->workingDir/config/schema/your_extension.schema.yml", "$this->workingDir/config/schema/$this->extensionMachineName.schema.yml");
+    $this->fileSystem->rename("$this->workingDir/src/Form/YourExtensionForm.php", "$this->workingDir/src/Form/{$extension_machine_name_class}Form.php");
+    $this->fileSystem->rename("$this->workingDir/src/YourExtensionService.php", "$this->workingDir/src/{$extension_machine_name_class}Service.php");
+    $this->fileSystem->rename("$this->workingDir/tests/src/Unit/YourExtensionServiceUnitTest.php", "$this->workingDir/tests/src/Unit/{$extension_machine_name_class}ServiceUnitTest.php");
+    $this->fileSystem->rename("$this->workingDir/tests/src/Kernel/YourExtensionServiceKernelTest.php", "$this->workingDir/tests/src/Kernel/{$extension_machine_name_class}ServiceKernelTest.php");
+    $this->fileSystem->rename("$this->workingDir/tests/src/Functional/YourExtensionFunctionalTest.php", "$this->workingDir/tests/src/Functional/{$extension_machine_name_class}FunctionalTest.php");
+
+    $this->fileSystem->remove("$this->workingDir/LICENSE");
+    $this->fileSystem->remove("$this->workingDir/tests/scaffold");
+    $this->fileSystem->remove("$this->workingDir/.github/workflows/scaffold*.yml");
+    $this->fileSystem->remove("$this->workingDir/.scaffold");
+    $finder = Finder::create();
+    $finder
+      ->files()
+      ->in("$this->workingDir/.github/workflows")
+      ->name('scaffold*.yml');
+    if ($finder->hasResults()) {
+      foreach ($finder as $file) {
+        $this->fileSystem->remove($file->getRealPath());
+      }
+    }
+
+    if ($this->extensionType === 'theme') {
+      $this->fileSystem->remove("$this->workingDir/test");
+      $this->fileSystem->appendToFile("$this->workingDir/$this->extensionMachineName.info.yml", 'base theme: false');
+    }
   }
 
   /**
