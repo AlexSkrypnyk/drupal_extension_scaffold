@@ -14,21 +14,21 @@ class Customizer {
   protected Filesystem $fileSystem;
   protected IOInterface $io;
   protected string $workingDir;
-  protected string $extenstionName;
-  protected string $extenstionMachineName;
-  protected string $extenstionType;
+  protected string $extensionName;
+  protected string $extensionMachineName;
+  protected string $extensionType;
   protected string $ciProvider;
   protected string $commandWrapper;
 
   /**
    * Construct.
    *
-   * @param string $extenstion_name
+   * @param string $extension_name
    *   Extension name.
-   * @param string $extenstion_machine_name
+   * @param string $extension_machine_name
    *   Extension machine name.
-   * @param string $extenstion_type
-   *   Extenstion type: module or theme.
+   * @param string $extension_type
+   *   Extension type: module or theme.
    * @param string $ci_provider
    *   CI Provider: gha or circleci
    * @param string $command_wrapper
@@ -38,18 +38,18 @@ class Customizer {
     Filesystem $filesystem,
     IOInterface $io,
     string $working_dir,
-    string $extenstion_name,
-    string $extenstion_machine_name,
-    string $extenstion_type = 'module',
+    string $extension_name,
+    string $extension_machine_name,
+    string $extension_type = 'module',
     string $ci_provider = 'gha',
     string $command_wrapper = 'ahoy') {
 
     $this->fileSystem = $filesystem;
     $this->workingDir = $working_dir;
     $this->io = $io;
-    $this->extenstionName = $extenstion_name;
-    $this->extenstionMachineName = $extenstion_machine_name;
-    $this->extenstionType = $extenstion_type;
+    $this->extensionName = $extension_name;
+    $this->extensionMachineName = $extension_machine_name;
+    $this->extensionType = $extension_type;
     $this->ciProvider = $ci_provider;
     $this->commandWrapper = $command_wrapper;
   }
@@ -73,9 +73,9 @@ class Customizer {
   protected function displaySummary(): void {
     $this->io->write('            Summary');
     $this->io->write('---------------------------------');
-    $this->io->write("Name                             : {$this->extenstionName}");
-    $this->io->write("Machine name                     : {$this->extenstionMachineName}");
-    $this->io->write("Type                             : {$this->extenstionType}");
+    $this->io->write("Name                             : {$this->extensionName}");
+    $this->io->write("Machine name                     : {$this->extensionMachineName}");
+    $this->io->write("Type                             : {$this->extensionType}");
     $this->io->write("CI Provider                      : {$this->ciProvider}");
     $this->io->write("Command wrapper                  : {$this->commandWrapper}");
     $this->io->write("Working dir                      : {$this->workingDir}");
@@ -89,7 +89,7 @@ class Customizer {
     $this->fileSystem->rename("$this->workingDir/README.dist.md", "$this->workingDir/README.md");
     $logo_url = sprintf(
       'https://placehold.jp/000000/ffffff/200x200.png?text=%s&css=%s',
-      urlencode($this->extenstionName),
+      urlencode($this->extensionName),
       urlencode('{"border-radius":" 100px"}'),
     );
     $logo_data = file_get_contents($logo_url);
@@ -121,14 +121,14 @@ class Customizer {
    * Remove CircleCi (circleci) CI provider.
    */
   protected function removeCircleciCiProvider(): void {
-
+    $this->fileSystem->remove("$this->workingDir/.circleci");
   }
 
   /**
    * Remove GitHub Action (gha) CI provider.
    */
   protected function removeGhaCiProvider(): void {
-
+    $this->fileSystem->remove("$this->workingDir/.github/workflows");
   }
 
   /**
@@ -140,7 +140,7 @@ class Customizer {
       case 'ahoy':
         $this->removeMakeCommandWrapper();
         break;
-      case 'make':
+      case 'makefile':
         $this->removeAhoyCommandWrapper();
         break;
       default:
@@ -154,14 +154,14 @@ class Customizer {
    * Remove 'Ahoy' command wrapper.
    */
   protected function removeAhoyCommandWrapper(): void {
-
+    $this->fileSystem->remove("$this->workingDir/.ahoy.yml");
   }
 
   /**
    * Remove 'Make' command wrapper.
    */
   protected function removeMakeCommandWrapper(): void {
-
+    $this->fileSystem->remove("$this->workingDir/Makefile");
   }
 
   /**
@@ -169,7 +169,7 @@ class Customizer {
    */
   public static function main(Event $event): void {
     $io = $event->getIO();
-    $extension_name = $io->ask('Name: ', 'Your Extenstion');
+    $extension_name = $io->ask('Name: ', 'Your Extension');
     $extension_machine_name = $io->ask('Machine Name: ', 'your_extension');
     $extension_type = 'module';
     $extension_type = $io->ask('Type: module or theme: ', $extension_type);
