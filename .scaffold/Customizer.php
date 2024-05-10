@@ -109,7 +109,7 @@ class Customizer {
 
     $extension_machine_name_class = self::convertString($this->extensionMachineName, 'class_name');
     self::replaceStringInFilesInDirectory('YourExtension', $extension_machine_name_class, $this->workingDir);
-    self::replaceStringInFilesInDirectory('AlexSkrypnyk', $this->extension_machine_name_class, $this->workingDir);
+    self::replaceStringInFilesInDirectory('AlexSkrypnyk', $extension_machine_name_class, $this->workingDir);
 
     self::replaceStringInFilesInDirectory('YourNamespace', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory('yournamespace', $this->extensionMachineName, $this->workingDir);
