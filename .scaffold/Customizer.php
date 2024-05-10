@@ -196,4 +196,52 @@ class Customizer {
       throw new \Exception(sprintf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
     }
   }
+
+  /**
+   * Convert a string to specific type.
+   *
+   * @throws \Exception
+   */
+  public static function convertString(string $string, string $type = 'function_name'): string {
+    switch ($type) {
+      case 'file_name':
+      case 'route_path':
+      case 'deployment_id':
+      case 'function_name':
+      case 'ui_id':
+      case 'cli_command':
+        $string_out = str_replace(' ', '_', $string);
+        $string_out = strtolower($string_out);
+        break;
+      case 'domain_name':
+      case 'package_namespace':
+        $string_out = str_replace([' ', '-'], ['_', ''], $string);
+        $string_out = strtolower($string_out);
+        break;
+      case 'namespace':
+      case 'class_name':
+        $string_out = str_replace(['-', ' '], ['_', ''], $string);
+        $string_array = explode(' ', $string_out);
+        $new_string_array = [];
+        foreach ($string_array as $str) {
+          if (!empty(trim($str))) {
+            $new_string_array[] = ucfirst($str);
+          }
+        }
+        $string_out = implode('', $new_string_array);
+        break;
+      case 'package_name':
+        $string_out = str_replace(' ', '-', $string);
+        $string_out = strtolower($string_out);
+        break;
+      case 'log_entry':
+      case 'code_comment_title':
+        $string_out = $string;
+        break;
+      default:
+        throw new \Exception("Convert string does not support type $type.");
+    }
+
+    return $string_out;
+  }
 }
