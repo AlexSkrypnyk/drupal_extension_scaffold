@@ -155,6 +155,7 @@ class Customizer {
     self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
 
     self::replaceStringInFile('# Uncomment the lines below in your project.', '', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# Remove the lines below in your project.', '', "$this->workingDir/.gitattributes");
     self::replaceStringInFile('.github/FUNDING.yml export-ignore', '', "$this->workingDir/.gitattributes");
     self::replaceStringInFile('LICENSE             export-ignore', '', "$this->workingDir/.gitattributes");
     self::replaceStringInFile('# .ahoy.yml          export-ignore', '.ahoy.yml          export-ignore', "$this->workingDir/.gitattributes");
@@ -278,13 +279,13 @@ class Customizer {
 
     $extension_name = $io->ask('Name: ', 'Your Extension');
     $default_extension_machine_name = self::convertString($extension_name, 'file_name');
-    $extension_machine_name = $io->ask("Machine Name: [$default_extension_machine_name]", $default_extension_machine_name);
+    $extension_machine_name = $io->ask("Machine Name: [$default_extension_machine_name]: ", $default_extension_machine_name);
     $default_extension_type = 'module';
-    $extension_type = $io->ask("Type: module or theme: [$default_extension_type]", $default_extension_type);
+    $extension_type = $io->ask("Type: module or theme: [$default_extension_type]: ", $default_extension_type);
     $default_ci_provider = 'gha';
-    $ci_provider = $io->ask("CI Provider: GitHub Actions (gha) or CircleCI (circleci): [$default_ci_provider]", $default_ci_provider);
+    $ci_provider = $io->ask("CI Provider: GitHub Actions (gha) or CircleCI (circleci): [$default_ci_provider]: ", $default_ci_provider);
     $default_command_wrapper = 'ahoy';
-    $command_wrapper = $io->ask("Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [$default_command_wrapper]", $default_command_wrapper);
+    $command_wrapper = $io->ask("Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [$default_command_wrapper]: ", $default_command_wrapper);
 
     if (!$extension_name) {
       throw new \Exception('Name is required.');
