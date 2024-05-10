@@ -55,7 +55,12 @@ class Customizer {
     $this->commandWrapper = $command_wrapper;
   }
 
-  public function process() {
+  /**
+   * Process.
+   *
+   * @throws \Exception
+   */
+  public function process(): void {
     // Display summary.
     $this->displaySummary();
     // Remove CI Provider.
@@ -64,6 +69,8 @@ class Customizer {
     $this->removeCommandWrapper();
     // Process README.
     $this->processReadme();
+    // Process Composer.
+    $this->processComposer();
     // Process internal replacement.
     $this->processInternalReplacement();
   }
@@ -98,6 +105,16 @@ class Customizer {
     if ($logo_data) {
       file_put_contents("$this->workingDir/logo.png", $logo_data);
     }
+  }
+
+  /**
+   * Process composer scaffold.
+   */
+  protected function processComposer(): void {
+    $this->fileSystem->remove("$this->workingDir/composer.json");
+    $this->fileSystem->remove("$this->workingDir/composer.json.lock");
+    $this->fileSystem->remove("$this->workingDir/vendor");
+    $this->fileSystem->rename("$this->workingDir/composer.dist.json", "$this->workingDir/composer.json");
   }
 
   /**
