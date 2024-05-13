@@ -45,9 +45,9 @@ class CustomizerTest extends TestCase {
     return [
       'test convert file_name' => ['This is-File_name TEST', 'file_name', 'this_is-file_name_test', TRUE],
       'test convert package_namespace' => ['This_is-Package_NAMESPACE TEST', 'package_namespace', 'this_is_package_namespace_test', TRUE],
-      'test convert namespace' => ['This is-Namespace-_TEST', 'namespace', 'ThisIsNamespaceTest', TRUE],
-      'test convert class_name' => ['This is-CLassName-_TEST', 'class_name', 'ThisIsClassnameTest', TRUE],
-      'test convert class_name' => ['This is-CLassName-_TEST', 'dummy', NULL, FALSE],
+      'test convert namespace' => ['This is-Namespace-_test', 'namespace', 'ThisIsNamespaceTest', TRUE],
+      'test convert class_name' => ['This is-ClassName-_test', 'class_name', 'ThisIsClassNameTest', TRUE],
+      'test convert dummy' => ['This is-CLassName-_TEST', 'dummy', NULL, FALSE],
     ];
   }
 

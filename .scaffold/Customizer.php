@@ -397,7 +397,6 @@ class Customizer {
         $new_string_array = [];
         foreach ($string_array as $str) {
           if (!empty(trim($str))) {
-            $str = strtolower($str);
             $new_string_array[] = ucfirst($str);
           }
         }
