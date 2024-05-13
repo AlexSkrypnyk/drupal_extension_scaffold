@@ -30,7 +30,7 @@
             "cd .scaffold && ../vendor/bin/phpcbf && ../vendor/bin/rector --clear-cache"
         ],
         "test": [
-            "cd .scaffold if [ \"${XDEBUG_MODE}\" = 'coverage' ]; then ../vendor/bin/phpunit; else ../vendor/bin/phpunit --no-coverage; fi"
+            "cd .scaffold && if [ \"${XDEBUG_MODE}\" = 'coverage' ]; then ../vendor/bin/phpunit; else ../vendor/bin/phpunit --no-coverage; fi"
         ]
     },
     "require-dev": {
@@ -46,7 +46,8 @@
     },
     "autoload":{
         "psr-4":{
-            "Scaffold\\": ".scaffold"
+            "Scaffold\\": ".scaffold",
+            "Scaffold\\Tests\\": ".scaffold/tests/phpunit"
         }
     },
     "config": {
