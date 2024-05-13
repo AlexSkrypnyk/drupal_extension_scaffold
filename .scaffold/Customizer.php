@@ -349,9 +349,13 @@ class Customizer {
     if (!in_array($command_wrapper, ['ahoy', 'makefile', 'none'])) {
       throw new \Exception('Command wrapper is required or invalid.');
     }
-    echo 'sadasd';
-    exit(1);
-    $working_dir = Path::makeAbsolute('..', __DIR__);
+
+    $package_dir = $event->getComposer()
+      ->getInstallationManager()
+      ->getInstaller('project')
+      ->getInstallPath($event->getComposer()->getPackage());
+
+    $working_dir = Path::makeAbsolute('../../..', $package_dir);
     $fileSystem = new Filesystem();
 
     // @phpstan-ignore-next-line
