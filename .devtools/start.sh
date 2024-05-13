@@ -37,7 +37,7 @@ echo "==============================="
 echo
 
 info "Stopping previously started services, if any."
-killall -9 php >/dev/null 2>&1 || true
+#killall -9 php >/dev/null 2>&1 || true
 
 info "Starting the PHP webserver."
 nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/build/web" "$(pwd)/build/web/.ht.router.php" >/tmp/php.log 2>&1 &

@@ -31,9 +31,17 @@ class ScaffoldFunctionalTest extends TestCase {
     $process->setEnv([
       'DRUPAL_EXTENSION_SCAFFOLD_NAME' => 'Hello Extension',
     ]);
-    $process->run();
-    echo $process->getErrorOutput();
-    echo $process->getOutput();
+    $status = $process->run();
+    $this->assertEquals(0, $status);
+    $process = new Process(['ls', '-al'], $this->testDir);
+    $status = $process->run();
+    $this->assertEquals(0, $status);
+    $process = new Process(['./.devtools/assemble.sh'], $this->testDir);
+    $status = $process->run();
+    $this->assertEquals(0, $status);
+    $process = new Process(['./.devtools/start.sh'], $this->testDir);
+    $status = $process->run();
+    $this->assertEquals(0, $status);
   }
 
   protected function tearDown(): void {
