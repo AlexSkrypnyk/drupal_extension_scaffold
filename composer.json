@@ -22,6 +22,15 @@
     "scripts": {
         "post-create-project-cmd": [
             "Scaffold\\Customizer::main"
+        ],
+        "lint": [
+            "cd .scaffold && ../vendor/bin/phpcs && ../vendor/bin/phpmd . text phpmd.xml && ../vendor/bin/phpstan && ../vendor/bin/rector --clear-cache --dry-run"
+        ],
+        "lint-fix": [
+            "cd .scaffold && ../vendor/bin/phpcbf && ../vendor/bin/rector --clear-cache"
+        ],
+        "test": [
+            "cd .scaffold if [ \"${XDEBUG_MODE}\" = 'coverage' ]; then ../vendor/bin/phpunit; else ../vendor/bin/phpunit --no-coverage; fi"
         ]
     },
     "require-dev": {
