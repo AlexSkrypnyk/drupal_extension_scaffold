@@ -53,24 +53,25 @@ jobs:
           sudo chown "$USER" /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
 
       - name: Install dependencies
-        run: npm ci
-        working-directory: .scaffold/tests
+        run: composer install
 
       - name: Run tests
-        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold "$(pwd)"/.scaffold-coverage-html .scaffold/tests/node_modules/.bin/bats .scaffold/tests/bats
+        run: |
+          composer run lint
+          XDEBUG_MODE='coverage' && composer run test
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-code-coverage-report
-          path: ./.scaffold-coverage-html
+          path: ./.scaffold/coverage-html
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          directory: ./.scaffold-coverage-html
+          directory: ./.scaffold/coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
