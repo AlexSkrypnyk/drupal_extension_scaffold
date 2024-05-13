@@ -24,7 +24,7 @@ echo "==============================="
 echo
 
 info "Stopping previously started services, if any."
-killall -9 php >/dev/null 2>&1 || true
+kill -SIGKILL "$(ps aux | grep 'php -S' | grep -v grep | awk '{print $2}')" >/dev/null 2>&1 || true
 sleep 1
 pass "Services stopped."
 

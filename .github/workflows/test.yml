@@ -70,6 +70,11 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: gd, sqlite, pdo_sqlite
 
+      - name: Setup composer.json
+        run: |
+          rm composer.json
+          mv composer.dist.json composer.json
+
       - name: Assemble the codebase
         run: .devtools/assemble.sh
 

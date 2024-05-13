@@ -315,6 +315,9 @@ class Customizer {
 
   /**
    * @throws \Exception
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+   * @SuppressWarnings(PHPMD.NPathComplexity)
    */
   public static function main(Event $event): void {
     $io = $event->getIO();
