@@ -119,21 +119,21 @@ class Customizer {
    * Display summary input.
    */
   protected function displaySummary(): void {
-    $this->io->notice('            Summary');
-    $this->io->notice('---------------------------------');
-    $this->io->notice('Name                             : ' . $this->extensionName);
-    $this->io->notice('Machine name                     : ' . $this->extensionMachineName);
-    $this->io->notice('Type                             : ' . $this->extensionType);
-    $this->io->notice('CI Provider                      : ' . $this->ciProvider);
-    $this->io->notice('Command wrapper                  : ' . $this->commandWrapper);
-    $this->io->notice('Working dir                      : ' . $this->workingDir);
+    $this->io->write('            Summary');
+    $this->io->write('---------------------------------');
+    $this->io->write('Name                             : ' . $this->extensionName);
+    $this->io->write('Machine name                     : ' . $this->extensionMachineName);
+    $this->io->write('Type                             : ' . $this->extensionType);
+    $this->io->write('CI Provider                      : ' . $this->ciProvider);
+    $this->io->write('Command wrapper                  : ' . $this->commandWrapper);
+    $this->io->write('Working dir                      : ' . $this->workingDir);
   }
 
   /**
    * Process README.md.
    */
   protected function processReadme(): void {
-    $this->io->notice('Processing README.');
+    $this->io->write('Processing README.');
     $this->fileSystem->remove($this->workingDir . '/README.md');
     $this->fileSystem->rename($this->workingDir . '/README.dist.md', $this->workingDir . '/README.md');
     $logo_url = sprintf(
@@ -163,7 +163,7 @@ class Customizer {
    * @throws \Exception
    */
   protected function processInternalReplacement(): void {
-    $this->io->notice('Processing internal replacement.');
+    $this->io->write('Processing internal replacement.');
 
     $extension_machine_name_class = self::convertString($this->extensionMachineName, 'class_name');
 
@@ -253,7 +253,7 @@ class Customizer {
    * Remove CI provider depends on CI provider selected.
    */
   protected function removeCiProvider(): void {
-    $this->io->notice('Processing remove CI Provider.');
+    $this->io->write('Processing remove CI Provider.');
     $ci_provider = $this->ciProvider;
     if ($ci_provider === 'gha') {
       $this->removeCircleciCiProvider();
@@ -281,7 +281,7 @@ class Customizer {
    * Remove command wrappers depends on command wrapper selected.
    */
   protected function removeCommandWrapper(): void {
-    $this->io->notice('Processing remove Command Wrapper.');
+    $this->io->write('Processing remove Command Wrapper.');
     $command_wrapper = $this->commandWrapper;
     switch ($command_wrapper) {
       case 'ahoy':
@@ -327,7 +327,7 @@ class Customizer {
     $default_extension_ci_provider = getenv('DRUPAL_EXTENSION_SCAFFOLD_CI_PROVIDER') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_CI_PROVIDER') : 'gha';
     $default_extension_command_wrapper = getenv('DRUPAL_EXTENSION_SCAFFOLD_COMMAND_WRAPPER') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_COMMAND_WRAPPER') : 'ahoy';
 
-    $io->notice('Please follow the prompts to adjust your extension configuration');
+    $io->write('Please follow the prompts to adjust your extension configuration');
 
     $extension_name = $io->ask('Name: ', $default_extension_name);
     $default_extension_machine_name = getenv('DRUPAL_EXTENSION_SCAFFOLD_MACHINE_NAME') !== FALSE ?
@@ -380,7 +380,7 @@ class Customizer {
       throw new \Exception(sprintf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
     }
 
-    $io->notice('Initialization complete.');
+    $io->write('Initialization complete.');
   }
 
   /**
