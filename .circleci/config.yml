@@ -31,6 +31,12 @@ job-test: &job-test
           echo "export LD_LIBRARY_PATH=/usr/local/lib" >> $BASH_ENV
 
     - run:
+        name: Setup composer.json
+        command: |
+          rm composer.json
+          mv composer.dist.json composer.json
+
+    - run:
         name: Assemble the codebase
         command: .devtools/assemble.sh
 

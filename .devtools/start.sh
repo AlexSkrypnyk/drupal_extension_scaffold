@@ -37,6 +37,7 @@ echo "==============================="
 echo
 
 info "Stopping previously started services, if any."
+# shellcheck disable=SC2009
 kill -SIGKILL "$(ps aux | grep 'php -S' | grep -v grep | awk '{print $2}')" >/dev/null 2>&1 || true
 
 info "Starting the PHP webserver."
