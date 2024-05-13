@@ -319,17 +319,20 @@ class Customizer {
   public static function main(Event $event): void {
     $io = $event->getIO();
 
+    $default_extension_name = getenv('DRUPAL_EXTENSION_SCAFFOLD_NAME') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_NAME') : '';
+    $default_extension_type = getenv('DRUPAL_EXTENSION_SCAFFOLD_TYPE') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_TYPE') : 'module';
+    $default_extension_ci_provider = getenv('DRUPAL_EXTENSION_SCAFFOLD_CI_PROVIDER') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_CI_PROVIDER') : 'gha';
+    $default_extension_command_wrapper = getenv('DRUPAL_EXTENSION_SCAFFOLD_COMMAND_WRAPPER') !== FALSE ? getenv('DRUPAL_EXTENSION_SCAFFOLD_COMMAND_WRAPPER') : 'ahoy';
+
     $io->notice('Please follow the prompts to adjust your extension configuration');
 
-    $extension_name = $io->ask('Name: ', 'Your Extension');
-    $default_extension_machine_name = self::convertString($extension_name, 'file_name');
+    $extension_name = $io->ask('Name: ', $default_extension_name);
+    $default_extension_machine_name = getenv('DRUPAL_EXTENSION_SCAFFOLD_MACHINE_NAME') !== FALSE ?
+      getenv('DRUPAL_EXTENSION_SCAFFOLD_MACHINE_NAME') : self::convertString($extension_name, 'file_name');
     $extension_machine_name = $io->ask(sprintf('Machine Name: [%s]: ', $default_extension_machine_name), $default_extension_machine_name);
-    $default_extension_type = 'module';
     $extension_type = $io->ask(sprintf('Type: module or theme: [%s]: ', $default_extension_type), $default_extension_type);
-    $default_ci_provider = 'gha';
-    $ci_provider = $io->ask(sprintf('CI Provider: GitHub Actions (gha) or CircleCI (circleci): [%s]: ', $default_ci_provider), $default_ci_provider);
-    $default_command_wrapper = 'ahoy';
-    $command_wrapper = $io->ask(sprintf('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [%s]: ', $default_command_wrapper), $default_command_wrapper);
+    $ci_provider = $io->ask(sprintf('CI Provider: GitHub Actions (gha) or CircleCI (circleci): [%s]: ', $default_extension_ci_provider), $default_extension_ci_provider);
+    $command_wrapper = $io->ask(sprintf('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [%s]: ', $default_extension_command_wrapper), $default_extension_command_wrapper);
 
     if (!$extension_name) {
       throw new \Exception('Name is required.');
