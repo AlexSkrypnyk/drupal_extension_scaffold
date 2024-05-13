@@ -42,6 +42,9 @@ class ScaffoldFunctionalTest extends TestCase {
     $process = new Process(['./.devtools/start.sh'], $this->testDir);
     $status = $process->run();
     $this->assertEquals(0, $status);
+    $process = new Process(['./.devtools/provision.sh'], $this->testDir);
+    $status = $process->run();
+    $this->assertEquals(0, $status);
   }
 
   protected function tearDown(): void {
