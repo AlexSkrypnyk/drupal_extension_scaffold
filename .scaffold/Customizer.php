@@ -420,7 +420,7 @@ class Customizer {
    * @param string $directory
    *   Directory.
    */
-  public static function replaceStringInFilesInDirectory($string_search, $string_replace, string $directory): void {
+  public static function replaceStringInFilesInDirectory(string|array $string_search, string|array $string_replace, string $directory): void {
     $finder = new Finder();
     $finder
       ->files()
@@ -443,7 +443,7 @@ class Customizer {
    * @param string $file_path
    *   File path.
    */
-  public static function replaceStringInFile($string_search, $string_replace, string $file_path): void {
+  public static function replaceStringInFile(string|array $string_search, string|array $string_replace, string $file_path): void {
     $file_content = file_get_contents($file_path);
     if (!empty($file_content)) {
       $new_file_content = str_replace($string_search, $string_replace, $file_content);

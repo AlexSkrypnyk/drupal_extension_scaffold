@@ -16,6 +16,7 @@
         <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
         <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
         <exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
+        <exclude name="Generic.PHP.LowerCaseConstant.Found" />
     </rule>
 
     <!-- Show sniff codes in all reports -->
@@ -31,4 +32,5 @@
     @see https://github.com/squizlabs/PHP_CodeSniffer/issues/2916
     -->
     <file>Customizer.php</file>
+    <file>tests/phpunit</file>
 </ruleset>
