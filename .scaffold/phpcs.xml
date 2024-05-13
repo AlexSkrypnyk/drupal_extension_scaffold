@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="custom">
+    <description>Custom PHPCS standard.</description>
+
+    <!-- Coding standard. -->
+    <rule ref="PHPCompatibility"></rule>
+    <rule ref="PSR12">
+        <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
+        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.Indent"/>
+        <exclude name="PSR2.Methods.FunctionCallSignature.Indent"/>
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration.BreakIndent"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
+    </rule>
+
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+    <!-- Show progress of the run. -->
+    <arg value="p"/>
+    <arg name="colors"/>
+    <config name="testVersion" value="8.2"/>
+    <!--
+    PHP_CodeSniffer does not support scanning of files without extensions, so
+    we have to use the ugly workaround to copy the file into a file with a 'php'
+    extension, scan that file, and then delete it.
+    @see https://github.com/squizlabs/PHP_CodeSniffer/issues/2916
+    -->
+    <file>Customizer.php</file>
+</ruleset>

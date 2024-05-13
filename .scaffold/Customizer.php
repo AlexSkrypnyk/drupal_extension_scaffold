@@ -10,20 +10,60 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * Class to setup drupal scaffold extension right way.
+ */
 class Customizer {
 
+  /**
+   * File system.
+   */
   protected Filesystem $fileSystem;
+
+  /**
+   * IO composer.
+   */
   protected IOInterface $io;
+
+  /**
+   * The directory to create the drupal extension scaffold.
+   */
   protected string $workingDir;
+
+  /**
+   * Drupal extension name.
+   */
   protected string $extensionName;
+
+  /**
+   * Drupal extension machine name.
+   */
   protected string $extensionMachineName;
+
+  /**
+   * Drupal extension type: module or theme.
+   */
   protected string $extensionType;
+
+  /**
+   * CI provider: gha or  circleci.
+   */
   protected string $ciProvider;
+
+  /**
+   * Command wrapper: ahoy, makefile or none.
+   */
   protected string $commandWrapper;
 
   /**
    * Construct.
    *
+   * @param \Symfony\Component\Filesystem\Filesystem $filesystem
+   *   File system.
+   * @param \Composer\IO\IOInterface $io
+   *   IO.
+   * @param string $working_dir
+   *   Working dir.
    * @param string $extension_name
    *   Extension name.
    * @param string $extension_machine_name
@@ -31,7 +71,7 @@ class Customizer {
    * @param string $extension_type
    *   Extension type: module or theme.
    * @param string $ci_provider
-   *   CI Provider: gha or circleci
+   *   CI Provider: gha or circleci.
    * @param string $command_wrapper
    *   Command wrapper: ahoy, makefile or none.
    */
@@ -43,8 +83,8 @@ class Customizer {
     string $extension_machine_name,
     string $extension_type = 'module',
     string $ci_provider = 'gha',
-    string $command_wrapper = 'ahoy') {
-
+    string $command_wrapper = 'ahoy',
+  ) {
     $this->fileSystem = $filesystem;
     $this->workingDir = $working_dir;
     $this->io = $io;
@@ -81,12 +121,12 @@ class Customizer {
   protected function displaySummary(): void {
     $this->io->notice('            Summary');
     $this->io->notice('---------------------------------');
-    $this->io->notice("Name                             : {$this->extensionName}");
-    $this->io->notice("Machine name                     : {$this->extensionMachineName}");
-    $this->io->notice("Type                             : {$this->extensionType}");
-    $this->io->notice("CI Provider                      : {$this->ciProvider}");
-    $this->io->notice("Command wrapper                  : {$this->commandWrapper}");
-    $this->io->notice("Working dir                      : {$this->workingDir}");
+    $this->io->notice('Name                             : ' . $this->extensionName);
+    $this->io->notice('Machine name                     : ' . $this->extensionMachineName);
+    $this->io->notice('Type                             : ' . $this->extensionType);
+    $this->io->notice('CI Provider                      : ' . $this->ciProvider);
+    $this->io->notice('Command wrapper                  : ' . $this->commandWrapper);
+    $this->io->notice('Working dir                      : ' . $this->workingDir);
   }
 
   /**
@@ -94,8 +134,8 @@ class Customizer {
    */
   protected function processReadme(): void {
     $this->io->notice('Processing README.');
-    $this->fileSystem->remove("$this->workingDir/README.md");
-    $this->fileSystem->rename("$this->workingDir/README.dist.md", "$this->workingDir/README.md");
+    $this->fileSystem->remove($this->workingDir . '/README.md');
+    $this->fileSystem->rename($this->workingDir . '/README.dist.md', $this->workingDir . '/README.md');
     $logo_url = sprintf(
       'https://placehold.jp/000000/ffffff/200x200.png?text=%s&css=%s',
       urlencode($this->extensionName),
@@ -103,7 +143,7 @@ class Customizer {
     );
     $logo_data = file_get_contents($logo_url);
     if ($logo_data) {
-      file_put_contents("$this->workingDir/logo.png", $logo_data);
+      file_put_contents($this->workingDir . '/logo.png', $logo_data);
     }
   }
 
@@ -111,14 +151,15 @@ class Customizer {
    * Process composer scaffold.
    */
   protected function processComposer(): void {
-    $this->fileSystem->remove("$this->workingDir/composer.json");
-    $this->fileSystem->remove("$this->workingDir/composer.lock");
-    $this->fileSystem->remove("$this->workingDir/vendor");
-    $this->fileSystem->rename("$this->workingDir/composer.dist.json", "$this->workingDir/composer.json");
+    $this->fileSystem->remove($this->workingDir . '/composer.json');
+    $this->fileSystem->remove($this->workingDir . '/composer.lock');
+    $this->fileSystem->remove($this->workingDir . '/vendor');
+    $this->fileSystem->rename($this->workingDir . '/composer.dist.json', $this->workingDir . '/composer.json');
   }
 
   /**
    * Internal process to replace scaffold string and remove scaffold files.
+   *
    * @throws \Exception
    */
   protected function processInternalReplacement(): void {
@@ -138,63 +179,63 @@ class Customizer {
     self::replaceStringInFilesInDirectory('[EXTENSION_NAME]', $this->extensionMachineName, $this->workingDir);
     self::replaceStringInFilesInDirectory(
       'Provides your_extension functionality.',
-      "Provides $this->extensionMachineName functionality.",
+      sprintf('Provides %s functionality.', $this->extensionMachineName),
       $this->workingDir,
     );
     self::replaceStringInFilesInDirectory(
       'Drupal module scaffold FE example used for template testing',
-      "Provides $this->extensionMachineName functionality.",
+      sprintf('Provides %s functionality.', $this->extensionMachineName),
       $this->workingDir,
     );
     self::replaceStringInFilesInDirectory('Drupal extension scaffold', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('Yourproject', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('Your Extension', $this->extensionName, $this->workingDir);
     self::replaceStringInFilesInDirectory('your extension', $this->extensionName, $this->workingDir);
-    self::replaceStringInFilesInDirectory('drupal-module', "drupal-$this->extensionType", $this->workingDir);
-    self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
-    self::replaceStringInFilesInDirectory('type: module', "type: $this->extensionType", $this->workingDir);
+    self::replaceStringInFilesInDirectory('drupal-module', 'drupal-' . $this->extensionType, $this->workingDir);
+    self::replaceStringInFilesInDirectory('type: module', 'type: ' . $this->extensionType, $this->workingDir);
+    self::replaceStringInFilesInDirectory('type: module', 'type: ' . $this->extensionType, $this->workingDir);
 
-    self::replaceStringInFile('# Uncomment the lines below in your project.', '', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# Remove the lines below in your project.', '', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('.github/FUNDING.yml export-ignore', '', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('LICENSE             export-ignore', '', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .ahoy.yml          export-ignore', '.ahoy.yml          export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .circleci          export-ignore', '.circleci          export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .devtools          export-ignore', '.devtools          export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .editorconfig      export-ignore', '.editorconfig      export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .gitattributes     export-ignore', '.gitattributes     export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .github            export-ignore', '.github            export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .gitignore         export-ignore', '.gitignore         export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# .twig-cs-fixer.php export-ignore', '.twig-cs-fixer.php export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# Makefile           export-ignore', 'Makefile           export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# composer.dev.json  export-ignore', 'composer.dev.json  export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# phpcs.xml          export-ignore', 'phpcs.xml          export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# phpmd.xml          export-ignore', 'phpmd.xml          export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# phpstan.neon       export-ignore', 'phpstan.neon       export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# rector.php         export-ignore', 'rector.php         export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# renovate.json      export-ignore', 'renovate.json      export-ignore', "$this->workingDir/.gitattributes");
-    self::replaceStringInFile('# tests              export-ignore', 'tests              export-ignore', "$this->workingDir/.gitattributes");
+    self::replaceStringInFile('# Uncomment the lines below in your project.', '', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# Remove the lines below in your project.', '', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('.github/FUNDING.yml export-ignore', '', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('LICENSE             export-ignore', '', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .ahoy.yml          export-ignore', '.ahoy.yml          export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .circleci          export-ignore', '.circleci          export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .devtools          export-ignore', '.devtools          export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .editorconfig      export-ignore', '.editorconfig      export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .gitattributes     export-ignore', '.gitattributes     export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .github            export-ignore', '.github            export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .gitignore         export-ignore', '.gitignore         export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# .twig-cs-fixer.php export-ignore', '.twig-cs-fixer.php export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# Makefile           export-ignore', 'Makefile           export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# composer.dev.json  export-ignore', 'composer.dev.json  export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# phpcs.xml          export-ignore', 'phpcs.xml          export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# phpmd.xml          export-ignore', 'phpmd.xml          export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# phpstan.neon       export-ignore', 'phpstan.neon       export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# rector.php         export-ignore', 'rector.php         export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# renovate.json      export-ignore', 'renovate.json      export-ignore', $this->workingDir . '/.gitattributes');
+    self::replaceStringInFile('# tests              export-ignore', 'tests              export-ignore', $this->workingDir . '/.gitattributes');
 
-    $this->fileSystem->rename("$this->workingDir/your_extension.info.yml", "$this->workingDir/$this->extensionMachineName.info.yml");
-    $this->fileSystem->rename("$this->workingDir/your_extension.install", "$this->workingDir/$this->extensionMachineName.install");
-    $this->fileSystem->rename("$this->workingDir/your_extension.links.menu.yml", "$this->workingDir/$this->extensionMachineName.links.menu.yml");
-    $this->fileSystem->rename("$this->workingDir/your_extension.module", "$this->workingDir/$this->extensionMachineName.module");
-    $this->fileSystem->rename("$this->workingDir/your_extension.routing.yml", "$this->workingDir/$this->extensionMachineName.routing.yml");
-    $this->fileSystem->rename("$this->workingDir/your_extension.services.yml", "$this->workingDir/$this->extensionMachineName.services.yml");
-    $this->fileSystem->rename("$this->workingDir/config/schema/your_extension.schema.yml", "$this->workingDir/config/schema/$this->extensionMachineName.schema.yml");
-    $this->fileSystem->rename("$this->workingDir/src/Form/YourExtensionForm.php", "$this->workingDir/src/Form/{$extension_machine_name_class}Form.php");
-    $this->fileSystem->rename("$this->workingDir/src/YourExtensionService.php", "$this->workingDir/src/{$extension_machine_name_class}Service.php");
-    $this->fileSystem->rename("$this->workingDir/tests/src/Unit/YourExtensionServiceUnitTest.php", "$this->workingDir/tests/src/Unit/{$extension_machine_name_class}ServiceUnitTest.php");
-    $this->fileSystem->rename("$this->workingDir/tests/src/Kernel/YourExtensionServiceKernelTest.php", "$this->workingDir/tests/src/Kernel/{$extension_machine_name_class}ServiceKernelTest.php");
-    $this->fileSystem->rename("$this->workingDir/tests/src/Functional/YourExtensionFunctionalTest.php", "$this->workingDir/tests/src/Functional/{$extension_machine_name_class}FunctionalTest.php");
+    $this->fileSystem->rename($this->workingDir . '/your_extension.info.yml', sprintf('%s/%s.info.yml', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/your_extension.install', sprintf('%s/%s.install', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/your_extension.links.menu.yml', sprintf('%s/%s.links.menu.yml', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/your_extension.module', sprintf('%s/%s.module', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/your_extension.routing.yml', sprintf('%s/%s.routing.yml', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/your_extension.services.yml', sprintf('%s/%s.services.yml', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/config/schema/your_extension.schema.yml', sprintf('%s/config/schema/%s.schema.yml', $this->workingDir, $this->extensionMachineName));
+    $this->fileSystem->rename($this->workingDir . '/src/Form/YourExtensionForm.php', sprintf('%s/src/Form/%sForm.php', $this->workingDir, $extension_machine_name_class));
+    $this->fileSystem->rename($this->workingDir . '/src/YourExtensionService.php', sprintf('%s/src/%sService.php', $this->workingDir, $extension_machine_name_class));
+    $this->fileSystem->rename($this->workingDir . '/tests/src/Unit/YourExtensionServiceUnitTest.php', sprintf('%s/tests/src/Unit/%sServiceUnitTest.php', $this->workingDir, $extension_machine_name_class));
+    $this->fileSystem->rename($this->workingDir . '/tests/src/Kernel/YourExtensionServiceKernelTest.php', sprintf('%s/tests/src/Kernel/%sServiceKernelTest.php', $this->workingDir, $extension_machine_name_class));
+    $this->fileSystem->rename($this->workingDir . '/tests/src/Functional/YourExtensionFunctionalTest.php', sprintf('%s/tests/src/Functional/%sFunctionalTest.php', $this->workingDir, $extension_machine_name_class));
 
-    $this->fileSystem->remove("$this->workingDir/LICENSE");
-    $this->fileSystem->remove("$this->workingDir/tests/scaffold");
-    $this->fileSystem->remove("$this->workingDir/.scaffold");
+    $this->fileSystem->remove($this->workingDir . '/LICENSE');
+    $this->fileSystem->remove($this->workingDir . '/tests/scaffold');
+    $this->fileSystem->remove($this->workingDir . '/.scaffold');
     $finder = Finder::create();
     $finder
       ->files()
-      ->in("$this->workingDir/.github/workflows")
+      ->in($this->workingDir . '/.github/workflows')
       ->name('scaffold*.yml');
     if ($finder->hasResults()) {
       foreach ($finder as $file) {
@@ -203,8 +244,8 @@ class Customizer {
     }
 
     if ($this->extensionType === 'theme') {
-      $this->fileSystem->remove("$this->workingDir/test");
-      $this->fileSystem->appendToFile("$this->workingDir/$this->extensionMachineName.info.yml", 'base theme: false');
+      $this->fileSystem->remove($this->workingDir . '/test');
+      $this->fileSystem->appendToFile(sprintf('%s/%s.info.yml', $this->workingDir, $this->extensionMachineName), 'base theme: false');
     }
   }
 
@@ -216,7 +257,8 @@ class Customizer {
     $ci_provider = $this->ciProvider;
     if ($ci_provider === 'gha') {
       $this->removeCircleciCiProvider();
-    }else {
+    }
+    else {
       $this->removeGhaCiProvider();
     }
   }
@@ -225,14 +267,14 @@ class Customizer {
    * Remove CircleCi (circleci) CI provider.
    */
   protected function removeCircleciCiProvider(): void {
-    $this->fileSystem->remove("$this->workingDir/.circleci");
+    $this->fileSystem->remove($this->workingDir . '/.circleci');
   }
 
   /**
    * Remove GitHub Action (gha) CI provider.
    */
   protected function removeGhaCiProvider(): void {
-    $this->fileSystem->remove("$this->workingDir/.github/workflows");
+    $this->fileSystem->remove($this->workingDir . '/.github/workflows');
   }
 
   /**
@@ -245,9 +287,11 @@ class Customizer {
       case 'ahoy':
         $this->removeMakeCommandWrapper();
         break;
+
       case 'makefile':
         $this->removeAhoyCommandWrapper();
         break;
+
       default:
         $this->removeAhoyCommandWrapper();
         $this->removeMakeCommandWrapper();
@@ -259,14 +303,14 @@ class Customizer {
    * Remove 'Ahoy' command wrapper.
    */
   protected function removeAhoyCommandWrapper(): void {
-    $this->fileSystem->remove("$this->workingDir/.ahoy.yml");
+    $this->fileSystem->remove($this->workingDir . '/.ahoy.yml');
   }
 
   /**
    * Remove 'Make' command wrapper.
    */
   protected function removeMakeCommandWrapper(): void {
-    $this->fileSystem->remove("$this->workingDir/Makefile");
+    $this->fileSystem->remove($this->workingDir . '/Makefile');
   }
 
   /**
@@ -279,13 +323,13 @@ class Customizer {
 
     $extension_name = $io->ask('Name: ', 'Your Extension');
     $default_extension_machine_name = self::convertString($extension_name, 'file_name');
-    $extension_machine_name = $io->ask("Machine Name: [$default_extension_machine_name]: ", $default_extension_machine_name);
+    $extension_machine_name = $io->ask(sprintf('Machine Name: [%s]: ', $default_extension_machine_name), $default_extension_machine_name);
     $default_extension_type = 'module';
-    $extension_type = $io->ask("Type: module or theme: [$default_extension_type]: ", $default_extension_type);
+    $extension_type = $io->ask(sprintf('Type: module or theme: [%s]: ', $default_extension_type), $default_extension_type);
     $default_ci_provider = 'gha';
-    $ci_provider = $io->ask("CI Provider: GitHub Actions (gha) or CircleCI (circleci): [$default_ci_provider]: ", $default_ci_provider);
+    $ci_provider = $io->ask(sprintf('CI Provider: GitHub Actions (gha) or CircleCI (circleci): [%s]: ', $default_ci_provider), $default_ci_provider);
     $default_command_wrapper = 'ahoy';
-    $command_wrapper = $io->ask("Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [$default_command_wrapper]: ", $default_command_wrapper);
+    $command_wrapper = $io->ask(sprintf('Command wrapper: Ahoy (ahoy), Makefile (makefile), None (none): [%s]: ', $default_command_wrapper), $default_command_wrapper);
 
     if (!$extension_name) {
       throw new \Exception('Name is required.');
@@ -302,9 +346,10 @@ class Customizer {
     if (!in_array($command_wrapper, ['ahoy', 'makefile', 'none'])) {
       throw new \Exception('Command wrapper is required or invalid.');
     }
-
     $working_dir = Path::makeAbsolute('..', __DIR__);
     $fileSystem = new Filesystem();
+
+    // @phpstan-ignore-next-line
     $customizer = new static(
       $fileSystem,
       $io,
@@ -318,7 +363,8 @@ class Customizer {
 
     try {
       $customizer->process();
-    } catch (\Exception $exception) {
+    }
+    catch (\Exception $exception) {
       throw new \Exception(sprintf('Initialization is not completed. Error %s', $exception->getMessage()), $exception->getCode(), $exception);
     }
 
@@ -329,6 +375,8 @@ class Customizer {
    * Convert a string to specific type.
    *
    * @throws \Exception
+   *
+   * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
   public static function convertString(string $string, string $type = 'function_name'): string {
     switch ($type) {
@@ -341,11 +389,13 @@ class Customizer {
         $string_out = str_replace(' ', '_', $string);
         $string_out = strtolower($string_out);
         break;
+
       case 'domain_name':
       case 'package_namespace':
         $string_out = str_replace([' ', '-'], ['_', '_'], $string);
         $string_out = strtolower($string_out);
         break;
+
       case 'namespace':
       case 'class_name':
         $string_out = str_replace(['-', '_'], [' ', ' '], $string);
@@ -358,16 +408,19 @@ class Customizer {
         }
         $string_out = implode('', $new_string_array);
         break;
+
       case 'package_name':
         $string_out = str_replace(' ', '-', $string);
         $string_out = strtolower($string_out);
         break;
+
       case 'log_entry':
       case 'code_comment_title':
         $string_out = $string;
         break;
+
       default:
-        throw new \Exception("Convert string does not support type $type.");
+        throw new \Exception(sprintf('Convert string does not support type %s.', $type));
     }
 
     return $string_out;
@@ -413,4 +466,5 @@ class Customizer {
       file_put_contents($file_path, $new_file_content);
     }
   }
+
 }

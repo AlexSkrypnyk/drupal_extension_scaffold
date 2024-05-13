@@ -1,0 +1,23 @@
+##
+# Configuration file for PHPStan static code checking, see https://phpstan.org .
+#
+# Paths are passed as CLI arguments.
+
+parameters:
+
+  level: 7
+
+  paths:
+      - tests/phpunit
+      - Customizer.php
+
+  ignoreErrors:
+    -
+      # Hook implementations do not provide docblocks for parameters, so there
+      # is no way to provide this information.
+      messages:
+        - '#.* no value type specified in iterable type array#'
+        - '#.* has no return type specified#'
+      reportUnmatched: false
+
+  reportUnmatchedIgnoredErrors: false
