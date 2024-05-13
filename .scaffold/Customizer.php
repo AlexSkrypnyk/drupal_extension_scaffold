@@ -230,7 +230,6 @@ class Customizer {
     $this->fileSystem->rename($this->workingDir . '/tests/src/Functional/YourExtensionFunctionalTest.php', sprintf('%s/tests/src/Functional/%sFunctionalTest.php', $this->workingDir, $extension_machine_name_class));
 
     $this->fileSystem->remove($this->workingDir . '/LICENSE');
-    $this->fileSystem->remove($this->workingDir . '/tests/scaffold');
     $this->fileSystem->remove($this->workingDir . '/.scaffold');
     $finder = Finder::create();
     $finder
