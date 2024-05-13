@@ -23,7 +23,7 @@ class ScaffoldFunctionalTest extends TestCase {
       'create-project',
       '--prefer-dist',
       '--no-interaction',
-      'alexskrypnyk/drupal_extension_scaffold="@dev"',
+      'alexskrypnyk/drupal_extension_scaffold=@dev',
       '--repository',
       '{"type": "path", "url": "'. $working_dir .'", "options": {"symlink": false}}',
       $this->testDir,
