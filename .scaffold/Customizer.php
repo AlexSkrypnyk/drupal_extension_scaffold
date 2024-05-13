@@ -349,6 +349,8 @@ class Customizer {
     if (!in_array($command_wrapper, ['ahoy', 'makefile', 'none'])) {
       throw new \Exception('Command wrapper is required or invalid.');
     }
+    var_dump(__DIR__);
+    die;
     $working_dir = Path::makeAbsolute('..', __DIR__);
     $fileSystem = new Filesystem();
 

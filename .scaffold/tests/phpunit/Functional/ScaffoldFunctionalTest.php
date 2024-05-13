@@ -32,14 +32,12 @@ class ScaffoldFunctionalTest extends TestCase {
       'DRUPAL_EXTENSION_SCAFFOLD_NAME' => 'Hello Extension',
     ]);
     $process->run();
-
     $process = new Process(['ls', '-al'], $this->testDir);
     $process->run();
-    echo $process->getOutput();
+    echo $process->getErrorOutput();
   }
 
   protected function tearDown(): void {
     parent::tearDown();
-    $this->filesystem->remove($this->testDir);
   }
 }
