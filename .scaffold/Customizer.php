@@ -378,19 +378,13 @@ class Customizer {
    *
    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
    */
-  public static function convertString(string $string, string $type = 'function_name'): string {
+  public static function convertString(string $string, string $type = 'file_name'): string {
     switch ($type) {
       case 'file_name':
-      case 'route_path':
-      case 'deployment_id':
-      case 'function_name':
-      case 'ui_id':
-      case 'cli_command':
         $string_out = str_replace(' ', '_', $string);
         $string_out = strtolower($string_out);
         break;
 
-      case 'domain_name':
       case 'package_namespace':
         $string_out = str_replace([' ', '-'], ['_', '_'], $string);
         $string_out = strtolower($string_out);
@@ -403,20 +397,11 @@ class Customizer {
         $new_string_array = [];
         foreach ($string_array as $str) {
           if (!empty(trim($str))) {
+            $str = strtolower($str);
             $new_string_array[] = ucfirst($str);
           }
         }
         $string_out = implode('', $new_string_array);
-        break;
-
-      case 'package_name':
-        $string_out = str_replace(' ', '-', $string);
-        $string_out = strtolower($string_out);
-        break;
-
-      case 'log_entry':
-      case 'code_comment_title':
-        $string_out = $string;
         break;
 
       default:
@@ -429,14 +414,14 @@ class Customizer {
   /**
    * Replace string in files in a directory.
    *
-   * @param string $string_search
+   * @param string|string[] $string_search
    *   String to search.
-   * @param string $string_replace
+   * @param string|string[] $string_replace
    *   String to replace.
    * @param string $directory
    *   Directory.
    */
-  public static function replaceStringInFilesInDirectory(string $string_search, string $string_replace, string $directory): void {
+  public static function replaceStringInFilesInDirectory($string_search, $string_replace, string $directory): void {
     $finder = new Finder();
     $finder
       ->files()
@@ -450,16 +435,16 @@ class Customizer {
   }
 
   /**
-   * Replace string in files in a directory.
+   * Replace string in a file.
    *
-   * @param string $string_search
+   * @param string|string[] $string_search
    *   String to search.
-   * @param string $string_replace
+   * @param string|string[] $string_replace
    *   String to replace.
    * @param string $file_path
    *   File path.
    */
-  public static function replaceStringInFile(string $string_search, string $string_replace, string $file_path): void {
+  public static function replaceStringInFile($string_search, $string_replace, string $file_path): void {
     $file_content = file_get_contents($file_path);
     if (!empty($file_content)) {
       $new_file_content = str_replace($string_search, $string_replace, $file_content);
