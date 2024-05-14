@@ -8,7 +8,6 @@ use Flow\JSONPath\JSONPath;
 use Helmich\JsonAssert\JsonAssertions;
 
 trait JsonAssertTrait {
-
   use JsonAssertions;
 
   public function assertJsonHasNoKey(array $json_data, string $path, ?string $message = NULL): void {

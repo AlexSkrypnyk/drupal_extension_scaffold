@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Scaffold\Tests\Functional;
 
@@ -14,7 +14,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use PHPUnit\Framework\TestStatus\Failure;
 
 class ScaffoldTestCase extends TestCase {
-
   use CmdTrait;
   use ComposerTrait;
   use EnvTrait;

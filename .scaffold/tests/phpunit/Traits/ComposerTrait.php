@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Scaffold\Tests\Traits;
 
-use Symfony\Component\Console\Application;
+use Composer\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -16,7 +16,7 @@ trait ComposerTrait {
     $args[] = $this->dirs->sut;
     $args = implode(' ', $args);
 
-    return 'create-project --repository \'{"type": "path", "url": "' . $this->dirs->repo . '", "options": {"symlink": false}}\' drevops/scaffold="@dev" ' . $args;
+    return 'create-project --repository \'{"type": "path", "url": "' . $this->dirs->repo . '", "options": {"symlink": false}}\' alexskrypnyk/drupal_extension_scaffold="@dev" ' . $args;
   }
 
   /**

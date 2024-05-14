@@ -8,39 +8,11 @@ use Scaffold\Tests\Traits\FileTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Dirs {
-
   use FileTrait;
 
-  /**
-   * Directory where a copy of the DrevOps Scaffold repository is located.
-   *
-   * This allows to isolate the test from this repository files and prevent
-   * their accidental removal.
-   *
-   * @var string
-   */
-  public $repo;
-
-  /**
-   * Root build directory where the rest of the directories located.
-   *
-   * The "build" in this context is a place to store assets produced by a single
-   * test run.
-   *
-   * @var string
-   */
-  public $build;
-
-  /**
-   * Directory where the test will run.
-   *
-   * @var string
-   */
-  public $sut;
-
-  /**
-   * The file system.
-   */
+  public string $repo;
+  public string $build;
+  public string $sut;
   protected Filesystem $fs;
 
   public function __construct() {
@@ -74,7 +46,7 @@ class Dirs {
     $root = $this->fileFindDir('composer.json');
 
     $this->fs->copy($root . '/composer.json', $this->repo . '/composer.json');
-    $this->fs->mirror($root . '/.devtool', $this->repo . '/.devtool');
+    $this->fs->mirror($root . '/.devtools', $this->repo . '/.devtools');
     $this->fs->mirror($root . '/.circleci', $this->repo . '/.circleci');
 
     // Add the local repository to the composer.json file.
