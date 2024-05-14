@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 #[CoversClass(Customizer::class)]
-class ScaffoldFunctionalTest extends TestCase {
+class ScaffoldFunctionalTestCase extends TestCase {
 
   protected Filesystem $filesystem;
   protected string $testDir;
