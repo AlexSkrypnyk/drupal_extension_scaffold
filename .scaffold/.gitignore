@@ -1,0 +1,6 @@
+/.phpunit.cache
+/.scaffold-coverage-html
+/cobertura.xml
+/coverage
+/node_modules
+/vendor

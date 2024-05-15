@@ -1,20 +1,20 @@
 {
-    "name": "drupal/your_extension",
-    "description": "Provides your_extension functionality.",
-    "type": "drupal-module",
+    "name": "alexskrypnyk/drupal_extension_scaffold",
+    "description": "Drupal extension scaffold.",
+    "type": "project",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "yourproject@yourusername.com",
-            "homepage": "https://www.drupal.org/u/yourusername",
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://github.com/AlexSkrypnyk",
             "role": "Maintainer"
         }
     ],
-    "homepage": "https://drupal.org/project/your_extension",
+    "homepage": "https://github.com/AlexSkrypnyk/drupal_extension_scaffold",
     "support": {
-        "issues": "https://drupal.org/project/issues/your_extension",
-        "source": "https://git.drupalcode.org/project/your_extension"
+        "issues": "https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues",
+        "source": "https://github.com/AlexSkrypnyk/drupal_extension_scaffold"
     },
     "require": {
         "php": ">=8.2"
@@ -24,5 +24,18 @@
     },
     "suggest": {
         "drupal/config_ignore": "Ignore certain configuration during import."
+    },
+    "autoload": {
+        "psr-4": {
+            "Scaffold\\": ".scaffold/src"
+        }
+    },
+    "scripts": {
+        "customize": [
+            "Scaffold\\CustomizeCommand"
+        ],
+        "post-create-project-cmd": [
+            "@customize"
+        ]
     }
 }
