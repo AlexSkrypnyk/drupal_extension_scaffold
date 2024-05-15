@@ -20,6 +20,7 @@ jobs:
           - name: test-php-8.2
             php-version: 8.2
             drupal-version: stable
+            drupal-project-sha: 10.x
 
           - name: test-php-8.2-legacy
             php-version: 8.2
@@ -29,10 +30,12 @@ jobs:
           - name: test-php-8.2-next
             php-version: 8.2
             drupal-version: 10@beta
+            drupal-project-sha: 10.x
 
           - name: test-php-8.3
             php-version: 8.3
             drupal-version: stable
+            drupal-project-sha: 10.x
 
           - name: test-php-8.3-next
             php-version: 8.3
