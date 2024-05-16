@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Drupal\drupal_extension_scaffold\Tests\Functional;
+namespace Scaffold\Tests\Functional;
 
 use Composer\Console\Application;
-use Drupal\drupal_extension_scaffold\Tests\Dirs;
-use Drupal\drupal_extension_scaffold\Tests\Traits\CmdTrait;
-use Drupal\drupal_extension_scaffold\Tests\Traits\ComposerTrait;
-use Drupal\drupal_extension_scaffold\Tests\Traits\EnvTrait;
-use Drupal\drupal_extension_scaffold\Tests\Traits\JsonAssertTrait;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestStatus\Failure;
+use Scaffold\Tests\Dirs;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -20,10 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class ScaffoldTestCase extends TestCase {
 
-  use CmdTrait;
-  use ComposerTrait;
-  use EnvTrait;
-  use JsonAssertTrait;
+  const ANSWER_NOTHING = 'NOTHING';
 
   /**
    * The file system.
@@ -35,9 +28,14 @@ class ScaffoldTestCase extends TestCase {
   /**
    * The fixture directories used in the test.
    *
-   * @var \Drupal\drupal_extension_scaffold\Tests\Dirs
+   * @var \Scaffold\Tests\Dirs
    */
   protected $dirs;
+
+  /**
+   * The application tester.
+   */
+  protected ApplicationTester $tester;
 
   /**
    * {@inheritdoc}
@@ -49,6 +47,11 @@ class ScaffoldTestCase extends TestCase {
 
     $this->dirs = new Dirs();
     $this->dirs->initLocations();
+
+    $this->tester = $this->getApplicationTester();
+
+    $cwd = $this->dirs->sut;
+    chdir($cwd);
   }
 
   /**
@@ -96,6 +99,27 @@ class ScaffoldTestCase extends TestCase {
     }
 
     return new ApplicationTester($application);
+  }
+
+  protected function setAnswers(array $answers): void {
+    foreach ($answers as $key => $answer) {
+      if ($answer === self::ANSWER_NOTHING) {
+        $answers[$key] = "\n";
+      }
+    }
+
+    putenv('CUSTOMIZER_ANSWERS=' . json_encode($answers));
+  }
+
+  protected function assertSuccessOutput(string|array $strings): void {
+    $strings = is_array($strings) ? $strings : [$strings];
+
+    $this->assertSame(0, $this->tester->getStatusCode());
+
+    $output = $this->tester->getDisplay(TRUE);
+    foreach ($strings as $string) {
+      $this->assertStringContainsString($string, $output);
+    }
   }
 
 }

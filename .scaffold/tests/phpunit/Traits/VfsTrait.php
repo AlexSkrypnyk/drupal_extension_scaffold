@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\drupal_extension_scaffold\Tests\Traits;
+namespace Scaffold\Tests\Traits;
 
 use org\bovigo\vfs\vfsStream;
 

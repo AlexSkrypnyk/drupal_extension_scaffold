@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Drupal\drupal_extension_scaffold\Tests;
+namespace Scaffold\Tests;
 
-use Drupal\drupal_extension_scaffold\Tests\Traits\FileTrait;
+use Scaffold\Tests\Traits\FileTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**

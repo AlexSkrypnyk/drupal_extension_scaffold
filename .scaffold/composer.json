@@ -20,9 +20,14 @@
         "symfony/finder": "^6.0",
         "symfony/process": "^6.4"
     },
+    "autoload": {
+        "psr-4": {
+            "Scaffold\\": "src"
+        }
+    },
     "autoload-dev": {
         "psr-4": {
-            "Drupal\\drupal_extension_scaffold\\Tests\\": "tests/phpunit"
+            "Scaffold\\Tests\\": "tests/phpunit"
         }
     },
     "config": {
