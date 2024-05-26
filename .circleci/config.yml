@@ -31,6 +31,13 @@ job-test: &job-test
           echo "export LD_LIBRARY_PATH=/usr/local/lib" >> $BASH_ENV
 
     - run:
+        name: Install PCOV
+        command: |
+          sudo pecl install pcov
+          echo "extension=pcov.so" | sudo tee -a /usr/local/etc/php/conf.d/pcov.ini
+          echo "pcov.enabled=1" | sudo tee -a /usr/local/etc/php/conf.d/pcov.ini
+
+    - run:
         name: Assemble the codebase
         command: .devtools/assemble.sh
 
@@ -72,20 +79,22 @@ job-test: &job-test
         command: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build
 
-    - run:
-        name: Process artifacts
-        command: |
-          if [ -d "build/web/sites/simpletest/browser_output" ]; then
-            mkdir -p /tmp/artifacts/simpletest
-            cp -Rf "build/web/sites/simpletest/browser_output/." /tmp/artifacts/simpletest
-          fi
-        when: always
-
     - store_test_results:
-        path: /tmp/test_results
+        path: .logs/test_results
 
     - store_artifacts:
-        path: /tmp/artifacts
+        path: build/web/sites/simpletest/browser_output
+
+    - store_artifacts:
+        path: .logs/coverage
+
+    - run:
+        name: Upload code coverage reports to Codecov
+        command: |
+          if [ -n "${CODECOV_TOKEN}" ] && [ -d .logs/coverage/phpunit ]; then
+            curl -Os https://cli.codecov.io/latest/linux/codecov && sudo chmod +x codecov
+            ./codecov --verbose upload-process --fail-on-error -n "circleci-$CIRCLE_JOB" -s .logs/coverage
+          fi
 
 jobs:
   test-php-8.2:
