@@ -27,7 +27,7 @@ class YourExtensionServiceUnitTest extends UnitTestCase {
   /**
    * Provides data for testing the sanitize method.
    */
-  public function dataProviderSanitize(): array {
+  public static function dataProviderSanitize(): array {
     return [
       ['', ''],
       ['<p>This is <strong>bold</strong> text.</p>', 'This is bold text.'],
