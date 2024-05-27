@@ -1,0 +1,28 @@
+{
+    "name": "drupal/your_extension",
+    "description": "Provides your_extension functionality.",
+    "license": "GPL-2.0-or-later",
+    "type": "drupal-module",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "yourproject@yourusername.com",
+            "homepage": "https://www.drupal.org/u/yourusername",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://drupal.org/project/your_extension",
+    "support": {
+        "issues": "https://drupal.org/project/issues/your_extension",
+        "source": "https://git.drupalcode.org/project/your_extension"
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "drupal/role_delegation": "~1"
+    },
+    "suggest": {
+        "drupal/config_ignore": "Ignore certain configuration during import."
+    }
+}

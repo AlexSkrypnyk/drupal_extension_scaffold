@@ -1,0 +1,130 @@
+name: Test
+
+on:
+  push:
+    tags:
+      - '**'
+    branches:
+      - 1.x
+  pull_request:
+    branches:
+      - 1.x
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        include:
+          - name: test-php-8.2
+            php-version: 8.2
+            drupal-version: stable
+            drupal-project-sha: 10.x
+
+          - name: test-php-8.2-legacy
+            php-version: 8.2
+            drupal-version: 10.1
+            drupal-project-sha: 10.x
+
+          - name: test-php-8.2-next
+            php-version: 8.2
+            drupal-version: 10@beta
+            drupal-project-sha: 10.x
+
+          - name: test-php-8.3
+            php-version: 8.3
+            drupal-version: stable
+            drupal-project-sha: 10.x
+
+          - name: test-php-8.3-next
+            php-version: 8.3
+            drupal-version: 11@alpha
+            drupal-project-sha: 11.x
+
+    name: ${{ matrix.name }}
+
+    env:
+      DRUPAL_VERSION: ${{ matrix.drupal-version }}
+      DRUPAL_PROJECT_SHA: ${{ matrix.drupal-project-sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Upgrade sqlite3
+        run: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: gd, sqlite, pdo_sqlite
+
+      - name: Assemble the codebase
+        run: .devtools/assemble.sh
+
+      - name: Start built-in PHP server
+        run: .devtools/start.sh
+
+      - name: Provision site
+        run: .devtools/provision.sh
+
+      - name: Lint code with PHPCS
+        working-directory: build
+        run: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPStan
+        working-directory: build
+        run: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with Rector
+        working-directory: build
+        run: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPMD
+        working-directory: build
+        run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with Twig CS Fixer
+        working-directory: build
+        run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Run tests
+        working-directory: build
+        run: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Upload test results as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artifacts (${{ matrix.name }})
+          path: build/web/sites/simpletest/browser_output
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+          path: ./.logs/coverage/phpunit/.coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          files: ./.logs/coverage/phpunit/cobertura.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

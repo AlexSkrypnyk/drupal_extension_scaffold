@@ -13,8 +13,8 @@
     <arg value="p"/>
     <arg name="colors"/>
 
-    <file>src</file>
-    <file>tests/phpunit</file>
+    <file>customize.php</file>
+    <file>tests/phpunit/Functional</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">

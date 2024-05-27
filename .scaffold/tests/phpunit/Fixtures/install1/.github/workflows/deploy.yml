@@ -1,0 +1,41 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows:
+      - Test
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    env:
+      DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
+      DEPLOY_USER_EMAIL: ${{ secrets.DEPLOY_USER_NAME }}
+      DEPLOY_REMOTE: ${{ secrets.DEPLOY_REMOTE }}
+      DEPLOY_PROCEED: ${{ secrets.DEPLOY_PROCEED }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known_hosts: unnecessary
+          config: |
+            Host *
+              StrictHostKeyChecking no
+
+      - name: Deploy to Remote
+        env:
+          DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          REF=${{ github.event.pull_request && env.HEAD_REF || github.ref_name }}
+          DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh

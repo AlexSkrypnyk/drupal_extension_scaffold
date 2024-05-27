@@ -12,4 +12,7 @@
             <property name="ignore-global" value="true"/>
         </properties>
     </rule>
+
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
 </ruleset>

@@ -1,13 +1,13 @@
 {
     "name": "alexskrypnyk/drupal_extension_scaffold",
     "description": "Drupal extension scaffold.",
-    "type": "project",
     "license": "GPL-2.0-or-later",
+    "type": "project",
     "authors": [
         {
             "name": "Alex Skrypnyk",
             "email": "alex@drevops.com",
-            "homepage": "https://github.com/AlexSkrypnyk",
+            "homepage": "https://alexskrypnyk.com",
             "role": "Maintainer"
         }
     ],
@@ -20,22 +20,48 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "drupal/role_delegation": "~1"
+        "alexskrypnyk/customizer": "^0.3",
+        "alexskrypnyk/str2name": "^1.1",
+        "composer/composer": "^2.7",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "drupal/coder": "^8.3",
+        "ergebnis/composer-normalize": "^2.42",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpmd/phpmd": "^2.15",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^11.1",
+        "rector/rector": "^1.0",
+        "symfony/filesystem": "^6.0",
+        "symfony/finder": "^6.0",
+        "symfony/process": "^6.4"
     },
-    "suggest": {
-        "drupal/config_ignore": "Ignore certain configuration during import."
-    },
-    "autoload": {
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload-dev": {
         "psr-4": {
-            "Scaffold\\": ".scaffold/src"
+            "AlexSkrypnyk\\Customizer\\Tests\\": "vendor/alexskrypnyk/customizer/tests/phpunit",
+            "AlexSkrypnyk\\drupal_extension_scaffold\\Scaffold\\Tests\\": ".scaffold/tests/phpunit"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "alexskrypnyk/customizer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
         }
     },
     "scripts": {
-        "customize": [
-            "Scaffold\\CustomizeCommand"
+        "lint": [
+            "phpcs .scaffold/phpcs.xml",
+            "phpmd --exclude vendor customize.php text phpmd.xml",
+            "phpstan --configuration=.scaffold/phpstan.neon",
+            "rector process --clear-cache --dry-run -c .scaffold/rector.php"
         ],
-        "post-create-project-cmd": [
-            "@customize"
-        ]
+        "lint-fix": [
+            "rector process --clear-cache -c .scaffold/rector.php",
+            "phpcbf --standard=Drupal customize.php .scaffold/tests/phpunit/Functional"
+        ],
+        "test": "phpunit -c .scaffold/phpunit.xml --no-coverage",
+        "test-coverage": "phpunit -c .scaffold/phpunit.xml"
     }
 }

@@ -1,0 +1,37 @@
+##
+# Configuration file for PHPStan static code checking, see https://phpstan.org .
+#
+# Note that drupal-specific rules are automatically included by phpstan/extension-installer
+# from vendor/mglaman/phpstan-drupal/extension.neon and vendor/mglaman/phpstan-drupal/rules.neon
+# @see https://github.com/mglaman/phpstan-drupal
+#
+# Paths are passed as CLI arguments.
+
+parameters:
+
+  level: 7
+
+  paths:
+    - web/modules/custom
+    - web/themes/custom
+
+  excludePaths:
+    - vendor/*
+    - node_modules/*
+
+  drupal:
+    drupal_root: web
+
+  ignoreErrors:
+    -
+      # Hook implementations do not provide docblocks for parameters, so there
+      # is no way to provide this information.
+      messages:
+        - '#.* no value type specified in iterable type array#'
+        - '#.* has no return type specified#'
+      paths:
+        - web/modules/custom/*
+        - web/themes/custom/*
+      reportUnmatched: false
+
+  reportUnmatchedIgnoredErrors: false

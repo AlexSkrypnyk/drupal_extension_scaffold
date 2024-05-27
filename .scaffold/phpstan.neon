@@ -7,14 +7,20 @@ parameters:
   level: 9
 
   paths:
-    - src
-    - tests/phpunit
+    - ../customize.php
+    - tests/phpunit/Functional
 
   excludePaths:
     - vendor/*
     - node_modules/*
 
   ignoreErrors:
+    -
+      messages:
+        - '#.*return type has no value type specified in iterable type array.#'
+        - '#.*has parameter \$composerjson with no value type specified in iterable.#'
+      path: ../customize.php
+      reportUnmatched: false
     -
       # Since tests and data providers do not have to have parameter docblocks,
       # it is not possible to specify the type of the parameter, so we ignore
