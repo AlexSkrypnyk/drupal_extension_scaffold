@@ -107,15 +107,6 @@ php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('
 info "Merging configuration from extension's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
-info "Removing Customizer autoload classmap from composer.json."
-php -r "
-\$composer = json_decode(file_get_contents('build/composer.json'), true);
-array_splice(\$composer['autoload']['classmap'], 1);
-echo json_encode(\$composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-" >build/composer.json.tmp && mv build/composer.json.tmp build/composer.json
-composer --working-dir="build" config --unset scripts.customize
-composer --working-dir="build" config --unset scripts.post-create-project-cmd
-
 if [ -n "${GITHUB_TOKEN:-}" ]; then
   info "Adding GitHub authentication token if provided."
   composer config --global github-oauth.github.com "${GITHUB_TOKEN}"
