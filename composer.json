@@ -20,7 +20,7 @@
         "php": ">=8.2"
     },
     "require-dev": {
-        "drupal/role_delegation": "~1"
+        "drupal/autologout": "^2"
     },
     "suggest": {
         "drupal/config_ignore": "Ignore certain configuration during import."
