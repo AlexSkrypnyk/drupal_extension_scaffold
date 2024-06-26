@@ -1,0 +1,9 @@
+your_extension.settings_form:
+  path: '/admin/config/development/your-extension'
+  defaults:
+    _form: '\Drupal\your_extension\Form\YourExtensionForm'
+    _title: 'Your Extension Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

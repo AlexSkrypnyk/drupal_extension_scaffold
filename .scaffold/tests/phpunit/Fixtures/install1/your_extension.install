@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall functions for your_extension module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_install().
+ */
+function your_extension_install() {
+  // Set default configuration values.
+  $config = \Drupal::service('config.factory')->getEditable('your_extension.settings');
+  $config->set('text', 'Default content to be displayed if JS is disabled.')->save();
+
+  \Drupal::service('router.builder')->rebuild();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function your_extension_uninstall() {
+  \Drupal::configFactory()->getEditable('your_extension.settings')->delete();
+}

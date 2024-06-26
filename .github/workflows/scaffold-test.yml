@@ -13,8 +13,84 @@ on:
       - 'feature/**'
 
 jobs:
+
+  scaffold-test-actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check coding standards with yamllint
+        run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
+        continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
+
+      - name: Check coding standards with actionlint
+        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:'
+        continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
+
+  scaffold-test-customizer:
+    runs-on: ubuntu-latest
+
+    needs:
+      - scaffold-test-actions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upgrade sqlite3
+        run: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: gd, sqlite, pdo_sqlite
+          coverage: pcov
+          ini-values: pcov.directory=.
+
+      - name: Install dependencies
+        run: composer install
+        working-directory: .scaffold
+
+      - name: Check coding standards
+        run: composer lint
+        working-directory: .scaffold
+
+      - name: Run tests
+        run: composer test-coverage
+        working-directory: .scaffold
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{github.job}}-code-coverage-report
+          path: .scaffold/.scaffold-coverage-html
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v4
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          directory: .scaffold/.scaffold-coverage-html
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   scaffold-test-devtools:
     runs-on: ubuntu-latest
+
+    needs:
+      - scaffold-test-actions
+      - scaffold-test-customizer # @todo: Remove this line once the customizer is ready.
 
     steps:
       - name: Checkout code
@@ -54,45 +130,33 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: .scaffold/tests
+        working-directory: .scaffold
 
       - name: Run tests
-        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold "$(pwd)"/.scaffold-coverage-html .scaffold/tests/node_modules/.bin/bats .scaffold/tests/bats
+        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold "$(pwd)"/.scaffold/.scaffold-coverage-html .scaffold/node_modules/.bin/bats .scaffold/tests/bats
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{github.job}}-code-coverage-report
-          path: ./.scaffold-coverage-html
+          path: .scaffold/.scaffold-coverage-html
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v4
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          directory: ./.scaffold-coverage-html
+          directory: .scaffold/.scaffold-coverage-html
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  scaffold-test-actions:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check coding standards with yamllint
-        run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
-        continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
-
-      - name: Check coding standards with actionlint
-        run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.6.27 -ignore 'SC2002:' -ignore 'SC2155:'
-        continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
-
   scaffold-test-docs:
     runs-on: ubuntu-latest
+    needs:
+      - scaffold-test-devtools
+      - scaffold-test-customizer
 
     steps:
       - name: Checkout code
@@ -119,7 +183,7 @@ jobs:
         uses: nwtgck/actions-netlify@v3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          publish-dir: '.scaffold/docs/build'
+          publish-dir: .scaffold/docs/build
           production-branch: 1.x
           deploy-message: "Deploy from GitHub Actions"
           enable-pull-request-comment: true
