@@ -63,6 +63,7 @@ lint-fix:
 	pushd "build" >/dev/null || exit 1 && \
 	vendor/bin/rector --clear-cache && \
 	vendor/bin/phpcbf && \
+	vendor/bin/twig-cs-fixer --no-cache --fix && \
 	popd >/dev/null || exit 1
 
 test:
