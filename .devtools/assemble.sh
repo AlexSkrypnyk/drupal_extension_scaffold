@@ -130,7 +130,21 @@ for composer_suggest in $composer_suggests; do
 done
 pass "Suggested dependencies installed."
 
+# If front-end dependencies are used in the project, package-lock.json is
+# expected to be committed to the repository.
+if [ -f "package-lock.json" ]; then
+  info "Installing front-end dependencies."
+  if [ -f ".nvmrc" ]; then nvm use; fi
+  if [ ! -d "node_modules" ]; then npm ci; fi
+
+  echo "> Building front-end dependencies."
+  if [ ! -f ".skip_npm_build" ]; then npm run build; fi
+  pass "Front-end dependencies installed."
+fi
+
 info "Copying tools configuration files."
+# Not every tool correctly resolves the path to the configuration file if it is
+# symlinked, so we copy them instead.
 cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig-cs-fixer.php phpunit.xml "build/"
 pass "Tools configuration files copied."
 
@@ -138,21 +152,6 @@ info "Symlinking extension's code."
 rm -rf "build/web/${type}/custom" >/dev/null && mkdir -p "build/web/${type}/custom/${extension}"
 ln -s "$(pwd)"/* "build/web/${type}/custom/${extension}" && rm "build/web/${type}/custom/${extension}/build"
 pass "Extension's code symlinked."
-
-# If front-end dependencies are used in the project, package-lock.json is
-# expected to be committed to the repository.
-if [ -f "build/web/${type}/custom/${extension}/package-lock.json" ]; then
-  pushd "build/web/${type}/custom/${extension}" >/dev/null || exit 1
-
-  info "Installing front-end dependencies."
-  if [ -f ".nvmrc" ]; then nvm use; fi
-  if [ ! -d "node_modules" ]; then npm ci; fi
-  echo "> Build front-end dependencies."
-  npm run build
-  pass "Front-end dependencies installed."
-
-  popd >/dev/null || exit 1
-fi
 
 echo
 echo "==============================="

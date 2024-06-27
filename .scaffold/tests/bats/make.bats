@@ -24,6 +24,22 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_dir_exists "${BUILD_DIR}/build/vendor"
   assert_file_exists "${BUILD_DIR}/build/composer.json"
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
+  assert_dir_exists "${BUILD_DIR}/node_modules"
+  assert_output_contains "Would run build"
+}
+
+@test "make assemble - skip NPM build" {
+  touch ".skip_npm_build"
+
+  run make assemble
+  assert_success
+
+  assert_output_contains "ASSEMBLE COMPLETE"
+  assert_dir_exists "${BUILD_DIR}/build/vendor"
+  assert_file_exists "${BUILD_DIR}/build/composer.json"
+  assert_file_exists "${BUILD_DIR}/build/composer.lock"
+  assert_dir_exists "${BUILD_DIR}/node_modules"
+  assert_output_not_contains "Would run build"
 }
 
 @test "make start" {
