@@ -145,7 +145,7 @@ pass "Suggested dependencies installed."
 # expected to be committed to the repository.
 if [ -f "package-lock.json" ]; then
   info "Installing front-end dependencies."
-  if [ -f ".nvmrc" ]; then nvm use; fi
+  if [ -f ".nvmrc" ]; then nvm use || true; fi
   if [ ! -d "node_modules" ]; then npm ci; fi
 
   echo "> Building front-end dependencies."
