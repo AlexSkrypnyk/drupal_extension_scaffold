@@ -16,6 +16,10 @@ jobs:
   scaffold-test-devtools:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        bats-tags: ['p0', 'p1', 'p2']
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,12 +61,19 @@ jobs:
         working-directory: .scaffold/tests
 
       - name: Run tests
-        run: kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir=. --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold "$(pwd)"/.scaffold-coverage-html .scaffold/tests/node_modules/.bin/bats .scaffold/tests/bats
+        run: |
+          kcov \
+            --include-pattern=.sh,.bash \
+            --bash-parse-files-in-dir=. \
+            --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold \
+            "$(pwd)"/.scaffold-coverage-html \
+            .scaffold/tests/node_modules/.bin/bats \
+            .scaffold/tests/bats --filter-tags "${{ matrix.bats-tags }}"
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{github.job}}-code-coverage-report
+          name: ${{github.job}}-code-coverage-report-${{ matrix.bats-tags }}
           path: ./.scaffold-coverage-html
           if-no-files-found: error
 
