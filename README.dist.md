@@ -69,7 +69,7 @@ vendor/bin/twig-cs-fixer
 
 ### Tests
 
-Run `.devtools/test.sh` (or `ahoy test`
+Run tests individually with `cd build && ./vendor/bin/phpunit` (or `ahoy test`
 if [Ahoy](https://github.com/ahoy-cli/ahoy) is installed) to run all test for
 your extension.
 

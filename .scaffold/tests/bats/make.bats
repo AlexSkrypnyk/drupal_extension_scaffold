@@ -87,15 +87,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   make test
   assert_success
-
-  make test-unit
-  assert_success
-
-  make test-kernel
-  assert_success
-
-  make test-functional
-  assert_success
+  assert_dir_exists "${BUILD_DIR}/build/web/sites/simpletest/browser_output"
 }
 
 @test "make lint, lint-fix" {
@@ -133,6 +125,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   run make test-functional
   assert_success
+  assert_dir_exists "${BUILD_DIR}/build/web/sites/simpletest/browser_output"
 
   sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionFunctionalTest.php"
   run make test-functional

@@ -78,6 +78,8 @@ job-test: &job-test
         name: Run tests
         command: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build
+        environment:
+          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
 
     - store_test_results:
         path: .logs/test_results
