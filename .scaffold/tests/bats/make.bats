@@ -4,6 +4,7 @@ load _helper
 
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
+# bats file_tags=p2
 @test "make default" {
   run make
   assert_success

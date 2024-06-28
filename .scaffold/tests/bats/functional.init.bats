@@ -13,6 +13,7 @@ load _assert_init
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 export SCRIPT_FILE="init.sh"
 
+# bats file_tags=p0
 # bats test_tags=smoke
 @test "Init, defaults - extension module, workflow" {
   answers=(

@@ -7,6 +7,7 @@
 load _helper
 load "../../../init.sh"
 
+# bats file_tags=p0
 @test "Test all conversions" {
   input="I am a_string-With spaces 13"
 
