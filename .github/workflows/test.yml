@@ -105,6 +105,8 @@ jobs:
       - name: Run tests
         working-directory: build
         run: vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        env:
+          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
 
       - name: Upload test results as an artifact
         uses: actions/upload-artifact@v4

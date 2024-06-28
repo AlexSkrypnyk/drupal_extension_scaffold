@@ -32,6 +32,9 @@ setup() {
   export ROOT_DIR="${CUR_DIR}"
 
   # Directory where the shell command script will be running in.
+  # Note that because BATS_TEST_TMPDIR is based on TMPDIR, in some OSes it
+  # may resolve to a long path that may not be supported by Drupal, so BATS
+  # tests would need to run with TMPDIR=.logs or similar.
   export BUILD_DIR="${BUILD_DIR:-"${BATS_TEST_TMPDIR//\/\//\/}/scaffold-$(date +%s)"}"
   fixture_prepare_dir "${BUILD_DIR}"
 

@@ -81,15 +81,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   ahoy test
   assert_success
-
-  ahoy test-unit
-  assert_success
-
-  ahoy test-kernel
-  assert_success
-
-  ahoy test-functional
-  assert_success
+  assert_dir_exists "${BUILD_DIR}/build/web/sites/simpletest/browser_output"
 }
 
 @test "ahoy lint, lint-fix" {
@@ -127,6 +119,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
   run ahoy test-functional
   assert_success
+  assert_dir_exists "${BUILD_DIR}/build/web/sites/simpletest/browser_output"
 
   sed -i -e "s/responseContains/responseNotContains/g" "${BUILD_DIR}/tests/src/Functional/YourExtensionFunctionalTest.php"
   run ahoy test-functional
