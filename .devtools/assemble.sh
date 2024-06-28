@@ -107,6 +107,12 @@ php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('
 info "Merging configuration from extension's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
+if [ -d "patches" ]; then
+  info "Copying patches."
+  mkdir -p "build/patches"
+  cp -r patches/* "build/patches/"
+fi
+
 if [ -n "${GITHUB_TOKEN:-}" ]; then
   info "Adding GitHub authentication token if provided."
   composer config --global github-oauth.github.com "${GITHUB_TOKEN}"

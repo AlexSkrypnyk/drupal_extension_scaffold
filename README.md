@@ -50,6 +50,9 @@ to [drupal.org](https://drupal.org).
     between extensions: add dependency into [`suggest`](composer.json#L25) section
     of `composer.json`.
     ![Build process](.scaffold/docs/static/img/build.gif)
+    - Patches can be applied to the dependencies: add a patch to the
+    `patches` section of `composer.json`. Local patches will be sourced from
+    the `patches` directory.
   - Codings standards checking:
     - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
     - PHP code static analysis
