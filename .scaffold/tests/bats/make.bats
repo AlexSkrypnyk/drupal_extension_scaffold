@@ -68,6 +68,19 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_output_contains "ENVIRONMENT STOPPED"
 }
 
+@test "make provision" {
+  run make assemble
+  run make start
+  run make provision
+  assert_success
+  assert_output_contains "PROVISION COMPLETE"
+  assert_output_not_contains "Do you really want to drop all tables in the database"
+  run make provision
+  assert_success
+  assert_output_contains "PROVISION COMPLETE"
+  assert_output_contains "Do you really want to drop all tables in the database"
+}
+
 @test "make build - basic workflow" {
   run make build
   assert_success
