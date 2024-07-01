@@ -62,6 +62,19 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_output_contains "ENVIRONMENT STOPPED"
 }
 
+@test "ahoy provision" {
+  run ahoy assemble
+  run ahoy start
+  run ahoy provision
+  assert_success
+  assert_output_contains "PROVISION COMPLETE"
+  assert_output_not_contains "Do you really want to drop all tables in the database"
+  run ahoy provision
+  assert_success
+  assert_output_contains "PROVISION COMPLETE"
+  assert_output_contains "Do you really want to drop all tables in the database"
+}
+
 @test "ahoy build - basic workflow" {
   run ahoy build
   assert_success
