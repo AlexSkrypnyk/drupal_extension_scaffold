@@ -119,6 +119,7 @@ jobs:
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
           path: ./.logs/coverage/phpunit/.coverage-html
+          include-hidden-files: true
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov

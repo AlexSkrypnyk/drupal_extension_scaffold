@@ -75,6 +75,7 @@ jobs:
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.bats-tags }}
           path: ./.scaffold-coverage-html
+          include-hidden-files: true
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
