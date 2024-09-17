@@ -40,7 +40,7 @@ jobs:
           extensions: gd, sqlite, pdo_sqlite
 
       - name: Check coding standards
-        uses: luizm/action-sh-checker@v0.8.0
+        uses: luizm/action-sh-checker@v0.9.0
         env:
           SHFMT_OPTS: -i 2 -ci -s -d
 
