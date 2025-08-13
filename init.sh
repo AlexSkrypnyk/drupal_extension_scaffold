@@ -165,6 +165,7 @@ process_internal() {
   replace_string_content "your extension" "${extension_name}"
   replace_string_content "Your+Extension" "${extension_machine_name}"
   replace_string_content "your_extension" "${extension_machine_name}"
+  replace_string_content "your-extension" "${extension_machine_name}"
   replace_string_content "YourExtension" "${extension_machine_name_class}"
   replace_string_content "Provides your_extension functionality." "Provides ${extension_machine_name} functionality."
   replace_string_content "drupal-module" "drupal-${extension_type}"
