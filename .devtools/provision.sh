@@ -28,7 +28,7 @@ DRUPAL_PROFILE="${DRUPAL_PROFILE:-standard}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -42,7 +42,7 @@ echo "         🚀 PROVISION          "
 echo "==============================="
 echo
 
-# Extension name, taken from .info file.
+# Extension name, taken from .task file.
 extension="$(basename -s .info.yml -- ./*.info.yml)"
 [ "${extension}" == "*" ] && fail "ERROR: No .info.yml file found." && exit 1
 extension_type="module"
@@ -53,7 +53,7 @@ fi
 # Database file path.
 db_file="/tmp/site_${extension}.sqlite"
 
-info "Installing Drupal into SQLite database ${db_file}."
+task "Installing Drupal into SQLite database ${db_file}."
 db_status=$(drush status --field=db-status)
 if [ "${db_status}" = "Connected" ]; then
   drush sql:drop -y || true >/dev/null
@@ -64,24 +64,24 @@ pass "Drupal installed."
 
 drush status
 
-info "Enabling extension ${extension}."
+task "Enabling extension ${extension}."
 if [ "${extension_type}" = "theme" ]; then
   drush theme:enable "${extension}" -y
 else
   drush pm:enable "${extension}" -y
 fi
 
-info "Clearing caches."
+task "Clearing caches."
 drush cr
 
-info "Enabling suggested modules, if any."
+task "Enabling suggested modules, if any."
 drupal_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .suggest | keys[]' | sed "s/drupal\///" | cut -f1 -d":")
 for drupal_suggest in $drupal_suggests; do
   drush pm:enable "${drupal_suggest}" -y
 done
 pass "Suggested modules enabled."
 
-info "Pre-warming caches."
+task "Pre-warming caches."
 curl -s "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" >/dev/null
 
 echo
