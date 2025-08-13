@@ -24,7 +24,7 @@ WEBSERVER_WAIT_TIMEOUT="${WEBSERVER_WAIT_TIMEOUT:-5}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -36,10 +36,10 @@ echo "      💻 START ENVIRONMENT     "
 echo "==============================="
 echo
 
-info "Stopping previously started services, if any."
+task "Stopping previously started services, if any."
 killall -9 php >/dev/null 2>&1 || true
 
-info "Starting the PHP webserver."
+task "Starting the PHP webserver."
 nohup php -S "${WEBSERVER_HOST}:${WEBSERVER_PORT}" -t "$(pwd)/build/web" "$(pwd)/build/web/.ht.router.php" >/tmp/php.log 2>&1 &
 
 note "Waiting ${WEBSERVER_WAIT_TIMEOUT} seconds for the server to be ready."
@@ -52,7 +52,7 @@ netstat "${netstat_opts[@]}" | grep -q "${WEBSERVER_PORT}" || (echo "ERROR: Unab
 
 pass "Server started successfully."
 
-info "Checking that the server can serve content."
+task "Checking that the server can serve content."
 curl -s -o /dev/null -w "%{http_code}" -L -I "http://${WEBSERVER_HOST}:${WEBSERVER_PORT}" | grep -q 200 || (echo "ERROR: Server is started, but site cannot be served" && exit 1)
 pass "Server can serve content."
 

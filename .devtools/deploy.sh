@@ -41,7 +41,7 @@ DEPLOY_SSH_KEY_FINGERPRINT="${DEPLOY_SSH_KEY_FINGERPRINT:-}"
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -102,18 +102,18 @@ echo
 note "Setting git to push to a matching remote branch."
 git config --global push.default matching
 
-note "> Adding remote ${DEPLOY_REMOTE}."
+note "Adding remote ${DEPLOY_REMOTE}."
 git remote add deployremote "${DEPLOY_REMOTE}"
 
 if [ -z "${DEPLOY_BRANCH}" ]; then
   DEPLOY_BRANCH="$(git symbolic-ref --short HEAD)"
 fi
 
-info "Pushing code to branch ${DEPLOY_BRANCH}."
+task "Pushing code to branch ${DEPLOY_BRANCH}."
 git push --force deployremote HEAD:"${DEPLOY_BRANCH}"
 pass "Code pushed to ${DEPLOY_REMOTE}:${DEPLOY_BRANCH}."
 
-info "Pushing tags."
+task "Pushing tags."
 git push --force --tags deployremote || true
 pass "Tags pushed to ${DEPLOY_REMOTE}."
 

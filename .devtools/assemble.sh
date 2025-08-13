@@ -37,7 +37,7 @@ DRUPAL_PROJECT_REPO="${DRUPAL_PROJECT_REPO:-https://github.com/drupal-composer/d
 
 # @formatter:off
 note() { printf "       %s\n" "${1}"; }
-info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
@@ -63,7 +63,7 @@ fi
 # Make sure Composer doesn't run out of memory.
 export COMPOSER_MEMORY_LIMIT=-1
 
-info "Validate tools."
+task "Validating tools."
 ! command -v git >/dev/null && fail "ERROR: Git is required for this script to run." && exit 1
 ! command -v php >/dev/null && fail "ERROR: PHP is required for this script to run." && exit 1
 ! command -v composer >/dev/null && fail "ERROR: Composer (https://getcomposer.org/) is required for this script to run." && exit 1
@@ -80,18 +80,18 @@ extension="$(basename -s .info.yml -- ./*.info.yml)"
 # Extension type.
 type=$(grep -q "type: theme" "${extension}.info.yml" && echo "themes" || echo "modules")
 
-info "Validate Composer configuration."
+task "Validating Composer configuration."
 composer validate --ansi --strict
 
 # Reset the environment.
 if [ -d "build" ]; then
-  info "Removing existing build directory."
+  task "Removing existing build directory."
   chmod -Rf 777 "build" >/dev/null || true
   rm -rf "build" >/dev/null || true
   pass "Existing build directory removed."
 fi
 
-info "Creating Drupal codebase."
+task "Creating Drupal codebase."
 
 drupal_version_major="$(echo "${DRUPAL_VERSION}" | cut -d '.' -f 1 | cut -d '@' -f 1)"
 drupal_version_stability="$(echo "${DRUPAL_VERSION}" | sed -n 's/.*@\(.*\)/\1/p')"
@@ -122,40 +122,40 @@ fi
 sed "${sed_opts[@]}" 's|\(.*"prefer-stable"\): \(.*\),.*|\1: '${drupal_version_prefer_stable}',|' "build/composer.json"
 grep 'prefer-stable' "build/composer.json"
 
-info "Merging configuration from composer.dev.json."
+task "Merging configuration from composer.dev.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.dev.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
-info "Merging configuration from extension's composer.json."
+task "Merging configuration from extension's composer.json."
 php -r "echo json_encode(array_replace_recursive(json_decode(file_get_contents('composer.json'), true),json_decode(file_get_contents('build/composer.json'), true)),JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);" >"build/composer2.json" && mv -f "build/composer2.json" "build/composer.json"
 
 # Asset Packagist sometimes fails, so we remove it by default. If it's needed,
 # the lines below can be commented out.
-info "Remove asset-packagist"
+task "Removing asset-packagist"
 composer --working-dir="build" config --unset repositories.1 || true
 
 if [ -d "patches" ]; then
-  info "Copying patches."
+  task "Copying patches."
   mkdir -p "build/patches"
   cp -r patches/* "build/patches/"
 fi
 
 if [ -n "${GITHUB_TOKEN:-}" ]; then
-  info "Adding GitHub authentication token if provided."
+  task "Adding GitHub authentication token if provided."
   composer config --global github-oauth.github.com "${GITHUB_TOKEN}"
   composer config --global github-oauth.github.com | grep -q "gh" || fail "GitHub token not added."
   pass "GitHub token added."
 fi
 
-info "Creating custom directories."
+task "Creating custom directories."
 mkdir -p build/web/modules/custom build/web/themes/custom
 
-info "Installing dependencies."
+task "Installing dependencies."
 composer --working-dir="build" install
 pass "Dependencies installed."
 
 # Suggested dependencies allow to install them for testing without requiring
 # them in extension's composer.json.
-info "Installing suggested dependencies from extension's composer.json."
+task "Installing suggested dependencies from extension's composer.json."
 composer_suggests=$(cat composer.json | jq -r 'select(.suggest != null) | .suggest | keys[]')
 for composer_suggest in $composer_suggests; do
   composer --working-dir="build" require "${composer_suggest}"
@@ -171,7 +171,7 @@ pass "Suggested dependencies installed."
 # to ignore deprecation notices.
 # @see https://www.drupal.org/project/drupal/issues/1267246
 if [ "${SYMFONY_DEPRECATIONS_HELPER-}" == "disabled" ]; then
-  info "Disabling deprecation notices in functional tests."
+  task "Disabling deprecation notices in functional tests."
   echo "error_reporting(E_ALL & ~E_DEPRECATED);" >>build/web/sites/default/default.settings.php
   sed "${sed_opts[@]}" 's/^<?php/<?php error_reporting(E_ALL \& ~E_DEPRECATED);/' build/web/index.php
   # shellcheck disable=SC2016
@@ -182,23 +182,23 @@ fi
 # If front-end dependencies are used in the project, package-lock.json is
 # expected to be committed to the repository.
 if [ -f "package-lock.json" ]; then
-  info "Installing front-end dependencies."
+  task "Installing front-end dependencies."
   if [ -f ".nvmrc" ]; then nvm use || true; fi
   if [ ! -d "node_modules" ]; then npm ci; fi
 
-  note "Building front-end dependencies."
+  task "Building front-end dependencies."
   if [ ! -f ".skip_npm_build" ]; then npm run build; fi
   pass "Front-end dependencies installed."
 fi
 
-info "Copying tools configuration files."
+task "Copying tools configuration files."
 # Not every tool correctly resolves the path to the configuration file if it is
 # symlinked, so we copy them instead.
 cp phpcs.xml phpstan.neon phpmd.xml rector.php .twig-cs-fixer.php phpunit.xml "build/"
 [ -f "phpunit.d${drupal_version_major}.xml" ] && cp "phpunit.d${drupal_version_major}.xml" "build/phpunit.xml"
 pass "Tools configuration files copied."
 
-info "Symlinking extension's code."
+task "Symlinking extension's code."
 rm -rf "build/web/${type}/custom" >/dev/null && mkdir -p "build/web/${type}/custom/${extension}"
 ln -s "$(pwd)"/* "build/web/${type}/custom/${extension}" && rm "build/web/${type}/custom/${extension}/build"
 pass "Extension's code symlinked."
