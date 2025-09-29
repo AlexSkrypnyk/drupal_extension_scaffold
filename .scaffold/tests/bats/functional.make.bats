@@ -70,6 +70,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 }
 
 @test "make provision" {
+  run make stop
   run make assemble
   run make start
   run make provision
