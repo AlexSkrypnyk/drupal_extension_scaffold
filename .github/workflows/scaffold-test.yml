@@ -47,7 +47,7 @@ jobs:
           SHFMT_OPTS: -i 2 -ci -s -d
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
 
       - name: Install Kcov
         run: |
