@@ -93,7 +93,7 @@ and push the code to [Drupal.org](https://drupal.org).
 1. Download this extension's code by pressing 'Clone or download' button in
    GitHub UI.
 2. Expand into a new directory.
-3. Run the initial [codebase setup](#codebase-setup) script: `./init.sh`.
+3. Run the initial [codebase setup](#codebase-setup) script: `php init.php`.
 4. If you already have an existing extension code, copy it into the directory
    created in step 2.
 5. [Build website](#building-website) with `make build` or `ahoy build`
@@ -111,11 +111,11 @@ See the sections below for more details.
 
 ## Codebase setup
 
-The initial codebase setup script `./init.sh` will ask you for some information
+The initial codebase setup script `php init.php` will ask you for some information
 and update the codebase to reflect your extension's name and other details.
 
 <details>
-<summary>Click to see <code>./init.sh</code> in action </summary>
+<summary>Click to see <code>php init.php</code> in action </summary>
 
 ![Init process](.scaffold/assets/init.gif)
 </details>
@@ -389,7 +389,7 @@ following steps to update your extension:
 1. Download the latest version of this codebase by pressing 'Clone or download'
    button in GitHub UI.
 2. Expand into a new directory.
-3. Run the initial [codebase setup](#codebase-setup) script: `./init.sh` and
+3. Run the initial [codebase setup](#codebase-setup) script: `php init.php` and
    repeat the answers you provided during the initial setup.
 4. Create a new branch in your extension's repository.
 5. Copy all files into your extension's directory and override the existing files.

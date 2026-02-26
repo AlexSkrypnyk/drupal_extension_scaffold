@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Code for force_crystal module.
+ *
+ * This module adds a content, set in the configuration form, to the bottom of
+ * the page and shows it if JavaScript is disabled.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_page_bottom().
+ */
+function force_crystal_page_bottom(array &$page_bottom) {
+  /** @var \Drupal\force_crystal\ForceCrystalService $force_crystal_service */
+  $force_crystal_service = \Drupal::getContainer()->get('force_crystal.service');
+
+  $text = $force_crystal_service->getText();
+
+  if (!empty($text)) {
+    $page_bottom['force_crystal'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'noscript',
+      '#value' => $text,
+    ];
+  }
+}

@@ -1,0 +1,5 @@
+services:
+  force_crystal.service:
+    class: Drupal\force_crystal\ForceCrystalService
+    arguments:
+      - '@config.factory'

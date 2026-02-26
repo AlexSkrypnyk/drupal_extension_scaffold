@@ -1,0 +1,66 @@
+{
+    "name": "alexskrypnyk/drupal_extension_scaffold-tests",
+    "description": "Tests for Drupal Extension Scaffold project functionality.",
+    "license": "GPL-2.0-or-later",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/alexskrypnyk/drupal_extension_scaffold",
+    "support": {
+        "issues": "https://github.com/alexskrypnyk/drupal_extension_scaffold/issues",
+        "source": "https://github.com/alexskrypnyk/drupal_extension_scaffold"
+    },
+    "require": {
+        "php": ">=8.2",
+        "alexskrypnyk/file": "^0.19",
+        "alexskrypnyk/phpunit-helpers": "^0.15",
+        "alexskrypnyk/snapshot": "dev-feature/diff7-support",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+        "drevops/phpcs-standard": "^0.6.2",
+        "drupal/coder": "^8.3.31",
+        "ergebnis/composer-normalize": "^2.48.2",
+        "laravel/serializable-closure": "^2.0.7",
+        "phpstan/phpstan": "^2.1.33",
+        "phpunit/phpunit": "^12",
+        "rector/rector": "^2.2.14",
+        "symfony/filesystem": "^7.4.0",
+        "symfony/finder": "^7.4.0",
+        "symfony/process": "^7.4.0"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "AlexSkrypnyk\\drupal_extension_scaffold\\Tests\\": "src"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "bump-after-update": true,
+        "discard-changes": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": [
+            "phpcs",
+            "phpstan",
+            "rector --clear-cache --dry-run"
+        ],
+        "lint-fix": [
+            "rector --clear-cache",
+            "phpcbf"
+        ],
+        "test": "phpunit --no-coverage",
+        "test-coverage": "php -d pcov.directory=../.. vendor/bin/phpunit",
+        "update-snapshots": "./vendor/bin/update-snapshots --test-dir=src testInit fixtures/init $@"
+    }
+}

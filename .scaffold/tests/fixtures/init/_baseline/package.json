@@ -1,0 +1,20 @@
+{
+  "name": "@drupal/force_crystal",
+  "version": "__VERSION__",
+  "description": "Provides force_crystal functionality..",
+  "license": "GPL-2.0-or-later",
+  "contributors": [],
+  "scripts": {
+    "lint": "echo Would run code lint",
+    "lint-fix": "echo Would run code lint fix",
+    "test": "echo Would run tests",
+    "build": "echo Would run build"
+  },
+  "engines": {
+    "npm": "__VERSION__",
+    "node": "__VERSION__"
+  },
+  "dependencies": {
+    "is-positive": "__VERSION__"
+  }
+}

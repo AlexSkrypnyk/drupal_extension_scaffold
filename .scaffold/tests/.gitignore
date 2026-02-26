@@ -1,2 +1,7 @@
-/coverage
-/node_modules
+# Composer dependencies
+/vendor/
+
+# PHPUnit artifacts
+/.phpunit.cache/
+/.phpunit.result.cache
+/.logs/

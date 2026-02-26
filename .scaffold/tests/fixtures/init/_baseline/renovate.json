@@ -1,0 +1,9 @@
+{
+    "extends": ["config:recommended"],
+    "automerge": true,
+    "dependencyDashboard": true,
+    "ignorePaths": [
+        ".circleci/config.yml",
+        ".github/workflows/test.yml"
+    ]
+}
