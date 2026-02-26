@@ -27,7 +27,7 @@
         "ergebnis/composer-normalize": "^2.48.2",
         "laravel/serializable-closure": "^2.0.7",
         "phpstan/phpstan": "^2.1.33",
-        "phpunit/phpunit": "^12",
+        "phpunit/phpunit": "^13",
         "rector/rector": "^2.2.14",
         "symfony/filesystem": "^7.4.0",
         "symfony/finder": "^7.4.0",
