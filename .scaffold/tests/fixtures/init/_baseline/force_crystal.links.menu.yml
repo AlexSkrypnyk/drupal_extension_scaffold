@@ -1,0 +1,5 @@
+force_crystal.settings_form:
+  title: 'Force Crystal'
+  description: 'Force Crystal settings'
+  route_name: force_crystal.settings_form
+  parent: system.admin_config_development

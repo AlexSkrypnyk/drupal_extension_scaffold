@@ -71,7 +71,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 ## Development Workflow
 
-1. Run `./init.sh` to customize template for your extension
+1. Run `php init.php` to customize template for your extension
 2. Build environment: `make build` or `ahoy build`
 3. Develop your extension code in `src/`
 4. Check standards: `make lint` or `ahoy lint`

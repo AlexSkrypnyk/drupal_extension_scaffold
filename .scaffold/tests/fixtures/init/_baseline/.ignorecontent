@@ -1,0 +1,5 @@
+# Ignore content of downloaded files.
+^logo.png
+# Skip macOS artifacts.
+.DS_Store
+init.php

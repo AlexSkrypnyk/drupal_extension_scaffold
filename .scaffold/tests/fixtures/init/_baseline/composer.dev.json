@@ -1,0 +1,24 @@
+{
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "__VERSION__",
+        "jangregor/phpstan-prophecy": "__VERSION__",
+        "mglaman/phpstan-drupal": "__VERSION__",
+        "palantirnet/drupal-rector": "__VERSION__",
+        "phpcompatibility/php-compatibility": "__VERSION__",
+        "phpmd/phpmd": "__VERSION__",
+        "phpstan/phpdoc-parser": "__VERSION__",
+        "phpspec/prophecy-phpunit": "__VERSION__",
+        "phpstan/extension-installer": "__VERSION__",
+        "vincentlanglet/twig-cs-fixer": "__VERSION__"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "phpcodesniffer-search-depth": 10,
+        "patches": {}
+    }
+}

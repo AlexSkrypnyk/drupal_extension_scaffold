@@ -15,6 +15,11 @@
     <exclude-pattern>*/web/sites/*</exclude-pattern>
     <exclude-pattern>*/scripts/*</exclude-pattern>
     <exclude-pattern>*/tests/*Test.php</exclude-pattern>
+    <!-- #;< META -->
+    <exclude-pattern>init.php</exclude-pattern>
+    <exclude-pattern>modules/custom/your_extension/init.php</exclude-pattern>
+    <exclude-pattern>web/modules/custom/your_extension/init.php</exclude-pattern>
+    <!-- #;> META -->
 
     <rule ref="rulesets/unusedcode.xml"/>
     <rule ref="rulesets/codesize.xml"/>

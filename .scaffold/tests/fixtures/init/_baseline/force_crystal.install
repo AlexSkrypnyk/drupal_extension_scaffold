@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall functions for force_crystal module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_install().
+ */
+function force_crystal_install() {
+  // Set default configuration values.
+  $config = \Drupal::service('config.factory')->getEditable('force_crystal.settings');
+  $config->set('text', 'Default content to be displayed if JS is disabled.')->save();
+
+  \Drupal::service('router.builder')->rebuild();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function force_crystal_uninstall() {
+  \Drupal::configFactory()->getEditable('force_crystal.settings')->delete();
+}

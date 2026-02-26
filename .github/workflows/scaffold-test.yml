@@ -64,27 +64,51 @@ jobs:
           sudo wget -q https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-"${os}-${architecture}" -O /usr/local/bin/ahoy
           sudo chown "$USER" /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
 
-      - name: Install dependencies
+      - name: Install NPM dependencies
         run: npm ci
         working-directory: .scaffold/tests
 
       - name: Run tests
         run: |
+          mkdir -p .scaffold/tests/.logs/coverage/bats
           kcov \
             --include-pattern=.sh,.bash \
             --bash-parse-files-in-dir=. \
             --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold \
-            "$(pwd)"/.scaffold-coverage-html \
+            "$(pwd)"/.scaffold/tests/.logs/coverage/bats \
             .scaffold/tests/node_modules/.bin/bats \
             .scaffold/tests/bats --filter-tags "${{ matrix.bats-tags }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Remove kcov
+        run: rm -Rf kcov
+
+      - name: Install PHP test dependencies
+        run: composer install --no-interaction
+        working-directory: .scaffold/tests
+
+      - name: Validate composer.json
+        run: composer validate --strict
+        working-directory: .scaffold/tests
+
+      - name: Check composer.json is normalized
+        run: composer normalize --dry-run
+        working-directory: .scaffold/tests
+
+      - name: Lint PHP tests
+        run: composer lint
+        working-directory: .scaffold/tests
+
+      - name: Run PHP tests with coverage
+        run: composer test-coverage
+        working-directory: .scaffold/tests
+
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v7
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.bats-tags }}
-          path: ./.scaffold-coverage-html
+          path: .scaffold/tests/.logs
           include-hidden-files: true
           if-no-files-found: error
 
@@ -92,7 +116,7 @@ jobs:
         uses: codecov/codecov-action@v5
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          directory: ./.scaffold-coverage-html
+          directory: .scaffold/tests/.logs
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:

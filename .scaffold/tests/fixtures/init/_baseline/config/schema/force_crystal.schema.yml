@@ -1,0 +1,7 @@
+force_crystal.settings:
+  type: config_object
+  label: 'Force Crystal settings'
+  mapping:
+    text:
+      type: string
+      label: 'Text for <noscript> Tag'

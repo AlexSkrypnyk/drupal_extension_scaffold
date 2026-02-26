@@ -1,0 +1,9 @@
+@@ -1,7 +1,7 @@
+ {
+     "name": "drupal/force_crystal",
+     "description": "Provides force_crystal functionality.",
+-    "type": "drupal-module",
++    "type": "drupal-theme",
+     "license": "GPL-2.0-or-later",
+     "authors": [
+         {
