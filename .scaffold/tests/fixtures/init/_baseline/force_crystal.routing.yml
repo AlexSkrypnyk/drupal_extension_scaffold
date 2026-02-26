@@ -1,0 +1,9 @@
+force_crystal.settings_form:
+  path: '/admin/config/development/force_crystal'
+  defaults:
+    _form: '\Drupal\force_crystal\Form\ForceCrystalForm'
+    _title: 'Force Crystal Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

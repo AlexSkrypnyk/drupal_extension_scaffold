@@ -1,0 +1,425 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+
+/**
+ * Class InitHelpersTest.
+ *
+ * Unit tests for helper functions in init.php.
+ */
+final class InitHelpersTest extends UnitTestCase {
+
+  protected string $originalCwd;
+
+  public static function setUpBeforeClass(): void {
+    putenv('SCRIPT_RUN_SKIP=1');
+    putenv('SCRIPT_QUIET=1');
+    require_once dirname(__DIR__, 4) . '/init.php';
+    parent::setUpBeforeClass();
+  }
+
+  protected function setUp(): void {
+    parent::setUp();
+    putenv('SCRIPT_QUIET=1');
+    $this->originalCwd = getcwd() ?: '/';
+  }
+
+  protected function tearDown(): void {
+    chdir($this->originalCwd);
+    parent::tearDown();
+  }
+
+  #[DataProvider('dataProviderConvertString')]
+  public function testConvertString(string $input, string $type, string $expected): void {
+    $this->assertSame($expected, convert_string($input, $type));
+  }
+
+  public static function dataProviderConvertString(): \Iterator {
+    $input = 'I am a_string-With spaces 13';
+
+    yield 'file_name' => [$input, 'file_name', 'i_am_a_string-with_spaces_13'];
+    yield 'route_path' => [$input, 'route_path', 'i_am_a_string-with_spaces_13'];
+    yield 'deployment_id' => [$input, 'deployment_id', 'i_am_a_string-with_spaces_13'];
+    yield 'function_name' => [$input, 'function_name', 'i_am_a_string-with_spaces_13'];
+    yield 'ui_id' => [$input, 'ui_id', 'i_am_a_string-with_spaces_13'];
+    yield 'cli_command' => [$input, 'cli_command', 'i_am_a_string-with_spaces_13'];
+    yield 'domain_name' => [$input, 'domain_name', 'i_am_a_stringwith_spaces_13'];
+    yield 'package_namespace' => [$input, 'package_namespace', 'i_am_a_stringwith_spaces_13'];
+    yield 'namespace' => [$input, 'namespace', 'IAmAStringWithSpaces13'];
+    yield 'class_name' => [$input, 'class_name', 'IAmAStringWithSpaces13'];
+    yield 'package_name' => [$input, 'package_name', 'i-am-a_string-with-spaces-13'];
+    yield 'log_entry' => [$input, 'log_entry', $input];
+    yield 'code_comment_title' => [$input, 'code_comment_title', $input];
+  }
+
+  public function testConvertStringInvalidType(): void {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Invalid conversion type: dummy_type');
+    convert_string('test', 'dummy_type');
+  }
+
+  #[DataProvider('dataProviderIsBinaryFile')]
+  public function testIsBinaryFile(string $content, bool $expected): void {
+    $file = self::$sut . '/test_file';
+    file_put_contents($file, $content);
+    $this->assertSame($expected, is_binary_file($file));
+  }
+
+  public static function dataProviderIsBinaryFile(): \Iterator {
+    yield 'text content' => ['Hello World', FALSE];
+    yield 'empty file' => ['', FALSE];
+    yield 'binary with null byte' => ["Hello\0World", TRUE];
+    yield 'only null bytes' => ["\0\0\0", TRUE];
+    yield 'multiline text' => ["line1\nline2\nline3", FALSE];
+    yield 'binary at start' => ["\0text after null", TRUE];
+    yield 'php content' => ['<?php echo "hello"; ?>', FALSE];
+  }
+
+  #[DataProvider('dataProviderRemoveDir')]
+  public function testRemoveDir(callable $setup, string $dir_name): void {
+    $dir = self::$sut . '/' . $dir_name;
+    $setup($dir);
+    $this->assertDirectoryExists($dir);
+    remove_dir($dir);
+    $this->assertDirectoryDoesNotExist($dir);
+  }
+
+  public static function dataProviderRemoveDir(): \Iterator {
+    yield 'empty directory' => [
+      function (string $dir): void {
+        mkdir($dir, 0755, TRUE);
+      },
+      'empty_dir',
+    ];
+
+    yield 'directory with files' => [
+      function (string $dir): void {
+        mkdir($dir, 0755, TRUE);
+        file_put_contents($dir . '/file1.txt', 'content1');
+        file_put_contents($dir . '/file2.txt', 'content2');
+      },
+      'dir_with_files',
+    ];
+
+    yield 'nested directories' => [
+      function (string $dir): void {
+        mkdir($dir . '/sub1/sub2', 0755, TRUE);
+        file_put_contents($dir . '/file.txt', 'content');
+        file_put_contents($dir . '/sub1/file.txt', 'content');
+        file_put_contents($dir . '/sub1/sub2/file.txt', 'content');
+      },
+      'nested_dir',
+    ];
+  }
+
+  public function testRemoveDirNonExistent(): void {
+    remove_dir(self::$sut . '/nonexistent');
+    $this->addToAssertionCount(1);
+  }
+
+  #[DataProvider('dataProviderGetFiles')]
+  public function testGetFiles(callable $setup, array $expected_filenames, array $not_expected_filenames = []): void {
+    chdir(self::$sut);
+    $setup(self::$sut);
+    $files = get_files();
+    $basenames = array_map(static fn(string $f): string => str_replace(self::$sut . '/', '', $f), $files);
+
+    foreach ($expected_filenames as $expected_filename) {
+      $this->assertContains($expected_filename, $basenames, 'Expected file not found: ' . $expected_filename);
+    }
+    foreach ($not_expected_filenames as $not_expected_filename) {
+      $this->assertNotContains($not_expected_filename, $basenames, 'Unexpected file found: ' . $not_expected_filename);
+    }
+  }
+
+  public static function dataProviderGetFiles(): \Iterator {
+    yield 'text files included' => [
+      function (string $dir): void {
+        file_put_contents($dir . '/file1.txt', 'hello');
+        file_put_contents($dir . '/file2.php', '<?php echo 1;');
+      },
+      ['file1.txt', 'file2.php'],
+    ];
+
+    yield 'binary files excluded' => [
+      function (string $dir): void {
+        file_put_contents($dir . '/text.txt', 'hello');
+        file_put_contents($dir . '/binary.bin', "hello\0world");
+      },
+      ['text.txt'],
+      ['binary.bin'],
+    ];
+
+    yield 'excluded directories' => [
+      function (string $dir): void {
+        file_put_contents($dir . '/root.txt', 'root');
+        mkdir($dir . '/.git', 0755, TRUE);
+        file_put_contents($dir . '/.git/config', 'git config');
+        mkdir($dir . '/vendor', 0755, TRUE);
+        file_put_contents($dir . '/vendor/autoload.php', 'vendor');
+        mkdir($dir . '/node_modules', 0755, TRUE);
+        file_put_contents($dir . '/node_modules/pkg.js', 'pkg');
+        mkdir($dir . '/.idea', 0755, TRUE);
+        file_put_contents($dir . '/.idea/workspace.xml', 'idea');
+      },
+      ['root.txt'],
+      ['.git/config', 'vendor/autoload.php', 'node_modules/pkg.js', '.idea/workspace.xml'],
+    ];
+
+    yield 'nested text files included' => [
+      function (string $dir): void {
+        mkdir($dir . '/src/Sub', 0755, TRUE);
+        file_put_contents($dir . '/src/file.php', 'php');
+        file_put_contents($dir . '/src/Sub/deep.php', 'deep');
+      },
+      ['src/file.php', 'src/Sub/deep.php'],
+    ];
+  }
+
+  #[DataProvider('dataProviderReplaceStringContent')]
+  public function testReplaceStringContent(array $files, string $needle, string $replacement, array $expected_contents): void {
+    chdir(self::$sut);
+    foreach ($files as $name => $content) {
+      $path = self::$sut . '/' . $name;
+      $dir = dirname($path);
+      if (!is_dir($dir)) {
+        mkdir($dir, 0755, TRUE);
+      }
+      file_put_contents($path, $content);
+    }
+
+    replace_string_content($needle, $replacement);
+
+    foreach ($expected_contents as $name => $expected) {
+      $this->assertSame($expected, file_get_contents(self::$sut . '/' . $name));
+    }
+  }
+
+  public static function dataProviderReplaceStringContent(): \Iterator {
+    yield 'simple replacement' => [
+      ['file.txt' => 'Hello your_extension world'],
+      'your_extension',
+      'my_module',
+      ['file.txt' => 'Hello my_module world'],
+    ];
+
+    yield 'multiple occurrences in file' => [
+      ['file.txt' => "your_extension line1\nyour_extension line2"],
+      'your_extension',
+      'my_module',
+      ['file.txt' => "my_module line1\nmy_module line2"],
+    ];
+
+    yield 'multiple files' => [
+      ['a.txt' => 'has your_extension here', 'b.txt' => 'also your_extension here'],
+      'your_extension',
+      'my_module',
+      ['a.txt' => 'has my_module here', 'b.txt' => 'also my_module here'],
+    ];
+
+    yield 'no match leaves file unchanged' => [
+      ['file.txt' => 'no match here'],
+      'your_extension',
+      'my_module',
+      ['file.txt' => 'no match here'],
+    ];
+  }
+
+  #[DataProvider('dataProviderRemoveStringContent')]
+  public function testRemoveStringContent(string $content, string $token, string $expected): void {
+    chdir(self::$sut);
+    file_put_contents(self::$sut . '/file.txt', $content);
+
+    remove_string_content($token);
+
+    $this->assertSame($expected, file_get_contents(self::$sut . '/file.txt'));
+  }
+
+  public static function dataProviderRemoveStringContent(): \Iterator {
+    yield 'remove line starting with token' => [
+      "keep this\n# Remove me\nkeep this too",
+      '# Remove me',
+      "keep this\nkeep this too",
+    ];
+
+    yield 'remove multiple matching lines' => [
+      "# Remove\nkeep\n# Remove again",
+      '# Remove',
+      "keep",
+    ];
+
+    yield 'no match leaves content unchanged' => [
+      "line1\nline2\nline3",
+      'no_match',
+      "line1\nline2\nline3",
+    ];
+
+    yield 'remove comment instruction line' => [
+      "# Uncomment the lines below in your project.\n.ahoy.yml export-ignore\n.circleci export-ignore",
+      '# Uncomment the lines below in your project.',
+      ".ahoy.yml export-ignore\n.circleci export-ignore",
+    ];
+  }
+
+  #[DataProvider('dataProviderRemoveTokensWithContent')]
+  public function testRemoveTokensWithContent(string $content, string $token, string $expected): void {
+    chdir(self::$sut);
+    file_put_contents(self::$sut . '/file.txt', $content);
+
+    remove_tokens_with_content($token);
+
+    $this->assertSame($expected, file_get_contents(self::$sut . '/file.txt'));
+  }
+
+  public static function dataProviderRemoveTokensWithContent(): \Iterator {
+    yield 'remove single block' => [
+      "before\n#;< META\nremove this\n#;> META\nafter",
+      'META',
+      "before\nafter",
+    ];
+
+    yield 'remove multiple blocks' => [
+      "before\n#;< META\nblock1\n#;> META\nmiddle\n#;< META\nblock2\n#;> META\nafter",
+      'META',
+      "before\nmiddle\nafter",
+    ];
+
+    yield 'no markers leaves content unchanged' => [
+      "line1\nline2\nline3",
+      'META',
+      "line1\nline2\nline3",
+    ];
+
+    yield 'nested content removed' => [
+      "keep\n#;< TOKEN\nline1\nline2\nline3\n#;> TOKEN\nkeep",
+      'TOKEN',
+      "keep\nkeep",
+    ];
+
+    yield 'block at start of file' => [
+      "#;< META\nremoved\n#;> META\nkept",
+      'META',
+      "kept",
+    ];
+
+    yield 'block at end of file' => [
+      "kept\n#;< META\nremoved\n#;> META",
+      'META',
+      "kept",
+    ];
+  }
+
+  #[DataProvider('dataProviderUncommentLine')]
+  public function testUncommentLine(string $content, string $start_string, string $expected): void {
+    $file = self::$sut . '/testfile';
+    file_put_contents($file, $content);
+
+    uncomment_line($file, $start_string);
+
+    $this->assertSame($expected, file_get_contents($file));
+  }
+
+  public static function dataProviderUncommentLine(): \Iterator {
+    yield 'uncomment matching line' => [
+      "# .ahoy.yml export-ignore\nother line",
+      '.ahoy.yml',
+      ".ahoy.yml export-ignore\nother line",
+    ];
+
+    yield 'only uncomments matching line' => [
+      "# .ahoy.yml export-ignore\n# .circleci export-ignore\n# .devtools export-ignore",
+      '.circleci',
+      "# .ahoy.yml export-ignore\n.circleci export-ignore\n# .devtools export-ignore",
+    ];
+
+    yield 'no match leaves content unchanged' => [
+      "# .ahoy.yml export-ignore\nother line",
+      '.missing',
+      "# .ahoy.yml export-ignore\nother line",
+    ];
+
+    yield 'multiple matching lines' => [
+      "# tests line1\n# tests line2\nother",
+      'tests',
+      "tests line1\ntests line2\nother",
+    ];
+
+    yield 'line without hash prefix unchanged' => [
+      ".ahoy.yml export-ignore\n# .ahoy.yml other",
+      '.ahoy.yml',
+      ".ahoy.yml export-ignore\n.ahoy.yml other",
+    ];
+  }
+
+  public function testUncommentLineNonExistentFile(): void {
+    uncomment_line(self::$sut . '/nonexistent', 'test');
+    $this->addToAssertionCount(1);
+  }
+
+  #[DataProvider('dataProviderRemoveSpecialComments')]
+  public function testRemoveSpecialComments(string $content, string $expected): void {
+    chdir(self::$sut);
+    file_put_contents(self::$sut . '/file.txt', $content);
+
+    remove_special_comments();
+
+    $this->assertSame($expected, file_get_contents(self::$sut . '/file.txt'));
+  }
+
+  public static function dataProviderRemoveSpecialComments(): \Iterator {
+    yield 'remove lines with #;' => [
+      "normal line\n#; special comment\nanother normal",
+      "normal line\nanother normal",
+    ];
+
+    yield 'remove multiple special comments' => [
+      "#; first\nnormal\n#; second\n#; third",
+      "normal",
+    ];
+
+    yield 'no special comments unchanged' => [
+      "line1\nline2\nline3",
+      "line1\nline2\nline3",
+    ];
+
+    yield 'remove marker lines' => [
+      "before\n#;< META\n#;> META\nafter",
+      "before\nafter",
+    ];
+
+    yield 'mixed content' => [
+      "keep\n#; remove\nkeep too\n  #; also remove\nand keep",
+      "keep\nkeep too\nand keep",
+    ];
+  }
+
+  public function testVerboseReturnsBuffer(): void {
+    $buffer = verbose('Test message' . PHP_EOL);
+    $this->assertContains('Test message' . PHP_EOL, $buffer);
+  }
+
+  public function testVerboseWithArgs(): void {
+    $buffer = verbose('Hello %s %d' . PHP_EOL, 'world', 42);
+    $this->assertContains('Hello world 42' . PHP_EOL, $buffer);
+  }
+
+  #[DataProvider('dataProviderProcessValidation')]
+  public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, string $wrapper, string $expected_message): void {
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage($expected_message);
+    process($extension_name, $machine_name, $type, $ci, $wrapper, 'n');
+  }
+
+  public static function dataProviderProcessValidation(): \Iterator {
+    yield 'empty name' => ['', 'machine', 'module', 'gha', 'ahoy', 'Name is required.'];
+    yield 'empty machine name' => ['Name', '', 'module', 'gha', 'ahoy', 'Machine name is required.'];
+    yield 'empty type' => ['Name', 'machine', '', 'gha', 'ahoy', 'Type is required.'];
+    yield 'empty ci provider' => ['Name', 'machine', 'module', '', 'ahoy', 'CI provider is required.'];
+    yield 'empty command wrapper' => ['Name', 'machine', 'module', 'gha', '', 'Command wrapper is required.'];
+  }
+
+}

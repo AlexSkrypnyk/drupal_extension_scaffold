@@ -1,0 +1,28 @@
+{
+    "name": "drupal/force_crystal",
+    "description": "Provides force_crystal functionality.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "force_crystal@yourusername.com",
+            "homepage": "https://www.drupal.org/u/yourusername",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://drupal.org/project/force_crystal",
+    "support": {
+        "issues": "https://drupal.org/project/issues/force_crystal",
+        "source": "https://git.drupalcode.org/project/force_crystal"
+    },
+    "require": {
+        "php": "__VERSION__"
+    },
+    "require-dev": {
+        "drupal/autologout": "__VERSION__"
+    },
+    "suggest": {
+        "drupal/config_ignore": "Ignore certain configuration during import."
+    }
+}

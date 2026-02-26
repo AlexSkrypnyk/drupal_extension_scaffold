@@ -124,6 +124,9 @@
             <directory>web/themes/custom/*/tests</directory>
             <file>web/modules/custom/your_extension/rector.php</file>
             <file>web/themes/custom/your_extension/rector.php</file>
+            <!-- #;< META -->
+            <file>../init.php</file>
+            <!-- #;> META -->
         </exclude>
     </source>
 </phpunit>

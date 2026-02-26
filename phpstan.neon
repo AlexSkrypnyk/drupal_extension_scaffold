@@ -18,6 +18,11 @@ parameters:
   excludePaths:
     - vendor/*
     - node_modules/*
+    #;< META
+    - init.php
+    - modules/custom/your_extension/init.php
+    - web/modules/custom/your_extension/init.php
+    #;> META
 
   ignoreErrors:
     -

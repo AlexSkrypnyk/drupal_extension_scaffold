@@ -1,0 +1,186 @@
+name: Test
+
+on:
+  push:
+    tags:
+      - '**'
+    branches:
+      - 1.x
+  pull_request:
+    branches:
+      - 1.x
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - name: test-php-8.2-d10-legacy
+            php-version: 8.2
+            drupal-version: 10.2
+
+          - name: test-php-8.2-d10-stable
+            php-version: 8.2
+            drupal-version: 10.3
+
+          - name: test-php-8.2-d10-canary
+            php-version: 8.2
+            drupal-version: 10.4@beta
+            stability: canary
+
+          - name: test-php-8.3-d10-legacy
+            php-version: 8.3
+            drupal-version: 10.2
+
+          - name: test-php-8.3-d10-stable
+            php-version: 8.3
+            drupal-version: 10.3
+
+          - name: test-php-8.3-d10-canary
+            php-version: 8.3
+            drupal-version: 10.4@beta
+            stability: canary
+
+          - name: test-php-8.4-d10-legacy
+            php-version: 8.4
+            drupal-version: 10.3 # Lowest Drupal version that supports PHP 8.4.
+
+          - name: test-php-8.4-d10-stable
+            php-version: 8.4
+            drupal-version: 10.3
+
+          - name: test-php-8.4-d10-canary
+            php-version: 8.4
+            drupal-version: 10.4@beta
+
+          - name: test-php-8.3-d11-legacy
+            php-version: 8.3
+            drupal-version: 11.0 # Lowest Drupal version that exists.
+
+          - name: test-php-8.3-d11-stable
+            php-version: 8.3
+            drupal-version: 11.0
+
+          - name: test-php-8.3-d11-canary
+            php-version: 8.3
+            drupal-version: 11@beta
+
+          - name: test-php-8.4-d11-legacy
+            php-version: 8.4
+            drupal-version: 11.0 # Lowest Drupal version that exists.
+
+          - name: test-php-8.4-d11-stable
+            php-version: 8.4
+            drupal-version: 11.0
+
+          - name: test-php-8.4-d11-canary
+            php-version: 8.4
+            drupal-version: 11@beta
+
+    name: ${{ matrix.name }}
+
+    env:
+      DRUPAL_VERSION: ${{ matrix.drupal-version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@__VERSION__
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@__VERSION__
+        with:
+          path: /tmp/composer-cache
+          key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Upgrade sqlite3
+        run: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@__VERSION__
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: gd, sqlite, pdo_sqlite
+          coverage: pcov
+
+      # Disable Symfony deprecations helper for PHP 8.4+ until minor
+      # versions of Drupal 10 and 11 fully support PHP 8.4.
+      # @see https://www.drupal.org/project/drupal/issues/1267246
+      - name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4
+        run: |
+          if [ "$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')" == "84" ]; then
+            echo "SYMFONY_DEPRECATIONS_HELPER=disabled" >> "$GITHUB_ENV"
+          fi
+
+      - name: Assemble the codebase
+        run: .devtools/assemble.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Start built-in PHP server
+        run: .devtools/start.sh
+
+      - name: Provision site
+        run: .devtools/provision.sh
+
+      - name: Lint code with PHPCS
+        working-directory: build
+        run: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPStan
+        working-directory: build
+        run: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+        continue-on-error: ${{ endsWith(matrix.name, 'canary') }} # PHPStan levels for canary releases are not the same as for this project.
+
+      - name: Lint code with Rector
+        working-directory: build
+        run: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with PHPMD
+        working-directory: build
+        run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Lint code with Twig CS Fixer
+        working-directory: build
+        run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - name: Run tests
+        working-directory: build
+        run: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        env:
+          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
+          SIMPLETEST_DB: sqlite://tmp/db.sqlite
+
+      - name: Upload test results as an artifact
+        uses: actions/upload-artifact@__VERSION__
+        if: always()
+        with:
+          name: Artifacts (${{ matrix.name }})
+          path: build/web/sites/simpletest/browser_output
+
+      - name: Upload coverage report as an artifact
+        uses: actions/upload-artifact@__VERSION__
+        with:
+          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+          path: ./.logs/coverage/phpunit/.coverage-html
+          include-hidden-files: true
+          if-no-files-found: error
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@__VERSION__
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        with:
+          files: ./.logs/coverage/phpunit/cobertura.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
