@@ -15,19 +15,19 @@ commands:
 
   assemble:
     usage: Assemble a codebase using project code and all required dependencies.
-    cmd: ./.devtools/assemble.sh
+    cmd: ./.devtools/assemble
 
   start:
     usage: Start development environment.
-    cmd: ./.devtools/start.sh
+    cmd: ./.devtools/start
 
   stop:
     usage: Stop development environment.
-    cmd: ./.devtools/stop.sh
+    cmd: ./.devtools/stop
 
   provision:
     usage: Provision application within assembled codebase.
-    cmd: ./.devtools/provision.sh
+    cmd: ./.devtools/provision
 
   drush:
     usage: Run Drush command.

@@ -455,11 +455,12 @@ function remove_special_comments(): void {
  */
 function get_files(): array {
   $excluded = ['.git', '.idea', 'vendor', 'node_modules'];
-  $directory = new \RecursiveDirectoryIterator(getcwd(), \FilesystemIterator::SKIP_DOTS);
+  $directory = new \RecursiveDirectoryIterator((string) getcwd(), \FilesystemIterator::SKIP_DOTS);
   $filter = new \RecursiveCallbackFilterIterator($directory, static fn(\SplFileInfo $current): bool => !($current->isDir() && in_array($current->getFilename(), $excluded, TRUE)));
   $iterator = new \RecursiveIteratorIterator($filter);
 
   $files = [];
+  /** @var \SplFileInfo $item */
   foreach ($iterator as $item) {
     if ($item->isFile() && !is_binary_file($item->getPathname())) {
       $files[] = $item->getPathname();
@@ -565,6 +566,7 @@ function remove_dir(string $directory): void {
 
   $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
 
+  /** @var \SplFileInfo $item */
   foreach ($items as $item) {
     $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
   }

@@ -15,6 +15,12 @@
     <arg name="colors"/>
 
     <file>src</file>
+    <file>../../.devtools/assemble</file>
+    <file>../../.devtools/deploy</file>
+    <file>../../.devtools/helpers.php</file>
+    <file>../../.devtools/provision</file>
+    <file>../../.devtools/start</file>
+    <file>../../.devtools/stop</file>
     <file>../../init.php</file>
 
     <!-- Allow long array lines in tests. -->

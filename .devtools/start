@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Start development environment.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+// Variables.
+// -----------------------------------------------------------------------------
+
+// Webserver hostname.
+$webserver_host = getenv_default('WEBSERVER_HOST', 'localhost');
+
+// Webserver port.
+$webserver_port = getenv_default('WEBSERVER_PORT', '8000');
+
+// Webserver wait timeout.
+$webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
+
+// -----------------------------------------------------------------------------
+
+echo '===============================' . PHP_EOL;
+echo '      💻 START ENVIRONMENT     ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+
+TASK('Stopping previously started services, if any.');
+@passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
+
+TASK('Starting the PHP webserver.');
+$cwd = getcwd();
+passthru(sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $webserver_host, $webserver_port, $cwd, $cwd));
+
+NOTE('Waiting %s seconds for the server to be ready.', (string) $webserver_wait_timeout);
+sleep($webserver_wait_timeout);
+
+NOTE('Checking that the server was started.');
+$fp = @fsockopen($webserver_host, (int) $webserver_port, $errno, $errstr, 5);
+if ($fp === FALSE) {
+  $log = @file_get_contents('/tmp/php.log') ?: '';
+  FAIL('Unable to start inbuilt PHP server' . ($log !== '' ? "\n" . $log : ''));
+}
+else {
+  fclose($fp);
+}
+PASS('Server started successfully.');
+
+TASK('Checking that the server can serve content.');
+$context = stream_context_create(['http' => ['method' => 'HEAD', 'timeout' => 5, 'ignore_errors' => TRUE]]);
+$headers = @get_headers(sprintf('http://%s:%s', $webserver_host, $webserver_port), FALSE, $context);
+if ($headers === FALSE || !isset($headers[0]) || !str_contains($headers[0], '200') && !str_contains($headers[0], '302')) {
+  FAIL('Server is started, but site cannot be served.');
+}
+PASS('Server can serve content.');
+
+echo PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo '    💻 ENVIRONMENT READY  ✅  ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+echo 'Directory : ' . $cwd . '/build/web' . PHP_EOL;
+echo 'URL       : http://' . $webserver_host . ':' . $webserver_port . PHP_EOL;
+echo PHP_EOL;
+echo 'Re-run when you enable or disable XDebug.' . PHP_EOL;
+echo PHP_EOL;
+echo '> Next steps:' . PHP_EOL;
+echo '  .devtools/provision    # Provision the website' . PHP_EOL;
+echo PHP_EOL;

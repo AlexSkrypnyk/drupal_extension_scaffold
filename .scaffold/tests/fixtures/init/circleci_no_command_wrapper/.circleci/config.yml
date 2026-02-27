@@ -45,15 +45,15 @@ job-test: &job-test
 
     - run:
         name: Assemble the codebase
-        command: .devtools/assemble.sh
+        command: .devtools/assemble
 
     - run:
         name: Start built-in PHP server
-        command: .devtools/start.sh
+        command: .devtools/start
 
     - run:
         name: Provision site
-        command: .devtools/provision.sh
+        command: .devtools/provision
 
     - run:
         name: Lint code with PHPCS
@@ -247,7 +247,7 @@ jobs:
 
       - run:
           name: Deploy
-          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH:-${DEFAULT_BRANCH}}} .devtools/deploy.sh
+          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH:-${DEFAULT_BRANCH}}} .devtools/deploy
 
 workflows:
   version: 2

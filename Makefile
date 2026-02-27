@@ -25,13 +25,13 @@ help:
 build: stop assemble start provision
 
 assemble:
-	./.devtools/assemble.sh
+	./.devtools/assemble
 
 start:
-	./.devtools/start.sh
+	./.devtools/start
 
 stop:
-	./.devtools/stop.sh
+	./.devtools/stop
 
 # Allow running Drush commands with `make drush <command>`
 ifeq (drush,$(firstword $(MAKECMDGOALS)))
@@ -46,7 +46,7 @@ login:
 	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) uli
 
 provision:
-	./.devtools/provision.sh
+	./.devtools/provision
 
 lint:
 	pushd "build" >/dev/null || exit 1 && \

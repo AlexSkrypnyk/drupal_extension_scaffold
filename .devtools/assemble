@@ -1,0 +1,261 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Assemble a codebase using project code and all required dependencies.
+ *
+ * Allows to use the latest Drupal core as well as specified versions (for
+ * testing backward compatibility).
+ *
+ * - Retrieves the scaffold from drupal-composer/drupal-project or custom
+ *   scaffold.
+ * - Builds Drupal site codebase with current extension and its dependencies.
+ * - Adds development dependencies.
+ * - Installs composer dependencies.
+ *
+ * This script will re-build the codebase from scratch every time it runs.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+// Variables.
+// -----------------------------------------------------------------------------
+
+// Drupal core version to use.
+$drupal_version = getenv_default('DRUPAL_VERSION', '11');
+
+// Commit SHA of the drupal-project to install custom core version. If not
+// provided - will be calculated from $drupal_version above.
+$drupal_project_sha = getenv_default('DRUPAL_PROJECT_SHA', '');
+
+// Repository for "drupal-composer/drupal-project" project.
+// May be overwritten to use forked repos that may have not been accepted
+// yet (i.e., when major Drupal version is about to be released).
+$drupal_project_repo = getenv_default('DRUPAL_PROJECT_REPO', 'https://github.com/drupal-composer/drupal-project.git');
+
+// -----------------------------------------------------------------------------
+
+echo '===============================' . PHP_EOL;
+echo '         🏗️ ASSEMBLE           ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+
+$build_dir = 'build';
+
+TASK('Validating scaffold.');
+$composer_json = 'composer.json';
+if (!file_exists($composer_json)) {
+  FAIL('Missing composer.json file in the extension root directory.');
+}
+
+$build_composer_json = $build_dir . '/composer.json';
+$ext_info = extension_info();
+$extension_name = $ext_info['name'];
+$type_dir = $ext_info['type'] === 'theme' ? 'themes' : 'modules';
+PASS('Scaffold is valid.');
+
+TASK('Validating tools.');
+command_must_exist('git');
+command_must_exist('composer');
+PASS('Tools are valid.');
+
+TASK('Validating Composer configuration.');
+passthru_or_fail('composer validate --ansi --strict');
+PASS('Composer configuration is valid.');
+
+// Reset the environment.
+if (is_dir($build_dir)) {
+  TASK('Removing existing build directory.');
+  @chmod_recursive($build_dir, 0777);
+  remove_dir($build_dir);
+  PASS('Existing build directory removed.');
+}
+
+$drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
+$drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
+$drupal_project_sha = $drupal_project_sha === '' ? $drupal_version_major . '.x' : $drupal_project_sha;
+
+TASK('Initialising Drupal %s site from the scaffold repo %s ref %s.', $drupal_version, $drupal_project_repo, $drupal_project_sha);
+passthru_or_fail(sprintf('git clone -n %s build', escapeshellarg($drupal_project_repo)));
+passthru_or_fail(sprintf('git --git-dir=build/.git --work-tree=build checkout %s', escapeshellarg($drupal_project_sha)));
+remove_dir($build_dir . '/.git');
+PASS('Scaffold initialised.');
+
+TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
+$composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
+// Print the pinned versions for verification.
+foreach (explode("\n", $composer_json_content) as $line) {
+  if (preg_match('/"drupal\/core-.*":\s*"/', $line)) {
+    NOTE(trim($line));
+  }
+}
+PASS('Drupal core packages pinned.');
+
+TASK('Updating stability to %s.', $drupal_version_stability);
+// Do not rely on the values coming from the scaffold and always set them.
+$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "' . $drupal_version_stability . '"');
+foreach (explode("\n", $composer_json_content) as $line) {
+  if (str_contains($line, 'minimum-stability')) {
+    NOTE(trim($line));
+  }
+}
+
+$drupal_version_prefer_stable = $drupal_version_stability !== 'stable' ? 'false' : 'true';
+$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: ' . $drupal_version_prefer_stable);
+foreach (explode("\n", $composer_json_content) as $line) {
+  if (str_contains($line, 'prefer-stable')) {
+    NOTE(trim($line));
+  }
+}
+PASS('Stability updated.');
+
+TASK('Merging configuration from composer.dev.json.');
+$dev_json = (array) json_decode((string) file_get_contents('composer.dev.json'), TRUE);
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
+$merged = array_replace_recursive($dev_json, $build_json);
+file_put_contents($build_composer_json, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+PASS('Configuration from composer.dev.json merged.');
+
+TASK("Merging configuration from extension's composer.json.");
+$ext_json = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
+$merged = array_replace_recursive($ext_json, $build_json);
+file_put_contents($build_composer_json, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+PASS("Configuration from extension's composer.json merged.");
+
+// Asset Packagist sometimes fails, so we remove it by default. If it's needed,
+// the lines below can be commented out.
+TASK('Removing asset-packagist.');
+passthru('composer --working-dir=build config --unset repositories.1 2>/dev/null');
+PASS('Asset Packagist removed.');
+
+if (is_dir('patches')) {
+  TASK('Copying patches.');
+  if (!is_dir($build_dir . '/patches')) {
+    mkdir($build_dir . '/patches', 0755, TRUE);
+  }
+  copy_dir('patches', $build_dir . '/patches');
+  PASS('Patches copied.');
+}
+
+$github_token = getenv('GITHUB_TOKEN');
+if ($github_token !== FALSE && $github_token !== '') {
+  TASK('Adding GitHub authentication token if provided.');
+  passthru_or_fail(sprintf('composer config --global github-oauth.github.com %s', escapeshellarg($github_token)));
+  PASS('GitHub token added.');
+}
+
+TASK('Creating custom directories.');
+if (!is_dir($build_dir . '/web/modules/custom')) {
+  mkdir($build_dir . '/web/modules/custom', 0755, TRUE);
+}
+if (!is_dir($build_dir . '/web/themes/custom')) {
+  mkdir($build_dir . '/web/themes/custom', 0755, TRUE);
+}
+PASS('Custom directories created.');
+
+// Make sure Composer doesn't run out of memory.
+putenv('COMPOSER_MEMORY_LIMIT=-1');
+
+TASK('Installing dependencies.');
+passthru_or_fail('composer --working-dir=build install');
+PASS('Dependencies installed.');
+
+// Suggested dependencies allow to install them for testing without requiring
+// them in extension's composer.json.
+TASK("Installing suggested dependencies from extension's composer.json.");
+$composer_data = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
+if (isset($composer_data['suggest']) && is_array($composer_data['suggest'])) {
+  foreach (array_keys($composer_data['suggest']) as $suggest) {
+    passthru_or_fail(sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest)));
+  }
+}
+PASS('Suggested dependencies installed.');
+
+// Some versions of Drupal enforce maximum verbosity for errors by default. This
+// leads to functional tests failing due to deprecation notices showing up in
+// the page output, which is then interpreted as a test failure by PHPUnit.
+// To address this, we inject the error_reporting() without deprecations into
+// the index.php and default.settings.php file used by the system under test.
+// But we do this only if the deprecations helper is set to `disable` which means
+// to ignore deprecation notices.
+// @see https://www.drupal.org/project/drupal/issues/1267246
+if (getenv('SYMFONY_DEPRECATIONS_HELPER') === 'disabled') {
+  TASK('Disabling deprecation notices in functional tests.');
+
+  file_put_contents($build_dir . '/web/sites/default/default.settings.php', "error_reporting(E_ALL & ~E_DEPRECATED);\n", FILE_APPEND);
+
+  replace_in_file($build_dir . '/web/index.php', '/^<\?php/', '<?php error_reporting(E_ALL & ~E_DEPRECATED);');
+
+  $bootstrap_file = $build_dir . '/vendor/symfony/polyfill-php83/bootstrap.php';
+  if (file_exists($bootstrap_file)) {
+    replace_in_file($bootstrap_file, '/string \$request_data = null, array \$controls = null/', 'string $request_data, array $controls');
+  }
+
+  PASS('Deprecation notices disabled.');
+}
+
+// If front-end dependencies are used in the project, package-lock.json is
+// expected to be committed to the repository.
+if (file_exists('package-lock.json') && !file_exists('.skip_npm_build')) {
+  TASK('Processing front-end dependencies.');
+
+  $cmd = file_exists('.nvmrc') ? 'nvm use && ' : '';
+  $cmd .= is_dir('node_modules') ? '' : 'npm ci && ';
+  $cmd .= 'npm run build';
+  passthru_or_fail($cmd);
+
+  PASS('Front-end dependencies processed.');
+}
+
+TASK('Copying tools configuration files.');
+// Not every tool correctly resolves the path to the configuration file if it is
+// symlinked, so we copy them instead.
+$tool_files = ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'];
+foreach ($tool_files as $tool_file) {
+  if (file_exists($tool_file)) {
+    copy($tool_file, $build_dir . '/' . $tool_file);
+  }
+}
+
+$version_specific_phpunit = 'phpunit.d' . $drupal_version_major . '.xml';
+if (file_exists($version_specific_phpunit)) {
+  copy($version_specific_phpunit, $build_dir . '/phpunit.xml');
+}
+PASS('Tools configuration files copied.');
+
+TASK("Symlinking extension's code.");
+$custom_dir = $build_dir . '/web/' . $type_dir . '/custom';
+
+if (is_dir($custom_dir)) {
+  remove_dir($custom_dir);
+}
+
+$extension_dir = $custom_dir . '/' . $extension_name;
+mkdir($extension_dir, 0755, TRUE);
+
+$cwd = getcwd();
+foreach (glob($cwd . '/*') ?: [] as $item) {
+  $basename = basename($item);
+  // Do not symlink the build directory into itself.
+  if ($basename !== $build_dir) {
+    symlink($item, $extension_dir . '/' . $basename);
+  }
+}
+PASS("Extension's code symlinked.");
+
+echo PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo '    🏗 ASSEMBLE COMPLETE ✅   ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+echo '> Next steps:' . PHP_EOL;
+echo '  .devtools/start        # Start the webserver' . PHP_EOL;
+echo '  .devtools/provision    # Provision the website' . PHP_EOL;
+echo PHP_EOL;

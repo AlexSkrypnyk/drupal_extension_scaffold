@@ -122,15 +122,15 @@ jobs:
           fi
 
       - name: Assemble the codebase
-        run: .devtools/assemble.sh
+        run: .devtools/assemble
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Start built-in PHP server
-        run: .devtools/start.sh
+        run: .devtools/start
 
       - name: Provision site
-        run: .devtools/provision.sh
+        run: .devtools/provision
 
       - name: Lint code with PHPCS
         working-directory: build

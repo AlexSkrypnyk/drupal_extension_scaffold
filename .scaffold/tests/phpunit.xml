@@ -26,6 +26,7 @@
             restrictWarnings="true"
             ignoreIndirectDeprecations="true">
         <include>
+            <directory>../../.devtools</directory>
             <file>../../init.php</file>
         </include>
     </source>
