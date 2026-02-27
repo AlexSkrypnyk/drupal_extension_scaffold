@@ -38,4 +38,4 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
         run: |
           REF=${{ github.event.pull_request && env.HEAD_REF || github.ref_name }}
-          DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy.sh
+          DEPLOY_BRANCH=${DEPLOY_BRANCH:-${REF}} .devtools/deploy

@@ -1,0 +1,151 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Deploy code to a remote repository.
+ *
+ * - Configures local git.
+ * - Force-pushes code to a remote code repository branch.
+ *
+ * Add the following variables through CI provider UI.
+ * - DEPLOY_USER_NAME - name of the user who will be committing to a remote
+ *   repository.
+ * - DEPLOY_USER_EMAIL - email address of the user who will be committing to a
+ *   remote repository.
+ * - DEPLOY_REMOTE - remote repository to push code to.
+ * - DEPLOY_PROCEED - set to 1 if the deployment should proceed. Useful for
+ *   testing CI configuration before an actual code push.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+// Variables.
+// -----------------------------------------------------------------------------
+
+// Name of the user who will be committing to a remote repository.
+$deploy_user_name = getenv_required('DEPLOY_USER_NAME');
+
+// Email address of the user who will be committing to a remote repository.
+$deploy_user_email = getenv_required('DEPLOY_USER_EMAIL');
+
+// Remote repository to push code to.
+$deploy_remote = getenv_required('DEPLOY_REMOTE');
+
+// Git branch to deploy. If not provided - current branch will be used.
+$deploy_branch = getenv_default('DEPLOY_BRANCH', '');
+
+// Set to 1 if the deployment should proceed. Useful for testing CI
+// configuration before an actual code push.
+$deploy_proceed = getenv_default('DEPLOY_PROCEED', '0');
+
+// The fingerprint of the SSH key.
+$deploy_ssh_key_fingerprint = getenv_default('DEPLOY_SSH_KEY_FINGERPRINT', '');
+
+// -----------------------------------------------------------------------------
+
+if ($deploy_ssh_key_fingerprint !== '') {
+  echo '-------------------------------' . PHP_EOL;
+  echo '          Setup SSH            ' . PHP_EOL;
+  echo '-------------------------------' . PHP_EOL;
+
+  $home = getenv('HOME') ?: '';
+  $ssh_dir = $home . '/.ssh';
+  if (!is_dir($ssh_dir)) {
+    mkdir($ssh_dir, 0700, TRUE);
+  }
+  file_put_contents($ssh_dir . '/config', "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n");
+
+  // Find the MD5 hash if the SSH_KEY_FINGERPRINT starts with SHA256.
+  if (str_starts_with($deploy_ssh_key_fingerprint, 'SHA256:')) {
+    foreach (glob($home . '/.ssh/id_rsa*') ?: [] as $key_file) {
+      $sha256_output = [];
+      exec(sprintf('ssh-keygen -l -E sha256 -f %s', escapeshellarg($key_file)), $sha256_output);
+      if (!empty($sha256_output[0])) {
+        $parts = explode(' ', $sha256_output[0]);
+        if (isset($parts[1]) && $parts[1] === $deploy_ssh_key_fingerprint) {
+          $md5_output = [];
+          exec(sprintf('ssh-keygen -l -E md5 -f %s', escapeshellarg($key_file)), $md5_output);
+          if (!empty($md5_output[0])) {
+            $md5_parts = explode(' ', $md5_output[0]);
+            if (isset($md5_parts[1])) {
+              $deploy_ssh_key_fingerprint = str_replace('MD5:', '', $md5_parts[1]);
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  $fingerprint_clean = str_replace([':', '"'], '', $deploy_ssh_key_fingerprint);
+  $key_file = $home . '/.ssh/id_rsa_' . $fingerprint_clean;
+
+  if (!file_exists($key_file)) {
+    FAIL('Unable to find SSH key file %s.', $key_file);
+  }
+
+  if (getenv('SSH_AGENT_PID') === FALSE || getenv('SSH_AGENT_PID') === '') {
+    passthru('eval "$(ssh-agent)"');
+  }
+
+  passthru('ssh-add -D');
+  passthru_or_fail(sprintf('ssh-add %s', escapeshellarg($key_file)));
+  passthru('ssh-add -l');
+}
+
+echo '===============================' . PHP_EOL;
+echo '           🚚 DEPLOY           ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+
+if ($deploy_proceed !== '1') {
+  PASS('Skip deployment because DEPLOY_PROCEED is not set to 1.');
+  quit();
+}
+
+$git_user_name = trim((string) shell_exec('git config --global user.name'));
+if ($git_user_name === '') {
+  NOTE('Configuring global git user name %s.', $deploy_user_name);
+  passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_user_name)));
+}
+
+$git_user_email = trim((string) shell_exec('git config --global user.email'));
+if ($git_user_email === '') {
+  NOTE('Configuring global git user email %s.', $deploy_user_email);
+  passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_user_email)));
+}
+
+NOTE('Setting git to push to a matching remote branch.');
+passthru_or_fail('git config --global push.default matching');
+
+NOTE('Adding remote %s.', $deploy_remote);
+passthru_or_fail(sprintf('git remote add deployremote %s', escapeshellarg($deploy_remote)));
+
+if ($deploy_branch === '') {
+  $deploy_branch = trim((string) shell_exec('git symbolic-ref --short HEAD'));
+}
+
+TASK('Pushing code to branch %s.', $deploy_branch);
+passthru_or_fail(sprintf('git push --force deployremote HEAD:%s', escapeshellarg($deploy_branch)));
+PASS('Code pushed to %s:%s.', $deploy_remote, $deploy_branch);
+
+TASK('Pushing tags.');
+passthru('git push --force --tags deployremote 2>/dev/null || true');
+PASS('Tags pushed to %s.', $deploy_remote);
+
+echo '===============================' . PHP_EOL;
+echo '     🚚 DEPLOY COMPLETE ✅    ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+echo 'Remote URL    : ' . $deploy_remote . PHP_EOL;
+echo 'Remote branch : ' . $deploy_branch . PHP_EOL;
+echo PHP_EOL;
+echo '> Next steps:' . PHP_EOL;
+echo '  Navigate to Drupal.org and check that the code was successfully pushed.' . PHP_EOL;
+echo PHP_EOL;

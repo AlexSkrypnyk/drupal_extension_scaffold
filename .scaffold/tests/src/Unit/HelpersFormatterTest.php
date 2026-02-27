@@ -1,0 +1,97 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
+
+use function DrupalExtensionScaffold\DevTools\FAIL;
+use function DrupalExtensionScaffold\DevTools\term_supports_color;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
+#[RunTestsInSeparateProcesses]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\NOTE')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\TASK')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\INFO')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\PASS')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\FAIL_NO_EXIT')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\FAIL')]
+#[CoversFunction('DrupalExtensionScaffold\DevTools\term_supports_color')]
+#[Group('helpers')]
+final class HelpersFormatterTest extends UnitTestCase {
+
+  #[DataProvider('dataProviderOutputFormatters')]
+  public function testOutputFormatters(string $function, ?bool $is_tty, string $expected_output): void {
+    if ($is_tty !== NULL) {
+      $this->envSet('TERM', 'xterm-256color');
+      $this->mockPosixIsatty($is_tty);
+    }
+    require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
+    ob_start();
+    $callable = 'DrupalExtensionScaffold\\DevTools\\' . $function;
+    if (!is_callable($callable)) {
+      $this->fail(sprintf('Function %s is not callable.', $callable));
+    }
+    call_user_func($callable, 'Test message %s', 'arg');
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+    $this->assertSame($expected_output, $output);
+  }
+
+  public static function dataProviderOutputFormatters(): \Iterator {
+    yield 'note' => ['note', NULL, "       Test message arg\n"];
+    yield 'task, no color' => ['task', FALSE, "[TASK] Test message arg\n"];
+    yield 'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message arg\033[0m\n"];
+    yield 'info, no color' => ['info', FALSE, "[INFO] Test message arg\n"];
+    yield 'info, with color' => ['info', TRUE, "\033[36m[INFO] Test message arg\033[0m\n"];
+    yield 'pass, no color' => ['pass', FALSE, "[ OK ] Test message arg\n"];
+    yield 'pass, with color' => ['pass', TRUE, "\033[32m[ OK ] Test message arg\033[0m\n"];
+    yield 'fail_no_exit, no color' => ['fail_no_exit', FALSE, "[FAIL] Test message arg\n"];
+    yield 'fail_no_exit, with color' => ['fail_no_exit', TRUE, "\033[31m[FAIL] Test message arg\033[0m\n"];
+  }
+
+  #[DataProvider('dataProviderFail')]
+  public function testFail(bool $is_tty, string $expected_output): void {
+    $this->envSet('TERM', 'xterm-256color');
+    $this->mockPosixIsatty($is_tty);
+    $this->mockQuit(1);
+    require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
+    $this->expectException(QuitErrorException::class);
+    $this->expectExceptionCode(1);
+    try {
+      ob_start();
+      FAIL('Test failure %s', 'message');
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertSame($expected_output, $output);
+    }
+  }
+
+  public static function dataProviderFail(): \Iterator {
+    yield 'no color' => [FALSE, "[FAIL] Test failure message\n"];
+    yield 'with color' => [TRUE, "\033[31m[FAIL] Test failure message\033[0m\n"];
+  }
+
+  #[DataProvider('dataProviderTermSupportsColor')]
+  public function testTermSupportsColor(string|bool $term_value, bool $expected): void {
+    require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
+    if ($term_value === FALSE) {
+      $this->envUnset('TERM');
+    }
+    else {
+      $this->envSet('TERM', (string) $term_value);
+    }
+    $result = term_supports_color();
+    $this->assertSame($expected, $result);
+  }
+
+  public static function dataProviderTermSupportsColor(): \Iterator {
+    yield 'dumb terminal' => ['term_value' => 'dumb', 'expected' => FALSE];
+    yield 'no terminal' => ['term_value' => FALSE, 'expected' => FALSE];
+  }
+
+}

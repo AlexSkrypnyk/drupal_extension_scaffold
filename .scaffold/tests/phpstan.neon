@@ -8,6 +8,13 @@ parameters:
 
   paths:
     - src
+    - ../../.devtools/assemble
+    - ../../.devtools/deploy
+    - ../../.devtools/helpers.php
+    - ../../.devtools/provision
+    - ../../.devtools/start
+    - ../../.devtools/stop
+    - ../../init.php
 
   scanFiles:
     - ../../init.php

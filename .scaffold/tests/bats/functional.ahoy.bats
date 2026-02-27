@@ -34,7 +34,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   assert_dir_exists "${BUILD_DIR}/build/vendor"
   assert_file_exists "${BUILD_DIR}/build/composer.json"
   assert_file_exists "${BUILD_DIR}/build/composer.lock"
-  assert_dir_exists "${BUILD_DIR}/node_modules"
+  assert_dir_not_exists "${BUILD_DIR}/node_modules"
   assert_output_not_contains "Would run build"
 }
 
@@ -73,7 +73,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
   run ahoy provision
   assert_success
   assert_output_contains "PROVISION COMPLETE"
-  assert_output_contains "Do you really want to drop all tables in the database"
+  assert_output_not_contains "Do you really want to drop all tables in the database"
 }
 
 @test "ahoy build - basic workflow" {

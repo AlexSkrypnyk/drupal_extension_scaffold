@@ -5,7 +5,7 @@ load _helper
 export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 
 @test "Assemble: Drupal 11" {
-  run .devtools/assemble.sh
+  run .devtools/assemble
   assert_success
 
   assert_output_contains "Initialising Drupal 11 site"
@@ -23,7 +23,7 @@ export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
 @test "Assemble: Drupal 10" {
   export DRUPAL_VERSION="10"
 
-  run .devtools/assemble.sh
+  run .devtools/assemble
   assert_success
 
   assert_output_contains "Initialising Drupal 10 site"

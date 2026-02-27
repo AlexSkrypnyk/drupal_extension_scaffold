@@ -1,0 +1,38 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Stop development environment.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+// Variables.
+// -----------------------------------------------------------------------------
+
+// Webserver port.
+$webserver_port = getenv_default('WEBSERVER_PORT', '8000');
+
+// -----------------------------------------------------------------------------
+
+echo '===============================' . PHP_EOL;
+echo '      💻 STOP ENVIRONMENT      ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+
+TASK('Stopping previously started services, if any.');
+@passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
+sleep(1);
+PASS('Services stopped.');
+
+echo PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo '   💻 ENVIRONMENT STOPPED ✅  ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;

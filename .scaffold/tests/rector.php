@@ -23,6 +23,7 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
@@ -31,6 +32,13 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 return RectorConfig::configure()
   ->withPaths([
     __DIR__ . '/src/**',
+    __DIR__ . '/../../.devtools/assemble',
+    __DIR__ . '/../../.devtools/deploy',
+    __DIR__ . '/../../.devtools/helpers.php',
+    __DIR__ . '/../../.devtools/provision',
+    __DIR__ . '/../../.devtools/README.md',
+    __DIR__ . '/../../.devtools/start',
+    __DIR__ . '/../../.devtools/stop',
     __DIR__ . '/../../init.php',
   ])
   ->withPhpSets(php82: TRUE)
@@ -66,6 +74,7 @@ return RectorConfig::configure()
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
+    StringClassNameToClassConstantRector::class,
     // Dependencies.
     '*/vendor/*',
     '*/node_modules/*',

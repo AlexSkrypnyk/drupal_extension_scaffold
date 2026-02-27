@@ -1,6 +1,8 @@
 # Composer dependencies
 /vendor/
 
+/node_modules/
+
 # PHPUnit artifacts
 /.phpunit.cache/
 /.phpunit.result.cache
