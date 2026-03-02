@@ -217,7 +217,7 @@ if (file_exists('package-lock.json') && !file_exists('.skip_npm_build')) {
 TASK('Copying tools configuration files.');
 // Not every tool correctly resolves the path to the configuration file if it is
 // symlinked, so we copy them instead.
-$tool_files = ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'];
+$tool_files = ['phpcs.xml', 'phpstan.neon', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'];
 foreach ($tool_files as $tool_file) {
   if (file_exists($tool_file)) {
     copy($tool_file, $build_dir . '/' . $tool_file);

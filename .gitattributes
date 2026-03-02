@@ -16,7 +16,6 @@
 # package.json       export-ignore
 # patches            export-ignore
 # phpcs.xml          export-ignore
-# phpmd.xml          export-ignore
 # phpstan.neon       export-ignore
 # phpunit.d10.xml    export-ignore
 # phpunit.xml        export-ignore

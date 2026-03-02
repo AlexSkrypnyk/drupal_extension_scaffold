@@ -145,10 +145,6 @@ jobs:
         working-directory: build
         run: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - name: Lint code with PHPMD
-        working-directory: build
-        run: vendor/bin/phpmd . text phpmd.xml || [ "${CI_PHPMD_IGNORE_FAILURE:-0}" -eq 1 ]
-
       - name: Lint code with Twig CS Fixer
         working-directory: build
         run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]

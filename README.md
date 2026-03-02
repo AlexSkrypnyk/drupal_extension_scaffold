@@ -75,7 +75,6 @@ and push the code to [Drupal.org](https://drupal.org).
     including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
   - PHP deprecated code analysis and auto-fixing
     with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
-  - PHP code mess detection with [PHPMD](https://phpmd.org/).
   - Twig code analysis
     with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
 - PHPUnit testing support
@@ -231,7 +230,6 @@ tools:
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with PHPStan.
 - PHP deprecated code analysis and auto-fixing with Drupal Rector.
-- PHP code mess detection with PHPMD.
 - Twig code analysis with Twig CS Fixer.
 
 The configuration files for these tools are located in the root of the codebase.

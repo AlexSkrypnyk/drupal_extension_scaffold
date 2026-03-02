@@ -255,7 +255,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', 'package-lock.json');
   uncomment_line('.gitattributes', 'package.json');
   uncomment_line('.gitattributes', 'phpcs.xml');
-  uncomment_line('.gitattributes', 'phpmd.xml');
   uncomment_line('.gitattributes', 'phpstan.neon');
   uncomment_line('.gitattributes', 'phpunit.d10.xml');
   uncomment_line('.gitattributes', 'phpunit.xml');
