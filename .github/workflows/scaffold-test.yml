@@ -40,7 +40,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.3
-          extensions: :xdebug, gd, sqlite, pdo_sqlite
+          extensions: gd, sqlite, pdo_sqlite
+          coverage: pcov
+          ini-values: pcov.directory=.
 
       - name: Install Ahoy
         if: matrix.group == 'p3'
