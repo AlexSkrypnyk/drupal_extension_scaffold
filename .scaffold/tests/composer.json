@@ -30,9 +30,9 @@
         "phpstan/phpstan": "^2.1.33",
         "phpunit/phpunit": "^12",
         "rector/rector": "^2.2.14",
-        "symfony/filesystem": "^7.4.0",
-        "symfony/finder": "^7.4.0",
-        "symfony/process": "^7.4.0"
+        "symfony/filesystem": "^8.0.0",
+        "symfony/finder": "^8.0.0",
+        "symfony/process": "^8.0.0"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
