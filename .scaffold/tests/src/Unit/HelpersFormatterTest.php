@@ -20,7 +20,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[CoversFunction('DrupalExtensionScaffold\DevTools\FAIL_NO_EXIT')]
 #[CoversFunction('DrupalExtensionScaffold\DevTools\FAIL')]
 #[CoversFunction('DrupalExtensionScaffold\DevTools\term_supports_color')]
-#[Group('helpers')]
+#[Group('p0')]
 final class HelpersFormatterTest extends UnitTestCase {
 
   #[DataProvider('dataProviderOutputFormatters')]

@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
 #[CoversFunction('DrupalExtensionScaffold\DevTools\copy_dir')]
-#[Group('helpers')]
+#[Group('p0')]
 final class HelpersCopyDirTest extends UnitTestCase {
 
   protected function setUp(): void {

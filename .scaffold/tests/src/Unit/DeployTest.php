@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
 #[RunTestsInSeparateProcesses]
-#[Group('scripts')]
+#[Group('p0')]
 final class DeployTest extends UnitTestCase {
 
   protected function setUp(): void {

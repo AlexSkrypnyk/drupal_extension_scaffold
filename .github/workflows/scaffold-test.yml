@@ -20,13 +20,14 @@ jobs:
       fail-fast: false
 
       matrix:
-        group: ['p0', 'p1', 'p2']
+        group: ['p0', 'p1', 'p2', 'p3', 'p4']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Upgrade sqlite3
+        if: matrix.group != 'p0'
         run: |
           wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
           tar -xzf /tmp/sqlite.tar.gz -C /tmp
@@ -39,9 +40,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.3
-          extensions: gd, sqlite, pdo_sqlite
+          extensions: :xdebug, gd, sqlite, pdo_sqlite
 
       - name: Install Ahoy
+        if: matrix.group == 'p3'
         run: |
           os=$(uname -s | tr '[:upper:]' '[:lower:]') && architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac)
           sudo wget -q https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-"${os}-${architecture}" -O /usr/local/bin/ahoy
@@ -52,19 +54,22 @@ jobs:
         working-directory: .scaffold/tests
 
       - name: Validate composer.json
+        if: matrix.group == 'p0'
         run: composer validate --strict
         working-directory: .scaffold/tests
 
       - name: Check composer.json is normalized
+        if: matrix.group == 'p0'
         run: composer normalize --dry-run
         working-directory: .scaffold/tests
 
       - name: Lint PHP tests
+        if: matrix.group == 'p0'
         run: composer lint
         working-directory: .scaffold/tests
 
       - name: Run PHP tests with coverage
-        run: composer test-coverage
+        run: composer test-coverage -- --group=${{ matrix.group }}
         working-directory: .scaffold/tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

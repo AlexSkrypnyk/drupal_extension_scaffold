@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-#[Group('p0')]
+#[Group('p2')]
 final class AssembleTest extends DevtoolsTestCase {
 
   #[DataProvider('dataProviderAssemble')]

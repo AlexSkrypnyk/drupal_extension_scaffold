@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-#[Group('p2')]
+#[Group('p4')]
 final class MakeTest extends DevtoolsTestCase {
 
   public function testDefault(): void {

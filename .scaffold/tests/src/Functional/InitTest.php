@@ -8,12 +8,14 @@ use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\Snapshot\Testing\SnapshotTrait;
 use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class InitTest.
  *
  * Functional tests for init.php script.
  */
+#[Group('p1')]
 final class InitTest extends FunctionalTestCase {
 
   use SnapshotTrait;

@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 
 #[CoversFunction('DrupalExtensionScaffold\DevTools\command_path')]
 #[CoversFunction('DrupalExtensionScaffold\DevTools\command_must_exist')]
-#[Group('helpers')]
+#[Group('p0')]
 final class HelpersCommandExistsTest extends UnitTestCase {
 
   protected function setUp(): void {
