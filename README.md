@@ -116,7 +116,7 @@ and update the codebase to reflect your extension's name and other details.
 <details>
 <summary>Click to see <code>php init.php</code> in action </summary>
 
-![Init process](.scaffold/assets/init.gif)
+![Init process](.scaffold/assets/init.svg)
 </details>
 
 ## Building website
@@ -148,7 +148,7 @@ See [README.md](README.dist.md) for more development commands.
 <details>
 <summary>Click to see <code>ahoy build</code> in action </summary>
 
-![Build process](.scaffold/assets/build.gif)
+![Build process](.scaffold/assets/build.svg)
 
 </details>
 
@@ -237,7 +237,7 @@ The configuration files for these tools are located in the root of the codebase.
 <details>
 <summary>Click to see <code>ahoy lint</code> in action </summary>
 
-![Lint process](.scaffold/assets/lint.gif)
+![Lint process](.scaffold/assets/lint.svg)
 </details>
 
 ### Fixing coding standards issues
@@ -272,7 +272,7 @@ ahoy test-functional  # Run Functional tests
 <details>
 <summary>Click to see <code>ahoy test</code> in action </summary>
 
-![Test process](.scaffold/assets/test.gif)
+![Test process](.scaffold/assets/test.svg)
 </details>
 
 ### Running specific tests
