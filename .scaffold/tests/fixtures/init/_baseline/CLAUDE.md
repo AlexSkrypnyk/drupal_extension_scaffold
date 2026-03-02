@@ -12,7 +12,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 
 **Using Make (default):**
 - `make build` - Complete build (stop → assemble → start → provision)
-- `make assemble` - Assemble codebase with dependencies  
+- `make assemble` - Assemble codebase with dependencies
 - `make start` - Start PHP development server
 - `make stop` - Stop development server
 - `make provision` - Install/provision Drupal site
@@ -27,13 +27,13 @@ This is a Force Crystal template for creating contributed modules or themes. The
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (phpcs, phpstan, rector dry-run, phpmd, twig-cs-fixer)
+- `make lint` / `ahoy lint` - Run all linting tools (phpcs, phpstan, rector dry-run, twig-cs-fixer)
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
 - `make test` / `ahoy test` - Run all PHPUnit tests
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
-- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only  
+- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 - `make test-functional` / `ahoy test-functional` - Run functional tests only
 
 ### Drupal Commands
@@ -83,7 +83,6 @@ This is a Force Crystal template for creating contributed modules or themes. The
 - **PHPCS**: Drupal and DrupalPractice standards
 - **PHPStan**: Static analysis with Drupal extensions
 - **Rector**: Automated refactoring and deprecation fixes
-- **PHPMD**: Mess detection
 - **Twig CS Fixer**: Twig template formatting
 
 ## CI/CD Support

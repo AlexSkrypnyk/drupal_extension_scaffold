@@ -123,7 +123,6 @@ tools:
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with PHPStan.
 - PHP deprecated code analysis and auto-fixing with Drupal Rector.
-- PHP code mess detection with PHPMD.
 - Twig code analysis with Twig CS Fixer.
 
 The configuration files for these tools are located in the root of the codebase.
