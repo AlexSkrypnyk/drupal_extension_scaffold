@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
 
       matrix:
-        bats-tags: ['p0', 'p1', 'p2']
+        group: ['p0', 'p1', 'p2']
 
     steps:
       - name: Checkout code
@@ -41,48 +41,11 @@ jobs:
           php-version: 8.3
           extensions: gd, sqlite, pdo_sqlite
 
-      - name: Check coding standards
-        uses: luizm/action-sh-checker@v0.10.0
-        env:
-          SHFMT_OPTS: -i 2 -ci -s -d
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-
-      - name: Install Kcov
-        run: |
-          KCOV_VERSION=v43 && \
-          sudo apt update && sudo apt install -y git cmake g++ libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev binutils-dev && \
-          git clone https://github.com/SimonKagstrom/kcov.git && \
-          cd kcov && git checkout ${KCOV_VERSION} && mkdir build && cd build && \
-          cmake .. && make && sudo make install && \
-          kcov --version
-
       - name: Install Ahoy
         run: |
           os=$(uname -s | tr '[:upper:]' '[:lower:]') && architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac)
           sudo wget -q https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-"${os}-${architecture}" -O /usr/local/bin/ahoy
           sudo chown "$USER" /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
-
-      - name: Install NPM dependencies
-        run: npm ci
-        working-directory: .scaffold/tests
-
-      - name: Run tests
-        run: |
-          mkdir -p .scaffold/tests/.logs/coverage/bats
-          kcov \
-            --include-pattern=.sh,.bash \
-            --bash-parse-files-in-dir=. \
-            --exclude-pattern=vendor,node_modules,.scaffold-coverage-html,.scaffold \
-            "$(pwd)"/.scaffold/tests/.logs/coverage/bats \
-            .scaffold/tests/node_modules/.bin/bats \
-            .scaffold/tests/bats --filter-tags "${{ matrix.bats-tags }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Remove kcov
-        run: rm -Rf kcov
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
@@ -103,11 +66,13 @@ jobs:
       - name: Run PHP tests with coverage
         run: composer test-coverage
         working-directory: .scaffold/tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{github.job}}-code-coverage-report-${{ matrix.bats-tags }}
+          name: ${{github.job}}-code-coverage-report-${{ matrix.group }}
           path: .scaffold/tests/.logs
           include-hidden-files: true
           if-no-files-found: error

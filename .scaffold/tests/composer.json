@@ -61,7 +61,7 @@
             "phpcbf"
         ],
         "test": "phpunit --no-coverage",
-        "test-coverage": "php -d pcov.directory=../.. vendor/bin/phpunit",
+        "test-coverage": "php -d pcov.directory=../.. vendor/bin/phpunit $@",
         "update-snapshots": "./vendor/bin/update-snapshots --test-dir=src testInit fixtures/init $@"
     }
 }

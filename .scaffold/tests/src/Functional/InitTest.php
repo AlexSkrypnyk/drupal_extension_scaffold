@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
+use AlexSkrypnyk\Snapshot\Testing\SnapshotTrait;
 use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -14,6 +15,24 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Functional tests for init.php script.
  */
 final class InitTest extends FunctionalTestCase {
+
+  use SnapshotTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    if (empty(self::$fixtures)) {
+      throw new \RuntimeException('Fixtures directory is not set.');
+    }
+
+    // Use SnapshotTrait's snapshotUpdateOnFailure() for automatic updates.
+    if (str_contains(self::$fixtures, DIRECTORY_SEPARATOR . 'init' . DIRECTORY_SEPARATOR)) {
+      $this->snapshotUpdateOnFailure(self::$fixtures, self::$sut, self::$tmp);
+    }
+
+    parent::tearDown();
+  }
 
   #[DataProvider('dataProviderInit')]
   public function testInit(
@@ -116,6 +135,21 @@ final class InitTest extends FunctionalTestCase {
       'remove_self' => self::TUI_DEFAULT,
       'proceed' => self::TUI_DEFAULT,
     ];
+  }
+
+  protected function replaceVersions(string $dir): void {
+    File::getReplacer()
+      ->addVersionReplacements()
+      ->addExclusions(['127.0.0.1'])
+      // Increase max replacements to handle large files with many version
+      // strings (GHA workflows, lock files, etc). This value was empirically
+      // derived through repeated trials.
+      ->setMaxReplacements(5)
+      ->replaceInDir($dir);
+  }
+
+  protected function snapshotUpdateBefore(string $actual): void {
+    $this->replaceVersions($actual);
   }
 
 }
