@@ -31,6 +31,9 @@ define('PROMPT_DELAY', 1);
 // Maximum idle time in recordings (seconds).
 define('MAX_IDLE_TIME', 3);
 
+// Pause at the end of each recording before the animation loops (seconds).
+define('END_PAUSE', 10);
+
 /**
  * Main functionality.
  */
@@ -364,6 +367,11 @@ function postProcessCast(string $cast_file, string $workspace_dir): void {
     }
     $filtered[] = $lines[$i];
   }
+  // Add a pause at the end of the recording before the animation loops.
+  // In asciicast v3, timestamps are relative (delta from previous event),
+  // so we add an empty output event with the pause duration.
+  $filtered[] = json_encode([END_PAUSE, 'o', ' ']);
+
   $content = implode("\n", $filtered);
 
   // Sanitize workspace paths.
