@@ -1,6 +1,8 @@
 # Ignore files for distribution archives.
 
 # Uncomment the lines below in your project.
+# AGENTS.md          export-ignore
+# CLAUDE.md          export-ignore
 # .ahoy.yml          export-ignore
 # .circleci          export-ignore
 # .devtools          export-ignore
