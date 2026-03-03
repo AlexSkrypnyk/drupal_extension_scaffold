@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 #[RunTestsInSeparateProcesses]
-#[Group('helpers')]
+#[Group('p0')]
 final class HelpersGetenvTest extends UnitTestCase {
 
   protected function setUp(): void {

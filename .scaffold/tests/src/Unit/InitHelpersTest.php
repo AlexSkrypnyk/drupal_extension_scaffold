@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class InitHelpersTest.
  *
  * Unit tests for helper functions in init.php.
  */
+#[Group('p0')]
 final class InitHelpersTest extends UnitTestCase {
 
   protected string $originalCwd;

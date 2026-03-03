@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */
-#[Group('p1')]
+#[Group('p3')]
 final class AhoyTest extends DevtoolsTestCase {
 
   public function testBuild(): void {

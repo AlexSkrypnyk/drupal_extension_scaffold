@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\Group;
 
 #[CoversFunction('DrupalExtensionScaffold\DevTools\passthru_or_fail')]
-#[Group('helpers')]
+#[Group('p0')]
 final class HelpersPassthruOrFailTest extends UnitTestCase {
 
   protected function setUp(): void {
