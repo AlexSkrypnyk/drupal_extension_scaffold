@@ -240,6 +240,8 @@ function process_internal(string $extension_name, string $extension_machine_name
   replace_string_content('[EXTENSION_NAME]', $extension_machine_name);
 
   remove_string_content('# Uncomment the lines below in your project.');
+  uncomment_line('.gitattributes', 'AGENTS.md');
+  uncomment_line('.gitattributes', 'CLAUDE.md');
   uncomment_line('.gitattributes', '.ahoy.yml');
   uncomment_line('.gitattributes', '.circleci');
   uncomment_line('.gitattributes', '.devtools');
