@@ -7,6 +7,7 @@
     "separateMajorMinor": false,
     "groupName": "all dependencies",
     "groupSlug": "all",
+    "branchPrefix": "deps/",
     "composer": {
         "managerFilePatterns": ["/composer\\.dev\\.json$/"]
     },
