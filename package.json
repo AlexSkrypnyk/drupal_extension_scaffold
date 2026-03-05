@@ -33,7 +33,7 @@
     "eslint-plugin-yml": "^1.19.0",
     "prettier": "^3.7.4",
     "stylelint": "^16.26.1",
-    "stylelint-config-standard": "^36.0.1",
+    "stylelint-config-standard": "^40.0.0",
     "stylelint-order": "^7.0.1"
   }
 }
