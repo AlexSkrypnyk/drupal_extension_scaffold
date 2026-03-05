@@ -41,6 +41,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Branch protection](#branch-protection)
 - [Deployment](#deployment)
 - [Updating your extension](#updating-your-extension)
+- [Renovate](#renovate)
 - [Maintenance](#maintenance)
 
 ## Features
@@ -81,7 +82,7 @@ and push the code to [Drupal.org](https://drupal.org).
   - CSS code analysis with [Stylelint](https://stylelint.io/).
   - Code formatting with [Prettier](https://prettier.io/).
 - PHPUnit testing support
-- Renovate configuration to keep your repository dependencies up-to-date.
+- [Renovate](#renovate) configuration to keep dependencies up-to-date with a single grouped PR.
 - [README.md](README.dist.md) template
 - Deployment:
   - Mirroring of the repo to Drupal.org (or any other git
@@ -407,6 +408,42 @@ following steps to update your extension:
 11. Check that all the CI jobs are finishing successfully.
 12. Merge the new branch into your main branch.
 13. Check that the deployment job is working correctly.
+
+## Renovate
+
+This template includes a [Renovate](https://docs.renovatebot.com/)
+configuration ([`renovate.json`](renovate.json)) to automatically keep
+dependencies up-to-date.
+
+### What is updated
+
+| Source                                   | Dependencies                  | Examples                                                                          |
+|------------------------------------------|-------------------------------|-----------------------------------------------------------------------------------|
+| [`composer.dev.json`](composer.dev.json) | Development Composer packages | `phpstan/phpdoc-parser`, `mglaman/phpstan-drupal`, `vincentlanglet/twig-cs-fixer` |
+| [`package.json`](package.json)           | npm packages                  | `eslint`, `stylelint`, `prettier`                                                 |
+| `.github/workflows/*.yml`                | GitHub Actions                | `actions/checkout`, `actions/upload-artifact`, `codecov/codecov-action`           |
+
+### What is NOT updated
+
+- **`composer.json`** — contains the extension's production dependencies
+  (`require` and `require-dev`) which should be updated manually to ensure
+  compatibility with Drupal.org packaging.
+
+### How it works
+
+- **Single PR**: all dependency updates are grouped into a single pull request
+  titled "Update all dependencies", regardless of update type (major, minor,
+  patch).
+- **Automerge**: PRs are automatically merged when all CI checks pass.
+- **Digest pinning**: GitHub Actions are pinned to SHA digests
+  for reproducibility and security.
+- **Range strategy**: version ranges in `package.json` and `composer.dev.json`
+  are bumped to the latest version (e.g., `^1.2` becomes `^1.3`).
+- **Dependency Dashboard**: an issue is created in the repository to track
+  pending updates, approval requests, and detected problems.
+
+See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/)
+for all available options.
 
 ---
 
