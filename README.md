@@ -428,12 +428,13 @@ dependencies up-to-date.
 - **`composer.json`** — contains the extension's production dependencies
   (`require` and `require-dev`) which should be updated manually to ensure
   compatibility with Drupal.org packaging.
+- **Major versions** — major version bumps are disabled for all dependencies
+  and should be updated manually to avoid breaking changes.
 
 ### How it works
 
-- **Single PR**: all dependency updates are grouped into a single pull request
-  titled "Update all dependencies", regardless of update type (major, minor,
-  patch).
+- **Single PR**: all minor and patch dependency updates are grouped into a
+  single pull request titled "Update all dependencies".
 - **Automerge**: PRs are automatically merged when all CI checks pass.
 - **Digest pinning**: GitHub Actions are pinned to SHA digests
   for reproducibility and security.

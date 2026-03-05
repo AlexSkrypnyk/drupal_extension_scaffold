@@ -4,7 +4,9 @@
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
     "pinDigests": true,
-    "separateMajorMinor": false,
+    "major": {
+        "enabled": false
+    },
     "groupName": "all dependencies",
     "groupSlug": "all",
     "branchPrefix": "deps/",
