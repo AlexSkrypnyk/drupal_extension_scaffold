@@ -19,6 +19,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[Group('p0')]
 final class AssembleTest extends UnitTestCase {
 
+  /**
+   * @var array<int, string>
+   */
+  protected array $capturedBuildComposerJson = [];
+
   protected function setUp(): void {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
@@ -68,6 +73,10 @@ final class AssembleTest extends UnitTestCase {
 
     // Build/composer.json content (scaffold).
     $build_composer_json = json_encode([
+      'repositories' => [
+        ['type' => 'composer', 'url' => 'https://packages.drupal.org/8'],
+        ['type' => 'composer', 'url' => 'https://asset-packagist.org'],
+      ],
       'require' => ['drupal/core-recommended' => '^11', 'drupal/core-composer-scaffold' => '^11'],
       'minimum-stability' => 'stable',
       'prefer-stable' => TRUE,
@@ -189,8 +198,14 @@ final class AssembleTest extends UnitTestCase {
       return '';
     });
 
-    // Mock file_put_contents.
-    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
+    // Mock file_put_contents - capture writes to build/composer.json.
+    $this->capturedBuildComposerJson = [];
+    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file, string $content): int {
+      if ($file === 'build/composer.json') {
+        $this->capturedBuildComposerJson[] = $content;
+      }
+      return 100;
+    });
 
     // Mock copy.
     $this->registerMock('copy', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
@@ -213,29 +228,26 @@ final class AssembleTest extends UnitTestCase {
     // 3. git checkout.
     $passthru_responses[] = ['cmd' => sprintf('git --git-dir=build/.git --work-tree=build checkout %s', escapeshellarg((string) $effective_sha))];
 
-    // 4. remove asset-packagist.
-    $passthru_responses[] = ['cmd' => 'composer --working-dir=build config --unset repositories.1 2>/dev/null'];
-
-    // 5. Patches copy (if applicable).
+    // 4. Patches copy (if applicable).
     if ($config['has_patches']) {
       // copy_dir is called but it's a real function that uses PHP iterators,
       // so we don't need to mock it separately - tested in HelpersCopyDirTest.
     }
 
-    // 6. GitHub token (if applicable).
+    // 5. GitHub token (if applicable).
     if ($config['github_token'] !== '') {
       $passthru_responses[] = ['cmd' => sprintf('composer config --global github-oauth.github.com %s', escapeshellarg((string) $config['github_token']))];
     }
 
-    // 7. composer install.
+    // 6. composer install.
     $passthru_responses[] = ['cmd' => 'composer --working-dir=build install'];
 
-    // 8. Suggested dependencies.
+    // 7. Suggested dependencies.
     foreach (array_keys($config['suggestions']) as $suggest) {
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
-    // 9. NPM install and build (if applicable).
+    // 8. NPM install and build (if applicable).
     if ($config['has_package_lock'] && !$config['has_skip_npm_build']) {
       $cmd = $config['has_nvmrc'] ? 'nvm use && ' : '';
       $cmd .= $config['has_node_modules'] ? '' : 'npm --prefix build ci && ';
@@ -298,6 +310,12 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString('Dependencies installed', $output);
     $this->assertStringContainsString("Extension's code symlinked", $output);
     $this->assertStringContainsString('ASSEMBLE COMPLETE', $output);
+
+    // Verify asset-packagist was removed from the final build/composer.json.
+    $this->assertStringContainsString('Asset Packagist removed', $output);
+    $this->assertNotEmpty($this->capturedBuildComposerJson, 'Expected at least one write to build/composer.json');
+    $last_written = end($this->capturedBuildComposerJson);
+    $this->assertStringNotContainsString('asset-packagist.org', (string) $last_written);
 
     $drupal_version = $env['DRUPAL_VERSION'] ?? '11';
     $this->assertStringContainsString('Initialising Drupal ' . $drupal_version . ' site', $output);

@@ -132,7 +132,13 @@ PASS("Configuration from extension's composer.json merged.");
 // Asset Packagist sometimes fails, so we remove it by default. If it's needed,
 // the lines below can be commented out.
 TASK('Removing asset-packagist.');
-passthru('composer --working-dir=build config --unset repositories.1 2>/dev/null');
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
+if (!empty($build_json['repositories'])) {
+  /** @var array<int, array<string, string>> $repositories */
+  $repositories = (array) $build_json['repositories'];
+  $build_json['repositories'] = array_values(array_filter($repositories, fn(array $r): bool => !isset($r['url']) || !str_contains($r['url'], 'asset-packagist.org')));
+  file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+}
 PASS('Asset Packagist removed.');
 
 if (is_dir('patches')) {
