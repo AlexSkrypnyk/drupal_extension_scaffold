@@ -108,6 +108,7 @@
             <directory>web/themes/custom/*/tests</directory>
             <file>web/modules/custom/your_extension/rector.php</file>
             <file>web/themes/custom/your_extension/rector.php</file>
+            <directory>**/node_modules/**</directory>
             <!-- #;< META -->
             <file>../init.php</file>
             <!-- #;> META -->

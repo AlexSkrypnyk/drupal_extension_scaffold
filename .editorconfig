@@ -10,22 +10,16 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.php]
-indent_size = 2
-
-[*.js]
-indent_size = 2
-
 [*.{json,lock}]
 indent_size = 4
 
 [package.json]
 indent_size = 2
 
-[*.{yml,yaml}]
+[.eslintrc.json]
 indent_size = 2
 
-[*.{sh,bash,bats}]
+[.prettierrc.json]
 indent_size = 2
 
 [*.xml]

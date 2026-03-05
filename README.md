@@ -77,6 +77,9 @@ and push the code to [Drupal.org](https://drupal.org).
     with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
   - Twig code analysis
     with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
+  - JavaScript code analysis with [ESLint](https://eslint.org/).
+  - CSS code analysis with [Stylelint](https://stylelint.io/).
+  - Code formatting with [Prettier](https://prettier.io/).
 - PHPUnit testing support
 - Renovate configuration to keep your repository dependencies up-to-date.
 - [README.md](README.dist.md) template
@@ -203,9 +206,10 @@ If your extension requires frontend dependencies for testing, add them to the
 `package.json` file. The `package-lock.json` file is expected to be committed to
 the repository.
 
-The `assemble` command installs (`npm install`) and builds (`npm ci`) the
-frontend dependencies. You can add and commit `.skip_npm_build` file to skip
-the frontend dependencies build.
+The `assemble` command installs (`npm ci`) and builds (`npm run build`) the
+frontend dependencies within the `build` directory. You can add and commit a
+`.skip_npm_build` file to skip all Node.js processing, which will also
+disable JS/CSS linting (ESLint, Stylelint, Prettier).
 
 ### Provisioning the website
 
@@ -231,6 +235,8 @@ tools:
 - PHP code static analysis with PHPStan.
 - PHP deprecated code analysis and auto-fixing with Drupal Rector.
 - Twig code analysis with Twig CS Fixer.
+- JavaScript code analysis with ESLint.
+- CSS code analysis with Stylelint.
 
 The configuration files for these tools are located in the root of the codebase.
 

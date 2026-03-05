@@ -1,0 +1,8 @@
+global:
+  css:
+    component:
+      css/your_extension.css: {}
+  js:
+    js/your_extension.js: {}
+  dependencies:
+    - core/drupal

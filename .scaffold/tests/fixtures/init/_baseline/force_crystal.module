@@ -11,6 +11,13 @@
 declare(strict_types=1);
 
 /**
+ * Implements hook_page_attachments().
+ */
+function force_crystal_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'force_crystal/global';
+}
+
+/**
  * Implements hook_page_bottom().
  */
 function force_crystal_page_bottom(array &$page_bottom) {
@@ -26,4 +33,12 @@ function force_crystal_page_bottom(array &$page_bottom) {
       '#value' => $text,
     ];
   }
+
+  $page_bottom['force_crystal_time'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#attributes' => [
+      'data-force_crystal-time' => TRUE,
+    ],
+  ];
 }

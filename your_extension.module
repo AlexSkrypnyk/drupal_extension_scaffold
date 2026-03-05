@@ -11,6 +11,13 @@
 declare(strict_types=1);
 
 /**
+ * Implements hook_page_attachments().
+ */
+function your_extension_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'your_extension/global';
+}
+
+/**
  * Implements hook_page_bottom().
  */
 function your_extension_page_bottom(array &$page_bottom) {
@@ -26,4 +33,12 @@ function your_extension_page_bottom(array &$page_bottom) {
       '#value' => $text,
     ];
   }
+
+  $page_bottom['your_extension_time'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#attributes' => [
+      'data-your-extension-time' => TRUE,
+    ],
+  ];
 }
