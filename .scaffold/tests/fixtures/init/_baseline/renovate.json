@@ -1,6 +1,7 @@
 {
     "extends": ["config:recommended"],
     "automerge": true,
+    "rangeStrategy": "bump",
     "dependencyDashboard": true,
     "ignorePaths": [
         ".circleci/config.yml",
