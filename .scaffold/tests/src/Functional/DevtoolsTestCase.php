@@ -57,6 +57,8 @@ abstract class DevtoolsTestCase extends FunctionalTestCase {
     $this->assertFileExists($dir . '/.logs/coverage/phpunit/cobertura.xml');
     $this->assertFileNotContainsString($dir . '/.logs/coverage/phpunit/cobertura.xml', 'coverage line-rate="0"');
     $this->assertFileExists($dir . '/.logs/coverage/phpunit/.coverage-html/index.html');
+    // Changes to the coverage value would usually indicate that PHPUnit started
+    // to discover different number of source files.
     $this->assertFileContainsString($dir . '/.logs/coverage/phpunit/.coverage-html/index.html', '33.33% covered');
   }
 

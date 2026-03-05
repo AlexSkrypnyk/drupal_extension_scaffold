@@ -201,23 +201,23 @@ if (getenv('SYMFONY_DEPRECATIONS_HELPER') === 'disabled') {
   PASS('Deprecation notices disabled.');
 }
 
-// If front-end dependencies are used in the project, package-lock.json is
-// expected to be committed to the repository.
-if (file_exists('package-lock.json') && !file_exists('.skip_npm_build')) {
-  TASK('Processing front-end dependencies.');
-
-  $cmd = file_exists('.nvmrc') ? 'nvm use && ' : '';
-  $cmd .= is_dir('node_modules') ? '' : 'npm ci && ';
-  $cmd .= 'npm run build';
-  passthru_or_fail($cmd);
-
-  PASS('Front-end dependencies processed.');
-}
-
 TASK('Copying tools configuration files.');
 // Not every tool correctly resolves the path to the configuration file if it is
 // symlinked, so we copy them instead.
-$tool_files = ['phpcs.xml', 'phpstan.neon', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'];
+$tool_files = [
+  '.eslintignore',
+  '.eslintrc.json',
+  '.prettierignore',
+  '.prettierrc.json',
+  '.stylelintrc.js',
+  '.twig-cs-fixer.php',
+  'package-lock.json',
+  'package.json',
+  'phpcs.xml',
+  'phpstan.neon',
+  'phpunit.xml',
+  'rector.php',
+];
 foreach ($tool_files as $tool_file) {
   if (file_exists($tool_file)) {
     copy($tool_file, $build_dir . '/' . $tool_file);
@@ -249,6 +249,21 @@ foreach (glob($cwd . '/*') ?: [] as $item) {
   }
 }
 PASS("Extension's code symlinked.");
+
+// Install front-end dependencies and run the build in the build directory.
+// The extension's source files are available via symlink at this point.
+// Add a .skip_npm_build file to the project root to skip this step, which
+// will also disable JS/CSS linting (ESLint, Stylelint, Prettier).
+if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_build')) {
+  TASK('Processing front-end dependencies.');
+
+  $cmd = file_exists('.nvmrc') ? 'nvm use && ' : '';
+  $cmd .= is_dir($build_dir . '/node_modules') ? '' : 'npm --prefix ' . $build_dir . ' ci && ';
+  $cmd .= 'npm --prefix ' . $build_dir . ' run build';
+  passthru_or_fail($cmd);
+
+  PASS('Front-end dependencies processed.');
+}
 
 echo PHP_EOL;
 echo '===============================' . PHP_EOL;

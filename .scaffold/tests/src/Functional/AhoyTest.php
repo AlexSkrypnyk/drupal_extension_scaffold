@@ -30,7 +30,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertDirectoryExists(self::$sut . '/build/vendor');
     $this->assertFileExists(self::$sut . '/build/composer.json');
     $this->assertFileExists(self::$sut . '/build/composer.lock');
-    $this->assertDirectoryExists(self::$sut . '/node_modules');
+    $this->assertDirectoryExists(self::$sut . '/build/node_modules');
     $this->assertProcessAnyOutputContains('Would run build');
   }
 
@@ -44,7 +44,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertDirectoryExists(self::$sut . '/build/vendor');
     $this->assertFileExists(self::$sut . '/build/composer.json');
     $this->assertFileExists(self::$sut . '/build/composer.lock');
-    $this->assertDirectoryDoesNotExist(self::$sut . '/node_modules');
+    $this->assertDirectoryDoesNotExist(self::$sut . '/build/node_modules');
     $this->assertProcessAnyOutputNotContains('Would run build');
   }
 
@@ -124,7 +124,30 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    // PHP: introduce a PHPCS violation.
     File::append(self::$sut . '/your_extension.module', '$a=123;echo $a;' . PHP_EOL);
+
+    $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+
+    $this->processRun('ahoy', ['lint-fix'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+
+    $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    // JS: introduce a Prettier formatting violation (fixable).
+    File::append(self::$sut . '/js/your_extension.js', 'Drupal.behaviors.yourExtension.testValue =     "test"   ;' . PHP_EOL);
+
+    $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+
+    $this->processRun('ahoy', ['lint-fix'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+
+    $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    // CSS: introduce a Stylelint order violation (fixable).
+    File::append(self::$sut . '/css/your_extension.css', PHP_EOL . '.test {' . PHP_EOL . '  z-index: 1;' . PHP_EOL . '  color: red;' . PHP_EOL . '}' . PHP_EOL);
 
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();

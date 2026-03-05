@@ -76,6 +76,11 @@ job-test: &job-test
         working_directory: build
 
     - run:
+        name: Lint module code with NodeJS linters
+        command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
+        working_directory: build
+
+    - run:
         name: Run tests
         command: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build

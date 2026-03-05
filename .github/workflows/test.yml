@@ -134,24 +134,34 @@ jobs:
 
       - name: Lint code with PHPCS
         working-directory: build
-        run: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: vendor/bin/phpcs
+        continue-on-error: ${{ vars.CI_PHPCS_IGNORE_FAILURE == '1' }}
 
       - name: Lint code with PHPStan
         working-directory: build
-        run: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
-        continue-on-error: ${{ endsWith(matrix.name, 'canary') }} # PHPStan levels for canary releases are not the same as for this project.
+        run: vendor/bin/phpstan
+        continue-on-error: ${{ vars.CI_PHPSTAN_IGNORE_FAILURE == '1' || endsWith(matrix.name, 'canary') }}
 
       - name: Lint code with Rector
         working-directory: build
-        run: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: vendor/bin/rector --clear-cache --dry-run
+        continue-on-error: ${{ vars.CI_RECTOR_IGNORE_FAILURE == '1' }}
 
       - name: Lint code with Twig CS Fixer
         working-directory: build
-        run: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: vendor/bin/twig-cs-fixer
+        continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
+
+      - name: Lint module code with NodeJS linters
+        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+        working-directory: build
+        run: npm run lint
+        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
       - name: Run tests
         working-directory: build
-        run: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        run: php -d pcov.directory=.. vendor/bin/phpunit
+        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
         env:
           BROWSERTEST_OUTPUT_DIRECTORY: /tmp
           SIMPLETEST_DB: sqlite://tmp/db.sqlite

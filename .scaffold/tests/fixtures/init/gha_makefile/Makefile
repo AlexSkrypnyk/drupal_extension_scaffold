@@ -54,6 +54,7 @@ lint:
 	vendor/bin/phpstan && \
 	vendor/bin/rector --clear-cache --dry-run && \
 	vendor/bin/twig-cs-fixer && \
+	([ ! -d node_modules ] || npm run lint) && \
 	popd >/dev/null || exit 1
 
 lint-fix:
@@ -61,6 +62,7 @@ lint-fix:
 	vendor/bin/rector --clear-cache && \
 	vendor/bin/phpcbf && \
 	vendor/bin/twig-cs-fixer --no-cache --fix && \
+	([ ! -d node_modules ] || npm run lint-fix) && \
 	popd >/dev/null || exit 1
 
 test:

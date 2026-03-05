@@ -103,16 +103,15 @@ final class AssembleTest extends UnitTestCase {
     });
 
     // Mock file_exists - multiple contexts.
-    $all_tool_files = ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'];
+    $all_tool_files = ['.eslintignore', '.eslintrc.json', '.prettierignore', '.prettierrc.json', '.stylelintrc.js', '.twig-cs-fixer.php', 'package-lock.json', 'package.json', 'phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'phpunit.xml', 'rector.php'];
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($config, $all_tool_files, $drupal_version_major) {
       if ($file === 'composer.json') {
         return TRUE;
       }
       if (str_ends_with($file, '.info.yml')) {
-        $info_content = $config['extension_type'] === 'theme' ? "type: theme\n" : "type: module\n";
         return TRUE;
       }
-      if ($file === 'package-lock.json') {
+      if ($file === 'build/package-lock.json') {
         return $config['has_package_lock'];
       }
       if ($file === '.skip_npm_build') {
@@ -160,7 +159,7 @@ final class AssembleTest extends UnitTestCase {
         // For the symlink section remove_dir check.
         return TRUE;
       }
-      if ($path === 'node_modules') {
+      if ($path === 'build/node_modules') {
         return $config['has_node_modules'];
       }
       return FALSE;
@@ -236,11 +235,11 @@ final class AssembleTest extends UnitTestCase {
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
-    // 9. NPM build (if applicable).
+    // 9. NPM install and build (if applicable).
     if ($config['has_package_lock'] && !$config['has_skip_npm_build']) {
       $cmd = $config['has_nvmrc'] ? 'nvm use && ' : '';
-      $cmd .= $config['has_node_modules'] ? '' : 'npm ci && ';
-      $cmd .= 'npm run build';
+      $cmd .= $config['has_node_modules'] ? '' : 'npm --prefix build ci && ';
+      $cmd .= 'npm --prefix build run build';
       $passthru_responses[] = ['cmd' => $cmd];
     }
 
@@ -321,6 +320,7 @@ final class AssembleTest extends UnitTestCase {
 
     if ($config['has_package_lock'] && !($config['has_skip_npm_build'] ?? FALSE)) {
       $this->assertStringContainsString('Processing front-end dependencies', $output);
+      $this->assertStringContainsString('Front-end dependencies processed', $output);
     }
   }
 
@@ -404,11 +404,10 @@ final class AssembleTest extends UnitTestCase {
         'has_package_lock' => TRUE,
         'has_skip_npm_build' => FALSE,
         'has_nvmrc' => FALSE,
-        'has_node_modules' => FALSE,
         'tool_files' => ['phpcs.xml', 'phpunit.xml'],
       ],
     ];
-    yield 'with NPM build, nvmrc and node_modules' => [
+    yield 'with NPM build and nvmrc' => [
       'env' => [],
       'config' => [
         'extension_type' => 'module',
@@ -419,6 +418,19 @@ final class AssembleTest extends UnitTestCase {
         'has_package_lock' => TRUE,
         'has_skip_npm_build' => FALSE,
         'has_nvmrc' => TRUE,
+        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
+      ],
+    ];
+    yield 'with NPM build and existing node_modules' => [
+      'env' => [],
+      'config' => [
+        'extension_type' => 'module',
+        'github_token' => '',
+        'suggestions' => [],
+        'has_build_dir' => FALSE,
+        'has_patches' => FALSE,
+        'has_package_lock' => TRUE,
+        'has_skip_npm_build' => FALSE,
         'has_node_modules' => TRUE,
         'tool_files' => ['phpcs.xml', 'phpunit.xml'],
       ],
@@ -520,7 +532,6 @@ final class AssembleTest extends UnitTestCase {
         'has_package_lock' => TRUE,
         'has_skip_npm_build' => FALSE,
         'has_nvmrc' => TRUE,
-        'has_node_modules' => FALSE,
         'has_deprecations_disabled' => TRUE,
         'has_polyfill_bootstrap' => TRUE,
         'has_version_specific_phpunit' => TRUE,

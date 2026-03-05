@@ -1,0 +1,16 @@
+/**
+ * @file
+ * Your Extension styles.
+ */
+
+[data-your-extension-time] {
+  color: #f00;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+[data-your-extension-time].your-extension-processed {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
