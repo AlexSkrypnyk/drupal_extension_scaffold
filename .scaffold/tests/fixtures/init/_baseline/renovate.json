@@ -3,8 +3,5 @@
     "automerge": true,
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
-    "ignorePaths": [
-        ".circleci/config.yml",
-        ".github/workflows/test.yml"
-    ]
+    "pinDigests": true
 }
