@@ -88,10 +88,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@__VERSION__
+        uses: actions/checkout@__HASH__ # __VERSION__
 
       - name: Cache Composer dependencies
-        uses: actions/cache@__VERSION__
+        uses: actions/cache@__HASH__ # __VERSION__
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
@@ -106,7 +106,7 @@ jobs:
           sudo ldconfig
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@__VERSION__
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
         with:
           php-version: ${{ matrix.php-version }}
           extensions: gd, sqlite, pdo_sqlite
@@ -167,14 +167,14 @@ jobs:
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
 
       - name: Upload test results as an artifact
-        uses: actions/upload-artifact@__VERSION__
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
         if: always()
         with:
           name: Artifacts (${{ matrix.name }})
           path: build/web/sites/simpletest/browser_output
 
       - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@__VERSION__
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
           path: ./.logs/coverage/phpunit/.coverage-html
@@ -182,7 +182,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@__VERSION__
+        uses: codecov/codecov-action@__HASH__ # __VERSION__
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
           files: ./.logs/coverage/phpunit/cobertura.xml
