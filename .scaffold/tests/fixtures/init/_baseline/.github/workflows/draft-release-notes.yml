@@ -20,6 +20,6 @@ jobs:
 
     steps:
       - name: Draft release notes
-        uses: release-drafter/release-drafter@__VERSION__
+        uses: release-drafter/release-drafter@__HASH__ # __VERSION__
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

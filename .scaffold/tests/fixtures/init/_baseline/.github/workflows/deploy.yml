@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@__VERSION__
+        uses: actions/checkout@__HASH__ # __VERSION__
         with:
           fetch-depth: 0
 
       - name: Install SSH key
-        uses: shimataro/ssh-key-action@__VERSION__
+        uses: shimataro/ssh-key-action@__HASH__ # __VERSION__
         with:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           known_hosts: unnecessary
