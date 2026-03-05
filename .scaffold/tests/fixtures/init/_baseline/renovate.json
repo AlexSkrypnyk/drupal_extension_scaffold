@@ -3,5 +3,23 @@
     "automerge": true,
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
-    "pinDigests": true
+    "pinDigests": true,
+    "separateMajorMinor": false,
+    "groupName": "all dependencies",
+    "groupSlug": "all",
+    "composer": {
+        "managerFilePatterns": ["/composer\\.dev\\.json$/"]
+    },
+    "packageRules": [
+        {
+            "matchManagers": ["composer"],
+            "matchFileNames": ["composer.json"],
+            "enabled": false
+        },
+        {
+            "matchPackageNames": ["*"],
+            "groupName": "all dependencies",
+            "groupSlug": "all"
+        }
+    ]
 }
