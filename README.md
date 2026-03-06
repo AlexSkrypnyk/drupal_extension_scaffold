@@ -42,6 +42,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Deployment](#deployment)
 - [Updating your extension](#updating-your-extension)
 - [Renovate](#renovate)
+- [Projects using this scaffold](#projects-using-this-scaffold)
 - [Maintenance](#maintenance)
 
 ## Features
@@ -445,6 +446,13 @@ dependencies up-to-date.
 
 See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/)
 for all available options.
+
+## Projects using this scaffold
+
+- [Testmode](https://github.com/AlexSkrypnyk/testmode) - Drupal module to alter existing site content and other configurations when running tests.
+- [Generated Content](https://github.com/AlexSkrypnyk/generated_content) - Drupal module to programmatically generate content.
+- [Integration Report](https://github.com/AlexSkrypnyk/integration_report) - Drupal module to report on availability status of 3rd party endpoints.
+- [API Credentials Manager](https://github.com/AlexSkrypnyk/acm) - Drupal module to manage API credentials.
 
 ---
 
