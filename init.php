@@ -34,6 +34,11 @@ function main(array $argv, int $argc): void {
     return;
   }
 
+  if (in_array('--no-interaction', $argv, TRUE)) {
+    no_interaction(TRUE);
+    $argv = array_values(array_filter($argv, static fn(string $v): bool => $v !== '--no-interaction'));
+  }
+
   $extension_name = $argv[1] ?? '';
   $extension_machine_name = $argv[2] ?? '';
   $extension_type = $argv[3] ?? '';
@@ -177,6 +182,7 @@ Arguments:
 
 Options:
   --help                This help.
+  --no-interaction      Skip interactive prompts; use default values.
 
 Examples:
   Interactive:
@@ -184,6 +190,9 @@ Examples:
 
   Silent:
     php {$script_name} "Extension Name" extension_machine_name module gha ahoy
+
+  Non-interactive:
+    php {$script_name} "Extension Name" extension_machine_name module gha ahoy --no-interaction
 
 EOF;
   verbose($out);
@@ -509,6 +518,13 @@ function is_binary_file(string $path): bool {
  *   The user's input or the default value.
  */
 function ask(string $prompt, string $default = '', array|callable|null $validator = NULL): string {
+  if (no_interaction()) {
+    if ($default !== '') {
+      return $default;
+    }
+    throw new \Exception("No default value for prompt '" . $prompt . "' in non-interactive mode.");
+  }
+
   $display = $default !== '' ? color($prompt, 'green') . ' [' . color($default, 'dim') . ']: ' : color($prompt, 'green') . ': ';
   $result = '';
   while ($result === '') {
@@ -545,6 +561,10 @@ function ask(string $prompt, string $default = '', array|callable|null $validato
  *   The lowercased answer ('y' or 'n').
  */
 function ask_yesno(string $prompt, string $default = 'Y'): string {
+  if (no_interaction()) {
+    return strtolower($default);
+  }
+
   $options = $default === 'Y' ? 'Y/n' : 'y/N';
   $result = readline(color($prompt, 'green') . ' [' . color($options, 'dim') . ']: ');
   if ($result === FALSE || trim($result) === '') {
@@ -590,6 +610,24 @@ function color(string $text, string $color): string {
   $codes = ['red' => '31', 'green' => '32', 'yellow' => '33', 'cyan' => '36', 'dim' => '2'];
 
   return "\033[" . ($codes[$color] ?? '0') . 'm' . $text . "\033[0m";
+}
+
+/**
+ * Get or set the non-interactive mode flag.
+ *
+ * @param bool|null $value
+ *   Pass TRUE or FALSE to set the flag, or NULL to read it.
+ *
+ * @return bool
+ *   The current non-interactive mode state.
+ */
+function no_interaction(?bool $value = NULL): bool {
+  static $active = FALSE;
+  if ($value !== NULL) {
+    $active = $value;
+  }
+
+  return $active;
 }
 
 /**
