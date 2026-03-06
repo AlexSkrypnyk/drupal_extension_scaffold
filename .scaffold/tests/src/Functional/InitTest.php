@@ -42,6 +42,7 @@ final class InitTest extends FunctionalTestCase {
     array $expected = [],
     ?SerializableClosure $before = NULL,
     ?SerializableClosure $after = NULL,
+    bool $no_interaction = FALSE,
   ): void {
     self::$fixtures = static::locationsFixtureDir();
 
@@ -50,9 +51,14 @@ final class InitTest extends FunctionalTestCase {
       $before($this);
     }
 
-    $answers = self::tuiEntries(array_replace(self::defaultAnswers(), $answers));
-
-    $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], $answers);
+    if ($no_interaction) {
+      $args = ['Force Crystal', 'force_crystal', 'module', 'gha', 'ahoy', '--no-interaction'];
+      $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', $args);
+    }
+    else {
+      $answers = self::tuiEntries(array_replace(self::defaultAnswers(), $answers));
+      $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], $answers);
+    }
 
     $this->assertProcessSuccessful();
 
@@ -124,6 +130,14 @@ final class InitTest extends FunctionalTestCase {
       [
         'remove_self' => 'n',
       ],
+    ];
+
+    yield 'no_interaction' => [
+      [],
+      [],
+      NULL,
+      NULL,
+      TRUE,
     ];
   }
 

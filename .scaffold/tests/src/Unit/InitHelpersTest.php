@@ -399,6 +399,44 @@ final class InitHelpersTest extends UnitTestCase {
     ];
   }
 
+  public function testAskNoInteractionWithDefault(): void {
+    no_interaction(TRUE);
+    try {
+      $this->assertSame('default_val', ask('Name', 'default_val'));
+    }
+    finally {
+      no_interaction(FALSE);
+    }
+  }
+
+  public function testAskNoInteractionWithoutDefault(): void {
+    no_interaction(TRUE);
+    try {
+      $this->expectException(\Exception::class);
+      $this->expectExceptionMessage("No default value for prompt 'Name' in non-interactive mode.");
+      ask('Name');
+    }
+    finally {
+      no_interaction(FALSE);
+    }
+  }
+
+  #[DataProvider('dataProviderAskYesnoNoInteraction')]
+  public function testAskYesnoNoInteraction(string $default, string $expected): void {
+    no_interaction(TRUE);
+    try {
+      $this->assertSame($expected, ask_yesno('Proceed', $default));
+    }
+    finally {
+      no_interaction(FALSE);
+    }
+  }
+
+  public static function dataProviderAskYesnoNoInteraction(): \Iterator {
+    yield 'default Y returns y' => ['Y', 'y'];
+    yield 'default N returns n' => ['N', 'n'];
+  }
+
   public function testVerboseReturnsBuffer(): void {
     $buffer = verbose('Test message' . PHP_EOL);
     $this->assertContains('Test message' . PHP_EOL, $buffer);
