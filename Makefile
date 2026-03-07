@@ -2,7 +2,7 @@ SHELL=/bin/bash
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
-.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, start, status, stop, test, test-functional, test-kernel, test-unit
+.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-kernel, test-unit
 
 help:
 	@echo "COMMANDS"
@@ -17,10 +17,13 @@ help:
 	@echo "reset           - Reset project to the default state."
 	@echo "start           - Start development environment."
 	@echo "stop            - Stop development environment."
-	@echo "test            - Run all tests."
-	@echo "test-functional - Run functional tests."
-	@echo "test-kernel     - Run kernel tests."
-	@echo "test-unit       - Run unit tests."
+	@echo "test                       - Run all tests."
+	@echo "test-functional            - Run functional tests."
+	@echo "test-functional-javascript - Run FunctionalJavascript tests."
+	@echo "test-kernel                - Run kernel tests."
+	@echo "test-unit                  - Run unit tests."
+	@echo "selenium-start             - Start Selenium container."
+	@echo "selenium-stop              - Stop Selenium container."
 
 build: stop assemble start provision
 
@@ -84,6 +87,28 @@ test-functional:
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
+
+test-functional-javascript: selenium-start
+	pushd "build" >/dev/null || exit 1 && \
+	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
+	popd >/dev/null || exit 1
+
+selenium-start:
+	@if curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
+		echo "Selenium container is already running."; \
+	else \
+		docker rm -f selenium 2>/dev/null || true; \
+		docker run -d --name selenium -p 4444:4444 selenium/standalone-chromium:latest; \
+		echo "Waiting for Selenium to be ready..."; \
+		for i in $$(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done; \
+		if ! curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
+			echo "ERROR: Selenium failed to become ready after 30 seconds."; \
+			exit 1; \
+		fi; \
+	fi
+
+selenium-stop:
+	docker rm -f selenium 2>/dev/null || true
 
 reset:
 	killall -9 php >/dev/null 2>&1 || true && \

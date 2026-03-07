@@ -16,6 +16,12 @@ jobs:
   scaffold-test-devtools:
     runs-on: ubuntu-latest
 
+    services:
+      chrome:
+        image: selenium/standalone-chromium:latest
+        ports:
+          - 4444:4444
+
     strategy:
       fail-fast: false
 
@@ -75,6 +81,7 @@ jobs:
         working-directory: .scaffold/tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7

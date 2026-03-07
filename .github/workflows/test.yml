@@ -81,6 +81,12 @@ jobs:
             php-version: 8.4
             drupal-version: 11@beta
 
+    services:
+      chrome:
+        image: selenium/standalone-chromium:latest
+        ports:
+          - 4444:4444
+
     name: ${{ matrix.name }}
 
     env:
@@ -128,6 +134,8 @@ jobs:
 
       - name: Start built-in PHP server
         run: .devtools/start
+        env:
+          WEBSERVER_HOST: 0.0.0.0
 
       - name: Provision site
         run: .devtools/provision
