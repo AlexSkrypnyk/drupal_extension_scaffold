@@ -289,6 +289,8 @@ function process_internal(string $extension_name, string $extension_machine_name
   @rename('tests/src/Unit/YourExtensionServiceUnitTest.php', 'tests/src/Unit/' . $extension_machine_name_class . 'ServiceUnitTest.php');
   @rename('tests/src/Kernel/YourExtensionServiceKernelTest.php', 'tests/src/Kernel/' . $extension_machine_name_class . 'ServiceKernelTest.php');
   @rename('tests/src/Functional/YourExtensionFunctionalTest.php', 'tests/src/Functional/' . $extension_machine_name_class . 'FunctionalTest.php');
+  @rename('tests/src/FunctionalJavascript/YourExtensionJsTestBase.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'JsTestBase.php');
+  @rename('tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'SmokeJsTest.php');
 
   // Remove scaffold files.
   @unlink('LICENSE');

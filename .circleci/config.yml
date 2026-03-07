@@ -15,6 +15,9 @@ aliases:
     docker:
       - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
 
+  - &selenium_image
+    image: selenium/standalone-chromium:latest
+
 job-test: &job-test
   steps:
     - checkout
@@ -50,6 +53,8 @@ job-test: &job-test
     - run:
         name: Start built-in PHP server
         command: .devtools/start
+        environment:
+          WEBSERVER_HOST: 0.0.0.0
 
     - run:
         name: Provision site
@@ -110,6 +115,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.2
     <<: *job-test
@@ -118,6 +124,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
     <<: *job-test
@@ -126,6 +133,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
@@ -135,6 +143,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.2
     <<: *job-test
@@ -143,6 +152,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
     <<: *job-test
@@ -151,6 +161,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
@@ -160,6 +171,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3 # Lowest Drupal version that supports PHP 8.4.
     <<: *job-test
@@ -168,6 +180,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
     <<: *job-test
@@ -176,6 +189,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
@@ -185,6 +199,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
     <<: *job-test
@@ -193,6 +208,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0
     <<: *job-test
@@ -201,6 +217,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
@@ -210,6 +227,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
     <<: *job-test
@@ -218,6 +236,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0
     <<: *job-test
@@ -226,6 +245,7 @@ jobs:
     <<: *container_config
     docker:
       - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - *selenium_image
     environment:
       DRUPAL_VERSION: 11@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
