@@ -158,6 +158,19 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
+  public function testJsTestFailure(): void {
+    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
+
+    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+  }
+
   public function testUnitTestFailure(): void {
     $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();

@@ -217,6 +217,7 @@ $tool_files = [
   '.prettierrc.json',
   '.stylelintrc.js',
   '.twig-cs-fixer.php',
+  'jest.config.js',
   'package-lock.json',
   'package.json',
   'phpcs.xml',
