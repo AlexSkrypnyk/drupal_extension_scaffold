@@ -165,6 +165,19 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
+  public function testJsTestFailure(): void {
+    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
+
+    $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+  }
+
   public function testUnitTestFailure(): void {
     $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();

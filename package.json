@@ -11,7 +11,7 @@
     "lint-fix-js": "eslint web/modules/custom web/themes/custom --ext .js --no-error-on-unmatched-pattern --fix",
     "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" \"web/themes/custom/**/*.css\" --fix",
     "lint-fix": "npm run lint-fix-js && npm run lint-fix-css",
-    "test": "echo Would run tests",
+    "test": "jest",
     "build": "echo Would run build"
   },
   "engines": {
@@ -34,6 +34,8 @@
     "prettier": "^3.8.1",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^36.0.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "stylelint-order": "^7.0.1"
   }
 }

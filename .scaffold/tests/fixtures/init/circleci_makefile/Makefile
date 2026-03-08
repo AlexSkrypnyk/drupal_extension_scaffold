@@ -2,7 +2,7 @@ SHELL=/bin/bash
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
-.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-kernel, test-unit
+.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit
 
 help:
 	@echo "COMMANDS"
@@ -24,6 +24,7 @@ help:
 	@echo "test-unit                  - Run unit tests."
 	@echo "selenium-start             - Start Selenium container."
 	@echo "selenium-stop              - Stop Selenium container."
+	@echo "test-js                    - Run JavaScript unit tests."
 
 build: stop assemble start provision
 
@@ -109,6 +110,11 @@ selenium-start:
 
 selenium-stop:
 	docker rm -f selenium 2>/dev/null || true
+
+test-js:
+	pushd "build" >/dev/null || exit 1 && \
+	([ ! -d node_modules ] || npm test) && \
+	popd >/dev/null || exit 1
 
 reset:
 	killall -9 php >/dev/null 2>&1 || true && \

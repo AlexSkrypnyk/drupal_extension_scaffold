@@ -8,6 +8,9 @@
  */
 ((Drupal) => {
   Drupal.behaviors.yourExtension = {
+    formatLoadTime(date) {
+      return `Page loaded: ${date.toLocaleString()}`;
+    },
     attach(context) {
       const elements = context.querySelectorAll(
         '[data-your-extension-time]:not(.your-extension-processed)',
@@ -15,7 +18,7 @@
 
       elements.forEach((element) => {
         element.classList.add('your-extension-processed');
-        element.textContent = `Page loaded: ${new Date().toLocaleString()}`;
+        element.textContent = this.formatLoadTime(new Date());
       });
     },
   };
