@@ -16,24 +16,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('p3')]
 final class AhoyTest extends DevtoolsTestCase {
 
-  public function testBuild(): void {
-    $this->processRun('ahoy', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
-  }
-
-  public function testAssemble(): void {
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
-    $this->assertDirectoryExists(self::$sut . '/build/vendor');
-    $this->assertFileExists(self::$sut . '/build/composer.json');
-    $this->assertFileExists(self::$sut . '/build/composer.lock');
-    $this->assertDirectoryExists(self::$sut . '/build/node_modules');
-    $this->assertProcessAnyOutputContains('Would run build');
-  }
-
   public function testAssembleSkipNpmBuild(): void {
     touch(self::$sut . '/.skip_npm_build');
 
@@ -48,38 +30,33 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessAnyOutputNotContains('Would run build');
   }
 
-  public function testStart(): void {
+  public function testWorkflow(): void {
+    // Start without build fails.
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
     $this->assertProcessAnyOutputNotContains('ENVIRONMENT READY');
 
+    // Stop without build succeeds.
+    $this->processRun('ahoy', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
+
     $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
+    $this->assertDirectoryExists(self::$sut . '/build/vendor');
+    $this->assertFileExists(self::$sut . '/build/composer.json');
+    $this->assertFileExists(self::$sut . '/build/composer.lock');
+    $this->assertDirectoryExists(self::$sut . '/build/node_modules');
+    $this->assertProcessAnyOutputContains('Would run build');
 
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
-  }
-
-  public function testStop(): void {
-    $this->processRun('ahoy', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
-
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
-    $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
 
     $this->processRun('ahoy', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
-  }
-
-  public function testProvision(): void {
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
 
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -89,16 +66,11 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
 
+    // Provision is idempotent.
     $this->processRun('ahoy', ['provision'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
-  }
-
-  public function testBuildBasicWorkflow(): void {
-    $this->processRun('ahoy', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
 
     $this->processRun('ahoy', ['drush', 'status'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -109,18 +81,24 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('user/reset/1/');
 
-    $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
+    $this->runLint();
 
     $this->processRun('ahoy', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+
+    $this->runJsTests();
+
+    $this->runUnitTests();
+
+    $this->runKernelTests();
+
+    $this->runFunctionalTests();
+
+    $this->runFunctionalJavascriptTests();
   }
 
-  public function testLintAndLintFix(): void {
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runLint(): void {
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -158,10 +136,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
-  public function testJsTestFailure(): void {
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runJsTests(): void {
     $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -171,10 +146,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testUnitTestFailure(): void {
-    $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runUnitTests(): void {
     $this->processRun('ahoy', ['test-unit'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -186,10 +158,17 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testFunctionalTestFailure(): void {
-    $this->processRun('ahoy', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+  protected function runKernelTests(): void {
+    $this->processRun('ahoy', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    File::replaceContentInFile(self::$sut . '/tests/src/Kernel/YourExtensionServiceKernelTest.php', 'assertEquals', 'assertNotEquals');
+
+    $this->processRun('ahoy', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+  }
+
+  protected function runFunctionalTests(): void {
     $this->processRun('ahoy', ['test-functional'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
@@ -200,16 +179,13 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testKernelTestFailure(): void {
-    $this->processRun('ahoy', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+  protected function runFunctionalJavascriptTests(): void {
+    $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    $this->processRun('ahoy', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
+    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'assertNotEmpty', 'assertEmpty');
 
-    File::replaceContentInFile(self::$sut . '/tests/src/Kernel/YourExtensionServiceKernelTest.php', 'assertEquals', 'assertNotEquals');
-
-    $this->processRun('ahoy', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
   }
 
