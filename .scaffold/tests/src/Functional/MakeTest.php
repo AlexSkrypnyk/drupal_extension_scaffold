@@ -16,30 +16,6 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('p4')]
 final class MakeTest extends DevtoolsTestCase {
 
-  public function testDefault(): void {
-    $this->processRun('make', [], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
-    $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
-
-    $this->assertDirectoryExists(self::$sut . '/build/vendor');
-    $this->assertFileExists(self::$sut . '/build/composer.json');
-    $this->assertFileExists(self::$sut . '/build/composer.lock');
-  }
-
-  public function testAssemble(): void {
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
-    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
-    $this->assertDirectoryExists(self::$sut . '/build/vendor');
-    $this->assertFileExists(self::$sut . '/build/composer.json');
-    $this->assertFileExists(self::$sut . '/build/composer.lock');
-    $this->assertDirectoryExists(self::$sut . '/build/node_modules');
-    $this->assertProcessAnyOutputContains('Would run build');
-  }
-
   public function testAssembleSkipNpmBuild(): void {
     touch(self::$sut . '/.skip_npm_build');
 
@@ -54,39 +30,32 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessAnyOutputNotContains('Would run build');
   }
 
-  public function testStart(): void {
+  public function testWorkflow(): void {
+    // Start without build fails.
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
+    // Stop without build succeeds.
+    $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
+
     $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
+    $this->assertDirectoryExists(self::$sut . '/build/vendor');
+    $this->assertFileExists(self::$sut . '/build/composer.json');
+    $this->assertFileExists(self::$sut . '/build/composer.lock');
+    $this->assertDirectoryExists(self::$sut . '/build/node_modules');
+    $this->assertProcessAnyOutputContains('Would run build');
 
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
-  }
-
-  public function testStop(): void {
-    $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
-
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
-    $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
 
     $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
-  }
-
-  public function testProvision(): void {
-    $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
 
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -96,16 +65,11 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
 
+    // Provision is idempotent.
     $this->processRun('make', ['provision'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
-  }
-
-  public function testBuildBasicWorkflow(): void {
-    $this->processRun('make', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
 
     $this->processRun('make', ['drush', 'status'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -116,18 +80,24 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('user/reset/1/');
 
-    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
+    $this->runLint();
 
     $this->processRun('make', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+
+    $this->runJsTests();
+
+    $this->runUnitTests();
+
+    $this->runKernelTests();
+
+    $this->runFunctionalTests();
+
+    $this->runFunctionalJavascriptTests();
   }
 
-  public function testLintAndLintFix(): void {
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runLint(): void {
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -165,10 +135,7 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
-  public function testJsTestFailure(): void {
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runJsTests(): void {
     $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -178,10 +145,7 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testUnitTestFailure(): void {
-    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-
+  protected function runUnitTests(): void {
     $this->processRun('make', ['test-unit'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -193,10 +157,17 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testFunctionalTestFailure(): void {
-    $this->processRun('make', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+  protected function runKernelTests(): void {
+    $this->processRun('make', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    File::replaceContentInFile(self::$sut . '/tests/src/Kernel/YourExtensionServiceKernelTest.php', 'assertEquals', 'assertNotEquals');
+
+    $this->processRun('make', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+  }
+
+  protected function runFunctionalTests(): void {
     $this->processRun('make', ['test-functional'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
@@ -207,16 +178,13 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
   }
 
-  public function testKernelTestFailure(): void {
-    $this->processRun('make', ['build'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+  protected function runFunctionalJavascriptTests(): void {
+    $this->processRun('make', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    $this->processRun('make', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
+    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'assertNotEmpty', 'assertEmpty');
 
-    File::replaceContentInFile(self::$sut . '/tests/src/Kernel/YourExtensionServiceKernelTest.php', 'assertEquals', 'assertNotEquals');
-
-    $this->processRun('make', ['test-kernel'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->processRun('make', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
   }
 
