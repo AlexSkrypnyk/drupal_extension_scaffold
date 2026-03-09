@@ -191,4 +191,4 @@ php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 ```
 
 ---
-_This repository was created using the [Drupal Extension Scaffold](https://github.com/force_crystal/force_crystal) project template_
+_This repository was created using the [Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold) project template_

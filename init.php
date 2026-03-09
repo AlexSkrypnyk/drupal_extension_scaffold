@@ -228,6 +228,11 @@ function process_readme(string $extension_name): void {
 function process_internal(string $extension_name, string $extension_machine_name, string $extension_type): void {
   $extension_machine_name_class = convert_string($extension_machine_name, 'class_name');
 
+  // Protect the scaffold attribution link from bulk replacements.
+  $scaffold_link = '[Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold)';
+  $scaffold_link_token = '__SCAFFOLD_ATTRIBUTION_LINK__';
+  replace_string_content($scaffold_link, $scaffold_link_token);
+
   replace_string_content('YourNamespace', $extension_machine_name);
   replace_string_content('yournamespace', $extension_machine_name);
   replace_string_content('AlexSkrypnyk', $extension_machine_name);
@@ -247,6 +252,9 @@ function process_internal(string $extension_name, string $extension_machine_name
   replace_string_content('drupal_extension_scaffold', $extension_machine_name);
   replace_string_content('type: module', 'type: ' . $extension_type);
   replace_string_content('[EXTENSION_NAME]', $extension_machine_name);
+
+  // Restore the scaffold attribution link.
+  replace_string_content($scaffold_link_token, $scaffold_link);
 
   remove_string_content('# Uncomment the lines below in your project.');
   uncomment_line('.gitattributes', 'AGENTS.md');
@@ -291,6 +299,10 @@ function process_internal(string $extension_name, string $extension_machine_name
   @rename('tests/src/Functional/YourExtensionFunctionalTest.php', 'tests/src/Functional/' . $extension_machine_name_class . 'FunctionalTest.php');
   @rename('tests/src/FunctionalJavascript/YourExtensionJsTestBase.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'JsTestBase.php');
   @rename('tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'SmokeJsTest.php');
+  @rename('css/your_extension.css', 'css/' . $extension_machine_name . '.css');
+  @rename('js/your_extension.js', 'js/' . $extension_machine_name . '.js');
+  @rename('js/your_extension.test.js', 'js/' . $extension_machine_name . '.test.js');
+  @rename('your_extension.libraries.yml', $extension_machine_name . '.libraries.yml');
 
   // Remove scaffold files.
   @unlink('LICENSE');
