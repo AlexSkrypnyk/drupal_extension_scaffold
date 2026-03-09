@@ -214,7 +214,9 @@ function extension_info(): array {
   if ($info_files === FALSE || $info_files === []) {
     FAIL('No .info.yml file found.');
 
+    // @codeCoverageIgnoreStart
     return ['name' => '', 'type' => ''];
+    // @codeCoverageIgnoreEnd
   }
   $name = basename($info_files[0], '.info.yml');
   $type = str_contains((string) file_get_contents($info_files[0]), 'type: theme') ? 'theme' : 'module';
@@ -240,14 +242,18 @@ function replace_in_file(string $file, string $pattern, string $replacement): st
   if ($content === FALSE) {
     FAIL('Unable to read file %s.', $file);
 
+    // @codeCoverageIgnoreStart
     return '';
+    // @codeCoverageIgnoreEnd
   }
 
   $replaced = preg_replace($pattern, $replacement, $content);
   if ($replaced === NULL) {
     FAIL('Regex replacement failed in file %s with pattern %s.', $file, $pattern);
 
+    // @codeCoverageIgnoreStart
     return $content;
+    // @codeCoverageIgnoreEnd
   }
 
   file_put_contents($file, $replaced);
