@@ -4,29 +4,17 @@
     "rangeStrategy": "bump",
     "dependencyDashboard": true,
     "pinDigests": true,
-    "major": {
-        "enabled": false
-    },
-    "groupName": "all dependencies",
-    "groupSlug": "all",
     "branchPrefix": "deps/",
-    "composer": {
-        "managerFilePatterns": ["/composer\\.dev\\.json$/"]
-    },
+    "enabledManagers": ["github-actions", "npm"],
     "packageRules": [
-        {
-            "matchDepNames": ["php"],
-            "matchManagers": ["composer"],
-            "enabled": false
-        },
         {
             "matchDepNames": ["node", "yarn"],
             "matchManagers": ["npm"],
             "enabled": false
         },
         {
-            "matchManagers": ["composer"],
-            "matchFileNames": ["composer.json"],
+            "matchManagers": ["npm"],
+            "matchUpdateTypes": ["major"],
             "enabled": false
         },
         {
