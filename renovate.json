@@ -15,6 +15,16 @@
     },
     "packageRules": [
         {
+            "matchDepNames": ["php"],
+            "matchManagers": ["composer"],
+            "enabled": false
+        },
+        {
+            "matchDepNames": ["node", "yarn"],
+            "matchManagers": ["npm"],
+            "enabled": false
+        },
+        {
             "matchManagers": ["composer"],
             "matchFileNames": ["composer.json"],
             "enabled": false
