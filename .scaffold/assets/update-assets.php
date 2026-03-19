@@ -8,6 +8,12 @@
  * Records terminal sessions for init, build, lint, and test commands,
  * then converts the recordings to animated SVGs for use in README.md.
  *
+ * Supports parallel execution: when run without arguments, launches all
+ * recordings as parallel worker processes for faster generation.
+ *
+ * Init runs first (it initialises the workspace), then build/lint/test
+ * run in parallel on the initialised workspace.
+ *
  * Dependencies: asciinema, expect, node, npm
  *
  * Environment variables:
@@ -16,6 +22,7 @@
  * Usage:
  * @code
  * php .scaffold/assets/update-assets.php
+ * php .scaffold/assets/update-assets.php --record init --workspace /tmp/ws
  * @endcode
  */
 
@@ -25,7 +32,7 @@ declare(strict_types=1);
 define('TERMINAL_COLS', 80);
 define('TERMINAL_ROWS', 24);
 
-// Delay before pressing enter in expect scripts (seconds).
+// Delay before interacting with prompts in expect scripts (seconds).
 define('PROMPT_DELAY', 1);
 
 // Maximum idle time in recordings (seconds).
@@ -35,7 +42,45 @@ define('MAX_IDLE_TIME', 3);
 define('END_PAUSE', 10);
 
 /**
- * Main functionality.
+ * Get all job definitions.
+ *
+ * @param string $workspace_dir
+ *   Path to the workspace directory.
+ *
+ * @return array<string, array<string, mixed>>
+ *   Keyed by job name, each containing expect_fn and related config.
+ */
+function getJobs(string $workspace_dir): array {
+  return [
+    'init' => [
+      'expect_fn' => 'createInitExpectScript',
+      'script' => $workspace_dir . '/init.php',
+    ],
+    'build' => [
+      'expect_fn' => 'createCommandExpectScript',
+      'script' => $workspace_dir,
+      'command' => 'ahoy build',
+      'speed' => 2.0,
+      'env' => ['WEBSERVER_HOST' => '0.0.0.0'],
+    ],
+    'lint' => [
+      'expect_fn' => 'createCommandExpectScript',
+      'script' => $workspace_dir,
+      'command' => 'ahoy lint',
+    ],
+    'test' => [
+      'expect_fn' => 'createCommandExpectScript',
+      'script' => $workspace_dir,
+      'command' => 'ahoy test',
+    ],
+  ];
+}
+
+/**
+ * Main functionality — orchestrator mode.
+ *
+ * Runs init first (it modifies the workspace), then launches build/lint/test
+ * as parallel worker processes.
  */
 function main(): void {
   $script_dir = dirname(__FILE__);
@@ -47,53 +92,188 @@ function main(): void {
   info('');
 
   checkDependencies();
+  installNodeDependencies($assets_dir);
 
   $workspace_dir = createWorkspace($project_dir);
 
   info('Workspace: ' . $workspace_dir);
   info('');
 
-  try {
-    installNodeDependencies($assets_dir);
+  $jobs = getJobs($workspace_dir);
+  $tmp_dir = $workspace_dir . '/tmp';
+  if (!is_dir($tmp_dir)) {
+    mkdir($tmp_dir, 0755, TRUE);
+  }
 
-    $cast_files = [];
+  // Create all expect scripts upfront.
+  foreach ($jobs as $name => $job) {
+    $expect_script = $tmp_dir . '/' . $name . '.exp';
+    $create_fn = $job['expect_fn'];
+    if ($create_fn === 'createCommandExpectScript') {
+      $create_fn($expect_script, $job['script'], $job['command'], $job['env'] ?? []);
+    }
+    else {
+      $create_fn($expect_script, $job['script']);
+    }
+  }
 
-    // Record init.
-    info('--- Recording: init ---');
-    $cast_files['init'] = recordInit($workspace_dir);
+  $script_path = __FILE__;
+  $failed = [];
+
+  // Init and build run sequentially — init processes the workspace, build
+  // assembles the Drupal codebase that lint and test need.
+  foreach (['init', 'build'] as $name) {
+    info('--- Recording: ' . $name . ' ---');
+    $result = runWorker($script_path, $name, $workspace_dir, $project_dir);
+    if ($result['exit_code'] !== 0) {
+      $failed[$name] = $result['output'];
+      info('  FAILED: ' . $name);
+    }
+    else {
+      info('  Done: ' . $name);
+    }
     info('');
+  }
 
-    // Record build.
-    info('--- Recording: build ---');
-    $cast_files['build'] = recordCommand($workspace_dir, 'build', 'ahoy build');
-    info('');
+  // Lint and test run in parallel on the built workspace.
+  $parallel_jobs = ['lint', 'test'];
+  $processes = [];
+  $pipes_list = [];
 
-    // Record lint.
-    info('--- Recording: lint ---');
-    $cast_files['lint'] = recordCommand($workspace_dir, 'lint', 'ahoy lint');
-    info('');
+  info('Launching ' . count($parallel_jobs) . ' workers in parallel...');
+  info('');
 
-    // Record test.
-    info('--- Recording: test ---');
-    $cast_files['test'] = recordCommand($workspace_dir, 'test', 'ahoy test');
-    info('');
+  foreach ($parallel_jobs as $name) {
+    $cmd = sprintf(
+      'php %s --record %s --workspace %s',
+      escapeshellarg($script_path),
+      escapeshellarg($name),
+      escapeshellarg($workspace_dir)
+    );
 
-    // Convert casts to SVGs and install.
-    info('--- Converting to SVG ---');
-    foreach ($cast_files as $name => $cast_file) {
-      $svg_file = $assets_dir . '/' . $name . '.svg';
-      convertToSvg($cast_file, $svg_file, $assets_dir);
-      info('Created: ' . $svg_file);
+    $descriptors = [
+      0 => ['pipe', 'r'],
+      1 => ['pipe', 'w'],
+      2 => ['pipe', 'w'],
+    ];
+
+    $pipes = [];
+    $process = proc_open($cmd, $descriptors, $pipes, $project_dir);
+
+    if (!is_resource($process)) {
+      throw new \RuntimeException('Failed to launch worker for: ' . $name);
     }
 
-    info('');
-    info('Done. SVG assets updated in ' . $assets_dir);
+    fclose($pipes[0]);
+
+    $processes[$name] = $process;
+    $pipes_list[$name] = $pipes;
+
+    info('  Started: ' . $name);
   }
-  finally {
-    info('');
-    info('Cleaning up workspace: ' . $workspace_dir);
-    removeDir($workspace_dir);
+
+  info('');
+
+  // Wait for all parallel workers to complete.
+  foreach ($processes as $name => $process) {
+    $stdout = stream_get_contents($pipes_list[$name][1]);
+    $stderr = stream_get_contents($pipes_list[$name][2]);
+    fclose($pipes_list[$name][1]);
+    fclose($pipes_list[$name][2]);
+
+    $exit_code = proc_close($process);
+
+    if ($exit_code !== 0) {
+      $failed[$name] = trim(($stdout ?: '') . ($stderr ?: ''));
+      info('  FAILED: ' . $name);
+    }
+    else {
+      info('  Done: ' . $name);
+    }
   }
+
+  // Reset terminal — workers may leave it in raw mode.
+  shell_exec('stty sane 2>/dev/null');
+
+  // Cleanup.
+  info('');
+  info('Cleaning up workspace: ' . $workspace_dir);
+  removeDir($workspace_dir);
+
+  if (!empty($failed)) {
+    info('');
+    info('Errors:');
+    foreach ($failed as $name => $output) {
+      info('  ' . $name . ': ' . $output);
+    }
+    throw new \RuntimeException('Failed to generate ' . count($failed) . ' asset(s).');
+  }
+
+  info('');
+  info('Done. SVG assets updated in ' . $assets_dir);
+}
+
+/**
+ * Run a single worker synchronously and return its result.
+ *
+ * @param string $script_path
+ *   Path to this script.
+ * @param string $name
+ *   The job name.
+ * @param string $workspace_dir
+ *   Path to the workspace directory.
+ * @param string $cwd
+ *   Working directory for the process.
+ *
+ * @return array{exit_code: int, output: string}
+ *   The exit code and combined output.
+ */
+function runWorker(string $script_path, string $name, string $workspace_dir, string $cwd): array {
+  $cmd = sprintf(
+    'php %s --record %s --workspace %s 2>&1',
+    escapeshellarg($script_path),
+    escapeshellarg($name),
+    escapeshellarg($workspace_dir)
+  );
+
+  $output = [];
+  $exit_code = 0;
+  exec($cmd, $output, $exit_code);
+
+  return [
+    'exit_code' => $exit_code,
+    'output' => implode("\n", $output),
+  ];
+}
+
+/**
+ * Worker mode — process a single recording.
+ *
+ * @param string $name
+ *   The job name to process.
+ * @param string $workspace_dir
+ *   Path to the workspace directory.
+ */
+function processOne(string $name, string $workspace_dir): void {
+  $script_dir = dirname(__FILE__);
+  $assets_dir = $script_dir;
+
+  $jobs = getJobs($workspace_dir);
+  if (!isset($jobs[$name])) {
+    throw new \RuntimeException('Unknown job: ' . $name);
+  }
+
+  $tmp_dir = $workspace_dir . '/tmp';
+  $cast_file = $tmp_dir . '/' . $name . '.cast';
+  $expect_script = $tmp_dir . '/' . $name . '.exp';
+  $svg_file = $assets_dir . '/' . $name . '.svg';
+
+  $job = $jobs[$name];
+  $speed = (float) ($job['speed'] ?? 1.0);
+
+  recordSession($cast_file, $expect_script);
+  postProcessCast($cast_file, $workspace_dir, $speed);
+  convertToSvg($cast_file, $svg_file, $assets_dir);
 }
 
 /**
@@ -171,52 +351,52 @@ function createWorkspace(string $project_dir): string {
 }
 
 /**
- * Record the init.php session using expect for automation.
+ * Record a session using asciinema with an expect script.
  *
- * @param string $workspace_dir
- *   Path to the workspace directory.
- *
- * @return string
- *   Path to the generated cast file.
+ * @param string $cast_file
+ *   Path to write the cast file.
+ * @param string $expect_script
+ *   Path to the expect script for automation.
+ * @param int $rows
+ *   Number of terminal rows.
+ * @param int $cols
+ *   Number of terminal columns.
  */
-function recordInit(string $workspace_dir): string {
-  $cast_file = $workspace_dir . '/init.cast';
-  $expect_script = $workspace_dir . '/init_automation.exp';
-
-  createInitExpectScript($expect_script, $workspace_dir);
-
+function recordSession(string $cast_file, string $expect_script, int $rows = TERMINAL_ROWS, int $cols = TERMINAL_COLS): void {
   $cmd = sprintf(
     'asciinema rec --command=%s --window-size=%dx%d --idle-time-limit=%d --overwrite %s 2>&1',
     escapeshellarg($expect_script),
-    TERMINAL_COLS,
-    TERMINAL_ROWS,
+    $cols,
+    $rows,
     MAX_IDLE_TIME,
     escapeshellarg($cast_file)
   );
 
-  info('Running: asciinema rec (init)');
   $output = shell_exec($cmd);
-  info($output ?? '');
 
   if (!file_exists($cast_file)) {
-    throw new \RuntimeException('Failed to record init session.');
+    throw new \RuntimeException('Failed to record session: ' . $cast_file . "\n" . ($output ?? ''));
   }
-
-  postProcessCast($cast_file, $workspace_dir);
-  info('Recorded: ' . $cast_file);
-
-  return $cast_file;
 }
 
 /**
  * Create an expect script to automate init.php prompts.
  *
+ * Interaction sequence:
+ * 1. Text "Extension name" — type "Your Extension", press enter.
+ * 2. Text "Machine name" — accept placeholder default, press enter.
+ * 3. Select "Extension type" — press enter (Module, first option).
+ * 4. Select "CI provider" — press enter (GitHub Actions, first option).
+ * 5. Select "Command wrapper" — press enter (Ahoy, first option).
+ * 6. Confirm "Remove this script" — type "y", press enter.
+ * 7. Confirm "Proceed" — type "y", press enter.
+ *
  * @param string $script_path
  *   Path to write the expect script.
- * @param string $workspace_dir
- *   Path to the workspace directory.
+ * @param string $playground_script
+ *   Path to the init.php script.
  */
-function createInitExpectScript(string $script_path, string $workspace_dir): void {
+function createInitExpectScript(string $script_path, string $playground_script): void {
   $delay = PROMPT_DELAY;
   $content = <<<EXPECT
 #!/usr/bin/env expect
@@ -240,56 +420,68 @@ proc type_text {text} {
     send -h \$text
 }
 
-cd {$workspace_dir}
+proc arrow_down {} {
+    sleep 0.3
+    safe_send "\\033\[B"
+}
 
-spawn php init.php
+cd [file dirname {$playground_script}]
 
-# Name.
-expect "Name" {
+set env(PS1) {\$ }
+spawn bash --norc --noprofile
+
+expect "\\$ "
+sleep {$delay}
+type_text "php init.php"
+wait_and_enter
+
+# Text: Extension name — type "Your Extension" and press enter.
+expect "Extension name" {
     sleep {$delay}
     type_text "Your Extension"
     wait_and_enter
 }
 
-# Machine name (accept default).
+# Text: Machine name — accept placeholder default.
 expect "Machine name" {
     wait_and_enter
 }
 
-# Type.
-expect "Type" {
+# Select: Extension type — first option "Module" is pre-selected.
+expect "Extension type" {
     sleep {$delay}
-    type_text "module"
     wait_and_enter
 }
 
-# CI Provider.
-expect "CI Provider" {
+# Select: CI provider — first option "GitHub Actions" is pre-selected.
+expect "CI provider" {
     sleep {$delay}
-    type_text "gha"
     wait_and_enter
 }
 
-# Command wrapper.
+# Select: Command wrapper — first option "Ahoy" is pre-selected.
 expect "Command wrapper" {
     sleep {$delay}
-    type_text "ahoy"
     wait_and_enter
 }
 
-# Remove this script.
+# Confirm: Remove this script — type "y" to confirm.
 expect "Remove this script" {
     sleep {$delay}
     type_text "y"
     wait_and_enter
 }
 
-# Proceed.
+# Confirm: Proceed with project init — type "y" to confirm.
 expect "Proceed" {
     sleep {$delay}
     type_text "y"
     wait_and_enter
 }
+
+# Wait for shell prompt after init completes, then exit.
+expect "\\$ "
+send "exit\\r"
 
 expect eof
 EXPECT;
@@ -299,44 +491,57 @@ EXPECT;
 }
 
 /**
- * Record a command session in the workspace.
+ * Create an expect script for a non-interactive command.
  *
+ * Wraps the command in an expect script so it runs inside a PTY,
+ * which is required for proper asciinema recording.
+ *
+ * @param string $script_path
+ *   Path to write the expect script.
  * @param string $workspace_dir
  *   Path to the workspace directory.
- * @param string $name
- *   Name for the recording (used in filenames).
  * @param string $command
- *   The command to record.
- *
- * @return string
- *   Path to the generated cast file.
+ *   The command to run.
+ * @param array<string, string> $env
+ *   Environment variables to set before running the command.
  */
-function recordCommand(string $workspace_dir, string $name, string $command): string {
-  $cast_file = $workspace_dir . '/' . $name . '.cast';
-
-  $wrapped_command = sprintf('cd %s && %s', escapeshellarg($workspace_dir), $command);
-
-  $cmd = sprintf(
-    'asciinema rec --command=%s --window-size=%dx%d --idle-time-limit=%d --overwrite %s 2>&1',
-    escapeshellarg($wrapped_command),
-    TERMINAL_COLS,
-    TERMINAL_ROWS,
-    MAX_IDLE_TIME,
-    escapeshellarg($cast_file)
-  );
-
-  info('Running: asciinema rec (' . $name . ')');
-  $output = shell_exec($cmd);
-  info($output ?? '');
-
-  if (!file_exists($cast_file)) {
-    throw new \RuntimeException('Failed to record ' . $name . ' session.');
+function createCommandExpectScript(string $script_path, string $workspace_dir, string $command, array $env = []): void {
+  $delay = PROMPT_DELAY;
+  $env_lines = '';
+  foreach ($env as $key => $value) {
+    $env_lines .= 'set env(' . $key . ') {' . $value . '}' . "\n";
   }
+  $content = <<<EXPECT
+#!/usr/bin/env expect
 
-  postProcessCast($cast_file, $workspace_dir);
-  info('Recorded: ' . $cast_file);
+set timeout 600
+log_user 1
 
-  return $cast_file;
+proc type_text {text} {
+    set send_human {.1 .3 1 .05 2 .1 .2 0 .4 0 .6 0 .8 0 1}
+    send -h \$text
+}
+
+cd {$workspace_dir}
+
+{$env_lines}set env(PS1) {\$ }
+spawn bash --norc --noprofile
+
+expect "\\$ "
+sleep {$delay}
+type_text "{$command}"
+sleep {$delay}
+send "\\r"
+
+# Wait for shell prompt after command completes, then exit.
+expect "\\$ "
+send "exit\\r"
+
+expect eof
+EXPECT;
+
+  file_put_contents($script_path, $content);
+  chmod($script_path, 0755);
 }
 
 /**
@@ -348,17 +553,16 @@ function recordCommand(string $workspace_dir, string $name, string $command): st
  *   Path to the cast file.
  * @param string $workspace_dir
  *   Path to the workspace directory (to sanitize in output).
+ * @param float $speed
+ *   Speed multiplier for event timestamps (e.g. 2.0 = twice as fast).
  */
-function postProcessCast(string $cast_file, string $workspace_dir): void {
+function postProcessCast(string $cast_file, string $workspace_dir, float $speed = 1.0): void {
   $content = file_get_contents($cast_file);
   if ($content === FALSE) {
     return;
   }
 
   // Remove the spawn command line from the recording.
-  // In asciicast format, the first line is the header and subsequent lines
-  // are events. The spawn command (e.g., "spawn php init.php") appears as
-  // one of the first events and should be stripped.
   $lines = explode("\n", $content);
   $filtered = [$lines[0]];
   for ($i = 1; $i < count($lines); $i++) {
@@ -367,9 +571,23 @@ function postProcessCast(string $cast_file, string $workspace_dir): void {
     }
     $filtered[] = $lines[$i];
   }
+
+  // Speed up event timestamps if requested.
+  if ($speed > 1.0) {
+    foreach ($filtered as $idx => &$line) {
+      if ($idx === 0) {
+        continue;
+      }
+      $event = json_decode($line, TRUE);
+      if (is_array($event) && isset($event[0]) && is_numeric($event[0])) {
+        $event[0] = round((float) $event[0] / $speed, 6);
+        $line = json_encode($event);
+      }
+    }
+    unset($line);
+  }
+
   // Add a pause at the end of the recording before the animation loops.
-  // In asciicast v3, timestamps are relative (delta from previous event),
-  // so we add an empty output event with the pause duration.
   $filtered[] = json_encode([END_PAUSE, 'o', ' ']);
 
   $content = implode("\n", $filtered);
@@ -407,10 +625,9 @@ function convertToSvg(string $cast_file, string $svg_file, string $assets_dir): 
   );
 
   $output = shell_exec($cmd);
-  info($output ?? '');
 
   if (!file_exists($svg_file) || filesize($svg_file) === 0) {
-    throw new \RuntimeException('Failed to convert cast to SVG: ' . $cast_file);
+    throw new \RuntimeException('Failed to convert cast to SVG: ' . $cast_file . "\n" . ($output ?? ''));
   }
 }
 
@@ -425,7 +642,6 @@ function removeDir(string $directory): void {
     return;
   }
 
-  // Use rm -rf to handle symlinks and other edge cases from the build process.
   $cmd = sprintf('rm -rf %s 2>&1', escapeshellarg($directory));
   shell_exec($cmd);
 }
@@ -458,7 +674,16 @@ set_error_handler(function (int $severity, string $message, string $file, int $l
 });
 
 try {
-  main();
+  // Worker mode: process a single recording.
+  $record_index = array_search('--record', $argv);
+  $workspace_index = array_search('--workspace', $argv);
+  if ($record_index !== FALSE && isset($argv[$record_index + 1]) && $workspace_index !== FALSE && isset($argv[$workspace_index + 1])) {
+    processOne($argv[$record_index + 1], $argv[$workspace_index + 1]);
+  }
+  else {
+    // Orchestrator mode.
+    main();
+  }
 }
 catch (\Exception $exception) {
   info('');

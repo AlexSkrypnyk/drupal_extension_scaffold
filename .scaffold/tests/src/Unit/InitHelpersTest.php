@@ -7,6 +7,17 @@ namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
+use function convert_string;
+use function get_files;
+use function is_binary_file;
+use function process;
+use function remove_dir;
+use function remove_special_comments;
+use function remove_string_content;
+use function remove_tokens_with_content;
+use function replace_string_content;
+use function uncomment_line;
+
 /**
  * Class InitHelpersTest.
  *
@@ -19,14 +30,12 @@ final class InitHelpersTest extends UnitTestCase {
 
   public static function setUpBeforeClass(): void {
     putenv('SCRIPT_RUN_SKIP=1');
-    putenv('SCRIPT_QUIET=1');
     require_once dirname(__DIR__, 4) . '/init.php';
     parent::setUpBeforeClass();
   }
 
   protected function setUp(): void {
     parent::setUp();
-    putenv('SCRIPT_QUIET=1');
     $this->originalCwd = getcwd() ?: '/';
   }
 
@@ -397,54 +406,6 @@ final class InitHelpersTest extends UnitTestCase {
       "keep\n#; remove\nkeep too\n  #; also remove\nand keep",
       "keep\nkeep too\nand keep",
     ];
-  }
-
-  public function testAskNoInteractionWithDefault(): void {
-    no_interaction(TRUE);
-    try {
-      $this->assertSame('default_val', ask('Name', 'default_val'));
-    }
-    finally {
-      no_interaction(FALSE);
-    }
-  }
-
-  public function testAskNoInteractionWithoutDefault(): void {
-    no_interaction(TRUE);
-    try {
-      $this->expectException(\Exception::class);
-      $this->expectExceptionMessage("No default value for prompt 'Name' in non-interactive mode.");
-      ask('Name');
-    }
-    finally {
-      no_interaction(FALSE);
-    }
-  }
-
-  #[DataProvider('dataProviderAskYesnoNoInteraction')]
-  public function testAskYesnoNoInteraction(string $default, string $expected): void {
-    no_interaction(TRUE);
-    try {
-      $this->assertSame($expected, ask_yesno('Proceed', $default));
-    }
-    finally {
-      no_interaction(FALSE);
-    }
-  }
-
-  public static function dataProviderAskYesnoNoInteraction(): \Iterator {
-    yield 'default Y returns y' => ['Y', 'y'];
-    yield 'default N returns n' => ['N', 'n'];
-  }
-
-  public function testVerboseReturnsBuffer(): void {
-    $buffer = verbose('Test message' . PHP_EOL);
-    $this->assertContains('Test message' . PHP_EOL, $buffer);
-  }
-
-  public function testVerboseWithArgs(): void {
-    $buffer = verbose('Hello %s %d' . PHP_EOL, 'world', 42);
-    $this->assertContains('Hello world 42' . PHP_EOL, $buffer);
   }
 
   #[DataProvider('dataProviderProcessValidation')]

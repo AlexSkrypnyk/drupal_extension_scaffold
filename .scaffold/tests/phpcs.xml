@@ -36,4 +36,9 @@
         <exclude-pattern>*.TestCase\.php</exclude-pattern>
         <exclude-pattern>*.test</exclude-pattern>
     </rule>
+
+    <!-- Allow file description in scripts. -->
+    <rule ref="Drupal.Commenting.FileComment.NamespaceNoFileDoc">
+        <exclude-pattern>init\.php</exclude-pattern>
+    </rule>
 </ruleset>

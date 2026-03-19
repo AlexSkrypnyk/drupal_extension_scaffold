@@ -6,7 +6,6 @@ namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
 use AlexSkrypnyk\Snapshot\Testing\SnapshotTrait;
-use Laravel\SerializableClosure\SerializableClosure;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -37,37 +36,24 @@ final class InitTest extends FunctionalTestCase {
   }
 
   #[DataProvider('dataProviderInit')]
-  public function testInit(
-    array $answers = [],
-    array $expected = [],
-    ?SerializableClosure $before = NULL,
-    ?SerializableClosure $after = NULL,
-    bool $no_interaction = FALSE,
-  ): void {
+  public function testInit(array $answers = []): void {
     self::$fixtures = static::locationsFixtureDir();
 
-    if ($before instanceof SerializableClosure) {
-      $before = self::cu($before);
-      $before($this);
+    $answers = array_replace(self::defaultAnswers(), $answers);
+
+    // Build Prompty env vars to pre-fill all prompts.
+    $env = [];
+    foreach ($answers as $key => $value) {
+      $env['PROMPTY_' . strtoupper((string) $key)] = $value;
     }
 
-    if ($no_interaction) {
-      $args = ['Force Crystal', 'force_crystal', 'module', 'gha', 'ahoy', '--no-interaction'];
-      $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', $args);
-    }
-    else {
-      $answers = self::tuiEntries(array_replace(self::defaultAnswers(), $answers));
-      $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], $answers);
-    }
+    $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], [], $env);
 
     $this->assertProcessSuccessful();
 
-    $expected = array_merge([
-      'Please follow the prompts to adjust your extension configuration',
-      'Initialization complete.',
-    ], $expected);
-
-    $this->assertProcessOutputContainsOrNot($expected);
+    $this->assertProcessOutputContainsOrNot([
+      'Drupal Extension Scaffold',
+    ]);
 
     $baseline = File::dir(self::$fixtures . '/../' . self::BASELINE_DIR);
     $this->replaceVersions(self::$sut);
@@ -76,11 +62,6 @@ final class InitTest extends FunctionalTestCase {
       throw new \RuntimeException('Fixtures directory is not set.');
     }
     $this->assertSnapshotMatchesBaseline(self::$sut, $baseline, self::$fixtures);
-
-    if ($after instanceof SerializableClosure) {
-      $after = self::cu($after);
-      $after($this);
-    }
   }
 
   public static function dataProviderInit(): \Iterator {
@@ -128,28 +109,20 @@ final class InitTest extends FunctionalTestCase {
 
     yield 'keep_script' => [
       [
-        'remove_self' => 'n',
+        'remove_self' => 'false',
       ],
-    ];
-
-    yield 'no_interaction' => [
-      [],
-      [],
-      NULL,
-      NULL,
-      TRUE,
     ];
   }
 
   protected static function defaultAnswers(): array {
     return [
       'name' => 'Force Crystal',
-      'machine_name' => self::TUI_DEFAULT,
-      'type' => self::TUI_DEFAULT,
-      'ci_provider' => self::TUI_DEFAULT,
-      'command_wrapper' => self::TUI_DEFAULT,
-      'remove_self' => self::TUI_DEFAULT,
-      'proceed' => self::TUI_DEFAULT,
+      'machine_name' => 'force_crystal',
+      'type' => 'module',
+      'ci_provider' => 'gha',
+      'command_wrapper' => 'ahoy',
+      'remove_self' => 'true',
+      'proceed' => 'true',
     ];
   }
 
