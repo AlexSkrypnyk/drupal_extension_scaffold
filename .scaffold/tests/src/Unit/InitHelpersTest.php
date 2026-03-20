@@ -409,18 +409,17 @@ final class InitHelpersTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderProcessValidation')]
-  public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, string $wrapper, string $expected_message): void {
+  public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, array $wrapper, string $expected_message): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
     process($extension_name, $machine_name, $type, $ci, $wrapper, 'n');
   }
 
   public static function dataProviderProcessValidation(): \Iterator {
-    yield 'empty name' => ['', 'machine', 'module', 'gha', 'ahoy', 'Name is required.'];
-    yield 'empty machine name' => ['Name', '', 'module', 'gha', 'ahoy', 'Machine name is required.'];
-    yield 'empty type' => ['Name', 'machine', '', 'gha', 'ahoy', 'Type is required.'];
-    yield 'empty ci provider' => ['Name', 'machine', 'module', '', 'ahoy', 'CI provider is required.'];
-    yield 'empty command wrapper' => ['Name', 'machine', 'module', 'gha', '', 'Command wrapper is required.'];
+    yield 'empty name' => ['', 'machine', 'module', 'gha', ['ahoy'], 'Name is required.'];
+    yield 'empty machine name' => ['Name', '', 'module', 'gha', ['ahoy'], 'Machine name is required.'];
+    yield 'empty type' => ['Name', 'machine', '', 'gha', ['ahoy'], 'Type is required.'];
+    yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['ahoy'], 'CI provider is required.'];
   }
 
 }

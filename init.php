@@ -101,6 +101,7 @@ function main(array $argv): void {
   $machine_name = (string) $results['machine_name'];
   $type = (string) $results['type'];
   $ci_provider = (string) $results['ci_provider'];
+  /** @var array<string> $command_wrapper */
   $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
   $remove_self = empty($results['remove_self']) ? 'n' : 'y';
 
