@@ -72,10 +72,9 @@ function main(array $argv): void {
         'gha' => 'GitHub Actions',
         'circleci' => 'CircleCI',
       ]),
-      'command_wrapper' => Prompty::select('Command wrapper', options: [
+      'command_wrapper' => Prompty::multiselect('Command wrapper', options: [
         'ahoy' => 'Ahoy',
         'makefile' => 'Makefile',
-        'none' => 'None',
       ]),
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
@@ -87,7 +86,7 @@ function main(array $argv): void {
       $r['machine_name'],
       $r['type'],
       $r['ci_provider'],
-      $r['command_wrapper'],
+      implode(', ', $r['command_wrapper'] ?: ['None']),
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
@@ -102,7 +101,7 @@ function main(array $argv): void {
   $machine_name = (string) $results['machine_name'];
   $type = (string) $results['type'];
   $ci_provider = (string) $results['ci_provider'];
-  $command_wrapper = (string) $results['command_wrapper'];
+  $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
   $remove_self = empty($results['remove_self']) ? 'n' : 'y';
 
   // Derive machine name from extension name if the user accepted placeholder.
@@ -133,7 +132,7 @@ Environment variables (to pre-fill prompts):
   PROMPTY_MACHINE_NAME    Extension machine name.
   PROMPTY_TYPE            Extension type: module or theme.
   PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
-  PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or none.
+  PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
   PROMPTY_REMOVE_SELF     Remove this script: true or false.
   PROMPTY_PROCEED         Proceed with init: true or false.
 
@@ -152,12 +151,12 @@ EOF;
  *   The extension type (module or theme).
  * @param string $ci_provider
  *   The CI provider (gha or circleci).
- * @param string $command_wrapper
- *   The command wrapper (ahoy, makefile, or none).
+ * @param array<string> $command_wrapper
+ *   The selected command wrappers ('ahoy', 'makefile', or both).
  * @param string $remove_self
  *   Whether to remove this script ('y' or 'n').
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, string $command_wrapper, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, string $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -171,10 +170,6 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($ci_provider === '') {
     throw new \Exception('CI provider is required.');
   }
-  if ($command_wrapper === '') {
-    throw new \Exception('Command wrapper is required.');
-  }
-
   // Remove unwanted CI provider.
   if ($ci_provider === 'circleci') {
     remove_dir('.github/workflows');
@@ -183,15 +178,11 @@ function process(string $extension_name, string $extension_machine_name, string 
     remove_dir('.circleci');
   }
 
-  // Remove unwanted command wrapper.
-  if ($command_wrapper === 'ahoy') {
-    @unlink('Makefile');
-  }
-  elseif ($command_wrapper === 'makefile') {
+  // Remove unwanted command wrappers.
+  if (!in_array('ahoy', $command_wrapper, TRUE)) {
     @unlink('.ahoy.yml');
   }
-  else {
-    @unlink('.ahoy.yml');
+  if (!in_array('makefile', $command_wrapper, TRUE)) {
     @unlink('Makefile');
   }
 
