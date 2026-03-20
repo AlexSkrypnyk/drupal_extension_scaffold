@@ -66,7 +66,7 @@ function getenv_required(mixed ...$vars): string {
     return $value;
   }
 
-  FAIL('Missing required value for %s', implode(', ', array_filter($vars)));
+  FAIL('Missing required value for %s', implode(', ', array_filter(array_map(static fn(mixed $v): string => is_string($v) ? $v : '', $vars))));
 
   // @codeCoverageIgnoreStart
   return '';
