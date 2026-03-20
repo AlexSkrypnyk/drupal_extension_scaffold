@@ -2,6 +2,10 @@ SHELL=/bin/bash
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
+define title
+	@echo -e "\n\033[36m$(1)\033[0m"
+endef
+
 .PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit
 
 help:
@@ -53,26 +57,32 @@ provision:
 	./.devtools/provision
 
 lint:
-	pushd "build" >/dev/null || exit 1 && \
-	vendor/bin/phpcs && \
-	vendor/bin/phpstan && \
-	vendor/bin/rector --clear-cache --dry-run && \
-	vendor/bin/twig-cs-fixer && \
-	([ ! -d node_modules ] || npm run lint) && \
-	popd >/dev/null || exit 1
+	$(call title,Running PHPCS)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
+	$(call title,Running PHPStan)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/phpstan && popd >/dev/null || exit 1
+	$(call title,Running Rector)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/rector --clear-cache --dry-run && popd >/dev/null || exit 1
+	$(call title,Running Twig CS Fixer)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer && popd >/dev/null || exit 1
+	$(call title,Running ESLint)
+	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint) && popd >/dev/null || exit 1
 
 lint-fix:
-	pushd "build" >/dev/null || exit 1 && \
-	vendor/bin/rector --clear-cache && \
-	vendor/bin/phpcbf && \
-	vendor/bin/twig-cs-fixer --no-cache --fix && \
-	([ ! -d node_modules ] || npm run lint-fix) && \
-	popd >/dev/null || exit 1
+	$(call title,Running Rector)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/rector --clear-cache && popd >/dev/null || exit 1
+	$(call title,Running PHPCBF)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcbf && popd >/dev/null || exit 1
+	$(call title,Running Twig CS Fixer)
+	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer --no-cache --fix && popd >/dev/null || exit 1
+	$(call title,Running ESLint)
+	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint-fix) && popd >/dev/null || exit 1
 
 test:
-	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && \
-	popd >/dev/null || exit 1
+	$(call title,Running PHPUnit)
+	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	$(call title,Running Jest)
+	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm test) && popd >/dev/null || exit 1
 
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \

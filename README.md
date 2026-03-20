@@ -118,11 +118,7 @@ See the sections below for more details.
 The initial codebase setup script `php init.php` will ask you for some information
 and update the codebase to reflect your extension's name and other details.
 
-<details>
-<summary>Click to see <code>php init.php</code> in action </summary>
-
 ![Init process](.scaffold/assets/init.svg)
-</details>
 
 ## Building website
 
@@ -150,12 +146,7 @@ re-assembling the codebase.
 
 See [README.md](README.dist.md) for more development commands.
 
-<details>
-<summary>Click to see <code>ahoy build</code> in action </summary>
-
 ![Build process](.scaffold/assets/build.svg)
-
-</details>
 
 ### Drupal versions
 
@@ -242,11 +233,7 @@ tools:
 
 The configuration files for these tools are located in the root of the codebase.
 
-<details>
-<summary>Click to see <code>ahoy lint</code> in action </summary>
-
 ![Lint process](.scaffold/assets/lint.svg)
-</details>
 
 ### Fixing coding standards issues
 
@@ -291,11 +278,7 @@ ahoy test-functional-javascript
 ahoy selenium-stop
 ```
 
-<details>
-<summary>Click to see <code>ahoy test</code> in action </summary>
-
 ![Test process](.scaffold/assets/test.svg)
-</details>
 
 ### Running specific tests
 
