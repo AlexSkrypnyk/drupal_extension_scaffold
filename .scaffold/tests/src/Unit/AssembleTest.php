@@ -222,7 +222,7 @@ final class AssembleTest extends UnitTestCase {
 
     // 2. composer create-project.
     $drupal_version = $config['drupal_version'] ?? '11';
-    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg((string) $config['drupal_project_repo'] . ':~' . $drupal_version))];
+    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg($config['drupal_project_repo'] . ':~' . $drupal_version))];
 
     // 3. Patches copy (if applicable).
     if ($config['has_patches']) {
