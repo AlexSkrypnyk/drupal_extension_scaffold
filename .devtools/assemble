@@ -82,7 +82,13 @@ passthru_or_fail(sprintf('composer create-project %s build --no-install --no-int
 // older Drupal core versions for backward compatibility testing.
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-$build_json['config']['audit']['block-insecure'] = FALSE;
+/** @var array<string, mixed> $config */
+$config = is_array($build_json['config'] ?? NULL) ? $build_json['config'] : [];
+/** @var array<string, mixed> $audit */
+$audit = is_array($config['audit'] ?? NULL) ? $config['audit'] : [];
+$audit['block-insecure'] = FALSE;
+$config['audit'] = $audit;
+$build_json['config'] = $config;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Scaffold initialised.');
 
@@ -117,13 +123,14 @@ PASS('Stability updated.');
 TASK('Configuring test dependencies.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-if (isset($build_json['require-dev']) && is_array($build_json['require-dev'])) {
-  unset($build_json['require-dev']['drupal/core-dev']);
-}
+/** @var array<string, string> $require_dev */
+$require_dev = is_array($build_json['require-dev'] ?? NULL) ? $build_json['require-dev'] : [];
+unset($require_dev['drupal/core-dev']);
 // Add symfony/phpunit-bridge with a version matching the Drupal core's
 // Symfony version.
 $symfony_version = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
-$build_json['require-dev']['symfony/phpunit-bridge'] = $symfony_version;
+$require_dev['symfony/phpunit-bridge'] = $symfony_version;
+$build_json['require-dev'] = $require_dev;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
