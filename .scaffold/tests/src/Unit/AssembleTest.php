@@ -60,6 +60,7 @@ final class AssembleTest extends UnitTestCase {
     ];
 
     $cwd = '/test/project';
+    $drupal_version_major = explode('.', explode('@', (string) $config['drupal_version'])[0])[0];
 
     // Build composer.json content.
     $composer_json = ['name' => 'drupal/' . $config['extension_name']];
