@@ -56,8 +56,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - Develop locally using PHP running on your host using
   identical [`.devtools`](.devtools) scripts as in CI:
   - Uses [drupal/recommended-project](https://www.drupal.org/docs/develop/using-composer/starting-a-site-using-drupal-composer-project-templates)
-    to create Drupal site structure. Providing a custom Composer project
-    package is also supported.
+    to create Drupal site structure.
   - Additional development dependenices provided in [`composer.dev.json`](composer.dev.json).
     These are merged during the codebase assembly.
   - The extension can be installed as a module or a theme: modify `type`
@@ -165,16 +164,6 @@ DRUPAL_VERSION=11.1 make build      # Drupal 11.1
 
 The `minimum-stability` setting in the `composer.json` file is
 automatically adjusted to match the specified Drupal version's stability.
-
-### Using a custom Drupal project package
-
-If you want to use a custom Composer project package instead of
-`drupal/recommended-project`, set the `DRUPAL_PROJECT_REPO` environment
-variable before running the `make build` or `ahoy build` command:
-
-```bash
-DRUPAL_PROJECT_REPO=my-vendor/my-drupal-project make build
-```
 
 ### Patching dependencies
 

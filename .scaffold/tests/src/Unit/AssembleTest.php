@@ -34,7 +34,7 @@ final class AssembleTest extends UnitTestCase {
    *
    * @param array $config
    *   Configuration with keys: extension_name, extension_type, drupal_version,
-   *   drupal_project_repo, has_build_dir, has_patches,
+   *   has_build_dir, has_patches,
    *   github_token, has_suggestions, has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
    *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap.
@@ -44,7 +44,6 @@ final class AssembleTest extends UnitTestCase {
       'extension_name' => 'test_extension',
       'extension_type' => 'module',
       'drupal_version' => '11',
-      'drupal_project_repo' => 'drupal/recommended-project',
       'has_build_dir' => FALSE,
       'has_patches' => FALSE,
       'github_token' => '',
@@ -222,7 +221,7 @@ final class AssembleTest extends UnitTestCase {
 
     // 2. composer create-project.
     $drupal_version = $config['drupal_version'] ?? '11';
-    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg($config['drupal_project_repo'] . ':~' . $drupal_version))];
+    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version))];
 
     // 3. Patches copy (if applicable).
     if ($config['has_patches']) {
@@ -357,20 +356,6 @@ final class AssembleTest extends UnitTestCase {
         'github_token' => '',
         'suggestions' => [],
         'has_build_dir' => TRUE,
-        'has_patches' => FALSE,
-        'has_package_lock' => FALSE,
-        'has_skip_npm_build' => FALSE,
-        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
-      ],
-    ];
-    yield 'with custom project repo' => [
-      'env' => ['DRUPAL_PROJECT_REPO' => 'my-vendor/my-drupal-project'],
-      'config' => [
-        'extension_type' => 'module',
-        'drupal_project_repo' => 'my-vendor/my-drupal-project',
-        'github_token' => '',
-        'suggestions' => [],
-        'has_build_dir' => FALSE,
         'has_patches' => FALSE,
         'has_package_lock' => FALSE,
         'has_skip_npm_build' => FALSE,

@@ -30,10 +30,6 @@ require_once __DIR__ . '/helpers.php';
 // Drupal core version to use.
 $drupal_version = getenv_default('DRUPAL_VERSION', '11');
 
-// Composer project package to create the Drupal site from.
-// May be overridden to use a custom project package.
-$drupal_project_repo = getenv_default('DRUPAL_PROJECT_REPO', 'drupal/recommended-project');
-
 // -----------------------------------------------------------------------------
 
 echo '===============================' . PHP_EOL;
@@ -74,8 +70,8 @@ if (is_dir($build_dir)) {
 $drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
 $drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
 
-TASK('Initialising Drupal %s site from %s.', $drupal_version, $drupal_project_repo);
-passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg($drupal_project_repo . ':~' . $drupal_version)));
+TASK('Initialising Drupal %s site.', $drupal_version);
+passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
 // Remove the lock file as we will be modifying composer.json.
 @unlink($build_dir . '/composer.lock');
 // Disable blocking of packages with security advisories to allow installing
