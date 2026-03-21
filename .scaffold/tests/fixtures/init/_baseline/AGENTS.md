@@ -68,7 +68,6 @@ This is a Force Crystal template for creating contributed modules or themes. The
 ## Environment Variables
 
 - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`)
-- `DRUPAL_PROJECT_REPO` - Custom Composer project package (default: `drupal/recommended-project`)
 - `WEBSERVER_HOST` - Development server host (default: localhost)
 - `WEBSERVER_PORT` - Development server port (default: 8000)
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
