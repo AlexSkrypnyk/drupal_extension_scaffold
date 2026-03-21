@@ -1,15 +1,24 @@
 {
     "require-dev": {
+        "behat/mink": "^1.11",
+        "behat/mink-browserkit-driver": "^2.2",
+        "colinodell/psr-testlogger": "^1.2",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
         "drupal/coder": "^8 || ^9",
         "drush/drush": "^12 || ^13",
         "jangregor/phpstan-prophecy": "^1.0.2",
-        "mglaman/phpstan-drupal": "^1.3.9",
+        "mglaman/phpstan-drupal": "^1.3.9 || ^2",
         "palantirnet/drupal-rector": "^0.21.1",
         "phpcompatibility/php-compatibility": "^9.3.5 || ^10@alpha",
-        "phpstan/phpdoc-parser": "^1 || ^2",
         "phpspec/prophecy-phpunit": "^2",
         "phpstan/extension-installer": "^1.4.3",
+        "phpstan/phpdoc-parser": "^1 || ^2",
+        "phpstan/phpstan": "^1 || ^2",
+        "phpstan/phpstan-phpunit": "^1 || ^2",
+        "phpunit/phpunit": "^10.5 || ^11",
+        "symfony/browser-kit": "^6.4 || ^7 || ^8",
+        "symfony/css-selector": "^6.4 || ^7 || ^8",
+        "symfony/dom-crawler": "^6.4 || ^7 || ^8",
         "vincentlanglet/twig-cs-fixer": "^3.14.0"
     },
     "config": {
