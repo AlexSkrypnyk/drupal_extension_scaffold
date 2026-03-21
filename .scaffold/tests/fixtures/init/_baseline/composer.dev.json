@@ -1,6 +1,8 @@
 {
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "__VERSION__",
+        "drupal/coder": "__VERSION__",
+        "drush/drush": "^12 || ^13",
         "jangregor/phpstan-prophecy": "__VERSION__",
         "mglaman/phpstan-drupal": "__VERSION__",
         "palantirnet/drupal-rector": "__VERSION__",
