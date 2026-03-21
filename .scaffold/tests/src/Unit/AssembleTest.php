@@ -260,20 +260,16 @@ final class AssembleTest extends UnitTestCase {
       $this->envSet($name, $value);
     }
 
-    // Ensure GITHUB_TOKEN is controlled.
-    if ($config['github_token'] !== '') {
-      $this->envSet('GITHUB_TOKEN', $config['github_token']);
-    }
-    else {
-      putenv('GITHUB_TOKEN');
-    }
+    // Ensure GITHUB_TOKEN is controlled - use envSet with empty string
+    // to ensure it overrides any inherited env vars.
+    $this->envSet('GITHUB_TOKEN', $config['github_token'] ?? '');
 
     // Ensure SYMFONY_DEPRECATIONS_HELPER is controlled.
     if ($config['has_deprecations_disabled'] ?? FALSE) {
       $this->envSet('SYMFONY_DEPRECATIONS_HELPER', 'disabled');
     }
     else {
-      putenv('SYMFONY_DEPRECATIONS_HELPER');
+      $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
     }
 
     $this->setupAssembleMocks($config);
@@ -325,7 +321,7 @@ final class AssembleTest extends UnitTestCase {
       $this->assertStringContainsString('Copying patches', $output);
     }
 
-    if ($config['github_token'] !== '') {
+    if (($config['github_token'] ?? '') !== '') {
       $this->assertStringContainsString('GitHub authentication token', $output);
     }
 
