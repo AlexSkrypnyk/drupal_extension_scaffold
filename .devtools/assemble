@@ -82,10 +82,8 @@ passthru_or_fail(sprintf('composer create-project %s build --no-install --no-int
 // older Drupal core versions for backward compatibility testing.
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-if (isset($build_json['config']['audit']['block-insecure'])) {
-  $build_json['config']['audit']['block-insecure'] = FALSE;
-  file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-}
+$build_json['config']['audit']['block-insecure'] = FALSE;
+file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Scaffold initialised.');
 
 TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
