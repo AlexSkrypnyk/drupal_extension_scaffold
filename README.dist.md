@@ -80,14 +80,14 @@ DRUPAL_VERSION=11.1 make build      # Drupal 11.1
 The `minimum-stability` setting in the `composer.json` file is
 automatically adjusted to match the specified Drupal version's stability.
 
-### Using Drupal project fork
+### Using a custom Drupal project package
 
-If you want to use a custom fork of `drupal-composer/drupal-project`, set the
-`DRUPAL_PROJECT_REPO` environment variable before running the `make build` or
-`ahoy build` command:
+If you want to use a custom Composer project package instead of
+`drupal/recommended-project`, set the `DRUPAL_PROJECT_REPO` environment
+variable before running the `make build` or `ahoy build` command:
 
 ```bash
-DRUPAL_PROJECT_REPO=https://github.com/me/drupal-project-fork.git make build
+DRUPAL_PROJECT_REPO=my-vendor/my-drupal-project make build
 ```
 
 ### Patching dependencies
