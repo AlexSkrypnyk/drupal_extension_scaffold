@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\FunctionalJavascript;
 
+use Drupal\Core\Session\AccountInterface;
+
 /**
  * Smoke test validating the WebDriver and screenshot pipeline.
  *
@@ -21,7 +23,7 @@ class YourExtensionSmokeJsTest extends YourExtensionJsTestBase {
 
     // Create user and log in.
     $account = $this->drupalCreateUser(['administer site configuration']);
-    $this->assertInstanceOf(\Drupal\Core\Session\AccountInterface::class, $account);
+    $this->assertInstanceOf(AccountInterface::class, $account);
     $this->drupalLogin($account);
 
     // Verify authenticated page renders.
