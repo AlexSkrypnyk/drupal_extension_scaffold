@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\FunctionalJavascript;
 
-use Drupal\Core\Session\AccountInterface;
-
 /**
  * Smoke test validating the WebDriver and screenshot pipeline.
  *
@@ -23,7 +21,8 @@ class ForceCrystalSmokeJsTest extends ForceCrystalJsTestBase {
 
     // Create user and log in.
     $account = $this->drupalCreateUser(['administer site configuration']);
-    $this->assertInstanceOf(AccountInterface::class, $account);
+    $this->assertNotEmpty($account);
+    /** @var \Drupal\Core\Session\AccountInterface $account */
     $this->drupalLogin($account);
 
     // Verify authenticated page renders.
