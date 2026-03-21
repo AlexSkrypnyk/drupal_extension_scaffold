@@ -114,18 +114,18 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Stability updated.');
 
-TASK('Removing drupal/core-dev from require-dev.');
+TASK('Configuring test dependencies.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-if (isset($build_json['require-dev']) && is_array($build_json['require-dev']) && isset($build_json['require-dev']['drupal/core-dev'])) {
-  // Add symfony/phpunit-bridge with a version matching the Drupal core's
-  // Symfony version before removing drupal/core-dev.
-  $symfony_version = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
-  $build_json['require-dev']['symfony/phpunit-bridge'] = $symfony_version;
+if (isset($build_json['require-dev']) && is_array($build_json['require-dev'])) {
   unset($build_json['require-dev']['drupal/core-dev']);
-  file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 }
-PASS('drupal/core-dev removed.');
+// Add symfony/phpunit-bridge with a version matching the Drupal core's
+// Symfony version.
+$symfony_version = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
+$build_json['require-dev']['symfony/phpunit-bridge'] = $symfony_version;
+file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+PASS('Test dependencies configured.');
 
 TASK('Merging configuration from composer.dev.json.');
 $dev_json = (array) json_decode((string) file_get_contents('composer.dev.json'), TRUE);
