@@ -87,9 +87,15 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
+    yield 'gha_both_wrappers' => [
+      [
+        'command_wrapper' => 'ahoy,makefile',
+      ],
+    ];
+
     yield 'gha_no_command_wrapper' => [
       [
-        'command_wrapper' => 'none',
+        'command_wrapper' => '',
       ],
     ];
 
@@ -100,10 +106,17 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
+    yield 'circleci_both_wrappers' => [
+      [
+        'ci_provider' => 'circleci',
+        'command_wrapper' => 'ahoy,makefile',
+      ],
+    ];
+
     yield 'circleci_no_command_wrapper' => [
       [
         'ci_provider' => 'circleci',
-        'command_wrapper' => 'none',
+        'command_wrapper' => '',
       ],
     ];
 
