@@ -108,15 +108,6 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Stability updated.');
 
-TASK('Removing drupal/core-dev from require-dev.');
-/** @var array<string, mixed> $build_json */
-$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-if (isset($build_json['require-dev']) && is_array($build_json['require-dev']) && isset($build_json['require-dev']['drupal/core-dev'])) {
-  unset($build_json['require-dev']['drupal/core-dev']);
-  file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-}
-PASS('drupal/core-dev removed.');
-
 TASK('Merging configuration from composer.dev.json.');
 $dev_json = (array) json_decode((string) file_get_contents('composer.dev.json'), TRUE);
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);

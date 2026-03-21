@@ -307,12 +307,6 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString("Extension's code symlinked", $output);
     $this->assertStringContainsString('ASSEMBLE COMPLETE', $output);
 
-    // Verify drupal/core-dev was removed from build/composer.json.
-    $this->assertStringContainsString('drupal/core-dev removed', $output);
-    $this->assertNotEmpty($this->capturedBuildComposerJson, 'Expected at least one write to build/composer.json');
-    $first_written = reset($this->capturedBuildComposerJson);
-    $this->assertStringNotContainsString('drupal/core-dev', (string) $first_written);
-
     $drupal_version = $env['DRUPAL_VERSION'] ?? '11';
     $this->assertStringContainsString('Initialising Drupal ' . $drupal_version . ' site', $output);
 
