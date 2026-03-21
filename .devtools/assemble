@@ -8,8 +8,7 @@
  * Allows to use the latest Drupal core as well as specified versions (for
  * testing backward compatibility).
  *
- * - Creates a Drupal site from drupal/recommended-project (or a custom
- *   Composer project package).
+ * - Creates a Drupal site from drupal/recommended-project.
  * - Builds Drupal site codebase with current extension and its dependencies.
  * - Adds development dependencies.
  * - Installs composer dependencies.
