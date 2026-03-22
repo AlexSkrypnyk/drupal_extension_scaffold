@@ -297,7 +297,7 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString('Scaffold is valid', $output);
     $this->assertStringContainsString('Tools are valid', $output);
     $this->assertStringContainsString('Composer configuration is valid', $output);
-    $this->assertStringContainsString('Scaffold initialised', $output);
+    $this->assertStringContainsString('Drupal project created', $output);
     $this->assertStringContainsString('Dependencies installed', $output);
     $this->assertStringContainsString("Extension's code symlinked", $output);
     $this->assertStringContainsString('ASSEMBLE COMPLETE', $output);
@@ -310,7 +310,7 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString('symfony/phpunit-bridge', $all_writes);
 
     $drupal_version = $env['DRUPAL_VERSION'] ?? '11';
-    $this->assertStringContainsString('Initialising Drupal ' . $drupal_version . ' site', $output);
+    $this->assertStringContainsString('Creating Drupal ' . $drupal_version . ' project', $output);
 
     if ($config['has_build_dir']) {
       $this->assertStringContainsString('Removing existing build directory', $output);
