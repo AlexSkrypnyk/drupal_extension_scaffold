@@ -30,3 +30,10 @@ parameters:
       # this error.
       message: '#.*no value type specified in iterable type array.#'
       reportUnmatched: false
+    -
+      # Devtools scripts decode JSON into mixed arrays and access nested keys
+      # directly; strict offset typing is impractical for these scripts.
+      identifier: offsetAccess.nonOffsetAccessible
+      paths:
+        - ../../.devtools/*
+      reportUnmatched: false

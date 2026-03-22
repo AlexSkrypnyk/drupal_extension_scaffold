@@ -79,7 +79,7 @@ PASS('Scaffold initialised.');
 TASK('Disabling insecure package blocking.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-$build_json['config']['audit']['block-insecure'] = FALSE; // @phpstan-ignore-line
+$build_json['config']['audit']['block-insecure'] = FALSE;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Insecure package blocking disabled.');
 
@@ -114,10 +114,8 @@ PASS('Stability updated.');
 TASK('Configuring test dependencies.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-unset($build_json['require-dev']['drupal/core-dev']); // @phpstan-ignore-line
-// Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
-$build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4'; // @phpstan-ignore-line
-file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+unset($build_json['require-dev']['drupal/core-dev']);// Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
+$build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
 TASK('Merging configuration from composer.dev.json.');
