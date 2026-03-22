@@ -8,8 +8,7 @@
  * Allows to use the latest Drupal core as well as specified versions (for
  * testing backward compatibility).
  *
- * - Creates a Drupal site from drupal/recommended-project (or a custom
- *   Composer project package).
+ * - Creates a Drupal site from drupal/recommended-project.
  * - Builds Drupal site codebase with current extension and its dependencies.
  * - Adds development dependencies.
  * - Installs composer dependencies.
@@ -72,21 +71,17 @@ $drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $d
 
 TASK('Initialising Drupal %s site.', $drupal_version);
 passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
-// Remove the lock file as we will be modifying composer.json.
 @unlink($build_dir . '/composer.lock');
+PASS('Scaffold initialised.');
+
 // Disable blocking of packages with security advisories to allow installing
 // older Drupal core versions for backward compatibility testing.
+TASK('Disabling insecure package blocking.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-/** @var array<string, mixed> $config */
-$config = is_array($build_json['config'] ?? NULL) ? $build_json['config'] : [];
-/** @var array<string, mixed> $audit */
-$audit = is_array($config['audit'] ?? NULL) ? $config['audit'] : [];
-$audit['block-insecure'] = FALSE;
-$config['audit'] = $audit;
-$build_json['config'] = $config;
+$build_json['config']['audit']['block-insecure'] = FALSE;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-PASS('Scaffold initialised.');
+PASS('Insecure package blocking disabled.');
 
 TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
 $composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
@@ -119,15 +114,8 @@ PASS('Stability updated.');
 TASK('Configuring test dependencies.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-/** @var array<string, string> $require_dev */
-$require_dev = is_array($build_json['require-dev'] ?? NULL) ? $build_json['require-dev'] : [];
-unset($require_dev['drupal/core-dev']);
-// Add symfony/phpunit-bridge with a version matching the Drupal core's
-// Symfony version.
-$symfony_version = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
-$require_dev['symfony/phpunit-bridge'] = $symfony_version;
-$build_json['require-dev'] = $require_dev;
-file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+unset($build_json['require-dev']['drupal/core-dev']);// Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
+$build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
 TASK('Merging configuration from composer.dev.json.');
