@@ -372,10 +372,16 @@ function recordSession(string $cast_file, string $expect_script, int $rows = TER
     escapeshellarg($cast_file)
   );
 
-  $output = shell_exec($cmd);
+  $output = [];
+  $exit_code = 0;
+  exec($cmd, $output, $exit_code);
 
   if (!file_exists($cast_file)) {
-    throw new \RuntimeException('Failed to record session: ' . $cast_file . "\n" . ($output ?? ''));
+    throw new \RuntimeException('Failed to record session: ' . $cast_file . "\n" . implode("\n", $output));
+  }
+
+  if ($exit_code !== 0) {
+    throw new \RuntimeException('Recording command failed with exit code ' . $exit_code . ': ' . $cast_file . "\n" . implode("\n", $output));
   }
 }
 
@@ -387,7 +393,7 @@ function recordSession(string $cast_file, string $expect_script, int $rows = TER
  * 2. Text "Machine name" — accept placeholder default, press enter.
  * 3. Select "Extension type" — press enter (Module, first option).
  * 4. Select "CI provider" — press enter (GitHub Actions, first option).
- * 5. Select "Command wrapper" — press enter (Ahoy, first option).
+ * 5. Multi-select "Command wrapper" — press space to select Ahoy, press enter.
  * 6. Confirm "Remove this script" — type "y", press enter.
  * 7. Confirm "Proceed" — type "y", press enter.
  *
@@ -459,10 +465,13 @@ expect "CI provider" {
     wait_and_enter
 }
 
-# Select: Command wrapper — first option "Ahoy" is pre-selected.
+# Multi-select: Command wrapper — select "Ahoy" (first option) with space,
+# then confirm with enter.
 expect "Command wrapper" {
     sleep {$delay}
-    wait_and_enter
+    safe_send " "
+    sleep 0.3
+    safe_send "\\r"
 }
 
 # Confirm: Remove this script — type "y" to confirm.
@@ -533,11 +542,18 @@ type_text "{$command}"
 sleep {$delay}
 send "\\r"
 
-# Wait for shell prompt after command completes, then exit.
+# Wait for shell prompt after command completes, check exit code.
 expect "\\$ "
+send "echo __EXIT_CODE=\\\$?\\r"
+expect -re {__EXIT_CODE=(\d+)}
+set exit_code \$expect_out(1,string)
 send "exit\\r"
-
 expect eof
+
+if {\$exit_code != 0} {
+    puts stderr "Command '{$command}' failed with exit code \$exit_code"
+    exit 1
+}
 EXPECT;
 
   file_put_contents($script_path, $content);
