@@ -22,6 +22,7 @@ use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
+use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
@@ -70,6 +71,7 @@ return RectorConfig::configure()
     NewlineBeforeNewAssignSetRector::class,
     NewlineBetweenClassLikeStmtsRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
+    RenameForeachValueVariableToMatchExprVariableRector::class,
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
