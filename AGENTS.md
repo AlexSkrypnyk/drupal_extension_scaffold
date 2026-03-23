@@ -68,7 +68,6 @@ This is a Drupal extension scaffold template for creating contributed modules or
 ## Environment Variables
 
 - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`)
-- `DRUPAL_PROJECT_REPO` - Custom drupal-project fork URL
 - `WEBSERVER_HOST` - Development server host (default: localhost)
 - `WEBSERVER_PORT` - Development server port (default: 8000)
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits

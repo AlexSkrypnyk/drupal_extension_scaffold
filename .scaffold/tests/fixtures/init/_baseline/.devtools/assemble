@@ -8,8 +8,7 @@
  * Allows to use the latest Drupal core as well as specified versions (for
  * testing backward compatibility).
  *
- * - Retrieves the scaffold from drupal-composer/drupal-project or custom
- *   scaffold.
+ * - Creates a Drupal site from drupal/recommended-project.
  * - Builds Drupal site codebase with current extension and its dependencies.
  * - Adds development dependencies.
  * - Installs composer dependencies.
@@ -29,15 +28,6 @@ require_once __DIR__ . '/helpers.php';
 
 // Drupal core version to use.
 $drupal_version = getenv_default('DRUPAL_VERSION', '11');
-
-// Commit SHA of the drupal-project to install custom core version. If not
-// provided - will be calculated from $drupal_version above.
-$drupal_project_sha = getenv_default('DRUPAL_PROJECT_SHA', '');
-
-// Repository for "drupal-composer/drupal-project" project.
-// May be overwritten to use forked repos that may have not been accepted
-// yet (i.e., when major Drupal version is about to be released).
-$drupal_project_repo = getenv_default('DRUPAL_PROJECT_REPO', 'https://github.com/drupal-composer/drupal-project.git');
 
 // -----------------------------------------------------------------------------
 
@@ -61,7 +51,6 @@ $type_dir = $ext_info['type'] === 'theme' ? 'themes' : 'modules';
 PASS('Scaffold is valid.');
 
 TASK('Validating tools.');
-command_must_exist('git');
 command_must_exist('composer');
 PASS('Tools are valid.');
 
@@ -79,13 +68,20 @@ if (is_dir($build_dir)) {
 
 $drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
 $drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
-$drupal_project_sha = $drupal_project_sha === '' ? $drupal_version_major . '.x' : $drupal_project_sha;
 
-TASK('Initialising Drupal %s site from the scaffold repo %s ref %s.', $drupal_version, $drupal_project_repo, $drupal_project_sha);
-passthru_or_fail(sprintf('git clone -n %s build', escapeshellarg($drupal_project_repo)));
-passthru_or_fail(sprintf('git --git-dir=build/.git --work-tree=build checkout %s', escapeshellarg($drupal_project_sha)));
-remove_dir($build_dir . '/.git');
-PASS('Scaffold initialised.');
+TASK('Creating Drupal %s project.', $drupal_version);
+passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
+@unlink($build_dir . '/composer.lock');
+PASS('Drupal project created.');
+
+// Disable blocking of packages with security advisories to allow installing
+// older Drupal core versions for backward compatibility testing.
+TASK('Disabling blocking of insecure packages.');
+/** @var array<string, mixed> $build_json */
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
+$build_json['config']['audit']['block-insecure'] = FALSE;
+file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+PASS('Insecure package blocking disabled.');
 
 TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
 $composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
@@ -115,6 +111,13 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Stability updated.');
 
+TASK('Configuring test dependencies.');
+/** @var array<string, mixed> $build_json */
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
+unset($build_json['require-dev']['drupal/core-dev']);// Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
+$build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+PASS('Test dependencies configured.');
+
 TASK('Merging configuration from composer.dev.json.');
 $dev_json = (array) json_decode((string) file_get_contents('composer.dev.json'), TRUE);
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
@@ -128,18 +131,6 @@ $build_json = (array) json_decode((string) file_get_contents($build_composer_jso
 $merged = array_replace_recursive($ext_json, $build_json);
 file_put_contents($build_composer_json, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS("Configuration from extension's composer.json merged.");
-
-// Asset Packagist sometimes fails, so we remove it by default. If it's needed,
-// the lines below can be commented out.
-TASK('Removing asset-packagist.');
-$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
-if (!empty($build_json['repositories'])) {
-  /** @var array<int, array<string, string>> $repositories */
-  $repositories = (array) $build_json['repositories'];
-  $build_json['repositories'] = array_values(array_filter($repositories, fn(array $r): bool => !isset($r['url']) || !str_contains($r['url'], 'asset-packagist.org')));
-  file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-}
-PASS('Asset Packagist removed.');
 
 if (is_dir('patches')) {
   TASK('Copying patches.');

@@ -34,7 +34,7 @@ final class AssembleTest extends UnitTestCase {
    *
    * @param array $config
    *   Configuration with keys: extension_name, extension_type, drupal_version,
-   *   drupal_project_sha, drupal_project_repo, has_build_dir, has_patches,
+   *   has_build_dir, has_patches,
    *   github_token, has_suggestions, has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
    *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap.
@@ -44,8 +44,6 @@ final class AssembleTest extends UnitTestCase {
       'extension_name' => 'test_extension',
       'extension_type' => 'module',
       'drupal_version' => '11',
-      'drupal_project_sha' => '',
-      'drupal_project_repo' => 'https://github.com/drupal-composer/drupal-project.git',
       'has_build_dir' => FALSE,
       'has_patches' => FALSE,
       'github_token' => '',
@@ -62,7 +60,6 @@ final class AssembleTest extends UnitTestCase {
 
     $cwd = '/test/project';
     $drupal_version_major = explode('.', explode('@', (string) $config['drupal_version'])[0])[0];
-    $effective_sha = $config['drupal_project_sha'] !== '' ? $config['drupal_project_sha'] : $drupal_version_major . '.x';
 
     // Build composer.json content.
     $composer_json = ['name' => 'drupal/' . $config['extension_name']];
@@ -75,9 +72,9 @@ final class AssembleTest extends UnitTestCase {
     $build_composer_json = json_encode([
       'repositories' => [
         ['type' => 'composer', 'url' => 'https://packages.drupal.org/8'],
-        ['type' => 'composer', 'url' => 'https://asset-packagist.org'],
       ],
       'require' => ['drupal/core-recommended' => '^11', 'drupal/core-composer-scaffold' => '^11'],
+      'require-dev' => ['drupal/core-dev' => '^11'],
       'minimum-stability' => 'stable',
       'prefer-stable' => TRUE,
     ], JSON_THROW_ON_ERROR);
@@ -91,10 +88,7 @@ final class AssembleTest extends UnitTestCase {
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): string {
       $output ??= [];
       $code = 0;
-      if (str_contains($cmd, 'command -v git')) {
-        $output[] = '/usr/bin/git';
-      }
-      elseif (str_contains($cmd, 'command -v composer')) {
+      if (str_contains($cmd, 'command -v composer')) {
         $output[] = '/usr/bin/composer';
       }
       return '';
@@ -216,19 +210,20 @@ final class AssembleTest extends UnitTestCase {
     // Mock putenv.
     $this->registerMock('putenv', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
+    // Mock unlink (for removing composer.lock after create-project).
+    $this->registerMock('unlink', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
+
     // Build passthru sequence.
     $passthru_responses = [];
 
     // 1. composer validate.
     $passthru_responses[] = ['cmd' => 'composer validate --ansi --strict'];
 
-    // 2. git clone.
-    $passthru_responses[] = ['cmd' => sprintf('git clone -n %s build', escapeshellarg((string) $config['drupal_project_repo']))];
+    // 2. composer create-project.
+    $drupal_version = $config['drupal_version'] ?? '11';
+    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version))];
 
-    // 3. git checkout.
-    $passthru_responses[] = ['cmd' => sprintf('git --git-dir=build/.git --work-tree=build checkout %s', escapeshellarg((string) $effective_sha))];
-
-    // 4. Patches copy (if applicable).
+    // 3. Patches copy (if applicable).
     if ($config['has_patches']) {
       // copy_dir is called but it's a real function that uses PHP iterators,
       // so we don't need to mock it separately - tested in HelpersCopyDirTest.
@@ -264,20 +259,16 @@ final class AssembleTest extends UnitTestCase {
       $this->envSet($name, $value);
     }
 
-    // Ensure GITHUB_TOKEN is controlled.
-    if ($config['github_token'] !== '') {
-      $this->envSet('GITHUB_TOKEN', $config['github_token']);
-    }
-    else {
-      putenv('GITHUB_TOKEN');
-    }
+    // Ensure GITHUB_TOKEN is controlled - use envSet with empty string
+    // to ensure it overrides any inherited env vars.
+    $this->envSet('GITHUB_TOKEN', $config['github_token'] ?? '');
 
     // Ensure SYMFONY_DEPRECATIONS_HELPER is controlled.
     if ($config['has_deprecations_disabled'] ?? FALSE) {
       $this->envSet('SYMFONY_DEPRECATIONS_HELPER', 'disabled');
     }
     else {
-      putenv('SYMFONY_DEPRECATIONS_HELPER');
+      $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
     }
 
     $this->setupAssembleMocks($config);
@@ -306,19 +297,20 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString('Scaffold is valid', $output);
     $this->assertStringContainsString('Tools are valid', $output);
     $this->assertStringContainsString('Composer configuration is valid', $output);
-    $this->assertStringContainsString('Scaffold initialised', $output);
+    $this->assertStringContainsString('Drupal project created', $output);
     $this->assertStringContainsString('Dependencies installed', $output);
     $this->assertStringContainsString("Extension's code symlinked", $output);
     $this->assertStringContainsString('ASSEMBLE COMPLETE', $output);
 
-    // Verify asset-packagist was removed from the final build/composer.json.
-    $this->assertStringContainsString('Asset Packagist removed', $output);
+    // Verify test dependencies were configured.
+    $this->assertStringContainsString('Test dependencies configured', $output);
     $this->assertNotEmpty($this->capturedBuildComposerJson, 'Expected at least one write to build/composer.json');
-    $last_written = end($this->capturedBuildComposerJson);
-    $this->assertStringNotContainsString('asset-packagist.org', (string) $last_written);
+    // Check that symfony/phpunit-bridge was added in one of the writes.
+    $all_writes = implode("\n", $this->capturedBuildComposerJson);
+    $this->assertStringContainsString('symfony/phpunit-bridge', $all_writes);
 
     $drupal_version = $env['DRUPAL_VERSION'] ?? '11';
-    $this->assertStringContainsString('Initialising Drupal ' . $drupal_version . ' site', $output);
+    $this->assertStringContainsString('Creating Drupal ' . $drupal_version . ' project', $output);
 
     if ($config['has_build_dir']) {
       $this->assertStringContainsString('Removing existing build directory', $output);
@@ -328,7 +320,7 @@ final class AssembleTest extends UnitTestCase {
       $this->assertStringContainsString('Copying patches', $output);
     }
 
-    if ($config['github_token'] !== '') {
+    if (($config['github_token'] ?? '') !== '') {
       $this->assertStringContainsString('GitHub authentication token', $output);
     }
 
@@ -364,21 +356,6 @@ final class AssembleTest extends UnitTestCase {
         'github_token' => '',
         'suggestions' => [],
         'has_build_dir' => TRUE,
-        'has_patches' => FALSE,
-        'has_package_lock' => FALSE,
-        'has_skip_npm_build' => FALSE,
-        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
-      ],
-    ];
-    yield 'with custom SHA and repo' => [
-      'env' => ['DRUPAL_PROJECT_SHA' => 'abc123', 'DRUPAL_PROJECT_REPO' => 'https://github.com/custom/project.git'],
-      'config' => [
-        'extension_type' => 'module',
-        'drupal_project_sha' => 'abc123',
-        'drupal_project_repo' => 'https://github.com/custom/project.git',
-        'github_token' => '',
-        'suggestions' => [],
-        'has_build_dir' => FALSE,
         'has_patches' => FALSE,
         'has_package_lock' => FALSE,
         'has_skip_npm_build' => FALSE,
