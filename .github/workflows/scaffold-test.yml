@@ -18,7 +18,7 @@ jobs:
 
     services:
       chrome:
-        image: selenium/standalone-chromium:latest@sha256:36474a4c56765ec3d04dc4cbac57a021e0d88e89fdb5dca297a50f1100279c1a
+        image: selenium/standalone-chromium:latest@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
         ports:
           - 4444:4444
 
