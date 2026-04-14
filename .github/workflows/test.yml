@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Cache Composer dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
@@ -133,7 +133,7 @@ jobs:
 
     services:
       chrome:
-        image: selenium/standalone-chromium:latest@sha256:36474a4c56765ec3d04dc4cbac57a021e0d88e89fdb5dca297a50f1100279c1a
+        image: selenium/standalone-chromium:latest@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
         ports:
           - 4444:4444
 
@@ -147,7 +147,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Cache Composer dependencies
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
