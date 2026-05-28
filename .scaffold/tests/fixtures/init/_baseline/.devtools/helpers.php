@@ -77,7 +77,10 @@ function dotenv_read(string $file = '.env'): array {
   $vars = [];
   foreach (preg_split('/\r\n|\r|\n/', $contents) ?: [] as $line) {
     $trimmed = trim($line);
-    if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+    if ($trimmed === '') {
+      continue;
+    }
+    if (str_starts_with($trimmed, '#')) {
       continue;
     }
 
@@ -148,7 +151,13 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
   $replaced = FALSE;
   foreach ($lines as $i => $line) {
     $trimmed = trim($line);
-    if ($trimmed === '' || str_starts_with($trimmed, '#') || !str_contains($trimmed, '=')) {
+    if ($trimmed === '') {
+      continue;
+    }
+    if (str_starts_with($trimmed, '#')) {
+      continue;
+    }
+    if (!str_contains($trimmed, '=')) {
       continue;
     }
 
