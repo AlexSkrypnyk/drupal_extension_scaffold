@@ -82,9 +82,7 @@ final class MakeTest extends DevtoolsTestCase {
 
     $this->runLint();
 
-    $this->processRun('make', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+    $this->runTests();
 
     $this->runJsTests();
 
@@ -133,6 +131,20 @@ final class MakeTest extends DevtoolsTestCase {
 
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
+  }
+
+  protected function runTests(): void {
+    // `make test` runs every PHPUnit suite in the consumer project, including
+    // FunctionalJavascript. Skip on CI environments without Docker (macOS).
+    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
+      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping `make test` (includes FunctionalJavascript).' . PHP_EOL);
+
+      return;
+    }
+
+    $this->processRun('make', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
   }
 
   protected function runJsTests(): void {
