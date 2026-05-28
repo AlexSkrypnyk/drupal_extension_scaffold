@@ -1,0 +1,8 @@
+@@ -1,7 +1,6 @@
+ {
+   "permissions": {
+     "allow": [
+-      "Bash(ahoy:*)",
+       "Bash(composer:*)"
+     ],
+     "deny": []

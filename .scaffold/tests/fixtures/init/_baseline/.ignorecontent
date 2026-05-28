@@ -3,3 +3,8 @@
 ^logo.png
 ^package-lock.json
 init.php
+
+# User-local Claude files that may be present in local checkouts.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/artifacts/
