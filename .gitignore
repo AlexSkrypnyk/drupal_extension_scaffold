@@ -10,3 +10,4 @@
 .claude/*
 !.claude/settings.json
 !.claude/skills/
+.claude/skills/update-consumer-drupal-extension-scaffold/
