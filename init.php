@@ -190,14 +190,34 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Trim wrapper-specific permissions from Claude settings to match selection.
   $claude_settings = '.claude/settings.json';
   if (file_exists($claude_settings)) {
-    $settings_content = (string) file_get_contents($claude_settings);
-    if (!in_array('ahoy', $command_wrapper, TRUE)) {
-      $settings_content = (string) preg_replace('/^[ \t]*"Bash\(ahoy:\*\)",?\n/m', '', $settings_content);
+    $settings_content = file_get_contents($claude_settings);
+    if ($settings_content === FALSE) {
+      throw new \RuntimeException('Unable to read .claude/settings.json.');
     }
-    if (!in_array('makefile', $command_wrapper, TRUE)) {
-      $settings_content = (string) preg_replace('/,\n[ \t]*"Bash\(make:\*\)"/', '', $settings_content);
+
+    $settings = json_decode($settings_content, TRUE, 512, JSON_THROW_ON_ERROR);
+    $allow = $settings['permissions']['allow'] ?? [];
+    if (!is_array($allow)) {
+      throw new \RuntimeException('Invalid .claude/settings.json permissions.allow format.');
     }
-    file_put_contents($claude_settings, $settings_content);
+
+    $settings['permissions']['allow'] = array_values(array_filter(
+      $allow,
+      static function (string $permission) use ($command_wrapper): bool {
+        if ($permission === 'Bash(ahoy:*)' && !in_array('ahoy', $command_wrapper, TRUE)) {
+          return FALSE;
+        }
+        if ($permission === 'Bash(make:*)' && !in_array('makefile', $command_wrapper, TRUE)) {
+          return FALSE;
+        }
+        return TRUE;
+      },
+    ));
+
+    $encoded = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    if ($encoded === FALSE || file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
+      throw new \RuntimeException('Unable to write .claude/settings.json.');
+    }
   }
 
   process_readme($extension_name);
