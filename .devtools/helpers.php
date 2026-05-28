@@ -132,8 +132,11 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
 
   $contents = file_get_contents($file);
   if ($contents === FALSE) {
-    file_put_contents($file, $assignment . PHP_EOL);
+    FAIL('Unable to read %s', $file);
+
+    // @codeCoverageIgnoreStart
     return;
+    // @codeCoverageIgnoreEnd
   }
 
   $lines = preg_split('/\r\n|\r|\n/', $contents) ?: [];
