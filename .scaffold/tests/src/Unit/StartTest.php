@@ -300,15 +300,16 @@ final class StartTest extends UnitTestCase {
 
     // file_put_contents must not be called - we read from .env, do not rewrite.
     $put_called = FALSE;
-    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function () use (&$put_called) {
+    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function () use (&$put_called): false {
       $put_called = TRUE;
 
       return FALSE;
     });
 
-    // stream_socket_server must not be called - we read from .env, do not discover.
+    // stream_socket_server must not be called - we read from .env, do not
+    // discover.
     $stream_called = FALSE;
-    $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function () use (&$stream_called) {
+    $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function () use (&$stream_called): false {
       $stream_called = TRUE;
 
       return FALSE;

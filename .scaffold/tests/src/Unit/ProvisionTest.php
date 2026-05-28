@@ -215,7 +215,7 @@ final class ProvisionTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => [$extension_name . '.info.yml']);
 
-    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content) {
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content): string {
       if (str_ends_with($file, '.info.yml')) {
         return $info_content;
       }

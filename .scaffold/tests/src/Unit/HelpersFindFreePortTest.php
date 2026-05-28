@@ -139,6 +139,9 @@ final class HelpersFindFreePortTest extends UnitTestCase {
 
     $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function (string $address, &$errno = NULL, &$errstr = NULL) {
       $response = $this->getNextMockResponse('stream_socket_server');
+      if (!is_int($response['port']) || !is_bool($response['success'])) {
+        throw new \RuntimeException('Mocked stream_socket_server response must have int "port" and bool "success".');
+      }
       $expected = sprintf('tcp://127.0.0.1:%d', $response['port']);
       if ($address !== $expected) {
         throw new \RuntimeException(sprintf('stream_socket_server() called with unexpected address. Expected "%s", got "%s".', $expected, $address));
