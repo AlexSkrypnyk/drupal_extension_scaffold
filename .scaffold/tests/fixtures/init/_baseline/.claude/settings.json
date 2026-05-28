@@ -1,9 +1,9 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(ahoy:*)",
-      "Bash(composer:*)"
-    ],
-    "deny": []
-  }
+    "permissions": {
+        "allow": [
+            "Bash(ahoy:*)",
+            "Bash(composer:*)"
+        ],
+        "deny": []
+    }
 }
