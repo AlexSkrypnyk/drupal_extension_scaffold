@@ -51,6 +51,161 @@ function getenv_default(mixed ...$vars): string {
 }
 
 /**
+ * Read variables from a dotenv-style file into an associative array.
+ *
+ * Parses lines of the form KEY=VALUE. Lines that are blank or start with
+ * '#' (after optional whitespace) are ignored. Surrounding single or double
+ * quotes around the value are stripped. Keys and values are trimmed.
+ *
+ * @param string $file
+ *   Path to the dotenv file.
+ *
+ * @return array<string, string>
+ *   Associative array of key-value pairs. Empty if the file does not exist
+ *   or contains no parseable lines.
+ */
+function dotenv_read(string $file = '.env'): array {
+  if (!file_exists($file)) {
+    return [];
+  }
+
+  $contents = file_get_contents($file);
+  if ($contents === FALSE) {
+    return [];
+  }
+
+  $vars = [];
+  foreach (preg_split('/\r\n|\r|\n/', $contents) ?: [] as $line) {
+    $trimmed = trim($line);
+    if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+      continue;
+    }
+
+    if (!str_contains($trimmed, '=')) {
+      continue;
+    }
+
+    [$key, $value] = explode('=', $trimmed, 2);
+    $key = trim($key);
+    $value = trim($value);
+
+    if ($key === '') {
+      continue;
+    }
+
+    if (strlen($value) >= 2) {
+      $first = $value[0];
+      $last = $value[strlen($value) - 1];
+      if (($first === '"' && $last === '"') || ($first === "'" && $last === "'")) {
+        $value = substr($value, 1, -1);
+      }
+    }
+
+    $vars[$key] = $value;
+  }
+
+  return $vars;
+}
+
+/**
+ * Set or update a variable in a dotenv-style file.
+ *
+ * If the key already exists in the file, its line is rewritten in place,
+ * preserving the order of other lines and any comments or blank lines.
+ * If the key does not exist, the assignment is appended to the end of the
+ * file. The file is created with the single assignment if it does not exist.
+ *
+ * @param string $key
+ *   Variable name to write.
+ * @param string $value
+ *   Variable value to write. Not quoted.
+ * @param string $file
+ *   Path to the dotenv file.
+ */
+function dotenv_write_var(string $key, string $value, string $file = '.env'): void {
+  $assignment = sprintf('%s=%s', $key, $value);
+
+  if (!file_exists($file)) {
+    file_put_contents($file, $assignment . PHP_EOL);
+    return;
+  }
+
+  $contents = file_get_contents($file);
+  if ($contents === FALSE) {
+    FAIL('Unable to read %s', $file);
+
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $lines = preg_split('/\r\n|\r|\n/', $contents) ?: [];
+  $trailing_newline = $contents !== '' && (str_ends_with($contents, "\n") || str_ends_with($contents, "\r"));
+  if ($trailing_newline && end($lines) === '') {
+    array_pop($lines);
+  }
+
+  $replaced = FALSE;
+  foreach ($lines as $i => $line) {
+    $trimmed = trim($line);
+    if ($trimmed === '' || str_starts_with($trimmed, '#') || !str_contains($trimmed, '=')) {
+      continue;
+    }
+
+    [$existing_key] = explode('=', $trimmed, 2);
+    if (trim($existing_key) === $key) {
+      $lines[$i] = $assignment;
+      $replaced = TRUE;
+      break;
+    }
+  }
+
+  if (!$replaced) {
+    $lines[] = $assignment;
+  }
+
+  file_put_contents($file, implode(PHP_EOL, $lines) . PHP_EOL);
+}
+
+/**
+ * Find a free TCP port by scanning a range of ports.
+ *
+ * Attempts to open a server socket on each port in turn, starting from
+ * $start, and returns the first port that is free. Calls FAIL() if no
+ * free port is found within $max_attempts.
+ *
+ * @param int $start
+ *   Port number to start scanning from.
+ * @param int $max_attempts
+ *   Maximum number of ports to try.
+ *
+ * @return int
+ *   The first free port found.
+ */
+function find_free_port(int $start = 8000, int $max_attempts = 100): int {
+  if ($start < 1 || $start > 65535) {
+    FAIL('Start port must be between 1 and 65535, got %d', $start);
+  }
+  if ($max_attempts < 1) {
+    FAIL('Max attempts must be a positive integer, got %d', $max_attempts);
+  }
+
+  for ($port = $start; $port < $start + $max_attempts; $port++) {
+    $sock = @stream_socket_server(sprintf('tcp://127.0.0.1:%d', $port), $errno, $errstr);
+    if ($sock !== FALSE) {
+      fclose($sock);
+      return $port;
+    }
+  }
+
+  FAIL('Unable to find a free port in range %d-%d', $start, $start + $max_attempts - 1);
+
+  // @codeCoverageIgnoreStart
+  return $start;
+  // @codeCoverageIgnoreEnd
+}
+
+/**
  * Get required environment variable with fallback support.
  */
 function getenv_required(mixed ...$vars): string {
