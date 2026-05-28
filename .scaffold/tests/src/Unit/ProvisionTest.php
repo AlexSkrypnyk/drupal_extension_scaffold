@@ -205,4 +205,52 @@ final class ProvisionTest extends UnitTestCase {
     ];
   }
 
+  public function testProvisionReadsPortFromDotenvWhenEnvUnset(): void {
+    $extension_name = 'test_extension';
+    $info_content = "name: Test\ntype: module\n";
+    $cwd = '/test/project';
+    $expected_host = 'localhost';
+    $expected_port = '8123';
+
+    $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
+    $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => [$extension_name . '.info.yml']);
+
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content) {
+      if (str_ends_with($file, '.info.yml')) {
+        return $info_content;
+      }
+      if ($file === '.env') {
+        return "WEBSERVER_PORT=8123\n";
+      }
+      if ($file === 'composer.json') {
+        return json_encode(['suggest' => []], JSON_THROW_ON_ERROR);
+      }
+      if (str_starts_with($file, 'http://')) {
+        return '<html></html>';
+      }
+
+      return '';
+    });
+
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
+
+    $prefix = self::drushPrefix($cwd);
+    $db_file = '/tmp/site_' . $extension_name . '.sqlite';
+    $this->mockPassthruMultiple([
+      ['cmd' => $prefix . 'status --field=db-status', 'output' => ''],
+      ['cmd' => $prefix . sprintf('site-install %s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), $db_file)],
+      ['cmd' => $prefix . 'status'],
+      ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
+      ['cmd' => $prefix . 'cr'],
+      ['cmd' => $prefix . sprintf('uli -l http://%s:%s --no-browser', $expected_host, $expected_port), 'output' => 'http://' . $expected_host . ':' . $expected_port . '/user/reset/1/abc/login'],
+    ]);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/provision';
+    $output = ob_get_clean();
+
+    $this->assertIsString($output);
+    $this->assertStringContainsString('http://' . $expected_host . ':' . $expected_port, $output);
+  }
+
 }

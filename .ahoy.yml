@@ -3,6 +3,9 @@
 ---
 ahoyapi: v2
 
+env:
+  - .env
+
 commands:
 
   build:
