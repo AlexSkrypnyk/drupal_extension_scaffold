@@ -16,14 +16,10 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Lock file recording the PID of the PHP server we started.
-$lock_file = '.logs/webserver.pid';
-
-// Resolve the port the server is listening on, for the user-facing message
-// and as a fallback kill target if the lock file is missing. Precedence:
-// 1. WEBSERVER_PORT env var.
-// 2. WEBSERVER_PORT entry in .env.
-// 3. Default 8000.
+// Webserver port. Resolution precedence:
+// 1. WEBSERVER_PORT env var, if set.
+// 2. WEBSERVER_PORT entry in .env, if present.
+// 3. Default '8000'.
 $webserver_port = getenv_default('WEBSERVER_PORT', '');
 if ($webserver_port === '') {
   $dotenv = dotenv_read('.env');
@@ -38,27 +34,8 @@ echo '      💻 STOP ENVIRONMENT      ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
-TASK('Stopping previously started services, if any.');
-
-// Prefer killing the specific PID we recorded so we never touch a server
-// belonging to another project on the same port.
-$stopped_via_lock = FALSE;
-if (file_exists($lock_file)) {
-  $lock_contents = trim((string) @file_get_contents($lock_file));
-  if ($lock_contents !== '' && ctype_digit($lock_contents)) {
-    $pid = (int) $lock_contents;
-    @exec(sprintf('kill -9 %d 2>/dev/null', $pid));
-    $stopped_via_lock = TRUE;
-  }
-  @unlink($lock_file);
-}
-
-// If there is no lock file (e.g. user started a server outside this tooling,
-// or .logs was wiped), fall back to killing whatever is on the resolved port.
-if (!$stopped_via_lock) {
-  @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
-}
-
+TASK('Stopping previously started services on port %s, if any.', $webserver_port);
+@passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
 sleep(1);
 PASS('Services stopped on port %s.', $webserver_port);
 
