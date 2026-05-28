@@ -20,6 +20,7 @@ PHPUnit tests are tagged with `#[Group('p0'..'p4')]` so CI can shard them across
 - `p2` - `AssembleTest` (Drupal codebase assembly).
 - `p3` - `AhoyTest`, `AutoPortDiscoveryTest` (Ahoy command wrapper).
 - `p4` - `MakeTest` (Makefile command wrapper).
+- `p5` - `XdebugTest` (XDebug step-debugging toggle). This is the only group whose CI runner installs the xdebug PHP extension via `coverage: xdebug` instead of pcov - the test exercises the real extension end to end, so coverage is not collected for this group.
 
 ## Running the tests
 
