@@ -262,6 +262,11 @@ function process_internal(string $extension_name, string $extension_machine_name
   $scaffold_link_token = '__SCAFFOLD_ATTRIBUTION_LINK__';
   replace_string_content($scaffold_link, $scaffold_link_token);
 
+  // Protect the update skill URL from bulk replacements.
+  $update_skill_url = 'https://raw.githubusercontent.com/AlexSkrypnyk/drupal_extension_scaffold/1.x/.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md';
+  $update_skill_url_token = '__SCAFFOLD_UPDATE_SKILL_URL__';
+  replace_string_content($update_skill_url, $update_skill_url_token);
+
   replace_string_content('YourNamespace', $extension_machine_name);
   replace_string_content('yournamespace', $extension_machine_name);
   replace_string_content('AlexSkrypnyk', $extension_machine_name);
@@ -284,6 +289,9 @@ function process_internal(string $extension_name, string $extension_machine_name
 
   // Restore the scaffold attribution link.
   replace_string_content($scaffold_link_token, $scaffold_link);
+
+  // Restore the update skill URL.
+  replace_string_content($update_skill_url_token, $update_skill_url);
 
   remove_string_content('# Uncomment the lines below in your project.');
   uncomment_line('.gitattributes', 'AGENTS.md');

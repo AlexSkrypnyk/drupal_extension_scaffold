@@ -101,3 +101,23 @@ This is a Force Crystal template for creating contributed modules or themes. The
 - Extension files are symlinked from root into `build/web/modules/custom/`
 - SQLite database created in `/tmp/site_force_crystal.sqlite`
 - All quality tools run from within `build/` directory
+
+## Updating the scaffold
+
+When the user asks to update this project's scaffold (e.g. "update scaffold"), fetch the update skill from GitHub into the local `.claude/skills/` directory, then invoke it:
+
+1. Create the target directory if it does not exist:
+
+   ```bash
+   mkdir -p .claude/skills/update-consumer-drupal-extension-scaffold
+   ```
+
+2. Download the skill:
+
+   ```bash
+   curl -sSL https://raw.githubusercontent.com/AlexSkrypnyk/drupal_extension_scaffold/1.x/.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md -o .claude/skills/update-consumer-drupal-extension-scaffold/SKILL.md
+   ```
+
+3. Invoke the `update-consumer-drupal-extension-scaffold` skill and follow its steps.
+
+The skill directory is git-ignored - it is fetched on demand and not committed to the project.
