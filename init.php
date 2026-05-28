@@ -187,6 +187,37 @@ function process(string $extension_name, string $extension_machine_name, string 
     @unlink('Makefile');
   }
 
+  // Trim wrapper-specific permissions from Claude settings to match selection.
+  $claude_settings = '.claude/settings.json';
+  if (file_exists($claude_settings)) {
+    $settings_content = file_get_contents($claude_settings);
+    if ($settings_content === FALSE) {
+      throw new \RuntimeException('Unable to read .claude/settings.json.');
+    }
+
+    $settings = json_decode($settings_content, TRUE, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($settings) || !isset($settings['permissions']) || !is_array($settings['permissions']) || !isset($settings['permissions']['allow']) || !is_array($settings['permissions']['allow'])) {
+      throw new \RuntimeException('Invalid .claude/settings.json structure.');
+    }
+
+    $settings['permissions']['allow'] = array_values(array_filter(
+      $settings['permissions']['allow'],
+      static function ($permission) use ($command_wrapper): bool {
+        $wrapper = match ($permission) {
+          'Bash(ahoy:*)' => 'ahoy',
+          'Bash(make:*)' => 'makefile',
+          default => NULL,
+        };
+        return $wrapper === NULL || in_array($wrapper, $command_wrapper, TRUE);
+      },
+    ));
+
+    $encoded = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    if (file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
+      throw new \RuntimeException('Unable to write .claude/settings.json.');
+    }
+  }
+
   process_readme($extension_name);
 
   process_internal($extension_name, $extension_machine_name, $extension_type);
@@ -257,6 +288,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   remove_string_content('# Uncomment the lines below in your project.');
   uncomment_line('.gitattributes', 'AGENTS.md');
   uncomment_line('.gitattributes', 'CLAUDE.md');
+  uncomment_line('.gitattributes', '.claude');
   uncomment_line('.gitattributes', '.ahoy.yml');
   uncomment_line('.gitattributes', '.circleci');
   uncomment_line('.gitattributes', '.devtools');
@@ -309,6 +341,10 @@ function process_internal(string $extension_name, string $extension_machine_name
     @unlink($file);
   }
   remove_dir('.scaffold');
+
+  // Remove scaffold-only Claude skills placeholder and its gitignore entry.
+  remove_dir('.claude/skills');
+  remove_string_content('!.claude/skills/');
 
   remove_tokens_with_content('META');
   remove_special_comments();

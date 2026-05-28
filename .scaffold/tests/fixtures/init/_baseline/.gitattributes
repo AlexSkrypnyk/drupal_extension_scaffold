@@ -2,6 +2,7 @@
 
 AGENTS.md          export-ignore
 CLAUDE.md          export-ignore
+.claude            export-ignore
 .ahoy.yml          export-ignore
 .circleci          export-ignore
 .devtools          export-ignore

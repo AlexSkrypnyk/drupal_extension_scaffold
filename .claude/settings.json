@@ -1,0 +1,10 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(ahoy:*)",
+            "Bash(composer:*)",
+            "Bash(make:*)"
+        ],
+        "deny": []
+    }
+}

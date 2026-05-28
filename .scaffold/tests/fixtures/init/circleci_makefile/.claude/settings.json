@@ -1,0 +1,11 @@
+@@ -1,8 +1,8 @@
+ {
+     "permissions": {
+         "allow": [
+-            "Bash(ahoy:*)",
+-            "Bash(composer:*)"
++            "Bash(composer:*)",
++            "Bash(make:*)"
+         ],
+         "deny": []
+     }
