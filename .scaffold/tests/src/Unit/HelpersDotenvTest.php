@@ -143,13 +143,15 @@ final class HelpersDotenvTest extends UnitTestCase {
     $this->assertSame("# Top comment\n\nFOO=new\n\n# Another comment\nBAR=keep\n", file_get_contents($file));
   }
 
-  public function testDotenvWriteVarReplacesOnlyFirstMatch(): void {
+  public function testDotenvWriteVarReplacesLastMatchToAgreeWithRead(): void {
     $file = self::$tmp . '/dotenv_write_' . uniqid();
     file_put_contents($file, "FOO=first\nBAR=keep\nFOO=second\n");
 
     dotenv_write_var('FOO', 'new', $file);
 
-    $this->assertSame("FOO=new\nBAR=keep\nFOO=second\n", file_get_contents($file));
+    // The last assignment is the effective one per dotenv_read() semantics,
+    // so the write replaces it (not the first).
+    $this->assertSame("FOO=first\nBAR=keep\nFOO=new\n", file_get_contents($file));
   }
 
   public function testDotenvWriteVarHandlesFileWithoutTrailingNewline(): void {

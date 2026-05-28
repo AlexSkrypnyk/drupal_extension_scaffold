@@ -38,7 +38,7 @@ final class StartTest extends UnitTestCase {
     // Mock passthru: 1) kill existing, 2) start server.
     $this->mockPassthruMultiple([
       ['cmd' => sprintf("lsof -ti:%s | xargs kill -9 2>/dev/null", escapeshellarg($expected_port))],
-      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $expected_host, $expected_port, $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($expected_host), escapeshellarg($expected_port), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -102,7 +102,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -137,7 +137,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -175,7 +175,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -210,7 +210,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -254,7 +254,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -317,7 +317,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8123' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8123 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8123'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -352,10 +352,12 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     // First port (8000) busy, second port (8001) free.
+    // find_free_port probes both 127.0.0.1 and [::1] per port. 8000 IPv4
+    // is busy (loop breaks before [::1] probe), 8001 free on both.
     $port_attempts = 0;
     $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function (string $address) use (&$port_attempts) {
       $port_attempts++;
-      if (str_contains($address, ':8000')) {
+      if (str_contains($address, '127.0.0.1:8000')) {
         return FALSE;
       }
       if (str_contains($address, ':8001')) {
@@ -379,7 +381,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8001' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8001 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8001'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
@@ -401,7 +403,9 @@ final class StartTest extends UnitTestCase {
     $this->assertStringContainsString('http://localhost:8001', $output);
     $this->assertSame('.env', $persisted_file);
     $this->assertSame('8001', $persisted_port);
-    $this->assertSame(2, $port_attempts);
+    // 3 probe calls: 127.0.0.1:8000 (FALSE), 127.0.0.1:8001 (success),
+    // [::1]:8001 (success).
+    $this->assertSame(3, $port_attempts);
 
     fclose($fp);
   }
@@ -414,7 +418,7 @@ final class StartTest extends UnitTestCase {
 
     $this->mockPassthruMultiple([
       ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
-      ['cmd' => sprintf('nohup php -S localhost:8000 -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $cwd, $cwd)],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
     $this->mockSleep();
