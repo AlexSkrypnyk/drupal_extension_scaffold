@@ -34,6 +34,7 @@ if ($webserver_port === '') {
     dotenv_write_var('WEBSERVER_PORT', $webserver_port);
   }
 }
+validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
 
 // Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
@@ -49,8 +50,8 @@ TASK('Stopping previously started services, if any.');
 @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
 
 TASK('Starting the PHP webserver.');
-$cwd = getcwd();
-passthru(sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $webserver_host, $webserver_port, $cwd, $cwd));
+$cwd = (string) getcwd();
+passthru(sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($webserver_host), escapeshellarg($webserver_port), escapeshellarg($cwd), escapeshellarg($cwd)));
 
 NOTE('Waiting %s seconds for the server to be ready.', (string) $webserver_wait_timeout);
 sleep($webserver_wait_timeout);

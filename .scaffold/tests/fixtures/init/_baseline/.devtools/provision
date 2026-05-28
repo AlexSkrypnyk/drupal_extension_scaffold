@@ -32,6 +32,7 @@ if ($webserver_port === '') {
   $dotenv = dotenv_read('.env');
   $webserver_port = (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') ? $dotenv['WEBSERVER_PORT'] : '8000';
 }
+validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
 
 // Drupal profile to use when installing the site.
 $drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');

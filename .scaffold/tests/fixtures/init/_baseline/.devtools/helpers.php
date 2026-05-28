@@ -129,7 +129,10 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
   $assignment = sprintf('%s=%s', $key, $value);
 
   if (!file_exists($file)) {
-    file_put_contents($file, $assignment . PHP_EOL);
+    if (file_put_contents($file, $assignment . PHP_EOL) === FALSE) {
+      FAIL('Unable to write %s', $file);
+    }
+
     return;
   }
 
@@ -148,7 +151,9 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
     array_pop($lines);
   }
 
-  $replaced = FALSE;
+  // Replace the LAST matching assignment so dotenv_read()'s
+  // last-assignment-wins semantics agree with what is written.
+  $replace_index = NULL;
   foreach ($lines as $i => $line) {
     $trimmed = trim($line);
     if ($trimmed === '') {
@@ -163,25 +168,48 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
 
     [$existing_key] = explode('=', $trimmed, 2);
     if (trim($existing_key) === $key) {
-      $lines[$i] = $assignment;
-      $replaced = TRUE;
-      break;
+      $replace_index = $i;
     }
   }
 
-  if (!$replaced) {
+  if ($replace_index === NULL) {
     $lines[] = $assignment;
   }
+  else {
+    $lines[$replace_index] = $assignment;
+  }
 
-  file_put_contents($file, implode(PHP_EOL, $lines) . PHP_EOL);
+  if (file_put_contents($file, implode(PHP_EOL, $lines) . PHP_EOL) === FALSE) {
+    FAIL('Unable to write %s', $file);
+  }
+}
+
+/**
+ * Validate that a value is a TCP port in the range 1-65535.
+ *
+ * Calls FAIL() with a descriptive message if validation fails.
+ *
+ * @param string $value
+ *   The value to validate.
+ * @param string $source
+ *   Source name used in the error message (e.g. 'WEBSERVER_PORT').
+ */
+function validate_port_or_fail(string $value, string $source): void {
+  if (!ctype_digit($value) || (int) $value < 1 || (int) $value > 65535) {
+    FAIL('Invalid %s "%s". Expected integer in range 1-65535.', $source, $value);
+  }
 }
 
 /**
  * Find a free TCP port by scanning a range of ports.
  *
- * Attempts to open a server socket on each port in turn, starting from
- * $start, and returns the first port that is free. Calls FAIL() if no
- * free port is found within $max_attempts.
+ * Probes each port on both IPv4 (127.0.0.1) and IPv6 ([::1]) loopback
+ * interfaces and returns the first port that is free on both. This is
+ * needed because PHP's built-in webserver (php -S localhost:N) binds to
+ * IPv6 only on systems where 'localhost' resolves that way, while
+ * stream_socket_server() falls back between stacks - so a single-stack
+ * probe can incorrectly report a port as free. Calls FAIL() if no free
+ * port is found within $max_attempts.
  *
  * @param int $start
  *   Port number to start scanning from.
@@ -199,10 +227,20 @@ function find_free_port(int $start = 8000, int $max_attempts = 100): int {
     FAIL('Max attempts must be a positive integer, got %d', $max_attempts);
   }
 
+  $probe_addresses = ['127.0.0.1', '[::1]'];
+
   for ($port = $start; $port < $start + $max_attempts; $port++) {
-    $sock = @stream_socket_server(sprintf('tcp://127.0.0.1:%d', $port), $errno, $errstr);
-    if ($sock !== FALSE) {
+    $all_free = TRUE;
+    foreach ($probe_addresses as $address) {
+      $sock = @stream_socket_server(sprintf('tcp://%s:%d', $address, $port), $errno, $errstr);
+      if ($sock === FALSE) {
+        $all_free = FALSE;
+        break;
+      }
       fclose($sock);
+    }
+
+    if ($all_free) {
       return $port;
     }
   }
