@@ -16,8 +16,16 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver port.
-$webserver_port = getenv_default('WEBSERVER_PORT', '8000');
+// Webserver port. Resolution precedence:
+// 1. WEBSERVER_PORT env var, if set.
+// 2. WEBSERVER_PORT entry in .env, if present.
+// 3. Default '8000'.
+$webserver_port = getenv_default('WEBSERVER_PORT', '');
+if ($webserver_port === '') {
+  $dotenv = dotenv_read('.env');
+  $webserver_port = (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') ? $dotenv['WEBSERVER_PORT'] : '8000';
+}
+validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
 
 // -----------------------------------------------------------------------------
 
@@ -26,10 +34,10 @@ echo '      💻 STOP ENVIRONMENT      ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
-TASK('Stopping previously started services, if any.');
+TASK('Stopping previously started services on port %s, if any.', $webserver_port);
 @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
 sleep(1);
-PASS('Services stopped.');
+PASS('Services stopped on port %s.', $webserver_port);
 
 echo PHP_EOL;
 echo '===============================' . PHP_EOL;

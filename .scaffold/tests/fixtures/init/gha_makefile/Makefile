@@ -1,4 +1,10 @@
 SHELL=/bin/bash
+
+# Load variables from .env if present and export them to recipe shells. The
+# leading '-' on -include suppresses errors when the file does not exist.
+-include .env
+export
+
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 

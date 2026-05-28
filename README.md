@@ -199,9 +199,29 @@ The `provision` command installs the Drupal website from the `standard`
 profile with your extension (and any `suggest`'ed extensions) enabled. The
 profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
 
-The website will be available at http://localhost:8000. The hostname and port
-can be changed by setting the `WEBSERVER_HOST` and `WEBSERVER_PORT` environment
-variables.
+The website will be available at http://localhost:8000 by default. The
+hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
+
+#### Webserver port
+
+The `WEBSERVER_PORT` is resolved with the following precedence:
+
+1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off
+   runs: `WEBSERVER_PORT=9000 make build`.
+2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is.
+   The `start` script does not modify `.env` when this entry is already
+   present, so the same port is reused across `start`, `stop`, `provision`,
+   `drush` and `login` commands.
+3. **Neither is set** - the `start` script discovers the first free port in
+   the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`.
+   Subsequent commands read this value from `.env`.
+
+The `.env` file is loaded automatically by `make` (via `-include .env` and
+`export`) and `ahoy` (via the native `env:` field), so all wrapper commands
+see the resolved port without further configuration. The file is gitignored.
+
+To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in
+it) and re-run `make start` / `ahoy start`.
 
 An SQLite database is created in `/tmp/site_[EXTENSION_NAME].sqlite` file.
 You can browse the contents of the created SQLite database using
