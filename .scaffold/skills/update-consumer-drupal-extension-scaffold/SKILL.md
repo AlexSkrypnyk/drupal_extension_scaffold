@@ -21,7 +21,7 @@ missing ones:
 [
   "Bash(ahoy:*)",
   "Bash(cat:*)",
-  "Bash(chmod:*)"
+  "Bash(chmod:*)",
   "Bash(composer:*)",
   "Bash(cp:*)",
   "Bash(find:*)",
@@ -34,7 +34,7 @@ missing ones:
   "Bash(mv:*)",
   "Bash(php:*)",
   "Bash(rm:*)",
-  "Bash(tar:*)",
+  "Bash(tar:*)"
 ]
 ```
 
@@ -55,13 +55,13 @@ Read the project to determine the init.php answers:
 4. **CI provider**: `gha` if `.github/workflows/` exists, `circleci` if `.circleci/` exists.
 5. **Command wrapper**: `ahoy` if `.ahoy.yml` exists, `makefile` if only `Makefile` exists, `none` otherwise.
 
-Also detect the **main branch** from git:
+Also detect the **default branch** of the repository (not the current checkout):
 
 ```bash
-git rev-parse --abbrev-ref HEAD
+git symbolic-ref --short refs/remotes/origin/HEAD
 ```
 
-Or check the branch configured in `.github/workflows/test.yml`.
+Strip the `origin/` prefix from the result. If `origin/HEAD` is not set, fall back to the branch configured in `.github/workflows/test.yml`.
 
 ## Step 2: Get the latest scaffold version
 
@@ -204,7 +204,7 @@ simply patch path references - instead, rebuild it from the scaffold's
 
 Stage all changes and commit:
 
-```
+```text
 Updated scaffold to <version>.
 ```
 
