@@ -27,7 +27,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
-          php-version: 8.4
+          php-version: 8.5
           extensions: gd, sqlite, pdo_sqlite
 
       - name: Assemble the codebase
@@ -131,6 +131,18 @@ jobs:
             php-version: 8.4
             drupal-version: 11@beta
 
+          - name: test-php-8.5-d11-legacy
+            php-version: 8.5
+            drupal-version: 11.3 # Lowest Drupal version that supports PHP 8.5.
+
+          - name: test-php-8.5-d11-stable
+            php-version: 8.5
+            drupal-version: 11.3
+
+          - name: test-php-8.5-d11-canary
+            php-version: 8.5
+            drupal-version: 11@beta
+
     services:
       chrome:
         image: selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
@@ -169,11 +181,11 @@ jobs:
           coverage: pcov
 
       # Disable Symfony deprecations helper for PHP 8.4+ until minor
-      # versions of Drupal 10 and 11 fully support PHP 8.4.
+      # versions of Drupal 10 and 11 fully support newer PHP versions.
       # @see https://www.drupal.org/project/drupal/issues/1267246
-      - name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4
+      - name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4+
         run: |
-          if [ "$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')" == "84" ]; then
+          if [ "$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')" -ge "84" ]; then
             echo "SYMFONY_DEPRECATIONS_HELPER=disabled" >> "$GITHUB_ENV"
           fi
 

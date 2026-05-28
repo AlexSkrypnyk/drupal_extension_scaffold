@@ -19,6 +19,7 @@
 ![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
 ![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)
+![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-009CDE.svg)
 ![Drupal 11](https://img.shields.io/badge/Drupal-11-006AA9.svg)
 </div>
@@ -48,7 +49,7 @@ and push the code to [Drupal.org](https://drupal.org).
 ## Features
 
 - Turnkey CI configuration:
-  - PHP version matrix: `8.2`, `8.3`, `8.4`.
+  - PHP version matrix: `8.2`, `8.3`, `8.4`, `8.5`.
   - Drupal version matrix: `stable`, `canary` and `legacy`.
   - CI providers: [GitHub Actions](.github/workflows/test.yml)
     and [CircleCI](.circleci/config.yml)
