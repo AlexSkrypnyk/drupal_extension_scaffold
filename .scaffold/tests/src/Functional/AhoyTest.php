@@ -83,7 +83,16 @@ final class AhoyTest extends DevtoolsTestCase {
 
     $this->runLint();
 
-    $this->runTests();
+    // `ahoy test` runs every PHPUnit suite in the consumer project, including
+    // FunctionalJavascript. Skip on CI environments without Docker (macOS).
+    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
+      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping `ahoy test` (includes FunctionalJavascript).' . PHP_EOL);
+    }
+    else {
+      $this->processRun('ahoy', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+      $this->assertProcessSuccessful();
+      $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+    }
 
     $this->runJsTests();
 
@@ -132,20 +141,6 @@ final class AhoyTest extends DevtoolsTestCase {
 
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
-  }
-
-  protected function runTests(): void {
-    // `ahoy test` runs every PHPUnit suite in the consumer project, including
-    // FunctionalJavascript. Skip on CI environments without Docker (macOS).
-    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
-      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping `ahoy test` (includes FunctionalJavascript).' . PHP_EOL);
-
-      return;
-    }
-
-    $this->processRun('ahoy', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
   }
 
   protected function runJsTests(): void {
