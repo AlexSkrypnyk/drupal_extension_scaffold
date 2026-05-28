@@ -180,6 +180,14 @@ final class AhoyTest extends DevtoolsTestCase {
   }
 
   protected function runFunctionalJavascriptTests(): void {
+    // Allow CI environments without Docker (e.g. GitHub Actions macOS runners)
+    // to opt out of the Selenium-backed FunctionalJavascript step.
+    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
+      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping FunctionalJavascript step.' . PHP_EOL);
+
+      return;
+    }
+
     $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
