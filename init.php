@@ -196,26 +196,24 @@ function process(string $extension_name, string $extension_machine_name, string 
     }
 
     $settings = json_decode($settings_content, TRUE, 512, JSON_THROW_ON_ERROR);
-    $allow = $settings['permissions']['allow'] ?? [];
-    if (!is_array($allow)) {
-      throw new \RuntimeException('Invalid .claude/settings.json permissions.allow format.');
+    if (!is_array($settings) || !isset($settings['permissions']) || !is_array($settings['permissions']) || !isset($settings['permissions']['allow']) || !is_array($settings['permissions']['allow'])) {
+      throw new \RuntimeException('Invalid .claude/settings.json structure.');
     }
 
     $settings['permissions']['allow'] = array_values(array_filter(
-      $allow,
-      static function (string $permission) use ($command_wrapper): bool {
-        if ($permission === 'Bash(ahoy:*)' && !in_array('ahoy', $command_wrapper, TRUE)) {
-          return FALSE;
-        }
-        if ($permission === 'Bash(make:*)' && !in_array('makefile', $command_wrapper, TRUE)) {
-          return FALSE;
-        }
-        return TRUE;
+      $settings['permissions']['allow'],
+      static function ($permission) use ($command_wrapper): bool {
+        $wrapper = match ($permission) {
+          'Bash(ahoy:*)' => 'ahoy',
+          'Bash(make:*)' => 'makefile',
+          default => NULL,
+        };
+        return $wrapper === NULL || in_array($wrapper, $command_wrapper, TRUE);
       },
     ));
 
     $encoded = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-    if ($encoded === FALSE || file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
+    if (file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
       throw new \RuntimeException('Unable to write .claude/settings.json.');
     }
   }
