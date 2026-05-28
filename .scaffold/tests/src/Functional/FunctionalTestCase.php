@@ -33,7 +33,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
       '.logs',
       '.phpunit.cache',
       '.artifacts',
-      '.claude',
       'build',
     ]);
 
