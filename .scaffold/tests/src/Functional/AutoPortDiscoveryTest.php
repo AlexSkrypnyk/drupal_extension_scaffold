@@ -69,7 +69,7 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
 
     // Start project 1; auto-discovery picks a free port and writes it to .env.
     $this->processCwd = $this->sut1;
-    $this->processRun('php', ['./.devtools/start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
 
@@ -84,7 +84,7 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     // Start project 2; port from project 1 is in use, so a different free
     // port must be picked.
     $this->processCwd = $this->sut2;
-    $this->processRun('php', ['./.devtools/start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
 
@@ -97,23 +97,23 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     // Stop project 2, then re-start it. Persisted .env port must be reused;
     // auto-discovery must not run again.
     $this->processCwd = $this->sut2;
-    $this->processRun('php', ['./.devtools/stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/stop'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
 
-    $this->processRun('php', ['./.devtools/start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('http://localhost:' . $port2);
     $this->assertSame($port2, $this->readEnvPort($this->sut2), '.env port must be reused after stop/restart.');
 
     // Stop both servers and verify .env survives stop.
     $this->processCwd = $this->sut1;
-    $this->processRun('php', ['./.devtools/stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/stop'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertSame($port1, $this->readEnvPort($this->sut1), 'stop must not modify .env.');
 
     $this->processCwd = $this->sut2;
-    $this->processRun('php', ['./.devtools/stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/stop'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertSame($port2, $this->readEnvPort($this->sut2), 'stop must not modify .env.');
   }
@@ -128,7 +128,7 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $original_env = file_get_contents($sut . '/.env');
 
     $this->processCwd = $sut;
-    $this->processRun('php', ['./.devtools/start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->startedPorts[] = $preset_port;
     $this->assertProcessAnyOutputContains('http://localhost:' . $preset_port);

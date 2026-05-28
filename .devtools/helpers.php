@@ -203,13 +203,13 @@ function validate_port_or_fail(string $value, string $source): void {
 /**
  * Find a free TCP port by scanning a range of ports.
  *
- * Probes each port on both IPv4 (127.0.0.1) and IPv6 ([::1]) loopback
- * interfaces and returns the first port that is free on both. This is
- * needed because PHP's built-in webserver (php -S localhost:N) binds to
- * IPv6 only on systems where 'localhost' resolves that way, while
- * stream_socket_server() falls back between stacks - so a single-stack
- * probe can incorrectly report a port as free. Calls FAIL() if no free
- * port is found within $max_attempts.
+ * Each port is probed by attempting a client connect to localhost. A
+ * connection that succeeds means some server is already listening on
+ * that port (on either IPv4 or IPv6, whichever the resolver picks).
+ * A connection that is refused means the port is free. This works on
+ * environments without IPv6 (e.g. Docker-based CI) where a server-side
+ * bind probe to [::1] would always fail. Calls FAIL() if no free port
+ * is found within $max_attempts.
  *
  * @param int $start
  *   Port number to start scanning from.
@@ -227,22 +227,12 @@ function find_free_port(int $start = 8000, int $max_attempts = 100): int {
     FAIL('Max attempts must be a positive integer, got %d', $max_attempts);
   }
 
-  $probe_addresses = ['127.0.0.1', '[::1]'];
-
   for ($port = $start; $port < $start + $max_attempts; $port++) {
-    $all_free = TRUE;
-    foreach ($probe_addresses as $address) {
-      $sock = @stream_socket_server(sprintf('tcp://%s:%d', $address, $port), $errno, $errstr);
-      if ($sock === FALSE) {
-        $all_free = FALSE;
-        break;
-      }
-      fclose($sock);
-    }
-
-    if ($all_free) {
+    $conn = @stream_socket_client(sprintf('tcp://localhost:%d', $port), $errno, $errstr, 0.2);
+    if ($conn === FALSE) {
       return $port;
     }
+    fclose($conn);
   }
 
   FAIL('Unable to find a free port in range %d-%d', $start, $start + $max_attempts - 1);

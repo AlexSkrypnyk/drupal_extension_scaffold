@@ -352,15 +352,12 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     // First port (8000) busy, second port (8001) free.
-    // find_free_port probes both 127.0.0.1 and [::1] per port. 8000 IPv4
-    // is busy (loop breaks before [::1] probe), 8001 free on both.
+    // find_free_port uses stream_socket_client probe. Connect to 8000
+    // succeeds (port in use); connect to 8001 refused (port free).
     $port_attempts = 0;
-    $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function (string $address) use (&$port_attempts) {
+    $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', function (string $address) use (&$port_attempts) {
       $port_attempts++;
-      if (str_contains($address, '127.0.0.1:8000')) {
-        return FALSE;
-      }
-      if (str_contains($address, ':8001')) {
+      if (str_contains($address, ':8000')) {
         return fopen('php://memory', 'r');
       }
 
@@ -403,9 +400,8 @@ final class StartTest extends UnitTestCase {
     $this->assertStringContainsString('http://localhost:8001', $output);
     $this->assertSame('.env', $persisted_file);
     $this->assertSame('8001', $persisted_port);
-    // 3 probe calls: 127.0.0.1:8000 (FALSE), 127.0.0.1:8001 (success),
-    // [::1]:8001 (success).
-    $this->assertSame(3, $port_attempts);
+    // 2 probe calls: localhost:8000 (in use), localhost:8001 (free).
+    $this->assertSame(2, $port_attempts);
 
     fclose($fp);
   }

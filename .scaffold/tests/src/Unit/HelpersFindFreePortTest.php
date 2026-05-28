@@ -13,8 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Tests for find_free_port() helper.
  *
- * The helper probes both IPv4 (127.0.0.1) and IPv6 ([::1]) loopback
- * interfaces per port and only returns a port that is free on both.
+ * The helper uses a client connect probe (rather than a server bind probe)
+ * so the test mocks stream_socket_client to simulate listeners being
+ * present or absent on each candidate port.
  *
  * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
@@ -30,47 +31,33 @@ final class HelpersFindFreePortTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  public function testFirstPortIsFreeOnBothStacks(): void {
-    $this->mockStreamSocketServer([
-      ['address' => '127.0.0.1', 'port' => 8000, 'success' => TRUE],
-      ['address' => '[::1]', 'port' => 8000, 'success' => TRUE],
+  public function testFirstPortIsFree(): void {
+    // Connect refused on port 8000 = port is free.
+    $this->mockStreamSocketClient([
+      ['port' => 8000, 'listening' => FALSE],
     ]);
 
     $port = find_free_port(8000, 100);
     $this->assertSame(8000, $port);
   }
 
-  public function testPortBusyOnIpv4SkippedEvenIfIpv6Free(): void {
-    // 8000 fails IPv4 probe; loop breaks before probing IPv6, moves to 8001.
-    $this->mockStreamSocketServer([
-      ['address' => '127.0.0.1', 'port' => 8000, 'success' => FALSE],
-      ['address' => '127.0.0.1', 'port' => 8001, 'success' => TRUE],
-      ['address' => '[::1]', 'port' => 8001, 'success' => TRUE],
+  public function testFirstFewPortsBusy(): void {
+    // 8000-8002 listening (in use), 8003 refused (free).
+    $this->mockStreamSocketClient([
+      ['port' => 8000, 'listening' => TRUE],
+      ['port' => 8001, 'listening' => TRUE],
+      ['port' => 8002, 'listening' => TRUE],
+      ['port' => 8003, 'listening' => FALSE],
     ]);
 
     $port = find_free_port(8000, 100);
-    $this->assertSame(8001, $port);
-  }
-
-  public function testPortBusyOnIpv6OnlyIsRejected(): void {
-    // 8000 passes IPv4 but fails IPv6 (real scenario: PHP -S already on
-    // [::1]:8000). 8001 is free on both.
-    $this->mockStreamSocketServer([
-      ['address' => '127.0.0.1', 'port' => 8000, 'success' => TRUE],
-      ['address' => '[::1]', 'port' => 8000, 'success' => FALSE],
-      ['address' => '127.0.0.1', 'port' => 8001, 'success' => TRUE],
-      ['address' => '[::1]', 'port' => 8001, 'success' => TRUE],
-    ]);
-
-    $port = find_free_port(8000, 100);
-    $this->assertSame(8001, $port);
+    $this->assertSame(8003, $port);
   }
 
   public function testCustomStartingPort(): void {
-    $this->mockStreamSocketServer([
-      ['address' => '127.0.0.1', 'port' => 9000, 'success' => FALSE],
-      ['address' => '127.0.0.1', 'port' => 9001, 'success' => TRUE],
-      ['address' => '[::1]', 'port' => 9001, 'success' => TRUE],
+    $this->mockStreamSocketClient([
+      ['port' => 9000, 'listening' => TRUE],
+      ['port' => 9001, 'listening' => FALSE],
     ]);
 
     $port = find_free_port(9000, 100);
@@ -125,10 +112,9 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   public function testAllPortsBusyCallsFail(): void {
     $responses = [];
     for ($p = 8000; $p < 8005; $p++) {
-      // First probe (IPv4) fails; loop moves on to next port.
-      $responses[] = ['address' => '127.0.0.1', 'port' => $p, 'success' => FALSE];
+      $responses[] = ['port' => $p, 'listening' => TRUE];
     }
-    $this->mockStreamSocketServer($responses);
+    $this->mockStreamSocketClient($responses);
     $this->mockQuit(1);
 
     $this->expectException(QuitErrorException::class);
@@ -144,32 +130,33 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   }
 
   /**
-   * Mock stream_socket_server() to return FALSE or a resource per call.
+   * Mock stream_socket_client() to simulate per-port connect outcomes.
    *
-   * @param array<int, array{address: string, port: int, success: bool}> $responses
-   *   Ordered list of expected calls. Each entry is the address and port
-   *   to expect and whether the bind should succeed.
+   * @param array<int, array{port: int, listening: bool}> $responses
+   *   Ordered list of expected calls. listening=TRUE returns a resource
+   *   (connect succeeded => port in use); listening=FALSE returns FALSE
+   *   (connect refused => port free).
    */
-  protected function mockStreamSocketServer(array $responses): void {
-    $this->addMockResponses('stream_socket_server', $responses);
+  protected function mockStreamSocketClient(array $responses): void {
+    $this->addMockResponses('stream_socket_client', $responses);
 
-    if (isset($this->mocks['stream_socket_server'])) {
+    if (isset($this->mocks['stream_socket_client'])) {
       return;
     }
 
-    $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function (string $address, &$errno = NULL, &$errstr = NULL) {
-      $response = $this->getNextMockResponse('stream_socket_server');
-      if (!is_string($response['address']) || !is_int($response['port']) || !is_bool($response['success'])) {
-        throw new \RuntimeException('Mocked stream_socket_server response must have string "address", int "port" and bool "success".');
+    $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', function (string $address, &$errno = NULL, &$errstr = NULL, ?float $timeout = NULL) {
+      $response = $this->getNextMockResponse('stream_socket_client');
+      if (!is_int($response['port']) || !is_bool($response['listening'])) {
+        throw new \RuntimeException('Mocked stream_socket_client response must have int "port" and bool "listening".');
       }
-      $expected = sprintf('tcp://%s:%d', $response['address'], $response['port']);
+      $expected = sprintf('tcp://localhost:%d', $response['port']);
       if ($address !== $expected) {
-        throw new \RuntimeException(sprintf('stream_socket_server() called with unexpected address. Expected "%s", got "%s".', $expected, $address));
+        throw new \RuntimeException(sprintf('stream_socket_client() called with unexpected address. Expected "%s", got "%s".', $expected, $address));
       }
 
-      if (!$response['success']) {
-        $errno = 48;
-        $errstr = 'Address already in use';
+      if (!$response['listening']) {
+        $errno = 61;
+        $errstr = 'Connection refused';
 
         return FALSE;
       }
