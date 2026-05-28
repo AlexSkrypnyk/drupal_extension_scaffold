@@ -37,8 +37,8 @@ final class StopTest extends UnitTestCase {
 
     $this->assertIsString($output);
     $this->assertStringContainsString('STOP ENVIRONMENT', $output);
-    $this->assertStringContainsString('Stopping previously started services', $output);
-    $this->assertStringContainsString('Services stopped', $output);
+    $this->assertStringContainsString('Stopping previously started services on port 8000', $output);
+    $this->assertStringContainsString('Services stopped on port 8000', $output);
     $this->assertStringContainsString('ENVIRONMENT STOPPED', $output);
   }
 
@@ -56,6 +56,7 @@ final class StopTest extends UnitTestCase {
 
     $this->assertIsString($output);
     $this->assertStringContainsString('STOP ENVIRONMENT', $output);
+    $this->assertStringContainsString('Services stopped on port 9000', $output);
     $this->assertStringContainsString('ENVIRONMENT STOPPED', $output);
   }
 
@@ -74,6 +75,7 @@ final class StopTest extends UnitTestCase {
     $output = ob_get_clean();
 
     $this->assertIsString($output);
+    $this->assertStringContainsString('Services stopped on port 8123', $output);
     $this->assertStringContainsString('ENVIRONMENT STOPPED', $output);
   }
 
