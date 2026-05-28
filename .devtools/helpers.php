@@ -183,6 +183,13 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
  *   The first free port found.
  */
 function find_free_port(int $start = 8000, int $max_attempts = 100): int {
+  if ($start < 1 || $start > 65535) {
+    FAIL('Start port must be between 1 and 65535, got %d', $start);
+  }
+  if ($max_attempts < 1) {
+    FAIL('Max attempts must be a positive integer, got %d', $max_attempts);
+  }
+
   for ($port = $start; $port < $start + $max_attempts; $port++) {
     $sock = @stream_socket_server(sprintf('tcp://127.0.0.1:%d', $port), $errno, $errstr);
     if ($sock !== FALSE) {

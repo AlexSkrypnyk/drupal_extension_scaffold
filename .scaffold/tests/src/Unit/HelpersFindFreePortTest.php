@@ -58,6 +58,51 @@ final class HelpersFindFreePortTest extends UnitTestCase {
     $this->assertSame(9001, $port);
   }
 
+  public function testInvalidStartPortBelowRangeFails(): void {
+    $this->mockQuit(1);
+
+    $this->expectException(QuitErrorException::class);
+    ob_start();
+    try {
+      find_free_port(0, 100);
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+      $this->assertStringContainsString('Start port must be between 1 and 65535', $output);
+    }
+  }
+
+  public function testInvalidStartPortAboveRangeFails(): void {
+    $this->mockQuit(1);
+
+    $this->expectException(QuitErrorException::class);
+    ob_start();
+    try {
+      find_free_port(70000, 100);
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+      $this->assertStringContainsString('Start port must be between 1 and 65535', $output);
+    }
+  }
+
+  public function testInvalidMaxAttemptsFails(): void {
+    $this->mockQuit(1);
+
+    $this->expectException(QuitErrorException::class);
+    ob_start();
+    try {
+      find_free_port(8000, 0);
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+      $this->assertStringContainsString('Max attempts must be a positive integer', $output);
+    }
+  }
+
   public function testAllPortsBusyCallsFail(): void {
     $responses = [];
     for ($p = 8000; $p < 8005; $p++) {
