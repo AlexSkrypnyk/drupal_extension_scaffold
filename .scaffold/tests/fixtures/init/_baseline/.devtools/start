@@ -19,25 +19,11 @@ require_once __DIR__ . '/helpers.php';
 // Webserver hostname.
 $webserver_host = getenv_default('WEBSERVER_HOST', 'localhost');
 
-// Webserver port. Resolution precedence:
-// 1. WEBSERVER_PORT env var, if set.
-// 2. WEBSERVER_PORT entry in .env, if present.
-// 3. Auto-discovery via find_free_port(), persisted to .env.
-$webserver_port = getenv_default('WEBSERVER_PORT', '');
-if ($webserver_port === '') {
-  $dotenv = dotenv_read('.env');
-  if (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') {
-    $webserver_port = $dotenv['WEBSERVER_PORT'];
-  }
-  else {
-    $webserver_port = (string) find_free_port();
-    dotenv_write_var('WEBSERVER_PORT', $webserver_port);
-  }
-}
-validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
-
 // Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
+
+// Lock file recording the PID of the PHP server we started.
+$lock_file = '.logs/webserver.pid';
 
 // -----------------------------------------------------------------------------
 
@@ -47,7 +33,62 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
 TASK('Stopping previously started services, if any.');
-@passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
+
+// Cleanup any server we started in a previous run, using the PID lock file.
+// This is project-local, so it never touches servers belonging to other
+// projects running in different directories.
+$prev_pid = 0;
+if (file_exists($lock_file)) {
+  $lock_contents = trim((string) @file_get_contents($lock_file));
+  if ($lock_contents !== '' && ctype_digit($lock_contents)) {
+    $prev_pid = (int) $lock_contents;
+    @exec(sprintf('kill -9 %d 2>/dev/null', $prev_pid));
+  }
+  @unlink($lock_file);
+  sleep(1);
+}
+
+// Resolve the port the server should listen on. Precedence:
+// 1. WEBSERVER_PORT env var.
+// 2. WEBSERVER_PORT entry in .env.
+// 3. Default 8000.
+//
+// Auto-discovery only kicks in when neither of the above is set AND the
+// default port turns out to be held by another process (e.g. another project
+// running in a different directory). In that case, a free port is discovered
+// and persisted to .env so the same port is reused on subsequent runs in
+// this project.
+$webserver_port = getenv_default('WEBSERVER_PORT', '');
+$from_persistent_source = $webserver_port !== '';
+
+if (!$from_persistent_source) {
+  $dotenv = dotenv_read('.env');
+  if (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') {
+    $webserver_port = $dotenv['WEBSERVER_PORT'];
+    $from_persistent_source = TRUE;
+  }
+  else {
+    $webserver_port = '8000';
+  }
+}
+
+validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
+
+if (!$from_persistent_source) {
+  // Default port is in play. Probe via a client connect (not a bind probe)
+  // so we correctly detect a listener regardless of whether it bound to
+  // IPv4 127.0.0.1 or IPv6 [::1]. If something is listening, this project
+  // cannot reuse the default - discover a different port and persist that
+  // choice to .env.
+  $probe = @stream_socket_client(sprintf('tcp://%s:%d', $webserver_host, (int) $webserver_port), $errno, $errstr, 0.2);
+  if ($probe !== FALSE) {
+    fclose($probe);
+    NOTE('Port %s is in use; discovering a free port.', $webserver_port);
+    $webserver_port = (string) find_free_port((int) $webserver_port + 1);
+    dotenv_write_var('WEBSERVER_PORT', $webserver_port);
+    NOTE('Using port %s (persisted to .env).', $webserver_port);
+  }
+}
 
 TASK('Starting the PHP webserver.');
 $cwd = (string) getcwd();
@@ -75,6 +116,22 @@ if ($headers === FALSE || !isset($headers[0]) || !str_contains($headers[0], '200
 }
 PASS('Server can serve content.');
 
+// Capture the PID of the running server and record it for the next run's
+// cleanup. lsof returns one PID per line; take the first one.
+$lsof_output = (string) @shell_exec(sprintf('lsof -ti:%s 2>/dev/null', escapeshellarg($webserver_port)));
+$server_pid = 0;
+foreach (preg_split('/\r\n|\r|\n/', $lsof_output) ?: [] as $line) {
+  $line = trim($line);
+  if ($line !== '' && ctype_digit($line)) {
+    $server_pid = (int) $line;
+    break;
+  }
+}
+if ($server_pid > 0) {
+  @mkdir(dirname($lock_file), 0755, TRUE);
+  @file_put_contents($lock_file, (string) $server_pid);
+}
+
 echo PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo '    💻 ENVIRONMENT READY  ✅  ' . PHP_EOL;
@@ -82,6 +139,7 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 echo 'Directory : ' . $cwd . '/build/web' . PHP_EOL;
 echo 'URL       : http://' . $webserver_host . ':' . $webserver_port . PHP_EOL;
+echo 'Port      : ' . $webserver_port . PHP_EOL;
 echo PHP_EOL;
 echo 'Re-run when you enable or disable XDebug.' . PHP_EOL;
 echo PHP_EOL;
