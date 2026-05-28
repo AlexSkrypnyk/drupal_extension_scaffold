@@ -14,26 +14,21 @@ on:
 
 jobs:
   scaffold-test-devtools:
-    runs-on: ubuntu-latest
-
-    services:
-      chrome:
-        image: selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
-        ports:
-          - 4444:4444
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
 
       matrix:
+        os: [ubuntu-latest, macos-latest]
         group: ['p0', 'p1', 'p2', 'p3', 'p4']
 
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - name: Upgrade sqlite3
-        if: matrix.group != 'p0'
+      - name: Upgrade sqlite3 (Linux)
+        if: matrix.group != 'p0' && runner.os == 'Linux'
         run: |
           wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
           tar -xzf /tmp/sqlite.tar.gz -C /tmp
@@ -41,6 +36,18 @@ jobs:
           ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
           make && sudo make install
           sudo ldconfig
+
+      - name: Upgrade sqlite3 (macOS)
+        if: matrix.group != 'p0' && runner.os == 'macOS'
+        run: |
+          brew install sqlite3
+          brew_prefix=$(brew --prefix sqlite3)
+          echo "${brew_prefix}/bin" >> "$GITHUB_PATH"
+          {
+            echo "LDFLAGS=-L${brew_prefix}/lib"
+            echo "CPPFLAGS=-I${brew_prefix}/include"
+            echo "PKG_CONFIG_PATH=${brew_prefix}/lib/pkgconfig"
+          } >> "$GITHUB_ENV"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
@@ -53,9 +60,22 @@ jobs:
       - name: Install Ahoy
         if: matrix.group == 'p3'
         run: |
-          os=$(uname -s | tr '[:upper:]' '[:lower:]') && architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac)
-          sudo wget -q https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-"${os}-${architecture}" -O /usr/local/bin/ahoy
-          sudo chown "$USER" /usr/local/bin/ahoy && chmod +x /usr/local/bin/ahoy
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          case "$(uname -m)" in
+            x86_64|amd64) architecture=amd64 ;;
+            aarch64|arm64|armv8) architecture=arm64 ;;
+            *) architecture=amd64 ;;
+          esac
+          sudo wget -q "https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-${os}-${architecture}" -O /usr/local/bin/ahoy
+          sudo chown "$USER" /usr/local/bin/ahoy
+          chmod +x /usr/local/bin/ahoy
+
+      - name: Start Chromium (Linux only)
+        if: runner.os == 'Linux' && (matrix.group == 'p3' || matrix.group == 'p4')
+        run: |
+          docker run -d --name chromium -p 4444:4444 selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
+          for _ in $(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done
+          curl -s http://localhost:4444/status | grep -q '"ready": true' || { echo 'ERROR: Chromium failed to become ready after 30 seconds.'; exit 1; }
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
@@ -82,11 +102,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
+          SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT: ${{ runner.os == 'macOS' && '1' || '0' }}
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ${{github.job}}-code-coverage-report-${{ matrix.group }}
+          name: ${{github.job}}-code-coverage-report-${{ matrix.os }}-${{ matrix.group }}
           path: .scaffold/tests/.logs
           include-hidden-files: true
           if-no-files-found: error

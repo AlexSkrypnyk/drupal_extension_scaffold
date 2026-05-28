@@ -83,9 +83,16 @@ final class AhoyTest extends DevtoolsTestCase {
 
     $this->runLint();
 
-    $this->processRun('ahoy', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-    $this->assertProcessSuccessful();
-    $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+    // `ahoy test` runs every PHPUnit suite in the consumer project, including
+    // FunctionalJavascript. Skip on CI environments without Docker (macOS).
+    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
+      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping `ahoy test` (includes FunctionalJavascript).' . PHP_EOL);
+    }
+    else {
+      $this->processRun('ahoy', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+      $this->assertProcessSuccessful();
+      $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
+    }
 
     $this->runJsTests();
 
@@ -180,6 +187,14 @@ final class AhoyTest extends DevtoolsTestCase {
   }
 
   protected function runFunctionalJavascriptTests(): void {
+    // Allow CI environments without Docker (e.g. GitHub Actions macOS runners)
+    // to opt out of the Selenium-backed FunctionalJavascript step.
+    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
+      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping FunctionalJavascript step.' . PHP_EOL);
+
+      return;
+    }
+
     $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
