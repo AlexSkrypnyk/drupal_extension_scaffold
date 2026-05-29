@@ -151,6 +151,13 @@ final class AhoyTest extends DevtoolsTestCase {
 
     $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
+
+    // Projects without any JS tests (CSS-only modules, modules without custom
+    // JS) must still see `test-js` succeed.
+    unlink(self::$sut . '/js/your_extension.test.js');
+
+    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
   }
 
   protected function runUnitTests(): void {
