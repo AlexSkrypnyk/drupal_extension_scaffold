@@ -53,6 +53,15 @@ echo '      💻 START ENVIRONMENT     ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
+if ($xdebug_enabled) {
+  TASK('Verifying that the Xdebug PHP extension is installed.');
+  $php_v = (string) shell_exec('php -v 2>/dev/null');
+  if (stripos($php_v, 'xdebug') === FALSE) {
+    FAIL('XDEBUG=1 is set but the Xdebug PHP extension is not installed on the host. Install it (see https://xdebug.org/docs/install) and try again.');
+  }
+  PASS('Xdebug extension is loaded.');
+}
+
 TASK('Stopping previously started services, if any.');
 @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
 
