@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 use function convert_string;
 use function get_files;
 use function is_binary_file;
+use function print_help;
 use function process;
 use function remove_dir;
 use function remove_special_comments;
@@ -88,6 +89,38 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'multiline text' => ["line1\nline2\nline3", FALSE];
     yield 'binary at start' => ["\0text after null", TRUE];
     yield 'php content' => ['<?php echo "hello"; ?>', FALSE];
+  }
+
+  public function testIsBinaryFileNonExistent(): void {
+    // The defensive 'fopen() === FALSE' branch is unreachable from production
+    // code (callers always pass paths returned by 'get_files()'), so 'fopen()'
+    // is allowed to warn. Suppress 'E_WARNING' so PHPUnit's
+    // 'failOnWarning' does not abort the test.
+    set_error_handler(static fn(): bool => TRUE, E_WARNING);
+    try {
+      $this->assertTrue(is_binary_file(self::$sut . '/nonexistent_file'));
+    }
+    finally {
+      restore_error_handler();
+    }
+  }
+
+  public function testPrintHelp(): void {
+    ob_start();
+    print_help();
+    $output = (string) ob_get_clean();
+
+    $this->assertStringContainsString('Drupal Extension Scaffold', $output);
+    $this->assertStringContainsString('Usage:', $output);
+    $this->assertStringContainsString('init.php', $output);
+    $this->assertStringContainsString('--help', $output);
+    $this->assertStringContainsString('PROMPTY_NAME', $output);
+    $this->assertStringContainsString('PROMPTY_MACHINE_NAME', $output);
+    $this->assertStringContainsString('PROMPTY_TYPE', $output);
+    $this->assertStringContainsString('PROMPTY_CI_PROVIDER', $output);
+    $this->assertStringContainsString('PROMPTY_COMMAND_WRAPPER', $output);
+    $this->assertStringContainsString('PROMPTY_REMOVE_SELF', $output);
+    $this->assertStringContainsString('PROMPTY_PROCEED', $output);
   }
 
   #[DataProvider('dataProviderRemoveDir')]
