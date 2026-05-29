@@ -12,14 +12,14 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 class YourExtensionService {
 
   /**
-   * The system's date configuration.
+   * The extension configuration.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $yourExtensionConfig;
 
   /**
-   * Constructs a new YourExtensionManager instance.
+   * Constructs a new YourExtensionService instance.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.

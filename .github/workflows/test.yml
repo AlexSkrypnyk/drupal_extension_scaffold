@@ -10,6 +10,9 @@ on:
     branches:
       - 1.x
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-24.04
@@ -106,6 +109,7 @@ jobs:
           - name: test-php-8.4-d10-canary
             php-version: 8.4
             drupal-version: 10.4@beta
+            stability: canary
 
           - name: test-php-8.3-d11-legacy
             php-version: 8.3
@@ -118,6 +122,7 @@ jobs:
           - name: test-php-8.3-d11-canary
             php-version: 8.3
             drupal-version: 11@beta
+            stability: canary
 
           - name: test-php-8.4-d11-legacy
             php-version: 8.4
@@ -130,6 +135,7 @@ jobs:
           - name: test-php-8.4-d11-canary
             php-version: 8.4
             drupal-version: 11@beta
+            stability: canary
 
           - name: test-php-8.5-d11-legacy
             php-version: 8.5
@@ -142,6 +148,7 @@ jobs:
           - name: test-php-8.5-d11-canary
             php-version: 8.5
             drupal-version: 11@beta
+            stability: canary
 
     services:
       chrome:

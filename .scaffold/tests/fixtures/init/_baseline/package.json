@@ -31,11 +31,11 @@
     "eslint-plugin-no-jquery": "__VERSION__",
     "eslint-plugin-prettier": "__VERSION__",
     "eslint-plugin-yml": "__VERSION__",
+    "jest": "__VERSION__",
+    "jest-environment-jsdom": "__VERSION__",
     "prettier": "__VERSION__",
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",
-    "jest": "__VERSION__",
-    "jest-environment-jsdom": "__VERSION__",
     "stylelint-order": "__VERSION__"
   }
 }

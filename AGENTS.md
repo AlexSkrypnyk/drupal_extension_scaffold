@@ -69,7 +69,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`)
 - `WEBSERVER_HOST` - Development server host (default: localhost)
-- `WEBSERVER_PORT` - Development server port (default: 8000)
+- `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
 
 ## Development Workflow
@@ -92,13 +92,13 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 - **GitHub Actions**: `.github/workflows/test.yml` and deployment
 - **CircleCI**: `.circleci/config.yml` configuration
-- **Matrix testing**: PHP 8.2-8.4, Drupal 10-11
+- **Matrix testing**: PHP 8.2-8.5, Drupal 10-11
 - **Automated deployment**: Mirror to Drupal.org on release
 
 ## Important Notes
 
 - The `build/` directory contains the assembled Drupal site
-- Extension files are symlinked from root into `build/web/modules/custom/`
+- Extension files are symlinked from root into `build/web/modules/custom/` (module) or `build/web/themes/custom/` (theme)
 - SQLite database created in `/tmp/site_[EXTENSION_NAME].sqlite`
 - All quality tools run from within `build/` directory
 

@@ -12,7 +12,7 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start status stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
@@ -151,9 +151,9 @@ test-js:
 	popd >/dev/null || exit 1
 
 reset:
-	killall -9 php >/dev/null 2>&1 || true && \
-	chmod -Rf 777 build > /dev/null && \
-	rm -Rf build > /dev/null || true && \
-	rm -Rf .logs > /dev/null || true
+	killall -9 php >/dev/null 2>&1 || true
+	chmod -Rf 777 build .logs > /dev/null 2>&1 || true
+	rm -Rf build > /dev/null 2>&1 || true
+	rm -Rf .logs > /dev/null 2>&1 || true
 
 .DEFAULT_GOAL := build

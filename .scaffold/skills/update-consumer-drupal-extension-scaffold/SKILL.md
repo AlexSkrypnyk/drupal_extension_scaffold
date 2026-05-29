@@ -132,13 +132,24 @@ rm drupal_extension_scaffold.tar.gz
 
 ## Step 6: Run init.php
 
-Run init.php from the project root. All 5 positional args skip interactive
-prompts, and `--no-interaction` auto-accepts the two yes/no confirmations
-with their defaults (both Y):
+Run init.php from the project root. Pre-fill every prompt by exporting
+`PROMPTY_*` environment variables before invoking the script. Set
+`PROMPTY_REMOVE_SELF=true` and `PROMPTY_PROCEED=true` to auto-accept the two
+yes/no confirmations:
 
 ```bash
-php init.php "<Name>" "<machine_name>" "<type>" "<ci_provider>" "<command_wrapper>" --no-interaction
+PROMPTY_NAME="<Name>" \
+PROMPTY_MACHINE_NAME="<machine_name>" \
+PROMPTY_TYPE="<type>" \
+PROMPTY_CI_PROVIDER="<ci_provider>" \
+PROMPTY_COMMAND_WRAPPER="<command_wrapper>" \
+PROMPTY_REMOVE_SELF=true \
+PROMPTY_PROCEED=true \
+php init.php
 ```
+
+`<command_wrapper>` accepts a comma-separated list (`ahoy`, `makefile`, or
+`ahoy,makefile`), or an empty string for neither.
 
 ## Step 7: Restore project-specific files from git
 
@@ -294,5 +305,5 @@ Every Bash call must contain exactly ONE simple command. No exceptions.
 
 **ALWAYS:**
 - Use multiple separate Bash tool calls, one command per call
-- Use `--no-interaction` flag for scripts that support it
+- Use non-interactive flags or env vars for scripts that support them (e.g. `composer --no-interaction`, `PROMPTY_*` for `init.php`)
 - For git commits, use: `git commit -m "Message here."`

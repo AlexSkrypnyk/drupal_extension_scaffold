@@ -58,7 +58,7 @@ and push the code to [Drupal.org](https://drupal.org).
   identical [`.devtools`](.devtools) scripts as in CI:
   - Uses [drupal/recommended-project](https://www.drupal.org/docs/develop/using-composer/starting-a-site-using-drupal-composer-project-templates)
     to create Drupal site structure.
-  - Additional development dependenices provided in [`composer.dev.json`](composer.dev.json).
+  - Additional development dependencies provided in [`composer.dev.json`](composer.dev.json).
     These are merged during the codebase assembly.
   - The extension can be installed as a module or a theme: modify `type`
     property set in the `info.yml` file.
@@ -285,11 +285,13 @@ make test-unit                    # Run Unit tests
 make test-kernel                  # Run Kernel tests
 make test-functional              # Run Functional tests
 make test-functional-javascript   # Run FunctionalJavascript tests
+make test-js                      # Run JavaScript unit tests (Jest)
 
 ahoy test-unit                    # Run Unit tests
 ahoy test-kernel                  # Run Kernel tests
 ahoy test-functional              # Run Functional tests
 ahoy test-functional-javascript   # Run FunctionalJavascript tests
+ahoy test-js                      # Run JavaScript unit tests (Jest)
 ```
 
 ### Running FunctionalJavascript tests
@@ -338,7 +340,7 @@ See https://www.drupal.org/node/3285162 for more details.
 Note that the CI configuration has jobs that run the unstable `canary` versions
 of Drupal which may have different deprecations. These versions have the
 `SYMFONY_DEPRECATIONS_HELPER` environment variable set to `disable` to ignore
-deprecation errors. You may want to adjust this Ci configuration for your
+deprecation errors. You may want to adjust this CI configuration for your
 project depending on your deprecated code policy.
 
 ## Branch protection
@@ -411,9 +413,14 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
 When this template is updated, you can merge the changes into your extension
 codebase.
 
-There is no easy way to automate this process, as the changes in the template
-may conflict with the changes in your extension. However, you can use the
-following steps to update your extension:
+If you use Claude Code, the bundled
+[`update-consumer-drupal-extension-scaffold`](.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md)
+skill automates this process: in your initialised project, ask Claude to
+"update scaffold" and it will fetch the skill, download the latest scaffold,
+re-run `init.php` with your original answers, restore project-specific files
+from git, and reconcile differences.
+
+For a manual update, follow these steps:
 
 1. Download the latest version of this codebase by pressing 'Clone or download'
    button in GitHub UI.
@@ -481,7 +488,7 @@ for all available options.
 ## Maintenance
 
 This template uses a demo extension code to test itself in a [dedicated GitHub
-Actions CI pipeline](scaffold-test.yml).
+Actions CI pipeline](.github/workflows/scaffold-test.yml).
 
-The tests are written in [BATS](https://github.com/bats-core/bats-core) and
+The tests are written in [PHPUnit](https://phpunit.de/) and
 located in the [`.scaffold/tests`](.scaffold/tests) directory.
