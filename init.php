@@ -60,6 +60,11 @@ function main(array $argv): void {
     return;
   }
 
+  // The interactive flow uses Prompty, which manipulates terminal state
+  // (stty, ANSI escapes, shutdown handlers) when attached to a TTY and is
+  // not suited to in-process unit testing. The functional 'InitTest'
+  // exercises this path end-to-end via a subprocess.
+  // @codeCoverageIgnoreStart
   $results = Prompty::flow(
     fn(): array => [
       'name' => Prompty::text('Extension name', placeholder: 'My Extension'),
@@ -111,6 +116,7 @@ function main(array $argv): void {
   }
 
   process($name, $machine_name, $type, $ci_provider, $command_wrapper, $remove_self);
+  // @codeCoverageIgnoreEnd
 }
 
 /**
@@ -195,7 +201,9 @@ function process(string $extension_name, string $extension_machine_name, string 
   if (file_exists($claude_settings)) {
     $settings_content = file_get_contents($claude_settings);
     if ($settings_content === FALSE) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to read .claude/settings.json.');
+      // @codeCoverageIgnoreEnd
     }
 
     $settings = json_decode($settings_content, TRUE, 512, JSON_THROW_ON_ERROR);
@@ -217,7 +225,9 @@ function process(string $extension_name, string $extension_machine_name, string 
 
     $encoded = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     if (file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
+      // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to write .claude/settings.json.');
+      // @codeCoverageIgnoreEnd
     }
   }
 
@@ -226,7 +236,9 @@ function process(string $extension_name, string $extension_machine_name, string 
   process_internal($extension_name, $extension_machine_name, $extension_type);
 
   if ($remove_self !== 'n') {
+    // @codeCoverageIgnoreStart
     @unlink(__FILE__);
+    // @codeCoverageIgnoreEnd
   }
 }
 
@@ -420,7 +432,9 @@ function replace_string_content(string $needle, string $replacement): void {
   foreach (get_files() as $file) {
     $content = file_get_contents($file);
     if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
       continue;
+      // @codeCoverageIgnoreEnd
     }
     if (!str_contains($content, $needle)) {
       continue;
@@ -439,7 +453,9 @@ function remove_string_content(string $token): void {
   foreach (get_files() as $file) {
     $content = file_get_contents($file);
     if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
       continue;
+      // @codeCoverageIgnoreEnd
     }
     if (!str_contains($content, $token)) {
       continue;
@@ -466,7 +482,9 @@ function remove_tokens_with_content(string $token): void {
   foreach (get_files() as $file) {
     $content = file_get_contents($file);
     if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
       continue;
+      // @codeCoverageIgnoreEnd
     }
     if (!str_contains($content, $end_marker)) {
       continue;
@@ -505,7 +523,9 @@ function uncomment_line(string $filename, string $start_string): void {
   }
   $content = file_get_contents($filename);
   if ($content === FALSE) {
+    // @codeCoverageIgnoreStart
     return;
+    // @codeCoverageIgnoreEnd
   }
   $prefix = '# ' . $start_string;
   $lines = explode("\n", $content);
@@ -525,7 +545,9 @@ function remove_special_comments(): void {
   foreach (get_files() as $file) {
     $content = file_get_contents($file);
     if ($content === FALSE) {
+      // @codeCoverageIgnoreStart
       continue;
+      // @codeCoverageIgnoreEnd
     }
     if (!str_contains($content, '#;')) {
       continue;
@@ -576,7 +598,9 @@ function is_binary_file(string $path): bool {
   $chunk = fread($handle, 8192);
   fclose($handle);
   if ($chunk === FALSE) {
+    // @codeCoverageIgnoreStart
     return TRUE;
+    // @codeCoverageIgnoreEnd
   }
 
   return str_contains($chunk, "\0");
