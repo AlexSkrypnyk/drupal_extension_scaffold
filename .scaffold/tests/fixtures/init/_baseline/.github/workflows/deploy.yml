@@ -39,13 +39,6 @@ jobs:
       - name: Deploy to Remote
         env:
           DEPLOY_BRANCH: ${{ env.DEPLOY_BRANCH }}
-          HEAD_REF: ${{ github.head_ref }}
-          REF_NAME: ${{ github.ref_name }}
-          IS_PR: ${{ github.event.pull_request && 'true' || 'false' }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
-          if [ "${IS_PR}" = "true" ]; then
-            REF="${HEAD_REF}"
-          else
-            REF="${REF_NAME}"
-          fi
-          DEPLOY_BRANCH="${DEPLOY_BRANCH:-${REF}}" .devtools/deploy
+          DEPLOY_BRANCH="${DEPLOY_BRANCH:-${HEAD_BRANCH}}" .devtools/deploy

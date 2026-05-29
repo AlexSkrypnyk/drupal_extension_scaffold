@@ -418,6 +418,10 @@ final class InitHelpersTest extends UnitTestCase {
   public static function dataProviderProcessValidation(): \Iterator {
     yield 'empty name' => ['', 'machine', 'module', 'gha', ['ahoy'], 'Name is required.'];
     yield 'empty machine name' => ['Name', '', 'module', 'gha', ['ahoy'], 'Machine name is required.'];
+    yield 'machine name with hyphen' => ['Name', 'my-name', 'module', 'gha', ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with uppercase' => ['Name', 'MyName', 'module', 'gha', ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name starting with digit' => ['Name', '1name', 'module', 'gha', ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with special char' => ['Name', 'name!', 'module', 'gha', ['ahoy'], 'Machine name must start with a lowercase letter'];
     yield 'empty type' => ['Name', 'machine', '', 'gha', ['ahoy'], 'Type is required.'];
     yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['ahoy'], 'CI provider is required.'];
   }
