@@ -13,7 +13,7 @@ apply to consumer projects produced by running `init.php`.
 
 ## Test groups
 
-PHPUnit tests are tagged with `#[Group('p0'..'p4')]` so CI can shard them across parallel jobs:
+PHPUnit tests are tagged with `#[Group('p0'..'p5')]` so CI can shard them across parallel jobs:
 
 - `p0` - Unit tests in `src/Unit/` (no I/O bound dependencies).
 - `p1` - `InitTest` (snapshot comparison of `init.php` output).
@@ -35,7 +35,7 @@ All commands run from `.scaffold/tests/`. Install dependencies once with `compos
 | Lint (phpcs, phpstan, rector) | `composer --working-dir=.scaffold/tests lint`                                            |
 | Lint autofix                  | `composer --working-dir=.scaffold/tests lint-fix`                                        |
 
-`p2`-`p4` exercise the full build pipeline and need Selenium plus a Drupal-friendly PHP setup; they are the same jobs the GitHub Actions matrix runs (`.github/workflows/scaffold-test.yml`).
+`p2`-`p5` exercise the full build pipeline and need a Drupal-friendly PHP setup; `p3` additionally needs Selenium. These are the same jobs the GitHub Actions matrix runs (`.github/workflows/scaffold-test.yml`).
 
 ## Regenerating snapshot fixtures
 
@@ -78,4 +78,4 @@ Set `SCRIPT_QUIET=1` to suppress verbose progress messages. To record a single a
 
 ## CI
 
-`.github/workflows/scaffold-test.yml` runs the suite across the `p0`-`p4` groups and validates `composer.json` (validate + normalize) plus the PHP lint step in `p0`. A second job (`scaffold-test-actions`) lints the workflow YAML with `yamllint` and `actionlint`.
+`.github/workflows/scaffold-test.yml` runs the suite across the `p0`-`p5` groups and validates `composer.json` (validate + normalize) plus the PHP lint step in `p0`. A second job (`scaffold-test-actions`) lints the workflow YAML with `yamllint` and `actionlint`.
