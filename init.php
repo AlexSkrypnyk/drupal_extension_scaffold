@@ -265,6 +265,12 @@ function process_internal(string $extension_name, string $extension_machine_name
   $scaffold_link_token = '__SCAFFOLD_ATTRIBUTION_LINK__';
   replace_string_content($scaffold_link, $scaffold_link_token);
 
+  // Protect the plain scaffold repository URL from bulk replacements
+  // (e.g. backlink comment in '.circleci/config.yml').
+  $scaffold_url = 'https://github.com/AlexSkrypnyk/drupal_extension_scaffold';
+  $scaffold_url_token = '__SCAFFOLD_URL__';
+  replace_string_content($scaffold_url, $scaffold_url_token);
+
   // Protect the update skill URL from bulk replacements.
   $update_skill_url = 'https://raw.githubusercontent.com/AlexSkrypnyk/drupal_extension_scaffold/1.x/.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md';
   $update_skill_url_token = '__SCAFFOLD_UPDATE_SKILL_URL__';
@@ -292,6 +298,9 @@ function process_internal(string $extension_name, string $extension_machine_name
 
   // Restore the scaffold attribution link.
   replace_string_content($scaffold_link_token, $scaffold_link);
+
+  // Restore the plain scaffold repository URL.
+  replace_string_content($scaffold_url_token, $scaffold_url);
 
   // Restore the update skill URL.
   replace_string_content($update_skill_url_token, $update_skill_url);
@@ -361,7 +370,12 @@ function process_internal(string $extension_name, string $extension_machine_name
   remove_special_comments();
 
   if ($extension_type === 'theme') {
-    remove_dir('tests');
+    @unlink($extension_machine_name . '.install');
+    @unlink($extension_machine_name . '.module');
+    @unlink($extension_machine_name . '.routing.yml');
+    @unlink($extension_machine_name . '.services.yml');
+    @unlink($extension_machine_name . '.links.menu.yml');
+    @unlink('src/' . $extension_machine_name_class . 'Service.php');
     file_put_contents($extension_machine_name . '.info.yml', 'base theme: false' . PHP_EOL, FILE_APPEND);
   }
 }
