@@ -12,7 +12,7 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble, build, debug, debug-off, debug-on, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit, xdebug, xdebug-off, xdebug-on
+.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start status stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
