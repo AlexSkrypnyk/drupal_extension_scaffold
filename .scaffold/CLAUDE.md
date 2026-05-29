@@ -39,6 +39,8 @@ All commands run from `.scaffold/tests/`. Install dependencies once with `compos
 
 ## Regenerating snapshot fixtures
 
+**HARD RULE - never edit fixtures directly.** Files under `.scaffold/tests/fixtures/init/` are generated artefacts. They must always be regenerated via `composer --working-dir=.scaffold/tests update-snapshots` after any source change that affects `init.php` output. Hand-editing a fixture risks drift between what the generator would produce and what is checked in - subsequent regenerations would then overwrite the manual edit and the failure mode would only surface in CI.
+
 `InitTest` runs `init.php` end-to-end and diffs the output against `fixtures/init/_baseline/` plus one fixture directory per dataset (`circleci/`, `gha_makefile/`, `theme/`, etc. - see `InitTest::dataProviderInit()`).
 
 When source files change (workflows, `.devtools/`, `init.php`, Claude settings, etc.), the fixtures fall out of date. Regenerate them:
