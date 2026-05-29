@@ -168,8 +168,13 @@ PASS('Dependencies installed.');
 // them in extension's composer.json.
 TASK("Installing suggested dependencies from extension's composer.json.");
 $composer_data = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
+$build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
 if (isset($composer_data['suggest']) && is_array($composer_data['suggest'])) {
   foreach (array_keys($composer_data['suggest']) as $suggest) {
+    if (isset($build_json['require'][$suggest]) || isset($build_json['require-dev'][$suggest])) {
+      NOTE('Skipping %s (already in require or require-dev).', $suggest);
+      continue;
+    }
     passthru_or_fail(sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest)));
   }
 }

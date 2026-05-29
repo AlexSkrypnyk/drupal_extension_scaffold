@@ -48,6 +48,8 @@ final class AssembleTest extends UnitTestCase {
       'has_patches' => FALSE,
       'github_token' => '',
       'suggestions' => [],
+      'extension_require' => [],
+      'extension_require_dev' => [],
       'has_deprecations_disabled' => FALSE,
       'has_package_lock' => FALSE,
       'has_skip_npm_build' => FALSE,
@@ -63,18 +65,25 @@ final class AssembleTest extends UnitTestCase {
 
     // Build composer.json content.
     $composer_json = ['name' => 'drupal/' . $config['extension_name']];
+    if ($config['extension_require'] !== []) {
+      $composer_json['require'] = $config['extension_require'];
+    }
+    if ($config['extension_require_dev'] !== []) {
+      $composer_json['require-dev'] = $config['extension_require_dev'];
+    }
     if ($config['suggestions'] !== []) {
       $composer_json['suggest'] = $config['suggestions'];
     }
     $composer_json_str = json_encode($composer_json, JSON_THROW_ON_ERROR);
 
-    // Build/composer.json content (scaffold).
+    // Build/composer.json content (scaffold, with extension require/require-dev
+    // merged in to mirror the real assemble flow).
     $build_composer_json = json_encode([
       'repositories' => [
         ['type' => 'composer', 'url' => 'https://packages.drupal.org/8'],
       ],
-      'require' => ['drupal/core-recommended' => '^11', 'drupal/core-composer-scaffold' => '^11'],
-      'require-dev' => ['drupal/core-dev' => '^11'],
+      'require' => array_merge(['drupal/core-recommended' => '^11', 'drupal/core-composer-scaffold' => '^11'], $config['extension_require']),
+      'require-dev' => array_merge(['drupal/core-dev' => '^11'], $config['extension_require_dev']),
       'minimum-stability' => 'stable',
       'prefer-stable' => TRUE,
     ], JSON_THROW_ON_ERROR);
@@ -237,8 +246,17 @@ final class AssembleTest extends UnitTestCase {
     // 6. composer install.
     $passthru_responses[] = ['cmd' => 'composer --working-dir=build install'];
 
-    // 7. Suggested dependencies.
+    // 7. Suggested dependencies. Entries already present in the extension's
+    // require / require-dev are skipped (no composer require call).
     foreach (array_keys($config['suggestions']) as $suggest) {
+      if (isset($config['extension_require'][$suggest])) {
+        continue;
+      }
+
+      if (isset($config['extension_require_dev'][$suggest])) {
+        continue;
+      }
+
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
@@ -332,6 +350,18 @@ final class AssembleTest extends UnitTestCase {
       $this->assertStringContainsString('Processing front-end dependencies', $output);
       $this->assertStringContainsString('Front-end dependencies processed', $output);
     }
+
+    // Suggested packages already present in require / require-dev must be
+    // skipped - composer require on an existing package prompts interactively
+    // and would hang the build.
+    $extension_require = $config['extension_require'] ?? [];
+    $extension_require_dev = $config['extension_require_dev'] ?? [];
+    foreach (array_keys($config['suggestions'] ?? []) as $suggest) {
+      if (isset($extension_require[$suggest]) || isset($extension_require_dev[$suggest])) {
+        $this->assertStringContainsString(sprintf('Skipping %s (already in require or require-dev)', $suggest), $output);
+      }
+    }
+    $this->assertStringContainsString('Suggested dependencies installed', $output);
   }
 
   public static function dataProviderAssembleSuccess(): \Iterator {
@@ -380,6 +410,52 @@ final class AssembleTest extends UnitTestCase {
       'config' => [
         'extension_type' => 'module',
         'github_token' => '',
+        'suggestions' => ['drupal/token' => 'Token support', 'drupal/pathauto' => 'Pathauto'],
+        'has_build_dir' => FALSE,
+        'has_patches' => FALSE,
+        'has_package_lock' => FALSE,
+        'has_skip_npm_build' => FALSE,
+        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
+      ],
+    ];
+    // 'drupal/token' is BOTH a dev dependency AND a suggestion. Without the
+    // skip, composer require would prompt to move it from require-dev to
+    // require and hang the build.
+    yield 'suggested dependency overlaps with require-dev' => [
+      'env' => [],
+      'config' => [
+        'extension_type' => 'module',
+        'github_token' => '',
+        'extension_require_dev' => ['drupal/token' => '^1.17'],
+        'suggestions' => ['drupal/token' => 'Token support', 'drupal/pathauto' => 'Pathauto'],
+        'has_build_dir' => FALSE,
+        'has_patches' => FALSE,
+        'has_package_lock' => FALSE,
+        'has_skip_npm_build' => FALSE,
+        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
+      ],
+    ];
+    yield 'suggested dependency overlaps with require' => [
+      'env' => [],
+      'config' => [
+        'extension_type' => 'module',
+        'github_token' => '',
+        'extension_require' => ['drupal/pathauto' => '^1.13'],
+        'suggestions' => ['drupal/token' => 'Token support', 'drupal/pathauto' => 'Pathauto'],
+        'has_build_dir' => FALSE,
+        'has_patches' => FALSE,
+        'has_package_lock' => FALSE,
+        'has_skip_npm_build' => FALSE,
+        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
+      ],
+    ];
+    yield 'all suggested dependencies overlap and are skipped' => [
+      'env' => [],
+      'config' => [
+        'extension_type' => 'module',
+        'github_token' => '',
+        'extension_require' => ['drupal/pathauto' => '^1.13'],
+        'extension_require_dev' => ['drupal/token' => '^1.17'],
         'suggestions' => ['drupal/token' => 'Token support', 'drupal/pathauto' => 'Pathauto'],
         'has_build_dir' => FALSE,
         'has_patches' => FALSE,
