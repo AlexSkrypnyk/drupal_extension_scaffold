@@ -29,7 +29,7 @@ final class XdebugTest extends DevtoolsTestCase {
   }
 
   protected function assertToggle(string $tool): void {
-    self::assertTrue(extension_loaded('xdebug'), 'Xdebug PHP extension must be installed in the runner PHP for this test group.');
+    $this->assertTrue(extension_loaded('xdebug'), 'Xdebug PHP extension must be installed in the runner PHP for this test group.');
 
     $this->processRun($tool, ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
