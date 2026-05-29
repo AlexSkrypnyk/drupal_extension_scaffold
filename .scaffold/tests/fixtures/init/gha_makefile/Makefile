@@ -12,13 +12,14 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble, build, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit
+.PHONY: assemble, build, debug, debug-off, debug-on, help, lint, lint-fix, login, provision, reset, selenium-start, selenium-stop, start, status, stop, test, test-functional, test-functional-javascript, test-js, test-kernel, test-unit, xdebug, xdebug-off, xdebug-on
 
 help:
 	@echo "COMMANDS"
 	@echo "========"
 	@echo "build           - Build or rebuild the project."
 	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
+	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
 	@echo "drush           - Run Drush command."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
@@ -46,6 +47,23 @@ start:
 
 stop:
 	./.devtools/stop
+
+# Enable PHP XDebug step-debugging by restarting the PHP server with
+# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. The probe inspects
+# the running server's command line for `xdebug.mode=debug` so no flag file
+# is needed. Run `make start` to disable.
+debug:
+	@ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'make start' to disable." || \
+		(XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
+
+# Make has no native command aliases - the alias targets declare `debug` as
+# their sole prerequisite, so running e.g. `make xdebug` executes the `debug`
+# recipe via the prerequisite chain.
+debug-on xdebug xdebug-on: debug
+
+# Mirror the ahoy `start` aliases. `make debug-off` runs the `start` recipe
+# via the prerequisite chain, which restarts without XDebug.
+debug-off xdebug-off: start
 
 # Allow running Drush commands with `make drush <command>`
 ifeq (drush,$(firstword $(MAKECMDGOALS)))
