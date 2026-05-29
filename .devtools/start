@@ -39,6 +39,13 @@ validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
 // Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
 
+// Enable Xdebug when XdEBUG env var is set. Xdebug extension must be installed
+// and configured on host environment (php -v should show `with Xdebug`).
+// Coverage stays on pcov in test commands because xdebug.mode=debug does
+// not include "coverage", so pcov remains the active coverage driver.
+$xdebug_enabled = getenv_default('XDEBUG', '') !== '';
+$xdebug_flags = $xdebug_enabled ? ' -d xdebug.mode=debug -d xdebug.start_with_request=yes' : '';
+
 // -----------------------------------------------------------------------------
 
 echo '===============================' . PHP_EOL;
@@ -46,12 +53,21 @@ echo '      💻 START ENVIRONMENT     ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
+if ($xdebug_enabled) {
+  TASK('Verifying that the Xdebug PHP extension is installed.');
+  $php_v = (string) shell_exec('php -v 2>/dev/null');
+  if (stripos($php_v, 'xdebug') === FALSE) {
+    FAIL('XDEBUG=1 is set but the Xdebug PHP extension is not installed on the host. Install it (see https://xdebug.org/docs/install) and try again.');
+  }
+  PASS('Xdebug extension is loaded.');
+}
+
 TASK('Stopping previously started services, if any.');
 @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
 
 TASK('Starting the PHP webserver.');
 $cwd = (string) getcwd();
-passthru(sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($webserver_host), escapeshellarg($webserver_port), escapeshellarg($cwd), escapeshellarg($cwd)));
+passthru(sprintf('nohup php%s -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', $xdebug_flags, escapeshellarg($webserver_host), escapeshellarg($webserver_port), escapeshellarg($cwd), escapeshellarg($cwd)));
 
 NOTE('Waiting %s seconds for the server to be ready.', (string) $webserver_wait_timeout);
 sleep($webserver_wait_timeout);
@@ -82,8 +98,7 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 echo 'Directory : ' . $cwd . '/build/web' . PHP_EOL;
 echo 'URL       : http://' . $webserver_host . ':' . $webserver_port . PHP_EOL;
-echo PHP_EOL;
-echo 'Re-run when you enable or disable XDebug.' . PHP_EOL;
+echo 'XDebug    : ' . ($xdebug_enabled ? 'Enabled' : 'Disabled') . PHP_EOL;
 echo PHP_EOL;
 echo '> Next steps:' . PHP_EOL;
 echo '  .devtools/provision    # Provision the website' . PHP_EOL;

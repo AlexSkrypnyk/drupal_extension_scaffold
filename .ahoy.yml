@@ -22,11 +22,19 @@ commands:
 
   start:
     usage: Start development environment.
+    aliases: [debug-off, xdebug-off]
     cmd: ./.devtools/start
 
   stop:
     usage: Stop development environment.
     cmd: ./.devtools/stop
+
+  debug:
+    usage: Enable PHP XDebug step-debugging for the development server.
+    aliases: [debug-on, xdebug, xdebug-on]
+    cmd: |
+      ps -o command= -p "$(lsof -ti:${WEBSERVER_PORT:-8000} 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'ahoy start' to disable." || \
+      (XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$(lsof -ti:${WEBSERVER_PORT:-8000} 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'ahoy start' to disable." || (echo "Failed to enable XDebug." && exit 1))
 
   provision:
     usage: Provision application within assembled codebase.

@@ -21,7 +21,7 @@ jobs:
 
       matrix:
         os: [ubuntu-latest, macos-latest]
-        group: ['p0', 'p1', 'p2', 'p3', 'p4']
+        group: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
 
     steps:
       - name: Checkout code
@@ -49,16 +49,18 @@ jobs:
             echo "PKG_CONFIG_PATH=${brew_prefix}/lib/pkgconfig"
           } >> "$GITHUB_ENV"
 
+      # p5 swaps the coverage driver for the real xdebug extension so the
+      # XDebug toggle can be tested end-to-end. All other groups keep pcov.
       - name: Setup PHP
         uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: 8.3
           extensions: gd, sqlite, pdo_sqlite
-          coverage: pcov
-          ini-values: pcov.directory=.
+          coverage: ${{ matrix.group == 'p5' && 'xdebug' || 'pcov' }}
+          ini-values: ${{ matrix.group == 'p5' && 'xdebug.mode=off' || 'pcov.directory=.' }}
 
       - name: Install Ahoy
-        if: matrix.group == 'p3'
+        if: matrix.group == 'p3' || matrix.group == 'p5'
         run: |
           os=$(uname -s | tr '[:upper:]' '[:lower:]')
           case "$(uname -m)" in
@@ -97,6 +99,7 @@ jobs:
         working-directory: .scaffold/tests
 
       - name: Run PHP tests with coverage
+        if: matrix.group != 'p5'
         run: composer test-coverage -- --group=${{ matrix.group }}
         working-directory: .scaffold/tests
         env:
@@ -104,7 +107,17 @@ jobs:
           WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
           SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT: ${{ runner.os == 'macOS' && '1' || '0' }}
 
+      # p5 runs without coverage because the runner is configured with xdebug
+      # (not pcov) for the XDebug toggle behaviour test.
+      - name: Run PHP tests
+        if: matrix.group == 'p5'
+        run: composer test -- --group=${{ matrix.group }}
+        working-directory: .scaffold/tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload coverage report as an artifact
+        if: matrix.group != 'p5'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.os }}-${{ matrix.group }}
@@ -113,8 +126,8 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
+        if: ${{ env.CODECOV_TOKEN != '' && matrix.group != 'p5' }}
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
-        if: ${{ env.CODECOV_TOKEN != '' }}
         with:
           directory: .scaffold/tests/.logs
           fail_ci_if_error: true

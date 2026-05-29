@@ -107,6 +107,14 @@ You can browse the contents of the created SQLite database using
 
 A one-time login link will be printed to the console.
 
+### Step-debugging with XDebug
+
+PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then run `make debug` or `ahoy debug` to restart the PHP server with XDebug enabled. Run `make start` or `ahoy start` to disable.
+
+Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
+
+Install the Xdebug Helper browser extension to start and stop debug sessions: [Chrome](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm) / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/).
+
 ## Coding standards
 
 The `make lint` or `ahoy lint` command checks the codebase using multiple
