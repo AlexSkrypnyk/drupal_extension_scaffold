@@ -249,9 +249,14 @@ final class AssembleTest extends UnitTestCase {
     // 7. Suggested dependencies. Entries already present in the extension's
     // require / require-dev are skipped (no composer require call).
     foreach (array_keys($config['suggestions']) as $suggest) {
-      if (isset($config['extension_require'][$suggest]) || isset($config['extension_require_dev'][$suggest])) {
+      if (isset($config['extension_require'][$suggest])) {
         continue;
       }
+
+      if (isset($config['extension_require_dev'][$suggest])) {
+        continue;
+      }
+
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
