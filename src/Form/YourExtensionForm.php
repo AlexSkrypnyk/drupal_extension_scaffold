@@ -24,7 +24,7 @@ class YourExtensionForm extends ConfigFormBase {
   protected YourExtensionService $yourExtensionService;
 
   /**
-   * GeneratedContentForm constructor.
+   * Constructs a YourExtensionForm instance.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
@@ -87,8 +87,6 @@ class YourExtensionForm extends ConfigFormBase {
     $config->save();
 
     parent::submitForm($form, $form_state);
-
-    drupal_flush_all_caches();
   }
 
 }

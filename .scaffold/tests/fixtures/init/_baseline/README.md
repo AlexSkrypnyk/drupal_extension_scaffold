@@ -36,8 +36,8 @@
 ## Local development
 
 1. Install PHP with SQLite support and Composer
-3. Clone this repository
-4. Run `make build` or `ahoy build`
+2. Clone this repository
+3. Run `make build` or `ahoy build`
 
 ## Building website
 
@@ -84,7 +84,7 @@ automatically adjusted to match the specified Drupal version's stability.
 ### Patching dependencies
 
 To apply patches to the dependencies, add a patch to the `patches` section of
-`composer.json`. Local patches are be sourced from the `patches` directory.
+`composer.json`. Local patches are sourced from the `patches` directory.
 
 ### Providing `GITHUB_TOKEN`
 
@@ -97,9 +97,23 @@ The `provision` command installs the Drupal website from the `standard`
 profile with the extension (and any `suggest`'ed extensions) enabled. The
 profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
 
-The website will be available at http://localhost:8000. The hostname and port
-can be changed by setting the `WEBSERVER_HOST` and `WEBSERVER_PORT` environment
-variables.
+The website will be available at http://localhost:8000 by default. The
+hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
+
+The `WEBSERVER_PORT` is resolved with the following precedence:
+
+1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off
+   runs: `WEBSERVER_PORT=9000 make build`.
+2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is.
+   The `start` script does not modify `.env` when this entry is already
+   present, so the same port is reused across `start`, `stop`, `provision`,
+   `drush` and `login` commands.
+3. **Neither is set** - the `start` script discovers the first free port in
+   the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`.
+   Subsequent commands read this value from `.env`.
+
+To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in
+it) and re-run `make start` / `ahoy start`.
 
 An SQLite database is created in `/tmp/site_force_crystal.sqlite` file.
 You can browse the contents of the created SQLite database using
@@ -109,11 +123,19 @@ A one-time login link will be printed to the console.
 
 ### Step-debugging with XDebug
 
-PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then run `make debug` or `ahoy debug` to restart the PHP server with XDebug enabled. Run `make start` or `ahoy start` to disable.
+PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then toggle it on the development server:
 
-Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
+```bash
+make debug      # restart with XDebug enabled (aliases: debug-on, xdebug, xdebug-on)
+ahoy debug      # same, with ahoy
 
-Install the Xdebug Helper browser extension to start and stop debug sessions: [Chrome](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm) / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/).
+make start      # restart without XDebug (aliases: debug-off, xdebug-off)
+ahoy start      # same, with ahoy
+```
+
+The `debug` command probes the running PHP server's command line for `xdebug.mode=debug` and skips the restart if XDebug is already enabled. Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
+
+To start and stop debug sessions from the browser, install the Xdebug Helper extension: [Chrome](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm) / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/).
 
 ## Coding standards
 

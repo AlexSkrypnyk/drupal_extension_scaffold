@@ -165,6 +165,9 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($extension_machine_name === '') {
     throw new \Exception('Machine name is required.');
   }
+  if (!preg_match('/^[a-z][a-z0-9_]*$/', $extension_machine_name)) {
+    throw new \Exception('Machine name must start with a lowercase letter and contain only lowercase letters, digits, and underscores.');
+  }
   if ($extension_type === '') {
     throw new \Exception('Type is required.');
   }
@@ -320,7 +323,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', 'tests');
   remove_string_content('# Remove the lines below in your project.');
   remove_string_content('.github/FUNDING.yml export-ignore');
-  remove_string_content('LICENSE             export-ignore');
+  remove_string_content('LICENSE.txt         export-ignore');
 
   // Rename extension files.
   @rename('your_extension.info.yml', $extension_machine_name . '.info.yml');
@@ -343,7 +346,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   @rename('your_extension.libraries.yml', $extension_machine_name . '.libraries.yml');
 
   // Remove scaffold files.
-  @unlink('LICENSE');
+  @unlink('LICENSE.txt');
   remove_dir('tests/scaffold');
   foreach (glob('.github/workflows/scaffold*.yml') ?: [] as $file) {
     @unlink($file);

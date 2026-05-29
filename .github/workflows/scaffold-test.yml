@@ -12,6 +12,9 @@ on:
       - 1.x
       - 'feature/**'
 
+permissions:
+  contents: read
+
 jobs:
   scaffold-test-devtools:
     runs-on: ${{ matrix.os }}

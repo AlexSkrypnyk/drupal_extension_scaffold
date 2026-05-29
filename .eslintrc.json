@@ -17,23 +17,23 @@
     "jsdoc"
   ],
   "globals": {
+    "_": true,
+    "Backbone": true,
+    "bodyScrollLock": true,
+    "CKEditor5": true,
+    "Cookies": true,
     "Drupal": true,
     "drupalSettings": true,
     "drupalTranslations": true,
-    "jQuery": true,
-    "_": true,
-    "Cookies": true,
-    "Backbone": true,
+    "FloatingUIDOM": true,
     "htmx": true,
+    "jQuery": true,
     "loadjs": true,
+    "once": true,
     "Shepherd": true,
     "Sortable": true,
-    "once": true,
-    "CKEditor5": true,
     "tabbable": true,
-    "transliterate": true,
-    "bodyScrollLock": true,
-    "FloatingUIDOM": true
+    "transliterate": true
   },
   "rules": {
     "prettier/prettier": "error",
