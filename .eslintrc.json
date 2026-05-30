@@ -69,7 +69,9 @@
       },
       "rules": {
         "no-eval": "off",
-        "max-nested-callbacks": ["warn", 5]
+        "max-nested-callbacks": ["warn", 5],
+        "global-require": "off",
+        "import/extensions": "off"
       }
     }
   ],
