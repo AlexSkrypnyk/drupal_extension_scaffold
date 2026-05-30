@@ -3,16 +3,15 @@
  * Tests for Force Crystal behaviors.
  */
 
-const fs = require('fs');
-const path = require('path');
-
 describe('Drupal.behaviors.yourExtension', () => {
   beforeEach(() => {
     global.Drupal = { behaviors: {} };
 
-    const filePath = path.resolve(__dirname, 'force_crystal.js');
-    const code = fs.readFileSync(filePath, 'utf8');
-    eval(code);
+    // Re-execute the IIFE in an isolated module registry so each test
+    // re-registers the behavior against the fresh global.Drupal.
+    jest.isolateModules(() => {
+      require('./force_crystal.js');
+    });
   });
 
   afterEach(() => {
