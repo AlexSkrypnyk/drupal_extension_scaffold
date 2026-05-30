@@ -482,6 +482,7 @@ for all available options.
 - [Testmode](https://github.com/AlexSkrypnyk/testmode) - Drupal module to alter existing site content and other configurations when running tests.
 - [Generated Content](https://github.com/AlexSkrypnyk/generated_content) - Drupal module to programmatically generate content.
 - [Integration Report](https://github.com/AlexSkrypnyk/integration_report) - Drupal module to report on availability status of 3rd party endpoints.
+- [Drupal Helpers](https://github.com/alexSkrypnyk/drupal_helpers) - Helper utilities for Drupal
 
 ---
 
