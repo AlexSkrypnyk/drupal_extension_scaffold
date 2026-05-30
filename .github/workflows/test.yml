@@ -238,21 +238,11 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
-      - name: Upload PHP coverage report to Codecov
+      - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          files: ./.logs/coverage/phpunit/cobertura.xml
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload JS coverage report to Codecov
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
-        if: ${{ env.CODECOV_TOKEN != '' && hashFiles('.logs/coverage/jest/cobertura.xml') != '' }}
-        with:
-          files: ./.logs/coverage/jest/cobertura.xml
+          directory: ./.logs/coverage
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
