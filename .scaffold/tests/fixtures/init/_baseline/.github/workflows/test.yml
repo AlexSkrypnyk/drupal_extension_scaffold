@@ -234,7 +234,7 @@ jobs:
         uses: actions/upload-artifact@__HASH__ # __VERSION__
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
-          path: ./.logs/coverage/phpunit/.coverage-html
+          path: ./.logs/coverage
           include-hidden-files: true
           if-no-files-found: error
 
@@ -242,7 +242,7 @@ jobs:
         uses: codecov/codecov-action@__HASH__ # __VERSION__
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          files: ./.logs/coverage/phpunit/cobertura.xml
+          files: ./.logs/coverage/phpunit/cobertura.xml,./.logs/coverage/jest/cobertura.xml
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:

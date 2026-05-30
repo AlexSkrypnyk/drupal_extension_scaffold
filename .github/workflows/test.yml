@@ -234,7 +234,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
-          path: ./.logs/coverage/phpunit/.coverage-html
+          path: ./.logs/coverage
           include-hidden-files: true
           if-no-files-found: error
 
@@ -242,7 +242,7 @@ jobs:
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6
         if: ${{ env.CODECOV_TOKEN != '' }}
         with:
-          files: ./.logs/coverage/phpunit/cobertura.xml
+          files: ./.logs/coverage/phpunit/cobertura.xml,./.logs/coverage/jest/cobertura.xml
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
