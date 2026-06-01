@@ -68,7 +68,7 @@ final class InfoTest extends UnitTestCase {
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => $info_files);
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(string $file): string => $file_contents[$file] ?? '');
 
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, mixed &$output = NULL, mixed &$code = NULL) use ($command_php_path): bool {
+    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($command_php_path): bool {
       $output ??= [];
       if ($command_php_path !== FALSE && str_contains($cmd, 'command -v php')) {
         $output[] = $command_php_path;
@@ -198,7 +198,7 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringNotContainsString('PHP version:        8.3.14 (', $output);
   }
 
-  #[DataProvider('dataProviderXdebugState')]
+  #[DataProvider('dataProviderXdebugStateDetection')]
   public function testXdebugStateDetection(string $ps_output, string $expected_state): void {
     $cwd = '/test/project';
 
@@ -217,7 +217,7 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('XDebug:             ' . $expected_state, $output);
   }
 
-  public static function dataProviderXdebugState(): \Iterator {
+  public static function dataProviderXdebugStateDetection(): \Iterator {
     yield 'no server listening' => ['ps_output' => '', 'expected_state' => '-'];
     yield 'server running without xdebug' => [
       'ps_output' => "php -S localhost:8000\n",

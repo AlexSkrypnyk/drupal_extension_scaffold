@@ -26,7 +26,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
   }
 
   protected function tearDown(): void {
-    static::envReset();
+    self::envReset();
     parent::tearDown();
   }
 
@@ -90,7 +90,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     $this->assertSame('default', $source);
   }
 
-  #[DataProvider('dataProviderDotenvFilePaths')]
+  #[DataProvider('dataProviderDotenvFilePathSurfacedAsSource')]
   public function testDotenvFilePathSurfacedAsSource(string $relative_name): void {
     $file = self::$tmp . '/' . $relative_name;
     file_put_contents($file, "FOO=value\n");
@@ -101,7 +101,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     $this->assertSame($file, $source);
   }
 
-  public static function dataProviderDotenvFilePaths(): \Iterator {
+  public static function dataProviderDotenvFilePathSurfacedAsSource(): \Iterator {
     yield 'standard name' => ['relative_name' => '.env'];
     yield 'environment-specific name' => ['relative_name' => '.env.local'];
   }
