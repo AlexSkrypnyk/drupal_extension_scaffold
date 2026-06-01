@@ -12,7 +12,7 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
@@ -21,6 +21,7 @@ help:
 	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
 	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
 	@echo "drush           - Run Drush command."
+	@echo "info            - Print a read-only summary of the current environment."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
 	@echo "login           - Run Drush login command."
@@ -37,7 +38,7 @@ help:
 	@echo "selenium-stop              - Stop Selenium container."
 	@echo "test-js                    - Run JavaScript unit tests."
 
-build: stop assemble start provision
+build: stop assemble start provision info
 
 assemble:
 	./.devtools/assemble
@@ -47,6 +48,9 @@ start:
 
 stop:
 	./.devtools/stop
+
+info:
+	@./.devtools/info
 
 # Enable PHP XDebug step-debugging by restarting the PHP server with
 # `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. The probe inspects

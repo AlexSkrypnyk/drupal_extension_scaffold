@@ -1,0 +1,134 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Print a read-only summary of the current development environment.
+ *
+ * Resolves PHP, Drupal, Composer, Drush, Node, and npm versions; the
+ * webserver host and port along with where each value was sourced from
+ * (shell env vs '.env' vs default); the running server's XDebug state;
+ * the build directory; the SQLite database path; and the active Drupal
+ * install profile.
+ *
+ * Any value that cannot be resolved prints '-' rather than failing.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+// Resolution.
+// -----------------------------------------------------------------------------
+
+[$webserver_host, $host_source] = resolve_env_value('WEBSERVER_HOST', 'localhost');
+[$webserver_port, $port_source] = resolve_env_value('WEBSERVER_PORT', '8000');
+
+$drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
+
+$php_version = info_php_version();
+$php_path = command_path('php');
+$composer_version = info_tool_version('composer --version 2>/dev/null', '/Composer(?:\s+version)?\s+(\S+)/i');
+$node_version = info_tool_version('node --version 2>/dev/null', '/v?(.+)/');
+$npm_version = info_tool_version('npm --version 2>/dev/null', '/(.+)/');
+
+$drush_bin = 'build/vendor/bin/drush';
+$has_drush = is_file($drush_bin);
+$drush_version = $has_drush ? info_tool_version(escapeshellarg($drush_bin) . ' --version 2>/dev/null', '/(\d+\.\d+\.\d+)/') : '-';
+$drupal_version = $has_drush ? info_drupal_version($drush_bin) : '-';
+
+$xdebug_state = info_xdebug_state($webserver_port);
+
+$cwd = (string) getcwd();
+$build_dir = is_dir($cwd . '/build') ? $cwd . '/build' : '-';
+
+$info_files = glob('*.info.yml');
+$extension_name = (is_array($info_files) && $info_files !== []) ? basename($info_files[0], '.info.yml') : '';
+$db_file = $extension_name !== '' ? '/tmp/site_' . $extension_name . '.sqlite' : '-';
+
+// -----------------------------------------------------------------------------
+// Output.
+// -----------------------------------------------------------------------------
+
+echo PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo '       ENVIRONMENT INFO        ' . PHP_EOL;
+echo '===============================' . PHP_EOL;
+echo PHP_EOL;
+printf("Drupal version:     %s%s", $drupal_version, PHP_EOL);
+printf("PHP version:        %s%s%s", $php_version, $php_path !== FALSE && $php_version !== '-' ? ' (' . $php_path . ')' : '', PHP_EOL);
+printf("Composer:           %s%s", $composer_version, PHP_EOL);
+printf("Drush:              %s%s", $drush_version, PHP_EOL);
+printf("Node / npm:         %s / %s%s", $node_version, $npm_version, PHP_EOL);
+echo PHP_EOL;
+printf("Webserver host:     %s (%s)%s", $webserver_host, $host_source, PHP_EOL);
+printf("Webserver port:     %s (%s)%s", $webserver_port, $port_source, PHP_EOL);
+printf("Site URL:           http://%s:%s%s", $webserver_host, $webserver_port, PHP_EOL);
+printf("XDebug:             %s%s", $xdebug_state, PHP_EOL);
+echo PHP_EOL;
+printf("Build dir:          %s%s", $build_dir, PHP_EOL);
+printf("Database:           %s%s", $db_file, PHP_EOL);
+printf("Drupal profile:     %s%s", $drupal_profile, PHP_EOL);
+echo PHP_EOL;
+
+// -----------------------------------------------------------------------------
+// Local helpers.
+// -----------------------------------------------------------------------------
+
+/**
+ * Get the host PHP version, or '-' if it cannot be parsed.
+ */
+function info_php_version(): string {
+  $out = (string) @shell_exec('php -v 2>/dev/null');
+  if ($out === '' || !preg_match('/^PHP\s+(\S+)/m', $out, $matches)) {
+    return '-';
+  }
+
+  return $matches[1];
+}
+
+/**
+ * Run a version probe and extract the first capture group.
+ *
+ * Returns '-' if the command produces no output or the pattern does
+ * not match.
+ */
+function info_tool_version(string $cmd, string $pattern): string {
+  $out = trim((string) @shell_exec($cmd));
+  if ($out === '' || !preg_match($pattern, $out, $matches)) {
+    return '-';
+  }
+
+  return trim($matches[1]);
+}
+
+/**
+ * Get the installed Drupal version via drush, or '-' if unavailable.
+ */
+function info_drupal_version(string $drush_bin): string {
+  $cmd = escapeshellarg($drush_bin) . ' -r ' . escapeshellarg(getcwd() . '/build/web') . ' status --field=drupal-version 2>/dev/null';
+  $out = trim((string) @shell_exec($cmd));
+
+  return $out === '' ? '-' : $out;
+}
+
+/**
+ * Detect the XDebug state of the dev server listening on the given port.
+ *
+ * Uses the same lsof + ps probe as the 'debug' wrapper command:
+ * inspects the running PHP process's command line for the
+ * 'xdebug.mode=debug' flag. Returns 'enabled' or 'disabled' when a
+ * server is listening, and '-' when no server is bound to the port.
+ */
+function info_xdebug_state(string $port): string {
+  $cmd = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
+  $out = trim((string) @shell_exec($cmd));
+  if ($out === '') {
+    return '-';
+  }
+
+  return str_contains($out, 'xdebug.mode=debug') ? 'enabled' : 'disabled';
+}

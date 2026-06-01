@@ -45,6 +45,10 @@ This is a Drupal extension scaffold template for creating contributed modules or
 - `make drush <command>` - Run Drush commands
 - `make login` / `ahoy login` - Get one-time login link
 
+### Diagnostics
+
+- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. Runs automatically at the end of `make build` / `ahoy build`.
+
 ## Project Structure
 
 **Key Directories:**

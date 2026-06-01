@@ -15,6 +15,7 @@ commands:
       ahoy assemble
       ahoy start
       ahoy provision
+      ahoy info
 
   assemble:
     usage: Assemble a codebase using project code and all required dependencies.
@@ -28,6 +29,10 @@ commands:
   stop:
     usage: Stop development environment.
     cmd: ./.devtools/stop
+
+  info:
+    usage: Print a read-only summary of the current environment.
+    cmd: ./.devtools/info
 
   debug:
     usage: Enable PHP XDebug step-debugging for the development server.

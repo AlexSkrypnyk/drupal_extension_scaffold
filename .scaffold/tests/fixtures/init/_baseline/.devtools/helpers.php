@@ -185,6 +185,44 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
 }
 
 /**
+ * Resolve an environment value from env, then dotenv, then default.
+ *
+ * Mirrors the precedence chain used by the start, stop, provision, and
+ * info scripts: shell environment first, then a matching key in the
+ * dotenv file, then the supplied default. Returns the resolved value
+ * together with a source label identifying which leg of the chain
+ * produced it.
+ *
+ * @param string $name
+ *   Variable name to resolve.
+ * @param string $default
+ *   Value to return when neither env nor the dotenv file provides a
+ *   non-empty value. May be an empty string when callers want to
+ *   detect that case and apply their own fallback (for example,
+ *   start's auto-discovery branch).
+ * @param string $dotenv_file
+ *   Path to the dotenv file to consult.
+ *
+ * @return array{0: string, 1: string}
+ *   Tuple of [value, source] where source is 'env' when the value came
+ *   from the shell environment, the dotenv file path when the value
+ *   came from that file, or 'default' when neither produced a value.
+ */
+function resolve_env_value(string $name, string $default, string $dotenv_file = '.env'): array {
+  $env = getenv($name);
+  if ($env !== FALSE && is_string($env) && $env !== '') {
+    return [$env, 'env'];
+  }
+
+  $dotenv = dotenv_read($dotenv_file);
+  if (isset($dotenv[$name]) && $dotenv[$name] !== '') {
+    return [$dotenv[$name], $dotenv_file];
+  }
+
+  return [$default, 'default'];
+}
+
+/**
  * Validate that a value is a TCP port in the range 1-65535.
  *
  * Calls FAIL() with a descriptive message if validation fails.
