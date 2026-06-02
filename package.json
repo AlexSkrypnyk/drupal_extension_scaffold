@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@homer0/prettier-plugin-jsdoc": "^11.1.0",
-    "cspell": "^8.0.0",
+    "cspell": "^8.19.4",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
