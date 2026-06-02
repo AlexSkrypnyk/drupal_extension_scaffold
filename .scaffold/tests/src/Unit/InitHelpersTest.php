@@ -454,6 +454,8 @@ final class InitHelpersTest extends UnitTestCase {
     normalise_cspell_words();
 
     $result = json_decode((string) file_get_contents(self::$sut . '/.cspell.json'), TRUE);
+    $this->assertIsArray($result);
+    /** @var array<string, mixed> $result */
     $this->assertSame(['ahoy', 'force_crystal', 'yoyodyne'], $result['words']);
     $this->assertSame(['php'], $result['dictionaries']);
     $this->assertSame(['build/'], $result['ignorePaths']);

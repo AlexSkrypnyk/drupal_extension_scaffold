@@ -582,11 +582,16 @@ function normalise_cspell_words(): void {
   }
 
   $config = json_decode($raw, TRUE);
-  if (!is_array($config) || !isset($config['words']) || !is_array($config['words'])) {
+  if (!is_array($config)) {
     return;
   }
 
-  $words = array_values(array_unique(array_map('strval', $config['words'])));
+  $raw_words = $config['words'] ?? NULL;
+  if (!is_array($raw_words)) {
+    return;
+  }
+
+  $words = array_values(array_unique(array_filter($raw_words, is_string(...))));
   sort($words, SORT_FLAG_CASE | SORT_STRING);
   $config['words'] = $words;
 
