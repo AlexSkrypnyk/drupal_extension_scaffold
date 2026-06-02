@@ -81,6 +81,7 @@ and push the code to [Drupal.org](https://drupal.org).
     with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
   - JavaScript code analysis with [ESLint](https://eslint.org/).
   - CSS code analysis with [Stylelint](https://stylelint.io/).
+  - Spell checking with [CSpell](https://cspell.org/).
   - Code formatting with [Prettier](https://prettier.io/).
 - PHPUnit testing support
 - [Renovate](#renovate) configuration to keep dependencies up-to-date with a single grouped PR.
@@ -250,6 +251,7 @@ To start and stop debug sessions from the browser, install the Xdebug Helper ext
 
 The `make lint` or `ahoy lint` command checks the codebase using multiple
 tools:
+- Spell checking with CSpell.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with PHPStan.
 - PHP deprecated code analysis and auto-fixing with Drupal Rector.

@@ -61,6 +61,14 @@ job-test: &job-test
         command: .devtools/provision
 
     - run:
+        name: Install Node.js dependencies
+        command: npm ci --ignore-scripts
+
+    - run:
+        name: Lint code with CSpell
+        command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
+
+    - run:
         name: Lint code with PHPCS
         command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build

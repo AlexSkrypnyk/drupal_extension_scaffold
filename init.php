@@ -323,6 +323,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', '.claude');
   uncomment_line('.gitattributes', '.ahoy.yml');
   uncomment_line('.gitattributes', '.circleci');
+  uncomment_line('.gitattributes', '.cspell.json');
   uncomment_line('.gitattributes', '.devtools');
   uncomment_line('.gitattributes', '.editorconfig');
   uncomment_line('.gitattributes', '.eslintignore');
@@ -386,6 +387,8 @@ function process_internal(string $extension_name, string $extension_machine_name
 
   remove_tokens_with_content('META');
   remove_special_comments();
+
+  normalise_cspell_words();
 
   if ($extension_type === 'theme') {
     @unlink($extension_machine_name . '.install');
@@ -556,6 +559,38 @@ function remove_special_comments(): void {
     $lines = array_filter($lines, static fn(string $line): bool => !str_contains($line, '#;'));
     file_put_contents($file, implode("\n", $lines));
   }
+}
+
+/**
+ * Deduplicate the CSpell `words` allowlist after bulk replacements.
+ *
+ * Scaffold placeholders (alexskrypnyk, yournamespace, yourproject) are also
+ * present in the CSpell `words` array; the global rename inside `process()`
+ * rewrites them all to the extension machine name, producing duplicate
+ * entries. Read, deduplicate, sort, and write back.
+ */
+function normalise_cspell_words(): void {
+  if (!file_exists('.cspell.json')) {
+    return;
+  }
+
+  $raw = file_get_contents('.cspell.json');
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE);
+  if (!is_array($config) || !isset($config['words']) || !is_array($config['words'])) {
+    return;
+  }
+
+  $words = array_values(array_unique(array_map('strval', $config['words'])));
+  sort($words, SORT_FLAG_CASE | SORT_STRING);
+  $config['words'] = $words;
+
+  file_put_contents('.cspell.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
 }
 
 /**

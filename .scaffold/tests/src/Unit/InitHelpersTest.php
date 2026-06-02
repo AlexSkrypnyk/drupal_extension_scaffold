@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 use function convert_string;
 use function get_files;
 use function is_binary_file;
+use function normalise_cspell_words;
 use function print_help;
 use function process;
 use function remove_dir;
@@ -439,6 +440,50 @@ final class InitHelpersTest extends UnitTestCase {
       "keep\n#; remove\nkeep too\n  #; also remove\nand keep",
       "keep\nkeep too\nand keep",
     ];
+  }
+
+  public function testNormaliseCspellWordsDeduplicatesAndSorts(): void {
+    chdir(self::$sut);
+    $input = [
+      'dictionaries' => ['php'],
+      'words' => ['force_crystal', 'ahoy', 'force_crystal', 'force_crystal', 'yoyodyne'],
+      'ignorePaths' => ['build/'],
+    ];
+    file_put_contents(self::$sut . '/.cspell.json', json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+    normalise_cspell_words();
+
+    $result = json_decode((string) file_get_contents(self::$sut . '/.cspell.json'), TRUE);
+    $this->assertSame(['ahoy', 'force_crystal', 'yoyodyne'], $result['words']);
+    $this->assertSame(['php'], $result['dictionaries']);
+    $this->assertSame(['build/'], $result['ignorePaths']);
+  }
+
+  public function testNormaliseCspellWordsMissingFile(): void {
+    chdir(self::$sut);
+
+    normalise_cspell_words();
+
+    $this->assertFileDoesNotExist(self::$sut . '/.cspell.json');
+  }
+
+  public function testNormaliseCspellWordsInvalidJson(): void {
+    chdir(self::$sut);
+    file_put_contents(self::$sut . '/.cspell.json', '{not valid json');
+
+    normalise_cspell_words();
+
+    $this->assertSame('{not valid json', file_get_contents(self::$sut . '/.cspell.json'));
+  }
+
+  public function testNormaliseCspellWordsMissingWordsKey(): void {
+    chdir(self::$sut);
+    $input = ['dictionaries' => ['php']];
+    file_put_contents(self::$sut . '/.cspell.json', json_encode($input));
+
+    normalise_cspell_words();
+
+    $this->assertSame(json_encode($input), file_get_contents(self::$sut . '/.cspell.json'));
   }
 
   #[DataProvider('dataProviderProcessValidation')]
