@@ -275,6 +275,23 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
 }
 
 /**
+ * Detect the XDebug state of the dev server listening on the given port.
+ *
+ * Inspects the running PHP process's command line for the
+ * 'xdebug.mode=debug' flag. Returns 'enabled' or 'disabled' when a
+ * server is listening, and '-' when no server is bound to the port.
+ */
+function xdebug_state(string $port): string {
+  $cmd = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
+  $out = trim((string) @shell_exec($cmd));
+  if ($out === '') {
+    return '-';
+  }
+
+  return str_contains($out, 'xdebug.mode=debug') ? 'enabled' : 'disabled';
+}
+
+/**
  * Validate that a value is a TCP port in the range 1-65535.
  *
  * Calls FAIL() with a descriptive message if validation fails.

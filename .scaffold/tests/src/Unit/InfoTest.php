@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitSuccessException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -266,6 +268,162 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Drupal version:     -', $output);
   }
 
+  #[DataProvider('dataProviderFieldModeKnownFields')]
+  public function testFieldModeKnownFields(string $field, array $shell_exec_map, array $files, string $expected): void {
+    $this->configureInfoMocks(
+      shell_exec_map: $shell_exec_map,
+      files: $files,
+      info_files: ['your_extension.info.yml'],
+      cwd: '/test/project',
+    );
+
+    $output = $this->runInfoField($field, 0);
+
+    $this->assertSame($expected . PHP_EOL, $output);
+  }
+
+  public static function dataProviderFieldModeKnownFields(): \Iterator {
+    yield 'xdebug enabled' => [
+      'field' => 'xdebug',
+      'shell_exec_map' => ['lsof -ti' => "php -d xdebug.mode=debug -S localhost:8000\n", '*' => ''],
+      'files' => [],
+      'expected' => 'enabled',
+    ];
+    yield 'xdebug disabled' => [
+      'field' => 'xdebug',
+      'shell_exec_map' => ['lsof -ti' => "php -S localhost:8000\n", '*' => ''],
+      'files' => [],
+      'expected' => 'disabled',
+    ];
+    yield 'xdebug no server' => [
+      'field' => 'xdebug',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '-',
+    ];
+    yield 'webserver-port default' => [
+      'field' => 'webserver-port',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '8000',
+    ];
+    yield 'webserver-host default' => [
+      'field' => 'webserver-host',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => 'localhost',
+    ];
+    yield 'site-url' => [
+      'field' => 'site-url',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => 'http://localhost:8000',
+    ];
+    yield 'drupal-profile default' => [
+      'field' => 'drupal-profile',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => 'standard',
+    ];
+    yield 'build-dir present' => [
+      'field' => 'build-dir',
+      'shell_exec_map' => ['*' => ''],
+      'files' => ['/test/project/build' => TRUE],
+      'expected' => '/test/project/build',
+    ];
+    yield 'build-dir absent' => [
+      'field' => 'build-dir',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '-',
+    ];
+    yield 'database' => [
+      'field' => 'database',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '/tmp/site_your_extension.sqlite',
+    ];
+    yield 'php-version' => [
+      'field' => 'php-version',
+      'shell_exec_map' => ['php -v' => "PHP 8.3.14 (cli)\n", '*' => ''],
+      'files' => [],
+      'expected' => '8.3.14',
+    ];
+    yield 'composer' => [
+      'field' => 'composer',
+      'shell_exec_map' => ['composer --version' => "Composer version 2.7.7\n", '*' => ''],
+      'files' => [],
+      'expected' => '2.7.7',
+    ];
+    yield 'node' => [
+      'field' => 'node',
+      'shell_exec_map' => ['node --version' => "v20.18.0\n", '*' => ''],
+      'files' => [],
+      'expected' => '20.18.0',
+    ];
+    yield 'npm' => [
+      'field' => 'npm',
+      'shell_exec_map' => ['npm --version' => "10.8.2\n", '*' => ''],
+      'files' => [],
+      'expected' => '10.8.2',
+    ];
+    yield 'drush version (binary present)' => [
+      'field' => 'drush',
+      'shell_exec_map' => ['--version' => "Drush Commandline Tool 13.3.0\n", '*' => ''],
+      'files' => ['build/vendor/bin/drush' => TRUE],
+      'expected' => '13.3.0',
+    ];
+    yield 'drush version (binary absent)' => [
+      'field' => 'drush',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '-',
+    ];
+    yield 'drupal-version via drush' => [
+      'field' => 'drupal-version',
+      'shell_exec_map' => ['status --field=drupal-version' => "11.3.11\n", '*' => ''],
+      'files' => ['build/vendor/bin/drush' => TRUE],
+      'expected' => '11.3.11',
+    ];
+    yield 'drupal-version no drush' => [
+      'field' => 'drupal-version',
+      'shell_exec_map' => ['*' => ''],
+      'files' => [],
+      'expected' => '-',
+    ];
+  }
+
+  public function testFieldModeUnknownFieldPrintsDashAndExits1(): void {
+    $this->configureInfoMocks(
+      shell_exec_map: ['*' => ''],
+      files: [],
+      info_files: [],
+      cwd: '/test/project',
+    );
+
+    $output = $this->runInfoField('not-a-field', 1);
+
+    $this->assertSame('-' . PHP_EOL, $output);
+  }
+
+  public function testFieldModeBypassedForFlagLikeArg(): void {
+    // phpunit may pass its own argv (e.g. '--no-coverage') through to the
+    // included script. Args starting with '-' must NOT trigger field mode.
+    $this->configureInfoMocks(
+      shell_exec_map: ['*' => ''],
+      files: [],
+      info_files: [],
+      cwd: '/test/project',
+    );
+
+    $argv = ['info', '--no-coverage'];
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/info';
+    $output = (string) ob_get_clean();
+
+    $this->assertStringContainsString('ENVIRONMENT INFO', $output);
+  }
+
   /**
    * Run the info script and capture its output.
    */
@@ -274,6 +432,31 @@ final class InfoTest extends UnitTestCase {
     require dirname(__DIR__, 4) . '/.devtools/info';
 
     return (string) ob_get_clean();
+  }
+
+  /**
+   * Run the info script in field mode and capture its output.
+   */
+  protected function runInfoField(string $field, int $expected_exit_code): string {
+    $this->mockQuit($expected_exit_code);
+
+    // Set $argv in this method's scope so the included info script,
+    // which inherits the calling scope, sees the field argument.
+    $argv = ['info', $field];
+
+    ob_start();
+    try {
+      require dirname(__DIR__, 4) . '/.devtools/info';
+      $this->fail('Expected info to call quit() in field mode.');
+    }
+    catch (QuitSuccessException | QuitErrorException $e) {
+      $this->assertSame($expected_exit_code, $e->getCode());
+    }
+    finally {
+      $output = (string) ob_get_clean();
+    }
+
+    return $output;
   }
 
 }

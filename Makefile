@@ -53,12 +53,12 @@ info:
 	@./.devtools/info
 
 # Enable PHP XDebug step-debugging by restarting the PHP server with
-# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. The probe inspects
-# the running server's command line for `xdebug.mode=debug` so no flag file
-# is needed. Run `make start` to disable.
+# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. State is
+# probed by `info xdebug`, which inspects the running server's command
+# line. Run `make start` to disable.
 debug:
-	@ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'make start' to disable." || \
-		(XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
+	@[ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "XDebug is already enabled. Run 'make start' to disable." || \
+		(XDEBUG=1 ./.devtools/start && sleep 1 && [ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
 
 # Make has no native command aliases - the alias targets declare `debug` as
 # their sole prerequisite, so running e.g. `make xdebug` executes the `debug`

@@ -12,6 +12,14 @@
  * install profile.
  *
  * Any value that cannot be resolved prints '-' rather than failing.
+ *
+ * Two output modes:
+ * - No arguments: print the formatted full summary.
+ * - 'info <field>': print only that field's value on stdout, exit 0.
+ *   Unknown field name prints '-' and exits 1.
+ *
+ * Field-mode keeps expensive subprocess probes lazy: only the requested
+ * field's resolver runs.
  */
 
 declare(strict_types=1);
@@ -21,11 +29,9 @@ namespace DrupalExtensionScaffold\DevTools;
 require_once __DIR__ . '/helpers.php';
 
 // -----------------------------------------------------------------------------
-// Resolution.
+// Cheap resolutions (env + filesystem). Always run.
 // -----------------------------------------------------------------------------
 
-// validate_port: FALSE so a malformed '.env' entry surfaces in the
-// output instead of crashing the read-only summary.
 $webserver = resolve_webserver(validate_port: FALSE);
 $webserver_host = $webserver['host'];
 $host_source = $webserver['host_source'];
@@ -34,19 +40,6 @@ $port_source = $webserver['port_source'];
 
 $drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
 
-$php_version = info_php_version();
-$php_path = command_path('php');
-$composer_version = info_tool_version('composer --version 2>/dev/null', '/Composer(?:\s+version)?\s+(\S+)/i');
-$node_version = info_tool_version('node --version 2>/dev/null', '/v?(.+)/');
-$npm_version = info_tool_version('npm --version 2>/dev/null', '/(.+)/');
-
-$drush_bin = 'build/vendor/bin/drush';
-$has_drush = is_file($drush_bin);
-$drush_version = $has_drush ? info_tool_version(escapeshellarg($drush_bin) . ' --version 2>/dev/null', '/(\d+\.\d+\.\d+)/') : '-';
-$drupal_version = $has_drush ? info_drupal_version($drush_bin) : '-';
-
-$xdebug_state = info_xdebug_state($webserver_port);
-
 $cwd = (string) getcwd();
 $build_dir = is_dir($cwd . '/build') ? $cwd . '/build' : '-';
 
@@ -54,29 +47,71 @@ $info_files = glob('*.info.yml');
 $extension_name = (is_array($info_files) && $info_files !== []) ? basename($info_files[0], '.info.yml') : '';
 $db_file = $extension_name !== '' ? '/tmp/site_' . $extension_name . '.sqlite' : '-';
 
+$drush_bin = 'build/vendor/bin/drush';
+$has_drush = is_file($drush_bin);
+
+$site_url = sprintf('http://%s:%s', $webserver_host, $webserver_port);
+
 // -----------------------------------------------------------------------------
-// Output.
+// Field resolvers. Each closure is invoked only when its field is requested.
 // -----------------------------------------------------------------------------
+
+$fields = [
+  'drupal-version' => fn(): string => $has_drush ? info_drupal_version($drush_bin) : '-',
+  'php-version' => fn(): string => info_php_version(),
+  'composer' => fn(): string => info_tool_version('composer --version 2>/dev/null', '/Composer(?:\s+version)?\s+(\S+)/i'),
+  'drush' => fn(): string => $has_drush ? info_tool_version(escapeshellarg($drush_bin) . ' --version 2>/dev/null', '/(\d+\.\d+\.\d+)/') : '-',
+  'node' => fn(): string => info_tool_version('node --version 2>/dev/null', '/v?(.+)/'),
+  'npm' => fn(): string => info_tool_version('npm --version 2>/dev/null', '/(.+)/'),
+  'webserver-host' => fn(): string => $webserver_host,
+  'webserver-port' => fn(): string => $webserver_port,
+  'site-url' => fn(): string => $site_url,
+  'xdebug' => fn(): string => xdebug_state($webserver_port),
+  'build-dir' => fn(): string => $build_dir,
+  'database' => fn(): string => $db_file,
+  'drupal-profile' => fn(): string => $drupal_profile,
+];
+
+// -----------------------------------------------------------------------------
+// Field-mode dispatch.
+// -----------------------------------------------------------------------------
+
+$field = isset($argv[1]) && !str_starts_with((string) $argv[1], '-') ? (string) $argv[1] : NULL;
+if ($field !== NULL) {
+  if (isset($fields[$field])) {
+    echo $fields[$field]() . PHP_EOL;
+    quit(0);
+  }
+  echo '-' . PHP_EOL;
+  quit(1);
+}
+
+// -----------------------------------------------------------------------------
+// Full summary. Resolves every field then formats.
+// -----------------------------------------------------------------------------
+
+$values = array_map(fn(callable $cb): string => $cb(), $fields);
+$php_path = command_path('php');
 
 echo PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo '       ENVIRONMENT INFO        ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
-printf("Drupal version:     %s%s", $drupal_version, PHP_EOL);
-printf("PHP version:        %s%s%s", $php_version, $php_path !== FALSE && $php_version !== '-' ? ' (' . $php_path . ')' : '', PHP_EOL);
-printf("Composer:           %s%s", $composer_version, PHP_EOL);
-printf("Drush:              %s%s", $drush_version, PHP_EOL);
-printf("Node / npm:         %s / %s%s", $node_version, $npm_version, PHP_EOL);
+printf("Drupal version:     %s%s", $values['drupal-version'], PHP_EOL);
+printf("PHP version:        %s%s%s", $values['php-version'], $php_path !== FALSE && $values['php-version'] !== '-' ? ' (' . $php_path . ')' : '', PHP_EOL);
+printf("Composer:           %s%s", $values['composer'], PHP_EOL);
+printf("Drush:              %s%s", $values['drush'], PHP_EOL);
+printf("Node / npm:         %s / %s%s", $values['node'], $values['npm'], PHP_EOL);
 echo PHP_EOL;
-printf("Webserver host:     %s (%s)%s", $webserver_host, $host_source, PHP_EOL);
-printf("Webserver port:     %s (%s)%s", $webserver_port, $port_source, PHP_EOL);
-printf("Site URL:           http://%s:%s%s", $webserver_host, $webserver_port, PHP_EOL);
-printf("XDebug:             %s%s", $xdebug_state, PHP_EOL);
+printf("Webserver host:     %s (%s)%s", $values['webserver-host'], $host_source, PHP_EOL);
+printf("Webserver port:     %s (%s)%s", $values['webserver-port'], $port_source, PHP_EOL);
+printf("Site URL:           %s%s", $values['site-url'], PHP_EOL);
+printf("XDebug:             %s%s", $values['xdebug'], PHP_EOL);
 echo PHP_EOL;
-printf("Build dir:          %s%s", $build_dir, PHP_EOL);
-printf("Database:           %s%s", $db_file, PHP_EOL);
-printf("Drupal profile:     %s%s", $drupal_profile, PHP_EOL);
+printf("Build dir:          %s%s", $values['build-dir'], PHP_EOL);
+printf("Database:           %s%s", $values['database'], PHP_EOL);
+printf("Drupal profile:     %s%s", $values['drupal-profile'], PHP_EOL);
 echo PHP_EOL;
 
 // -----------------------------------------------------------------------------
@@ -118,22 +153,4 @@ function info_drupal_version(string $drush_bin): string {
   $out = trim((string) @shell_exec($cmd));
 
   return $out === '' ? '-' : $out;
-}
-
-/**
- * Detect the XDebug state of the dev server listening on the given port.
- *
- * Uses the same lsof + ps probe as the 'debug' wrapper command:
- * inspects the running PHP process's command line for the
- * 'xdebug.mode=debug' flag. Returns 'enabled' or 'disabled' when a
- * server is listening, and '-' when no server is bound to the port.
- */
-function info_xdebug_state(string $port): string {
-  $cmd = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
-  $out = trim((string) @shell_exec($cmd));
-  if ($out === '') {
-    return '-';
-  }
-
-  return str_contains($out, 'xdebug.mode=debug') ? 'enabled' : 'disabled';
 }
