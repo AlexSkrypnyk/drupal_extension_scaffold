@@ -31,6 +31,7 @@ commands:
 
   info:
     usage: Print a read-only summary of the current environment.
+    aliases: [describe]
     cmd: ./.devtools/info
 
   debug:
@@ -150,6 +151,7 @@ commands:
 
   reset:
     usage: Reset project to the default state.
+    aliases: [delete, destroy]
     cmd: |
       killall -9 php >/dev/null 2>&1 || true
       chmod -Rf 777 build .logs > /dev/null 2>&1 || true

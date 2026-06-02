@@ -12,7 +12,7 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
@@ -21,12 +21,12 @@ help:
 	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
 	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
 	@echo "drush           - Run Drush command."
-	@echo "info            - Print a read-only summary of the current environment."
+	@echo "info            - Print a read-only summary of the current environment (alias: describe)."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
 	@echo "login           - Run Drush login command."
 	@echo "provision       - Provision application within assembled codebase."
-	@echo "reset           - Reset project to the default state."
+	@echo "reset           - Reset project to the default state (aliases: delete, destroy)."
 	@echo "start           - Start development environment."
 	@echo "stop            - Stop development environment."
 	@echo "test                       - Run all tests."
@@ -68,6 +68,13 @@ debug-on xdebug xdebug-on: debug
 # Mirror the ahoy `start` aliases. `make debug-off` runs the `start` recipe
 # via the prerequisite chain, which restarts without XDebug.
 debug-off xdebug-off: start
+
+# DDEV uses `describe` for the equivalent of our `info`. Add the alias so
+# developers coming from DDEV find a familiar verb.
+describe: info
+
+# Lando uses `destroy` and DDEV uses `delete` for what our `reset` does.
+delete destroy: reset
 
 # Allow running Drush commands with `make drush <command>`
 ifeq (drush,$(firstword $(MAKECMDGOALS)))
