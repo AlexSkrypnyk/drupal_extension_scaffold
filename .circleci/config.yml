@@ -13,7 +13,7 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - image: cimg/php:8.2-browsers
 
   - &selenium_image
     image: selenium/standalone-chromium:latest
@@ -127,7 +127,7 @@ jobs:
   test-php-8.2-d10-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - image: cimg/php:8.2-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.2
@@ -136,7 +136,7 @@ jobs:
   test-php-8.2-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - image: cimg/php:8.2-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
@@ -145,7 +145,7 @@ jobs:
   test-php-8.2-d10-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers@sha256:b0bb1f453990cb0ad21073d4db9950fe22890a2b55d6cdf39f66f9f71696d2f2
+      - image: cimg/php:8.2-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
@@ -155,7 +155,7 @@ jobs:
   test-php-8.3-d10-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.2
@@ -164,7 +164,7 @@ jobs:
   test-php-8.3-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
@@ -173,7 +173,7 @@ jobs:
   test-php-8.3-d10-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
@@ -183,7 +183,7 @@ jobs:
   test-php-8.4-d10-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3 # Lowest Drupal version that supports PHP 8.4.
@@ -192,7 +192,7 @@ jobs:
   test-php-8.4-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.3
@@ -201,7 +201,7 @@ jobs:
   test-php-8.4-d10-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 10.4@beta
@@ -211,7 +211,7 @@ jobs:
   test-php-8.3-d11-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
@@ -220,7 +220,7 @@ jobs:
   test-php-8.3-d11-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0
@@ -229,7 +229,7 @@ jobs:
   test-php-8.3-d11-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers@sha256:b2c996760914c33243cdbdfd786675c2d6bdc54787031d84350f46c8da0a2fc3
+      - image: cimg/php:8.3-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11@beta
@@ -239,7 +239,7 @@ jobs:
   test-php-8.4-d11-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
@@ -248,7 +248,7 @@ jobs:
   test-php-8.4-d11-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.0
@@ -257,7 +257,7 @@ jobs:
   test-php-8.4-d11-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers@sha256:8796d950218c45bfe5bae08999ff743cf5a72d20262b65fc9bc75de8815f2950
+      - image: cimg/php:8.4-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11@beta
@@ -267,7 +267,7 @@ jobs:
   test-php-8.5-d11-legacy:
     <<: *container_config
     docker:
-      - image: cimg/php:8.5-browsers@sha256:9307ddf83e336d92aeb8191f9f676d36147dc5719a331669b02576aa38558e02
+      - image: cimg/php:8.5-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.3 # Lowest Drupal version that supports PHP 8.5.
@@ -276,7 +276,7 @@ jobs:
   test-php-8.5-d11-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.5-browsers@sha256:9307ddf83e336d92aeb8191f9f676d36147dc5719a331669b02576aa38558e02
+      - image: cimg/php:8.5-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11.3
@@ -285,7 +285,7 @@ jobs:
   test-php-8.5-d11-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.5-browsers@sha256:9307ddf83e336d92aeb8191f9f676d36147dc5719a331669b02576aa38558e02
+      - image: cimg/php:8.5-browsers
       - *selenium_image
     environment:
       DRUPAL_VERSION: 11@beta
