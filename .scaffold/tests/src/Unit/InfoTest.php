@@ -21,6 +21,18 @@ final class InfoTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
+
+    // CI workflows pre-populate WEBSERVER_HOST and friends in the job
+    // environment. Strip them so each test starts from a known state and
+    // sees only the values it sets explicitly via envSet().
+    self::envUnset('WEBSERVER_HOST');
+    self::envUnset('WEBSERVER_PORT');
+    self::envUnset('DRUPAL_PROFILE');
+  }
+
+  protected function tearDown(): void {
+    self::envReset();
+    parent::tearDown();
   }
 
   /**

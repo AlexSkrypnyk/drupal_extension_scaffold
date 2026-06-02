@@ -210,7 +210,7 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
  */
 function resolve_env_value(string $name, string $default, string $dotenv_file = '.env'): array {
   $env = getenv($name);
-  if ($env !== FALSE && is_string($env) && $env !== '') {
+  if ($env !== FALSE && $env !== '') {
     return [$env, 'env'];
   }
 
