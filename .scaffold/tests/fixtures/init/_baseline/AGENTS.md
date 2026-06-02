@@ -16,7 +16,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 - `make start` - Start PHP development server
 - `make stop` - Stop development server
 - `make provision` - Install/provision Drupal site
-- `make reset` - Clean build directory and logs
+- `make reset` - Clean build directory and logs (aliases: `make delete`, `make destroy`)
 
 **Using Ahoy (alternative):**
 - `ahoy build` - Complete build process
@@ -47,7 +47,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 
 ### Diagnostics
 
-- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile.
+- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (aliases: `describe`)
 
 ## Project Structure
 
