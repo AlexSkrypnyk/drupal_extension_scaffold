@@ -223,6 +223,58 @@ function resolve_env_value(string $name, string $default, string $dotenv_file = 
 }
 
 /**
+ * Resolve the webserver host and port with source tracking.
+ *
+ * Wraps resolve_env_value() for both 'WEBSERVER_HOST' and
+ * 'WEBSERVER_PORT'. Optionally auto-discovers a free port when neither
+ * env nor the dotenv file provides one, persisting the discovered port
+ * back to the dotenv file. Optionally validates that the resolved port
+ * is a valid TCP port number.
+ *
+ * @param bool $auto_discover
+ *   When TRUE and the port resolves from neither env nor dotenv,
+ *   discover a free port via find_free_port() and persist it via
+ *   dotenv_write_var(). The reported port source then becomes the
+ *   dotenv file path because that is where the value now lives.
+ * @param bool $validate_port
+ *   When TRUE, call validate_port_or_fail() on the resolved port and
+ *   abort if it is not a valid TCP port. The info script disables
+ *   this so a malformed value can be surfaced in the output rather
+ *   than crashing the read-only summary.
+ * @param string $dotenv_file
+ *   Path to the dotenv file to read and (optionally) write.
+ *
+ * @return array{host: string, host_source: string, port: string, port_source: string}
+ *   The resolved host and port together with the source label for
+ *   each: 'env' when the value came from the shell environment, the
+ *   dotenv file path when it came from that file, or 'default' when
+ *   the supplied default was used.
+ */
+function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
+  [$host, $host_source] = resolve_env_value('WEBSERVER_HOST', 'localhost', $dotenv_file);
+
+  $default_port = $auto_discover ? '' : '8000';
+  [$port, $port_source] = resolve_env_value('WEBSERVER_PORT', $default_port, $dotenv_file);
+
+  if ($auto_discover && $port_source === 'default') {
+    $port = (string) find_free_port();
+    dotenv_write_var('WEBSERVER_PORT', $port, $dotenv_file);
+    $port_source = $dotenv_file;
+  }
+
+  if ($validate_port) {
+    validate_port_or_fail($port, 'WEBSERVER_PORT');
+  }
+
+  return [
+    'host' => $host,
+    'host_source' => $host_source,
+    'port' => $port,
+    'port_source' => $port_source,
+  ];
+}
+
+/**
  * Validate that a value is a TCP port in the range 1-65535.
  *
  * Calls FAIL() with a descriptive message if validation fails.

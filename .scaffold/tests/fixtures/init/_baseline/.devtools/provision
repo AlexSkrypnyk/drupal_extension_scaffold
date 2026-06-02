@@ -20,15 +20,11 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver hostname.
-[$webserver_host] = resolve_env_value('WEBSERVER_HOST', 'localhost');
-
-// Webserver port. Resolution precedence:
-// 1. WEBSERVER_PORT env var, if set.
-// 2. WEBSERVER_PORT entry in .env, if present.
-// 3. Default '8000'.
-[$webserver_port] = resolve_env_value('WEBSERVER_PORT', '8000');
-validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
+// Webserver host and port resolved via the env -> '.env' -> default
+// chain.
+$webserver = resolve_webserver();
+$webserver_host = $webserver['host'];
+$webserver_port = $webserver['port'];
 
 // Drupal profile to use when installing the site.
 $drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
