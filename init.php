@@ -591,7 +591,16 @@ function normalise_cspell_words(): void {
     return;
   }
 
-  $words = array_values(array_unique(array_filter($raw_words, is_string(...))));
+  $deduped = [];
+  foreach ($raw_words as $w) {
+    if (!is_string($w)) {
+      continue;
+    }
+
+    $deduped[strtolower($w)] ??= $w;
+  }
+
+  $words = array_values($deduped);
   sort($words, SORT_FLAG_CASE | SORT_STRING);
   $config['words'] = $words;
 

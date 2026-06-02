@@ -47,6 +47,14 @@ job-test: &job-test
           fi
 
     - run:
+        name: Install Node.js dependencies
+        command: npm ci --ignore-scripts
+
+    - run:
+        name: Lint code with CSpell
+        command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
+
+    - run:
         name: Assemble the codebase
         command: .devtools/assemble
 
@@ -59,14 +67,6 @@ job-test: &job-test
     - run:
         name: Provision site
         command: .devtools/provision
-
-    - run:
-        name: Install Node.js dependencies
-        command: npm ci --ignore-scripts
-
-    - run:
-        name: Lint code with CSpell
-        command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
 
     - run:
         name: Lint code with PHPCS

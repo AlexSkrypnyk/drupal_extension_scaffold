@@ -446,7 +446,7 @@ final class InitHelpersTest extends UnitTestCase {
     chdir(self::$sut);
     $input = [
       'dictionaries' => ['php'],
-      'words' => ['force_crystal', 'ahoy', 'force_crystal', 'force_crystal', 'yoyodyne'],
+      'words' => ['force_crystal', 'Ahoy', 'force_crystal', 'Force_Crystal', 'yoyodyne', 'ahoy'],
       'ignorePaths' => ['build/'],
     ];
     file_put_contents(self::$sut . '/.cspell.json', json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -456,7 +456,9 @@ final class InitHelpersTest extends UnitTestCase {
     $result = json_decode((string) file_get_contents(self::$sut . '/.cspell.json'), TRUE);
     $this->assertIsArray($result);
     /** @var array<string, mixed> $result */
-    $this->assertSame(['ahoy', 'force_crystal', 'yoyodyne'], $result['words']);
+    // Mixed-case duplicates collapse to the first-seen form: 'Ahoy'/'ahoy'
+    // -> 'Ahoy'; 'force_crystal'/'Force_Crystal' -> 'force_crystal'.
+    $this->assertSame(['Ahoy', 'force_crystal', 'yoyodyne'], $result['words']);
     $this->assertSame(['php'], $result['dictionaries']);
     $this->assertSame(['build/'], $result['ignorePaths']);
   }
