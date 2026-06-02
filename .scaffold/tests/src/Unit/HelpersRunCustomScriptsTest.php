@@ -73,6 +73,24 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
     $this->assertStringNotContainsString('provision-skip.sh', $output);
   }
 
+  public function testSkipsDirectoriesMatchingPrefix(): void {
+    $dir = self::$tmp . '/scripts_' . uniqid();
+    mkdir($dir, 0755, TRUE);
+    // A directory whose name matches the glob; run_custom_scripts must
+    // skip it instead of trying to exec it.
+    mkdir($dir . '/assemble-rogue.sh', 0755, TRUE);
+    file_put_contents($dir . '/assemble-real.sh', 'echo real');
+
+    $this->mockPassthru(['cmd' => escapeshellarg($dir . '/assemble-real.sh'), 'result_code' => 0]);
+
+    ob_start();
+    run_custom_scripts($dir, 'assemble-');
+    $output = (string) ob_get_clean();
+
+    $this->assertStringContainsString('assemble-real.sh', $output);
+    $this->assertStringNotContainsString('assemble-rogue.sh', $output);
+  }
+
   public function testIgnoresNonShellExtension(): void {
     $dir = $this->createScriptsDir([
       'assemble-real.sh' => 'echo run',
