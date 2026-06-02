@@ -464,6 +464,45 @@ function passthru_or_fail(string $cmd, string $format = '', string|int|float ...
 }
 
 /**
+ * Run custom shell scripts from a directory matching a filename prefix.
+ *
+ * Scripts are matched as "<dir>/<prefix>*.sh", sorted lexicographically,
+ * and executed in order. Each script runs with the current working
+ * directory as the parent process's CWD and inherits the parent's
+ * environment. A non-zero exit from any script aborts the parent.
+ *
+ * The directory and any matching scripts are optional: a missing
+ * directory or an empty match set returns silently. This is the
+ * post-assemble / post-provision extension point.
+ *
+ * @param string $dir
+ *   Directory to scan, relative to the current working directory.
+ * @param string $prefix
+ *   Filename prefix to match (e.g. "assemble-" or "provision-").
+ */
+function run_custom_scripts(string $dir, string $prefix): void {
+  if (!is_dir($dir)) {
+    return;
+  }
+
+  $files = glob($dir . '/' . $prefix . '*.sh') ?: [];
+  if ($files === []) {
+    return;
+  }
+
+  sort($files);
+
+  foreach ($files as $file) {
+    if (!is_file($file)) {
+      continue;
+    }
+    TASK("Running custom script '%s'.", $file);
+    passthru_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
+    PASS("Completed custom script '%s'.", $file);
+  }
+}
+
+/**
  * Run a drush command.
  *
  * @param string $command

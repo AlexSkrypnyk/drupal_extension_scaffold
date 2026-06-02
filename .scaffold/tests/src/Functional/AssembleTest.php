@@ -25,6 +25,7 @@ final class AssembleTest extends DevtoolsTestCase {
 
     $this->assertProcessAnyOutputContains($init_message);
     $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
+    $this->assertProcessAnyOutputContains('[example] post-assemble script ran.');
     $this->assertDirectoryExists(self::$sut . '/build/vendor');
     $this->assertFileExists(self::$sut . '/build/composer.json');
     $this->assertFileExists(self::$sut . '/build/composer.lock');

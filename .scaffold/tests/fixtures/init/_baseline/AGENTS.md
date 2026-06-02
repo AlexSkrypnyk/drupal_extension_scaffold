@@ -57,6 +57,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 - `config/schema/` - Configuration schema definitions
 - `build/` - Assembled Drupal codebase (symlinked extension)
 - `.devtools/` - Build and deployment scripts used by CI
+- `scripts/` - Custom post-assemble (`assemble-*.sh`) and post-provision (`provision-*.sh`) hooks. Run automatically at the end of each phase in lexicographic order; non-zero exit aborts the parent. Excluded from distribution archives via `.gitattributes`
 
 **Template Files (before init):**
 - `force_crystal.*` - Template extension files
