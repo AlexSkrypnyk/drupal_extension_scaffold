@@ -80,6 +80,13 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('user/reset/1/');
 
+    $this->processRun('make', ['info'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ENVIRONMENT INFO');
+    $this->assertProcessAnyOutputContains('Drupal version:');
+    $this->assertProcessAnyOutputContains('Webserver port:');
+    $this->assertProcessAnyOutputContains('Site URL:           http://');
+
     $this->runLint();
 
     // `make test` runs every PHPUnit suite in the consumer project, including

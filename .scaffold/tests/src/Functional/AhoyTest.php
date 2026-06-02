@@ -81,6 +81,13 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('user/reset/1/');
 
+    $this->processRun('ahoy', ['info'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ENVIRONMENT INFO');
+    $this->assertProcessAnyOutputContains('Drupal version:');
+    $this->assertProcessAnyOutputContains('Webserver port:');
+    $this->assertProcessAnyOutputContains('Site URL:           http://');
+
     $this->runLint();
 
     // `ahoy test` runs every PHPUnit suite in the consumer project, including

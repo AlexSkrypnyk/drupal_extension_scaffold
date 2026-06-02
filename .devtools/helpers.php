@@ -185,6 +185,113 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
 }
 
 /**
+ * Resolve an environment value from env, then dotenv, then default.
+ *
+ * Mirrors the precedence chain used by the start, stop, provision, and
+ * info scripts: shell environment first, then a matching key in the
+ * dotenv file, then the supplied default. Returns the resolved value
+ * together with a source label identifying which leg of the chain
+ * produced it.
+ *
+ * @param string $name
+ *   Variable name to resolve.
+ * @param string $default
+ *   Value to return when neither env nor the dotenv file provides a
+ *   non-empty value. May be an empty string when callers want to
+ *   detect that case and apply their own fallback (for example,
+ *   start's auto-discovery branch).
+ * @param string $dotenv_file
+ *   Path to the dotenv file to consult.
+ *
+ * @return array{0: string, 1: string}
+ *   Tuple of [value, source] where source is 'env' when the value came
+ *   from the shell environment, the dotenv file path when the value
+ *   came from that file, or 'default' when neither produced a value.
+ */
+function resolve_env_value(string $name, string $default, string $dotenv_file = '.env'): array {
+  $env = getenv($name);
+  if ($env !== FALSE && $env !== '') {
+    return [$env, 'env'];
+  }
+
+  $dotenv = dotenv_read($dotenv_file);
+  if (isset($dotenv[$name]) && $dotenv[$name] !== '') {
+    return [$dotenv[$name], $dotenv_file];
+  }
+
+  return [$default, 'default'];
+}
+
+/**
+ * Resolve the webserver host and port with source tracking.
+ *
+ * Wraps resolve_env_value() for both 'WEBSERVER_HOST' and
+ * 'WEBSERVER_PORT'. Optionally auto-discovers a free port when neither
+ * env nor the dotenv file provides one, persisting the discovered port
+ * back to the dotenv file. Optionally validates that the resolved port
+ * is a valid TCP port number.
+ *
+ * @param bool $auto_discover
+ *   When TRUE and the port resolves from neither env nor dotenv,
+ *   discover a free port via find_free_port() and persist it via
+ *   dotenv_write_var(). The reported port source then becomes the
+ *   dotenv file path because that is where the value now lives.
+ * @param bool $validate_port
+ *   When TRUE, call validate_port_or_fail() on the resolved port and
+ *   abort if it is not a valid TCP port. The info script disables
+ *   this so a malformed value can be surfaced in the output rather
+ *   than crashing the read-only summary.
+ * @param string $dotenv_file
+ *   Path to the dotenv file to read and (optionally) write.
+ *
+ * @return array{host: string, host_source: string, port: string, port_source: string}
+ *   The resolved host and port together with the source label for
+ *   each: 'env' when the value came from the shell environment, the
+ *   dotenv file path when it came from that file, or 'default' when
+ *   the supplied default was used.
+ */
+function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
+  [$host, $host_source] = resolve_env_value('WEBSERVER_HOST', 'localhost', $dotenv_file);
+
+  $default_port = $auto_discover ? '' : '8000';
+  [$port, $port_source] = resolve_env_value('WEBSERVER_PORT', $default_port, $dotenv_file);
+
+  if ($auto_discover && $port_source === 'default') {
+    $port = (string) find_free_port();
+    dotenv_write_var('WEBSERVER_PORT', $port, $dotenv_file);
+    $port_source = $dotenv_file;
+  }
+
+  if ($validate_port) {
+    validate_port_or_fail($port, 'WEBSERVER_PORT');
+  }
+
+  return [
+    'host' => $host,
+    'host_source' => $host_source,
+    'port' => $port,
+    'port_source' => $port_source,
+  ];
+}
+
+/**
+ * Detect the XDebug state of the dev server listening on the given port.
+ *
+ * Inspects the running PHP process's command line for the
+ * 'xdebug.mode=debug' flag. Returns 'enabled' or 'disabled' when a
+ * server is listening, and '-' when no server is bound to the port.
+ */
+function xdebug_state(string $port): string {
+  $cmd = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
+  $out = trim((string) @shell_exec($cmd));
+  if ($out === '') {
+    return '-';
+  }
+
+  return str_contains($out, 'xdebug.mode=debug') ? 'enabled' : 'disabled';
+}
+
+/**
  * Validate that a value is a TCP port in the range 1-65535.
  *
  * Calls FAIL() with a descriptive message if validation fails.

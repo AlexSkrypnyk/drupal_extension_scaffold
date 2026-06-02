@@ -12,7 +12,7 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on help lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
@@ -21,6 +21,7 @@ help:
 	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
 	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
 	@echo "drush           - Run Drush command."
+	@echo "info            - Print a read-only summary of the current environment."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
 	@echo "login           - Run Drush login command."
@@ -48,13 +49,16 @@ start:
 stop:
 	./.devtools/stop
 
+info:
+	@./.devtools/info
+
 # Enable PHP XDebug step-debugging by restarting the PHP server with
-# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. The probe inspects
-# the running server's command line for `xdebug.mode=debug` so no flag file
-# is needed. Run `make start` to disable.
+# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. State is
+# probed by `info xdebug`, which inspects the running server's command
+# line. Run `make start` to disable.
 debug:
-	@ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "XDebug is already enabled. Run 'make start' to disable." || \
-		(XDEBUG=1 ./.devtools/start && sleep 1 && ps -o command= -p "$$(lsof -ti:$(WEBSERVER_PORT) 2>/dev/null | head -1)" 2>/dev/null | grep -q 'xdebug.mode=debug' && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
+	@[ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "XDebug is already enabled. Run 'make start' to disable." || \
+		(XDEBUG=1 ./.devtools/start && sleep 1 && [ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
 
 # Make has no native command aliases - the alias targets declare `debug` as
 # their sole prerequisite, so running e.g. `make xdebug` executes the `debug`

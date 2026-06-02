@@ -16,16 +16,8 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver port. Resolution precedence:
-// 1. WEBSERVER_PORT env var, if set.
-// 2. WEBSERVER_PORT entry in .env, if present.
-// 3. Default '8000'.
-$webserver_port = getenv_default('WEBSERVER_PORT', '');
-if ($webserver_port === '') {
-  $dotenv = dotenv_read('.env');
-  $webserver_port = (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') ? $dotenv['WEBSERVER_PORT'] : '8000';
-}
-validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
+// Webserver port resolved via the env -> '.env' -> default chain.
+$webserver_port = resolve_webserver()['port'];
 
 // -----------------------------------------------------------------------------
 

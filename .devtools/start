@@ -16,25 +16,13 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver hostname.
-$webserver_host = getenv_default('WEBSERVER_HOST', 'localhost');
-
-// Webserver port. Resolution precedence:
-// 1. WEBSERVER_PORT env var, if set.
-// 2. WEBSERVER_PORT entry in .env, if present.
-// 3. Auto-discovery via find_free_port(), persisted to .env.
-$webserver_port = getenv_default('WEBSERVER_PORT', '');
-if ($webserver_port === '') {
-  $dotenv = dotenv_read('.env');
-  if (isset($dotenv['WEBSERVER_PORT']) && $dotenv['WEBSERVER_PORT'] !== '') {
-    $webserver_port = $dotenv['WEBSERVER_PORT'];
-  }
-  else {
-    $webserver_port = (string) find_free_port();
-    dotenv_write_var('WEBSERVER_PORT', $webserver_port);
-  }
-}
-validate_port_or_fail($webserver_port, 'WEBSERVER_PORT');
+// Webserver host and port. The helper resolves both via the
+// env -> '.env' -> default chain. With auto_discover: TRUE, a free
+// port is allocated and persisted to '.env' when neither env nor
+// '.env' provides one.
+$webserver = resolve_webserver(auto_discover: TRUE);
+$webserver_host = $webserver['host'];
+$webserver_port = $webserver['port'];
 
 // Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
