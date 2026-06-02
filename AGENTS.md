@@ -27,7 +27,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (phpcs, phpstan, rector dry-run, twig-cs-fixer)
+- `make lint` / `ahoy lint` - Run all linting tools (cspell, phpcs, phpstan, rector dry-run, twig-cs-fixer, eslint, stylelint)
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
@@ -87,6 +87,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 ## Code Quality Tools
 
+- **CSpell**: Spell checking across the codebase (config at `.cspell.json`)
 - **PHPCS**: Drupal and DrupalPractice standards
 - **PHPStan**: Static analysis with Drupal extensions
 - **Rector**: Automated refactoring and deprecation fixes

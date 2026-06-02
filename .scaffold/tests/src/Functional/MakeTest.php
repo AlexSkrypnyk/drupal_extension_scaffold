@@ -147,6 +147,18 @@ final class MakeTest extends DevtoolsTestCase {
 
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
+
+    // Spelling: introduce a CSpell violation. CSpell has no autofix; restore
+    // the file manually after asserting the failure.
+    File::append(self::$sut . '/README.md', PHP_EOL . 'A wnoirly word.' . PHP_EOL);
+
+    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+
+    File::replaceContentInFile(self::$sut . '/README.md', PHP_EOL . 'A wnoirly word.' . PHP_EOL, '');
+
+    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
   }
 
   protected function runJsTests(): void {

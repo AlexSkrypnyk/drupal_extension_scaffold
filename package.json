@@ -7,6 +7,7 @@
   "scripts": {
     "lint-js": "eslint web/modules/custom web/themes/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern",
     "lint-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" \"web/themes/custom/**/*.css\"",
+    "lint-spell": "cspell --no-progress --gitignore .",
     "lint": "npm run lint-js && npm run lint-css",
     "lint-fix-js": "eslint web/modules/custom web/themes/custom --ext .js --no-error-on-unmatched-pattern --fix",
     "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" \"web/themes/custom/**/*.css\" --fix",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@homer0/prettier-plugin-jsdoc": "^11.1.0",
+    "cspell": "^8.0.0",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",

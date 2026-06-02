@@ -6,6 +6,7 @@
 # .claude            export-ignore
 # .ahoy.yml          export-ignore
 # .circleci          export-ignore
+# .cspell.json       export-ignore
 # .devtools          export-ignore
 # .editorconfig      export-ignore
 # .eslintignore      export-ignore
