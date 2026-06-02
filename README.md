@@ -231,6 +231,19 @@ You can browse the contents of the created SQLite database using
 
 A one-time login link will be printed to the console.
 
+### Custom assemble and provision scripts
+
+The `assemble` and `provision` scripts each look for project-local shell scripts in the `scripts/` directory and run them at the end of their respective phase:
+
+- `scripts/assemble-*.sh` runs at the tail of `make assemble` / `ahoy assemble`, after dependencies are installed and the extension is symlinked into `build/`.
+- `scripts/provision-*.sh` runs at the tail of `make provision` / `ahoy provision`, after the site is installed, the extension is enabled, and caches are pre-warmed.
+
+Matching files are executed in lexicographic order. The current working directory is the project root, and each script inherits the parent process environment. A non-zero exit from any script aborts the parent run.
+
+The directory is `export-ignore`d via `.gitattributes`, so anything under `scripts/` is excluded from distribution archives published to Drupal.org.
+
+Two example scripts ship with the scaffold (`scripts/assemble-example.sh`, `scripts/provision-example.sh`). Delete them, replace them, or use them as a starting point.
+
 ### Step-debugging with XDebug
 
 PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then toggle it on the development server:

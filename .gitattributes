@@ -31,6 +31,7 @@
 # phpunit.xml        export-ignore
 # rector.php         export-ignore
 # renovate.json      export-ignore
+# scripts            export-ignore
 # tests              export-ignore
 
 # Remove the lines below in your project.

@@ -30,5 +30,6 @@ phpunit.d10.xml    export-ignore
 phpunit.xml        export-ignore
 rector.php         export-ignore
 renovate.json      export-ignore
+scripts            export-ignore
 tests              export-ignore
 

@@ -348,6 +348,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', 'phpunit.xml');
   uncomment_line('.gitattributes', 'rector.php');
   uncomment_line('.gitattributes', 'renovate.json');
+  uncomment_line('.gitattributes', 'scripts');
   uncomment_line('.gitattributes', 'tests');
   remove_string_content('# Remove the lines below in your project.');
   remove_string_content('.github/FUNDING.yml export-ignore');

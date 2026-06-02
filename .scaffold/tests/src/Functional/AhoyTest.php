@@ -44,6 +44,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
+    $this->assertProcessAnyOutputContains('[example] post-assemble script ran.');
     $this->assertDirectoryExists(self::$sut . '/build/vendor');
     $this->assertFileExists(self::$sut . '/build/composer.json');
     $this->assertFileExists(self::$sut . '/build/composer.lock');
@@ -64,12 +65,14 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['provision'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
+    $this->assertProcessAnyOutputContains('[example] post-provision script ran.');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
 
     // Provision is idempotent.
     $this->processRun('ahoy', ['provision'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('PROVISION COMPLETE');
+    $this->assertProcessAnyOutputContains('[example] post-provision script ran.');
     $this->assertProcessAnyOutputNotContains('Do you really want to drop all tables in the database');
 
     $this->processRun('ahoy', ['drush', 'status'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
