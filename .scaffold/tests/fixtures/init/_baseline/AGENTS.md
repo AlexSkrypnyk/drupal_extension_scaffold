@@ -47,7 +47,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 
 ### Diagnostics
 
-- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. Runs automatically at the end of `make build` / `ahoy build`.
+- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile.
 
 ## Project Structure
 

@@ -15,7 +15,6 @@ commands:
       ahoy assemble
       ahoy start
       ahoy provision
-      ahoy info
 
   assemble:
     usage: Assemble a codebase using project code and all required dependencies.

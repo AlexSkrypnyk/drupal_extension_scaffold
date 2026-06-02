@@ -38,7 +38,7 @@ help:
 	@echo "selenium-stop              - Stop Selenium container."
 	@echo "test-js                    - Run JavaScript unit tests."
 
-build: stop assemble start provision info
+build: stop assemble start provision
 
 assemble:
 	./.devtools/assemble
