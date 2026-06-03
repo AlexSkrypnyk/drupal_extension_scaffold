@@ -98,9 +98,6 @@ provision:
 	./.devtools/provision
 
 lint:
-	$(call title,Running CSpell)
-	[ -d node_modules ] || npm install --no-audit --no-fund
-	npm run lint-spell
 	$(call title,Running PHPCS)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
 	$(call title,Running PHPStan)
@@ -111,6 +108,9 @@ lint:
 	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer && popd >/dev/null || exit 1
 	$(call title,Running ESLint)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint) && popd >/dev/null || exit 1
+	$(call title,Running CSpell)
+	[ -d node_modules ] || npm install --no-audit --no-fund
+	npm run lint-spell
 
 lint-fix:
 	$(call title,Running Rector)
