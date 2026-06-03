@@ -39,25 +39,30 @@ All commands run from `.scaffold/tests/`. Install dependencies once with `compos
 
 ## Regenerating snapshot fixtures
 
-**HARD RULE - never edit fixtures directly.** Files under `.scaffold/tests/fixtures/init/` are generated artefacts. They must always be regenerated via `composer --working-dir=.scaffold/tests update-snapshots` after any source change that affects `init.php` output. Hand-editing a fixture risks drift between what the generator would produce and what is checked in - subsequent regenerations would then overwrite the manual edit and the failure mode would only surface in CI.
+**HARD RULE - never edit fixtures directly.** Files under `.scaffold/tests/fixtures/init/` are generated artefacts. They must always be regenerated with the `update-snapshots` Composer script - run from inside `.scaffold/tests` (see below) - after any source change that affects `init.php` output. Hand-editing a fixture risks drift between what the generator would produce and what is checked in - subsequent regenerations would then overwrite the manual edit and the failure mode would only surface in CI.
 
 `InitTest` runs `init.php` end-to-end and diffs the output against `fixtures/init/_baseline/` plus one fixture directory per dataset (`circleci/`, `gha_makefile/`, `theme/`, etc. - see `InitTest::dataProviderInit()`).
 
-When source files change (workflows, `.devtools/`, `init.php`, Claude settings, etc.), the fixtures fall out of date. Regenerate them:
+When source files change (workflows, `.devtools/`, `init.php`, Claude settings, etc.), the fixtures fall out of date. Regenerate them.
+
+**HARD RULE - `cd` into `.scaffold/tests` and regenerate serially with `--jobs=1`.**
 
 ```bash
-composer --working-dir=.scaffold/tests update-snapshots
+cd .scaffold/tests
+composer update-snapshots -- --jobs=1
 ```
+
+By default the runner regenerates the per-dataset fixtures in parallel. In automated or sandboxed environments - where `TMPDIR` may be a relative path that the runner resolves against its own working copy - the parallel workers race against each other and the shared temp area: one or more datasets are then silently dropped from, or written as raw diff garbage into, the regenerated set while the run still reports overall success, leaving broken fixtures that only surface as a CI failure later. `--jobs=1` forces a deterministic serial run so every dataset regenerates correctly. Always `git show --stat` the resulting commit and confirm it touches only the files your change should have affected.
 
 **HARD RULE - commit source changes before regenerating.** `update-snapshots` stages, commits, and amends the fixture diffs via `git`. Always commit your source changes (`.ahoy.yml`, `Makefile`, `.devtools/`, `init.php`, etc.) as their own commit **first**, then run `update-snapshots` so the regenerated fixtures land in a separate, clean commit on top. Running it with uncommitted source mixes the two changesets and leaves the branch history tangled.
 
 This wraps `vendor/bin/update-snapshots` from `alexskrypnyk/snapshot`. It:
 
 1. Runs the baseline dataset first and commits any baseline diff as its own commit.
-2. Runs the remaining datasets in parallel and amends the baseline commit with each fixture diff.
+2. Runs the remaining datasets (serially under `--jobs=1`) and amends the baseline commit with each fixture diff.
 3. Exits non-zero on the first run because the original tests failed against the stale snapshots - that is expected; the snapshots are now correct.
 
-Run `composer --working-dir=.scaffold/tests test -- --filter=InitTest` afterwards to confirm everything is green, then review the committed diffs before pushing.
+From inside `.scaffold/tests`, run `composer test -- --filter=InitTest` afterwards to confirm everything is green, then review the committed diffs before pushing.
 
 The trait that drives the diff-and-update behaviour is `SnapshotTrait` (see `tearDown()` in `InitTest`); it calls `snapshotUpdateOnFailure()` so a normal `test` run will also rewrite fixtures if you have not used the dedicated `update-snapshots` command.
 

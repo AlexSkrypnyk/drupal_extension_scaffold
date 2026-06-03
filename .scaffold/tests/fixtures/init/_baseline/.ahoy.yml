@@ -56,9 +56,6 @@ commands:
   lint:
     usage: Check coding standards for violations.
     cmd: |
-      ahoy title "Running CSpell"
-      [ -d node_modules ] || npm install --no-audit --no-fund
-      npm run lint-spell
       pushd "build" >/dev/null || exit 1
       ahoy title "Running PHPCS"
       vendor/bin/phpcs
@@ -70,6 +67,9 @@ commands:
       vendor/bin/twig-cs-fixer
       [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
       popd >/dev/null || exit 1
+      ahoy title "Running CSpell"
+      [ -d node_modules ] || npm install --no-audit --no-fund
+      npm run lint-spell
 
   lint-fix:
     usage: Fix violations in coding standards.
