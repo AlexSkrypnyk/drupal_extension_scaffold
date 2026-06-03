@@ -51,8 +51,6 @@ composer --working-dir=.scaffold/tests update-snapshots
 
 **HARD RULE - commit source changes before regenerating.** `update-snapshots` stages, commits, and amends the fixture diffs via `git`. Always commit your source changes (`.ahoy.yml`, `Makefile`, `.devtools/`, `init.php`, etc.) as their own commit **first**, then run `update-snapshots` so the regenerated fixtures land in a separate, clean commit on top. Running it with uncommitted source mixes the two changesets and leaves the branch history tangled.
 
-**HARD RULE - use an absolute `TMPDIR`.** The snapshot harness resolves its workspace and `.snapshot-expected-*` comparison dirs from `sys_get_temp_dir()`. If `TMPDIR` is relative (e.g. under Claude Code, where it points at `.artifacts/tmp/...`), those dirs get written **inside** the copied-out fixtures and, because `.artifacts/` is git-ignored, they stay invisible to `git status` while still polluting the filesystem comparison - every dataset then fails to match. Export an absolute `TMPDIR` before regenerating or verifying, e.g. `TMPDIR="$PWD/.artifacts/tmp/snapshots" composer --working-dir=.scaffold/tests update-snapshots`. CI is unaffected because its system temp is already absolute.
-
 This wraps `vendor/bin/update-snapshots` from `alexskrypnyk/snapshot`. It:
 
 1. Runs the baseline dataset first and commits any baseline diff as its own commit.
