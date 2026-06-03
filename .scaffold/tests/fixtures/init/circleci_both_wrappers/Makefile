@@ -5,6 +5,12 @@ SHELL=/bin/bash
 -include .env
 export
 
+# Resolve a relative TMPDIR to an absolute path so build/-dir tools (which
+# chdir into build) can still find it. No-op when unset or already absolute.
+ifdef TMPDIR
+export TMPDIR := $(abspath $(TMPDIR))
+endif
+
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 

@@ -49,6 +49,8 @@ When source files change (workflows, `.devtools/`, `init.php`, Claude settings, 
 composer --working-dir=.scaffold/tests update-snapshots
 ```
 
+**HARD RULE - commit source changes before regenerating.** `update-snapshots` stages, commits, and amends the fixture diffs via `git`. Always commit your source changes (`.ahoy.yml`, `Makefile`, `.devtools/`, `init.php`, etc.) as their own commit **first**, then run `update-snapshots` so the regenerated fixtures land in a separate, clean commit on top. Running it with uncommitted source mixes the two changesets and leaves the branch history tangled.
+
 This wraps `vendor/bin/update-snapshots` from `alexskrypnyk/snapshot`. It:
 
 1. Runs the baseline dataset first and commits any baseline diff as its own commit.
