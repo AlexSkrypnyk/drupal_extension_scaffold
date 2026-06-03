@@ -169,6 +169,9 @@ entrypoint:
   - -c
   - -e
   - |
+    # Resolve a relative TMPDIR to an absolute path so tools that chdir (pushd
+    # build) still find it. No-op when unset or already absolute.
+    if [ -n "${TMPDIR:-}" ]; then case "$TMPDIR" in /*) ;; *) TMPDIR="$PWD/$TMPDIR" ;; esac; mkdir -p "$TMPDIR"; export TMPDIR; fi
     extension="$(basename -s .info.yml -- ./*.info.yml)"
     export BROWSERTEST_OUTPUT_DIRECTORY="${TMPDIR:-/tmp}"
     export SIMPLETEST_BASE_URL=http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000}
