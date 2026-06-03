@@ -118,6 +118,17 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    // A relative TMPDIR must not break tools that run from the build/ directory.
+    // The lint and test wrappers chdir into build/ before invoking PHP tools, so
+    // a relative sys_get_temp_dir() resolves against build/ and tempnam() fails
+    // with "Path must not be empty". The wrapper must resolve TMPDIR to an
+    // absolute path first, so linting still passes when TMPDIR is relative.
+    if (!is_dir(self::$sut . '/.logs/relative-tmp')) {
+      mkdir(self::$sut . '/.logs/relative-tmp', 0777, TRUE);
+    }
+    $this->processRun('make', ['lint'], [], ['TMPDIR' => '.logs/relative-tmp'], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
     // PHP: introduce a PHPCS violation.
     File::append(self::$sut . '/your_extension.module', '$a=123;echo $a;' . PHP_EOL);
 
