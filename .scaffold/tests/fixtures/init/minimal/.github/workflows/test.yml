@@ -1,0 +1,96 @@
+@@ -30,9 +30,6 @@
+       - name: Install Node.js dependencies
+         run: npm ci --ignore-scripts
+ 
+-      - name: Lint code with CSpell
+-        run: npm run lint-spell
+-        continue-on-error: ${{ vars.CI_CSPELL_IGNORE_FAILURE == '1' }}
+ 
+       - name: Cache Composer dependencies
+         uses: actions/cache@__HASH__ # __VERSION__
+@@ -51,31 +48,10 @@
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ 
+-      - name: Lint code with PHPCS
+-        working-directory: build
+-        run: vendor/bin/phpcs
+-        continue-on-error: ${{ vars.CI_PHPCS_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint code with PHPStan
+-        working-directory: build
+-        run: vendor/bin/phpstan
+-        continue-on-error: ${{ vars.CI_PHPSTAN_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint code with Rector
+-        working-directory: build
+-        run: vendor/bin/rector --clear-cache --dry-run
+-        continue-on-error: ${{ vars.CI_RECTOR_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint code with Twig CS Fixer
+-        working-directory: build
+-        run: vendor/bin/twig-cs-fixer
+-        continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint module code with NodeJS linters
+-        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        working-directory: build
+-        run: npm run lint
+-        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
+ 
+   test:
+     runs-on: ubuntu-24.04
+@@ -163,11 +139,6 @@
+             drupal-version: 11@beta
+             stability: canary
+ 
+-    services:
+-      chrome:
+-        image: selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
+-        ports:
+-          - 4444:4444
+ 
+     name: ${{ matrix.name }}
+ 
+@@ -222,41 +193,4 @@
+       - name: Provision site
+         run: .devtools/provision
+ 
+-      - name: Run JS tests
+-        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        working-directory: build
+-        run: npm test
+-        continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Run tests
+-        working-directory: build
+-        run: php -d pcov.directory=.. vendor/bin/phpunit
+-        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
+-        env:
+-          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
+-          SIMPLETEST_DB: sqlite://tmp/db.sqlite
+-
+-      - name: Upload test results as an artifact
+-        uses: actions/upload-artifact@__HASH__ # __VERSION__
+-        if: always()
+-        with:
+-          name: Artifacts (${{ matrix.name }})
+-          path: build/web/sites/simpletest/browser_output
+-
+-      - name: Upload coverage report as an artifact
+-        uses: actions/upload-artifact@__HASH__ # __VERSION__
+-        with:
+-          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+-          path: ./.logs/coverage
+-          include-hidden-files: true
+-          if-no-files-found: error
+-
+-      - name: Upload coverage report to Codecov
+-        uses: codecov/codecov-action@__HASH__ # __VERSION__
+-        if: ${{ env.CODECOV_TOKEN != '' }}
+-        with:
+-          directory: ./.logs/coverage
+-          fail_ci_if_error: true
+-          token: ${{ secrets.CODECOV_TOKEN }}
+-        env:
+-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

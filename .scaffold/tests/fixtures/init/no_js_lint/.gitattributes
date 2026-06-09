@@ -1,0 +1,16 @@
+@@ -8,15 +8,10 @@
+ .cspell.json       export-ignore
+ .devtools          export-ignore
+ .editorconfig      export-ignore
+-.eslintignore      export-ignore
+-.eslintrc.json     export-ignore
+ .gitattributes     export-ignore
+ .github            export-ignore
+ .gitignore         export-ignore
+-.prettierignore    export-ignore
+-.prettierrc.json   export-ignore
+ .skip_npm_build    export-ignore
+-.stylelintrc.js    export-ignore
+ .twig-cs-fixer.php export-ignore
+ Makefile           export-ignore
+ composer.dev.json  export-ignore

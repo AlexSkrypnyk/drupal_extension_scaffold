@@ -1,0 +1,12 @@
+@@ -71,11 +71,6 @@
+         run: vendor/bin/twig-cs-fixer
+         continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
+ 
+-      - name: Lint module code with NodeJS linters
+-        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        working-directory: build
+-        run: npm run lint
+-        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
+ 
+   test:
+     runs-on: ubuntu-24.04

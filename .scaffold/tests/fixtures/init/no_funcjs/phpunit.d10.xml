@@ -1,0 +1,11 @@
+@@ -80,10 +80,6 @@
+             <directory>web/themes/custom/*/tests/src/Functional</directory>
+         </testsuite>
+ 
+-        <testsuite name="functional-javascript">
+-            <directory>web/modules/custom/*/tests/src/FunctionalJavascript</directory>
+-            <directory>web/themes/custom/*/tests/src/FunctionalJavascript</directory>
+-        </testsuite>
+     </testsuites>
+ 
+     <logging>
