@@ -30,6 +30,37 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessAnyOutputNotContains('Would run build');
   }
 
+  public function testLintTwigFollowsSymlinkedTemplates(): void {
+    $this->processRun('make', ['assemble'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
+
+    // A freshly assembled project lints clean.
+    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    // assemble symlinks each top-level extension item into the build, so a
+    // real templates/ directory becomes a symlink inside the tree that
+    // twig-cs-fixer scans. Recreate that layout with a template carrying a
+    // fixable delimiter-spacing violation, reachable from the scanned build
+    // directory only by following the templates/ symlink.
+    mkdir(self::$sut . '/templates');
+    file_put_contents(self::$sut . '/templates/your_extension.html.twig', '{{content}}' . PHP_EOL);
+    symlink(self::$sut . '/templates', self::$sut . '/build/web/modules/custom/your_extension/templates');
+
+    // twig-cs-fixer only sees the template if it follows the symlink, so lint
+    // must now fail and name the offending template.
+    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessFailed();
+    $this->assertProcessAnyOutputContains('your_extension.html.twig');
+
+    // lint-fix repairs the template through the symlink; lint passes again.
+    $this->processRun('make', ['lint-fix'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+
+    $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+  }
+
   public function testWorkflow(): void {
     // Start without build fails.
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
