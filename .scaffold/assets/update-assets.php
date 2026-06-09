@@ -394,8 +394,9 @@ function recordSession(string $cast_file, string $expect_script, int $rows = TER
  * 3. Select "Extension type" — press enter (Module, first option).
  * 4. Select "CI provider" — press enter (GitHub Actions, first option).
  * 5. Multi-select "Command wrapper" — press space to select Ahoy, press enter.
- * 6. Confirm "Remove this script" — type "y", press enter.
- * 7. Confirm "Proceed" — type "y", press enter.
+ * 6. Multi-select "Tools to remove" — press enter to keep all tools.
+ * 7. Confirm "Remove this script" — type "y", press enter.
+ * 8. Confirm "Proceed" — type "y", press enter.
  *
  * @param string $script_path
  *   Path to write the expect script.
@@ -471,6 +472,12 @@ expect "Command wrapper" {
     sleep {$delay}
     safe_send " "
     sleep 0.3
+    safe_send "\\r"
+}
+
+# Multi-select: Tools to remove — keep all tools (confirm without selecting).
+expect "Tools to remove" {
+    sleep {$delay}
     safe_send "\\r"
 }
 
