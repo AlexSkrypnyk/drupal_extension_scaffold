@@ -350,6 +350,33 @@ final class InitProcessTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * @param array<string> $tools_remove
+   * @param array<string> $expected_absent
+   */
+  #[DataProvider('dataProviderRemoveGitattributes')]
+  public function testProcessRemovesGitattributes(array $tools_remove, array $expected_absent): void {
+    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], $tools_remove, 'n');
+
+    $gitattributes = (string) file_get_contents(self::$sut . '/.gitattributes');
+    foreach ($expected_absent as $needle) {
+      $this->assertStringNotContainsString($needle, $gitattributes, '.gitattributes should not export-ignore: ' . $needle);
+    }
+  }
+
+  public static function dataProviderRemoveGitattributes(): \Iterator {
+    yield 'phpcs' => [['phpcs'], ['phpcs.xml']];
+    yield 'phpstan' => [['phpstan'], ['phpstan.neon']];
+    yield 'rector' => [['rector'], ['rector.php']];
+    yield 'twigcs' => [['twigcs'], ['.twig-cs-fixer.php']];
+    yield 'eslint' => [['eslint'], ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore']];
+    yield 'stylelint' => [['stylelint'], ['.stylelintrc.js']];
+    yield 'cspell' => [['cspell'], ['.cspell.json']];
+    yield 'jest' => [['jest'], ['jest.config.js']];
+    yield 'phpunit' => [['phpunit'], ['phpunit.xml', 'phpunit.d10.xml']];
+    yield 'renovate' => [['renovate'], ['renovate.json']];
+  }
+
   public function testProcessThrowsOnInvalidClaudeSettingsJson(): void {
     file_put_contents(self::$sut . '/.claude/settings.json', '{invalid json');
 
