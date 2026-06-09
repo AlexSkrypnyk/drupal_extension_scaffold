@@ -32,13 +32,21 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 **Testing:**
 - `make test` / `ahoy test` - Run all PHPUnit tests
+<!-- #;< DEV_PHPUNIT -->
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
 - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 - `make test-functional` / `ahoy test-functional` - Run functional tests only
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 - `make test-functional-javascript` / `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;< DEV_JEST -->
 - `make test-js` / `ahoy test-js` - Run JavaScript unit tests (Jest)
+<!-- #;> DEV_JEST -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 - `make selenium-start` / `ahoy selenium-start` - Start Selenium container
 - `make selenium-stop` / `ahoy selenium-stop` - Stop Selenium container
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 
 ### Drupal Commands
 
@@ -88,11 +96,21 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 ## Code Quality Tools
 
+<!-- #;< DEV_CSPELL -->
 - **CSpell**: Spell checking across the codebase (config at `.cspell.json`)
+<!-- #;> DEV_CSPELL -->
+<!-- #;< DEV_PHPCS -->
 - **PHPCS**: Drupal and DrupalPractice standards
+<!-- #;> DEV_PHPCS -->
+<!-- #;< DEV_PHPSTAN -->
 - **PHPStan**: Static analysis with Drupal extensions
+<!-- #;> DEV_PHPSTAN -->
+<!-- #;< DEV_RECTOR -->
 - **Rector**: Automated refactoring and deprecation fixes
+<!-- #;> DEV_RECTOR -->
+<!-- #;< DEV_TWIGCS -->
 - **Twig CS Fixer**: Twig template formatting
+<!-- #;> DEV_TWIGCS -->
 
 ## CI/CD Support
 

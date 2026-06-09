@@ -6,33 +6,57 @@
 # .claude            export-ignore
 # .ahoy.yml          export-ignore
 # .circleci          export-ignore
+#;< DEV_CSPELL
 # .cspell.json       export-ignore
+#;> DEV_CSPELL
 # .devtools          export-ignore
 # .editorconfig      export-ignore
+#;< DEV_ESLINT
 # .eslintignore      export-ignore
 # .eslintrc.json     export-ignore
+#;> DEV_ESLINT
 # .gitattributes     export-ignore
 # .github            export-ignore
 # .gitignore         export-ignore
+#;< DEV_ESLINT
 # .prettierignore    export-ignore
 # .prettierrc.json   export-ignore
+#;> DEV_ESLINT
 # .skip_npm_build    export-ignore
+#;< DEV_STYLELINT
 # .stylelintrc.js    export-ignore
+#;> DEV_STYLELINT
+#;< DEV_TWIGCS
 # .twig-cs-fixer.php export-ignore
+#;> DEV_TWIGCS
 # Makefile           export-ignore
 # composer.dev.json  export-ignore
+#;< DEV_JEST
 # jest.config.js     export-ignore
+#;> DEV_JEST
 # package-lock.json  export-ignore
 # package.json       export-ignore
 # patches            export-ignore
+#;< DEV_PHPCS
 # phpcs.xml          export-ignore
+#;> DEV_PHPCS
+#;< DEV_PHPSTAN
 # phpstan.neon       export-ignore
+#;> DEV_PHPSTAN
+#;< DEV_PHPUNIT
 # phpunit.d10.xml    export-ignore
 # phpunit.xml        export-ignore
+#;> DEV_PHPUNIT
+#;< DEV_RECTOR
 # rector.php         export-ignore
+#;> DEV_RECTOR
+#;< DEV_RENOVATE
 # renovate.json      export-ignore
+#;> DEV_RENOVATE
 # scripts            export-ignore
+#;< DEV_PHPUNIT
 # tests              export-ignore
+#;> DEV_PHPUNIT
 
 # Remove the lines below in your project.
 .github/FUNDING.yml export-ignore

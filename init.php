@@ -81,17 +81,31 @@ function main(array $argv): void {
         'ahoy' => 'Ahoy',
         'makefile' => 'Makefile',
       ]),
+      'tools_remove' => Prompty::multiselect('Tools to remove', options: [
+        'phpcs' => 'PHPCS',
+        'phpstan' => 'PHPStan',
+        'rector' => 'Rector',
+        'twigcs' => 'Twig CS Fixer',
+        'eslint' => 'ESLint',
+        'stylelint' => 'Stylelint',
+        'cspell' => 'CSpell',
+        'jest' => 'Jest',
+        'phpunit' => 'PHPUnit',
+        'functional_javascript' => 'FunctionalJavascript tests',
+        'renovate' => 'Renovate',
+      ], description: 'All tools are kept by default. Select any to remove from your project.'),
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
     ],
     intro: 'Drupal Extension Scaffold',
     outro: fn(array $r): string => sprintf(
-      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nWrapper: %s",
+      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nWrapper: %s\nRemoved tools: %s",
       $r['name'],
       $r['machine_name'],
       $r['type'],
       $r['ci_provider'],
       implode(', ', $r['command_wrapper'] ?: ['None']),
+      implode(', ', $r['tools_remove'] ?: ['None']),
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
@@ -108,6 +122,8 @@ function main(array $argv): void {
   $ci_provider = (string) $results['ci_provider'];
   /** @var array<string> $command_wrapper */
   $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
+  /** @var array<string> $tools_remove */
+  $tools_remove = array_filter((array) $results['tools_remove'], static fn($v): bool => $v !== '');
   $remove_self = empty($results['remove_self']) ? 'n' : 'y';
 
   // Derive machine name from extension name if the user accepted placeholder.
@@ -115,7 +131,7 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $command_wrapper, $remove_self);
+  process($name, $machine_name, $type, $ci_provider, $command_wrapper, $tools_remove, $remove_self);
   // @codeCoverageIgnoreEnd
 }
 
@@ -140,6 +156,9 @@ Environment variables (to pre-fill prompts):
   PROMPTY_TYPE            Extension type: module or theme.
   PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
   PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
+  PROMPTY_TOOLS_REMOVE    Tools to remove: comma-separated. One or more of:
+                         phpcs, phpstan, rector, twigcs, eslint, stylelint,
+                         cspell, jest, phpunit, functional_javascript, renovate.
   PROMPTY_REMOVE_SELF     Remove this script: true or false.
   PROMPTY_PROCEED         Proceed with init: true or false.
 
@@ -160,10 +179,12 @@ EOF;
  *   The CI provider (gha or circleci).
  * @param array<string> $command_wrapper
  *   The selected command wrappers ('ahoy', 'makefile', or both).
+ * @param array<string> $tools_remove
+ *   The machine names of the development tools to remove.
  * @param string $remove_self
  *   Whether to remove this script ('y' or 'n').
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, array $tools_remove, string $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -230,6 +251,8 @@ function process(string $extension_name, string $extension_machine_name, string 
       // @codeCoverageIgnoreEnd
     }
   }
+
+  remove_tools($tools_remove);
 
   process_readme($extension_name);
 
@@ -400,6 +423,334 @@ function process_internal(string $extension_name, string $extension_machine_name
     @unlink('src/' . $extension_machine_name_class . 'Service.php');
     file_put_contents($extension_machine_name . '.info.yml', 'base theme: false' . PHP_EOL, FILE_APPEND);
   }
+}
+
+/**
+ * Remove deselected development tools from the project.
+ *
+ * Each tool's lines across the wrapper, CI, and configuration files are
+ * wrapped in '#;< DEV_<TOOL> ... #;> DEV_<TOOL>' markers; removing a tool
+ * strips those blocks, deletes its config files and directories, and drops
+ * its dependencies from 'composer.dev.json'. Markers for kept tools are
+ * stripped later by 'remove_special_comments()'.
+ *
+ * @param array<string> $tools_remove
+ *   The machine names of the tools to remove.
+ */
+function remove_tools(array $tools_remove): void {
+  // FunctionalJavascript tests require PHPUnit; removing PHPUnit removes them.
+  if (in_array('phpunit', $tools_remove, TRUE) && !in_array('functional_javascript', $tools_remove, TRUE)) {
+    $tools_remove[] = 'functional_javascript';
+  }
+
+  $specs = tool_specs();
+
+  foreach ($tools_remove as $tool) {
+    if (!isset($specs[$tool])) {
+      continue;
+    }
+
+    $spec = $specs[$tool];
+
+    remove_tokens_with_content($spec['token']);
+
+    foreach ($spec['files'] as $file) {
+      @unlink($file);
+    }
+
+    foreach ($spec['dirs'] as $dir) {
+      remove_dir($dir);
+    }
+
+    remove_composer_dev_dependencies($spec['composer_dev'], $spec['composer_allow_plugins'], $spec['composer_extra']);
+  }
+
+  // The shared 'npm run lint' pipeline step covers ESLint and Stylelint;
+  // remove it only when both are gone.
+  if (in_array('eslint', $tools_remove, TRUE) && in_array('stylelint', $tools_remove, TRUE)) {
+    remove_tokens_with_content('DEV_NODEJS_LINT');
+  }
+
+  remove_npm($tools_remove);
+}
+
+/**
+ * Define the removal footprint for each selectable development tool.
+ *
+ * @return array<string, array{
+ *   token: string,
+ *   files: list<string>,
+ *   dirs: list<string>,
+ *   composer_dev: list<string>,
+ *   composer_allow_plugins: list<string>,
+ *   composer_extra: list<string>,
+ * }>
+ *   Map of tool machine name to its removal specification.
+ */
+function tool_specs(): array {
+  return [
+    'phpcs' => [
+      'token' => 'DEV_PHPCS',
+      'files' => ['phpcs.xml'],
+      'dirs' => [],
+      'composer_dev' => ['drupal/coder', 'drevops/phpcs-standard', 'dealerdirect/phpcodesniffer-composer-installer', 'phpcompatibility/php-compatibility'],
+      'composer_allow_plugins' => ['dealerdirect/phpcodesniffer-composer-installer'],
+      'composer_extra' => ['phpcodesniffer-search-depth'],
+    ],
+    'phpstan' => [
+      'token' => 'DEV_PHPSTAN',
+      'files' => ['phpstan.neon'],
+      'dirs' => [],
+      'composer_dev' => ['mglaman/phpstan-drupal', 'phpstan/phpstan-phpunit', 'phpstan/extension-installer', 'jangregor/phpstan-prophecy'],
+      'composer_allow_plugins' => ['phpstan/extension-installer'],
+      'composer_extra' => [],
+    ],
+    'rector' => [
+      'token' => 'DEV_RECTOR',
+      'files' => ['rector.php'],
+      'dirs' => [],
+      'composer_dev' => ['palantirnet/drupal-rector'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'twigcs' => [
+      'token' => 'DEV_TWIGCS',
+      'files' => ['.twig-cs-fixer.php'],
+      'dirs' => [],
+      'composer_dev' => ['vincentlanglet/twig-cs-fixer'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'eslint' => [
+      'token' => 'DEV_ESLINT',
+      'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'stylelint' => [
+      'token' => 'DEV_STYLELINT',
+      'files' => ['.stylelintrc.js'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'cspell' => [
+      'token' => 'DEV_CSPELL',
+      'files' => ['.cspell.json'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'jest' => [
+      'token' => 'DEV_JEST',
+      'files' => ['jest.config.js', 'js/your_extension.test.js'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'phpunit' => [
+      'token' => 'DEV_PHPUNIT',
+      'files' => ['phpunit.xml', 'phpunit.d10.xml'],
+      'dirs' => ['tests'],
+      'composer_dev' => ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'functional_javascript' => [
+      'token' => 'DEV_FUNCTIONAL_JAVASCRIPT',
+      'files' => [],
+      'dirs' => ['tests/src/FunctionalJavascript'],
+      'composer_dev' => ['behat/mink', 'behat/mink-browserkit-driver', 'lullabot/mink-selenium2-driver', 'symfony/browser-kit', 'symfony/css-selector', 'symfony/dom-crawler'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'renovate' => [
+      'token' => 'DEV_RENOVATE',
+      'files' => ['renovate.json'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+  ];
+}
+
+/**
+ * Remove development dependencies and config keys from 'composer.dev.json'.
+ *
+ * @param array<string> $packages
+ *   The 'require-dev' package names to remove.
+ * @param array<string> $allow_plugins
+ *   The 'config.allow-plugins' keys to remove.
+ * @param array<string> $extra_keys
+ *   The 'extra' keys to remove.
+ */
+function remove_composer_dev_dependencies(array $packages, array $allow_plugins = [], array $extra_keys = []): void {
+  $file = 'composer.dev.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  foreach ($packages as $package) {
+    unset($config['require-dev'][$package]);
+  }
+
+  foreach ($allow_plugins as $plugin) {
+    unset($config['config']['allow-plugins'][$plugin]);
+  }
+
+  foreach ($extra_keys as $key) {
+    unset($config['extra'][$key]);
+  }
+
+  if (isset($config['config']['allow-plugins']) && $config['config']['allow-plugins'] === []) {
+    unset($config['config']['allow-plugins']);
+  }
+
+  if (isset($config['config']) && $config['config'] === []) {
+    unset($config['config']);
+  }
+
+  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+}
+
+/**
+ * Remove npm devDependencies and scripts for deselected JavaScript tools.
+ *
+ * The aggregate 'lint' and 'lint-fix' scripts chain per-language sub-scripts;
+ * after dropping a tool's sub-scripts they are rebuilt from the survivors (or
+ * removed when none remain). 'package.json' itself is kept - it still serves
+ * the example module JavaScript.
+ *
+ * @param array<string> $tools_remove
+ *   The machine names of the tools to remove.
+ */
+function remove_npm(array $tools_remove): void {
+  $npm_specs = npm_specs();
+  $remove = array_intersect($tools_remove, array_keys($npm_specs));
+  if ($remove === []) {
+    return;
+  }
+
+  $file = 'package.json';
+  if (!file_exists($file)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $dev_dependencies = is_array($config['devDependencies'] ?? NULL) ? $config['devDependencies'] : [];
+  $scripts = is_array($config['scripts'] ?? NULL) ? $config['scripts'] : [];
+
+  foreach ($remove as $tool) {
+    foreach ($npm_specs[$tool]['dev'] as $dep) {
+      unset($dev_dependencies[$dep]);
+    }
+
+    foreach ($npm_specs[$tool]['scripts'] as $script) {
+      unset($scripts[$script]);
+    }
+  }
+
+  $scripts = rebuild_npm_chain($scripts, 'lint', ['lint-js', 'lint-css']);
+  $scripts = rebuild_npm_chain($scripts, 'lint-fix', ['lint-fix-js', 'lint-fix-css']);
+  $config['scripts'] = $scripts;
+
+  if ($dev_dependencies === []) {
+    unset($config['devDependencies']);
+  }
+  else {
+    $config['devDependencies'] = $dev_dependencies;
+  }
+
+  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+}
+
+/**
+ * Define the npm removal footprint for each JavaScript tool.
+ *
+ * @return array<string, array{dev: list<string>, scripts: list<string>}>
+ *   Map of tool machine name to its 'devDependencies' and 'scripts' keys.
+ */
+function npm_specs(): array {
+  return [
+    'eslint' => [
+      'dev' => ['eslint', 'eslint-config-airbnb-base', 'eslint-config-prettier', 'eslint-plugin-import', 'eslint-plugin-jsdoc', 'eslint-plugin-no-jquery', 'eslint-plugin-prettier', 'eslint-plugin-yml', 'prettier', '@homer0/prettier-plugin-jsdoc'],
+      'scripts' => ['lint-js', 'lint-fix-js'],
+    ],
+    'stylelint' => [
+      'dev' => ['stylelint', 'stylelint-config-standard', 'stylelint-order'],
+      'scripts' => ['lint-css', 'lint-fix-css'],
+    ],
+    'cspell' => [
+      'dev' => ['cspell'],
+      'scripts' => ['lint-spell'],
+    ],
+    'jest' => [
+      'dev' => ['jest', 'jest-environment-jsdom'],
+      'scripts' => ['test'],
+    ],
+  ];
+}
+
+/**
+ * Rebuild an aggregate npm script from its surviving sub-scripts.
+ *
+ * @param array<string, mixed> $scripts
+ *   The 'scripts' map.
+ * @param string $name
+ *   The aggregate script name (e.g. 'lint').
+ * @param array<string> $parts
+ *   The sub-script names the aggregate chains (e.g. 'lint-js', 'lint-css').
+ *
+ * @return array<string, mixed>
+ *   The updated 'scripts' map.
+ */
+function rebuild_npm_chain(array $scripts, string $name, array $parts): array {
+  $surviving = array_values(array_filter($parts, static fn(string $part): bool => isset($scripts[$part])));
+
+  if ($surviving === []) {
+    unset($scripts[$name]);
+
+    return $scripts;
+  }
+
+  $scripts[$name] = implode(' && ', array_map(static fn(string $part): string => 'npm run ' . $part, $surviving));
+
+  return $scripts;
 }
 
 /**

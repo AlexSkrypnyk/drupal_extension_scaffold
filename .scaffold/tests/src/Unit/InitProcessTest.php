@@ -62,7 +62,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcess')]
   public function testProcess(string $name, string $machine_name, string $type, string $ci_provider, array $command_wrapper, array $expected_exists, array $expected_not_exists, array $expected_claude_allow, bool $info_yml_has_base_theme): void {
-    process($name, $machine_name, $type, $ci_provider, $command_wrapper, 'n');
+    process($name, $machine_name, $type, $ci_provider, $command_wrapper, [], 'n');
 
     foreach ($expected_exists as $path) {
       $this->assertFileExists(self::$sut . '/' . $path, 'Expected to exist: ' . $path);
@@ -199,11 +199,162 @@ final class InitProcessTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * @param array<string> $tools_remove
+   * @param array<string> $expected_not_exists
+   * @param array<string> $expected_composer_dev_absent
+   * @param array<string> $expected_package_json_absent
+   * @param array<string> $expected_pipeline_absent
+   */
+  #[DataProvider('dataProviderRemoveTools')]
+  public function testProcessRemovesTools(array $tools_remove, array $expected_not_exists, array $expected_composer_dev_absent, array $expected_package_json_absent, array $expected_pipeline_absent): void {
+    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy', 'makefile'], $tools_remove, 'n');
+
+    foreach ($expected_not_exists as $path) {
+      $this->assertFileDoesNotExist(self::$sut . '/' . $path, 'Expected removed: ' . $path);
+    }
+
+    $composer_dev = (string) file_get_contents(self::$sut . '/composer.dev.json');
+    foreach ($expected_composer_dev_absent as $needle) {
+      $this->assertStringNotContainsString($needle, $composer_dev, 'composer.dev.json should not contain: ' . $needle);
+    }
+
+    $package_json = (string) file_get_contents(self::$sut . '/package.json');
+    foreach ($expected_package_json_absent as $needle) {
+      $this->assertStringNotContainsString($needle, $package_json, 'package.json should not contain: ' . $needle);
+    }
+
+    $ahoy = (string) file_get_contents(self::$sut . '/.ahoy.yml');
+    $makefile = (string) file_get_contents(self::$sut . '/Makefile');
+    $gha = (string) file_get_contents(self::$sut . '/.github/workflows/test.yml');
+    foreach ($expected_pipeline_absent as $needle) {
+      $this->assertStringNotContainsString($needle, $ahoy, '.ahoy.yml should not contain: ' . $needle);
+      $this->assertStringNotContainsString($needle, $makefile, 'Makefile should not contain: ' . $needle);
+      $this->assertStringNotContainsString($needle, $gha, 'test.yml should not contain: ' . $needle);
+    }
+  }
+
+  public static function dataProviderRemoveTools(): \Iterator {
+    yield 'phpcs' => [
+      ['phpcs'],
+      ['phpcs.xml'],
+      ['drupal/coder', 'drevops/phpcs-standard', 'phpcompatibility/php-compatibility'],
+      [],
+      ['vendor/bin/phpcs', 'vendor/bin/phpcbf'],
+    ];
+
+    yield 'phpstan' => [
+      ['phpstan'],
+      ['phpstan.neon'],
+      ['mglaman/phpstan-drupal', 'phpstan/extension-installer'],
+      [],
+      ['vendor/bin/phpstan'],
+    ];
+
+    yield 'rector' => [
+      ['rector'],
+      ['rector.php'],
+      ['palantirnet/drupal-rector'],
+      [],
+      ['vendor/bin/rector'],
+    ];
+
+    yield 'twigcs' => [
+      ['twigcs'],
+      ['.twig-cs-fixer.php'],
+      ['vincentlanglet/twig-cs-fixer'],
+      [],
+      ['vendor/bin/twig-cs-fixer'],
+    ];
+
+    yield 'all php lint tools' => [
+      ['phpcs', 'phpstan', 'rector', 'twigcs'],
+      ['phpcs.xml', 'phpstan.neon', 'rector.php', '.twig-cs-fixer.php'],
+      ['drupal/coder', 'mglaman/phpstan-drupal', 'palantirnet/drupal-rector', 'vincentlanglet/twig-cs-fixer'],
+      [],
+      ['vendor/bin/phpcs', 'vendor/bin/phpcbf', 'vendor/bin/phpstan', 'vendor/bin/rector', 'vendor/bin/twig-cs-fixer'],
+    ];
+
+    yield 'eslint' => [
+      ['eslint'],
+      ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
+      [],
+      ['eslint-config-airbnb-base', 'eslint-plugin-prettier', '"prettier"', 'lint-js'],
+      [],
+    ];
+
+    yield 'stylelint' => [
+      ['stylelint'],
+      ['.stylelintrc.js'],
+      [],
+      ['stylelint-config-standard', 'stylelint-order', 'lint-css'],
+      [],
+    ];
+
+    yield 'cspell' => [
+      ['cspell'],
+      ['.cspell.json'],
+      [],
+      ['"cspell"', 'lint-spell'],
+      ['npm run lint-spell'],
+    ];
+
+    yield 'jest' => [
+      ['jest'],
+      ['jest.config.js', 'js/my_extension.test.js'],
+      [],
+      ['jest-environment-jsdom'],
+      ['npm test'],
+    ];
+
+    yield 'eslint and stylelint' => [
+      ['eslint', 'stylelint'],
+      ['.eslintrc.json', '.stylelintrc.js'],
+      [],
+      ['"eslint"', '"stylelint"', 'npm run lint-js', 'npm run lint-css'],
+      ['Running ESLint', 'NodeJS linters'],
+    ];
+
+    yield 'all npm tools' => [
+      ['eslint', 'stylelint', 'cspell', 'jest'],
+      ['.eslintrc.json', '.stylelintrc.js', '.cspell.json', 'jest.config.js', 'js/my_extension.test.js'],
+      [],
+      ['"eslint"', '"stylelint"', '"cspell"', '"jest"', 'devDependencies'],
+      ['Running ESLint', 'NodeJS linters', 'npm run lint-spell', 'npm test'],
+    ];
+
+    // Removing PHPUnit also removes the FunctionalJavascript layer (Mink and
+    // Selenium deps), per the normalisation in 'remove_tools()'.
+    yield 'phpunit' => [
+      ['phpunit'],
+      ['phpunit.xml', 'phpunit.d10.xml', 'tests'],
+      ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream', 'lullabot/mink-selenium2-driver', 'behat/mink'],
+      [],
+      ['vendor/bin/phpunit', 'selenium'],
+    ];
+
+    yield 'functional_javascript' => [
+      ['functional_javascript'],
+      ['tests/src/FunctionalJavascript'],
+      ['behat/mink', 'lullabot/mink-selenium2-driver', 'symfony/browser-kit'],
+      [],
+      ['selenium', 'functional-javascript'],
+    ];
+
+    yield 'renovate' => [
+      ['renovate'],
+      ['renovate.json'],
+      [],
+      [],
+      [],
+    ];
+  }
+
   public function testProcessThrowsOnInvalidClaudeSettingsJson(): void {
     file_put_contents(self::$sut . '/.claude/settings.json', '{invalid json');
 
     $this->expectException(\JsonException::class);
-    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], [], 'n');
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsStructure(): void {
@@ -211,13 +362,13 @@ final class InitProcessTest extends UnitTestCase {
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid .claude/settings.json structure.');
-    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], [], 'n');
   }
 
   public function testProcessSkipsWhenClaudeSettingsMissing(): void {
     @unlink(self::$sut . '/.claude/settings.json');
 
-    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], [], 'n');
 
     $this->assertFileExists(self::$sut . '/my_extension.info.yml');
     $this->assertFileDoesNotExist(self::$sut . '/.claude/settings.json');

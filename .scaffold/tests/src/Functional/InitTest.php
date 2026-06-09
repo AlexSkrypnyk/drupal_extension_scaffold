@@ -125,6 +125,55 @@ final class InitTest extends FunctionalTestCase {
         'remove_self' => 'false',
       ],
     ];
+
+    yield 'no_php_lint' => [
+      [
+        'tools_remove' => 'phpcs,phpstan,rector,twigcs',
+      ],
+    ];
+
+    yield 'no_js_lint' => [
+      [
+        'tools_remove' => 'eslint,stylelint',
+      ],
+    ];
+
+    yield 'no_cspell' => [
+      [
+        'tools_remove' => 'cspell',
+      ],
+    ];
+
+    yield 'no_jest' => [
+      [
+        'tools_remove' => 'jest',
+      ],
+    ];
+
+    yield 'no_funcjs' => [
+      [
+        'tools_remove' => 'functional_javascript',
+      ],
+    ];
+
+    yield 'no_phpunit' => [
+      [
+        'tools_remove' => 'phpunit',
+      ],
+    ];
+
+    yield 'no_renovate' => [
+      [
+        'tools_remove' => 'renovate',
+      ],
+    ];
+
+    yield 'minimal' => [
+      [
+        'command_wrapper' => 'ahoy,makefile',
+        'tools_remove' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
+      ],
+    ];
   }
 
   protected static function defaultAnswers(): array {
@@ -134,6 +183,7 @@ final class InitTest extends FunctionalTestCase {
       'type' => 'module',
       'ci_provider' => 'gha',
       'command_wrapper' => 'ahoy',
+      'tools_remove' => '',
       'remove_self' => 'true',
       'proceed' => 'true',
     ];
