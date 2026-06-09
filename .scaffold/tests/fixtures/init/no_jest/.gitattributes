@@ -1,8 +1,0 @@
-@@ -20,7 +20,6 @@
- .twig-cs-fixer.php export-ignore
- Makefile           export-ignore
- composer.dev.json  export-ignore
--jest.config.js     export-ignore
- package-lock.json  export-ignore
- package.json       export-ignore
- patches            export-ignore
