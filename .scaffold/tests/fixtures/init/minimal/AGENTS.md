@@ -1,7 +1,7 @@
 @@ -32,13 +32,6 @@
  
  **Testing:**
- - `make test` / `ahoy test` - Run all PHPUnit tests
+ - `make test` / `ahoy test` - Run all tests
 -- `make test-unit` / `ahoy test-unit` - Run unit tests only
 -- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 -- `make test-functional` / `ahoy test-functional` - Run functional tests only

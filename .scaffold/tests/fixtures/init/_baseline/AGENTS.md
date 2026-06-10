@@ -31,7 +31,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
-- `make test` / `ahoy test` - Run all PHPUnit tests
+- `make test` / `ahoy test` - Run all tests
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
 - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 - `make test-functional` / `ahoy test-functional` - Run functional tests only
