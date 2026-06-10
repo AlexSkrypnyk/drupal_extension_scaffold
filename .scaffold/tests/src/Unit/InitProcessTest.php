@@ -206,7 +206,7 @@ final class InitProcessTest extends UnitTestCase {
    * @param array<string> $expected_package_json_absent
    * @param array<string> $expected_pipeline_absent
    */
-  #[DataProvider('dataProviderRemoveTools')]
+  #[DataProvider('dataProviderProcessRemovesTools')]
   public function testProcessRemovesTools(array $tools_remove, array $expected_not_exists, array $expected_composer_dev_absent, array $expected_package_json_absent, array $expected_pipeline_absent): void {
     process('My Extension', 'my_extension', 'module', 'gha', ['ahoy', 'makefile'], $tools_remove, 'n');
 
@@ -234,7 +234,7 @@ final class InitProcessTest extends UnitTestCase {
     }
   }
 
-  public static function dataProviderRemoveTools(): \Iterator {
+  public static function dataProviderProcessRemovesTools(): \Iterator {
     yield 'phpcs' => [
       ['phpcs'],
       ['phpcs.xml'],
@@ -354,7 +354,7 @@ final class InitProcessTest extends UnitTestCase {
    * @param array<string> $tools_remove
    * @param array<string> $expected_absent
    */
-  #[DataProvider('dataProviderRemoveGitattributes')]
+  #[DataProvider('dataProviderProcessRemovesGitattributes')]
   public function testProcessRemovesGitattributes(array $tools_remove, array $expected_absent): void {
     process('My Extension', 'my_extension', 'module', 'gha', ['ahoy'], $tools_remove, 'n');
 
@@ -364,7 +364,7 @@ final class InitProcessTest extends UnitTestCase {
     }
   }
 
-  public static function dataProviderRemoveGitattributes(): \Iterator {
+  public static function dataProviderProcessRemovesGitattributes(): \Iterator {
     yield 'phpcs' => [['phpcs'], ['phpcs.xml']];
     yield 'phpstan' => [['phpstan'], ['phpstan.neon']];
     yield 'rector' => [['rector'], ['rector.php']];

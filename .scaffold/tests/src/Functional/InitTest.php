@@ -128,50 +128,50 @@ final class InitTest extends FunctionalTestCase {
 
     yield 'no_php_lint' => [
       [
-        'tools_remove' => 'phpcs,phpstan,rector,twigcs',
+        'tools' => 'eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
       ],
     ];
 
     yield 'no_js_lint' => [
       [
-        'tools_remove' => 'eslint,stylelint',
+        'tools' => 'phpcs,phpstan,rector,twigcs,cspell,jest,phpunit,functional_javascript,renovate',
       ],
     ];
 
     yield 'no_cspell' => [
       [
-        'tools_remove' => 'cspell',
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,jest,phpunit,functional_javascript,renovate',
       ],
     ];
 
     yield 'no_jest' => [
       [
-        'tools_remove' => 'jest',
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,phpunit,functional_javascript,renovate',
       ],
     ];
 
     yield 'no_funcjs' => [
       [
-        'tools_remove' => 'functional_javascript',
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,renovate',
       ],
     ];
 
     yield 'no_phpunit' => [
       [
-        'tools_remove' => 'phpunit',
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,functional_javascript,renovate',
       ],
     ];
 
     yield 'no_renovate' => [
       [
-        'tools_remove' => 'renovate',
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript',
       ],
     ];
 
     yield 'minimal' => [
       [
         'command_wrapper' => 'ahoy,makefile',
-        'tools_remove' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
+        'tools' => '',
       ],
     ];
   }
@@ -183,7 +183,7 @@ final class InitTest extends FunctionalTestCase {
       'type' => 'module',
       'ci_provider' => 'gha',
       'command_wrapper' => 'ahoy',
-      'tools_remove' => '',
+      'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
       'remove_self' => 'true',
       'proceed' => 'true',
     ];
