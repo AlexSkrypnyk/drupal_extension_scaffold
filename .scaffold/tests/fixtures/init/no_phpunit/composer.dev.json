@@ -23,12 +23,3 @@
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
      "config": {
-@@ -29,7 +20,7 @@
-     },
-     "extra": {
-         "phpcodesniffer-search-depth": 10,
--        "patches": {},
-+        "patches": [],
-         "drupal-scaffold": {
-             "file-mapping": {
-                 "[web-root]/.eslintrc.json": false

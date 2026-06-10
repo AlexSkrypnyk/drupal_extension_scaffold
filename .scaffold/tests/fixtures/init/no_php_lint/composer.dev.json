@@ -1,4 +1,4 @@
-@@ -2,34 +2,17 @@
+@@ -2,33 +2,16 @@
      "require-dev": {
          "behat/mink": "__VERSION__",
          "behat/mink-browserkit-driver": "__VERSION__",
@@ -30,8 +30,6 @@
 -    },
      "extra": {
 -        "phpcodesniffer-search-depth": 10,
--        "patches": {},
-+        "patches": [],
+         "patches": {},
          "drupal-scaffold": {
              "file-mapping": {
-                 "[web-root]/.eslintrc.json": false

@@ -37,6 +37,6 @@
 -                "[web-root]/.eslintrc.json": false
 -            }
 -        }
-+        "patches": []
++        "patches": {}
      }
  }
