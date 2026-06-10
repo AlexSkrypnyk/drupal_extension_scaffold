@@ -672,7 +672,12 @@ function remove_composer_dev_dependencies(array $packages, array $allow_plugins 
     }
   }
 
-  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write ' . $file . '.');
+    // @codeCoverageIgnoreEnd
+  }
 }
 
 /**
@@ -727,7 +732,12 @@ function remove_composer_scaffold_mapping(string $mapping): void {
     unset($config['extra']['drupal-scaffold']);
   }
 
-  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write ' . $file . '.');
+    // @codeCoverageIgnoreEnd
+  }
 }
 
 /**
@@ -793,7 +803,12 @@ function remove_npm(array $tools_remove): void {
     $config['devDependencies'] = $dev_dependencies;
   }
 
-  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write ' . $file . '.');
+    // @codeCoverageIgnoreEnd
+  }
 }
 
 /**
@@ -1064,7 +1079,12 @@ function normalise_cspell_words(): void {
   sort($words, SORT_FLAG_CASE | SORT_STRING);
   $config['words'] = $words;
 
-  file_put_contents('.cspell.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents('.cspell.json', $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write .cspell.json.');
+    // @codeCoverageIgnoreEnd
+  }
 }
 
 /**
