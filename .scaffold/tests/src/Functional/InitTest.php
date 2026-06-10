@@ -168,7 +168,7 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'minimal' => [
+    yield 'no_tools' => [
       [
         'command_wrapper' => 'ahoy,makefile',
         'tools' => '',
