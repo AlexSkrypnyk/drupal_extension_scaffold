@@ -615,6 +615,29 @@ function tool_specs(): array {
 }
 
 /**
+ * Write 'composer.dev.json', keeping its empty 'patches' map a JSON object.
+ *
+ * 'json_decode()' turns the template's empty '"patches": {}' into an array,
+ * which would re-encode as '[]'; restore it to an object so the manifest keeps
+ * its original shape.
+ *
+ * @param array<int|string, mixed> $config
+ *   The decoded and modified configuration.
+ */
+function write_composer_dev_json(array $config): void {
+  if (isset($config['extra']) && is_array($config['extra']) && ($config['extra']['patches'] ?? NULL) === []) {
+    $config['extra']['patches'] = new \stdClass();
+  }
+
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents('composer.dev.json', $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write composer.dev.json.');
+    // @codeCoverageIgnoreEnd
+  }
+}
+
+/**
  * Remove development dependencies and config keys from 'composer.dev.json'.
  *
  * @param array<string> $packages
@@ -625,6 +648,10 @@ function tool_specs(): array {
  *   The 'extra' keys to remove.
  */
 function remove_composer_dev_dependencies(array $packages, array $allow_plugins = [], array $extra_keys = []): void {
+  if ($packages === [] && $allow_plugins === [] && $extra_keys === []) {
+    return;
+  }
+
   $file = 'composer.dev.json';
   if (!file_exists($file)) {
     return;
@@ -672,12 +699,7 @@ function remove_composer_dev_dependencies(array $packages, array $allow_plugins 
     }
   }
 
-  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
-    // @codeCoverageIgnoreStart
-    throw new \RuntimeException('Unable to write ' . $file . '.');
-    // @codeCoverageIgnoreEnd
-  }
+  write_composer_dev_json($config);
 }
 
 /**
@@ -732,12 +754,7 @@ function remove_composer_scaffold_mapping(string $mapping): void {
     unset($config['extra']['drupal-scaffold']);
   }
 
-  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
-    // @codeCoverageIgnoreStart
-    throw new \RuntimeException('Unable to write ' . $file . '.');
-    // @codeCoverageIgnoreEnd
-  }
+  write_composer_dev_json($config);
 }
 
 /**
@@ -804,6 +821,8 @@ function remove_npm(array $tools_remove): void {
   }
 
   $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  // JSON_PRETTY_PRINT indents with four spaces; package.json uses two.
+  $encoded = preg_replace_callback('/^ +/m', static fn(array $m): string => str_repeat(' ', intdiv(strlen($m[0]), 2)), $encoded) ?? $encoded;
   if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
     // @codeCoverageIgnoreStart
     throw new \RuntimeException('Unable to write ' . $file . '.');
