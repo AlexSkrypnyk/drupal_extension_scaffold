@@ -1,4 +1,4 @@
-@@ -170,25 +170,12 @@
+@@ -170,24 +170,10 @@
  make test-unit                    # Run Unit tests
  make test-kernel                  # Run Kernel tests
  make test-functional              # Run Functional tests
@@ -8,8 +8,8 @@
  ahoy test-kernel                  # Run Kernel tests
  ahoy test-functional              # Run Functional tests
 -ahoy test-functional-javascript   # Run FunctionalJavascript tests
- ```
- 
+-```
+-
 -### Running FunctionalJavascript tests
 -
 -FunctionalJavascript tests require a browser controlled via WebDriver.
@@ -20,7 +20,6 @@
 -ahoy provision
 -ahoy test-functional-javascript
 -ahoy selenium-stop
--```
+ ```
  
  ### Running specific tests
- 

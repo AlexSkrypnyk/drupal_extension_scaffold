@@ -6,22 +6,23 @@
  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/force_crystal/force_crystal)
  ![LICENSE](https://img.shields.io/github/license/force_crystal/force_crystal)
  ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
-@@ -160,56 +159,8 @@
+@@ -159,57 +158,6 @@
+ ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
- 
+-
 -The tests are located in the `tests/src` directory. The `phpunit.xml` file
 -configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
 -`core/tests/bootstrap.php` to bootstrap the Drupal environment before running
 -the tests.
- 
+-
 -The `test` command is a wrapper for multiple test commands:
 -```bash
 -make test-unit                    # Run Unit tests
 -make test-kernel                  # Run Kernel tests
 -make test-functional              # Run Functional tests
 -make test-functional-javascript   # Run FunctionalJavascript tests
- 
+-
 -ahoy test-unit                    # Run Unit tests
 -ahoy test-kernel                  # Run Kernel tests
 -ahoy test-functional              # Run Functional tests
