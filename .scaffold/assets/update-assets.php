@@ -22,8 +22,12 @@
  * Usage:
  * @code
  * php .scaffold/assets/update-assets.php
+ * php .scaffold/assets/update-assets.php init
  * php .scaffold/assets/update-assets.php --record init --workspace /tmp/ws
  * @endcode
+ *
+ * Passing one or more asset names (init, build, lint, test) regenerates only
+ * those assets; with none, every asset is regenerated.
  */
 
 declare(strict_types=1);
@@ -81,8 +85,12 @@ function getJobs(string $workspace_dir): array {
  *
  * Runs init first (it modifies the workspace), then launches build/lint/test
  * as parallel worker processes.
+ *
+ * @param array<string> $only
+ *   Optional list of asset names to regenerate (e.g. ['init']). When empty,
+ *   every asset is regenerated.
  */
-function main(): void {
+function main(array $only = []): void {
   $script_dir = dirname(__FILE__);
   $project_dir = dirname($script_dir, 2);
   $assets_dir = $script_dir;
@@ -100,6 +108,15 @@ function main(): void {
   info('');
 
   $jobs = getJobs($workspace_dir);
+
+  if ($only !== []) {
+    $unknown = array_diff($only, array_keys($jobs));
+    if ($unknown !== []) {
+      throw new \RuntimeException('Unknown asset(s): ' . implode(', ', $unknown));
+    }
+    $jobs = array_intersect_key($jobs, array_flip($only));
+  }
+
   $tmp_dir = $workspace_dir . '/tmp';
   if (!is_dir($tmp_dir)) {
     mkdir($tmp_dir, 0755, TRUE);
@@ -122,7 +139,7 @@ function main(): void {
 
   // Init and build run sequentially — init processes the workspace, build
   // assembles the Drupal codebase that lint and test need.
-  foreach (['init', 'build'] as $name) {
+  foreach (array_filter(['init', 'build'], static fn(string $name): bool => isset($jobs[$name])) as $name) {
     info('--- Recording: ' . $name . ' ---');
     $result = runWorker($script_path, $name, $workspace_dir, $project_dir);
     if ($result['exit_code'] !== 0) {
@@ -136,7 +153,7 @@ function main(): void {
   }
 
   // Lint and test run in parallel on the built workspace.
-  $parallel_jobs = ['lint', 'test'];
+  $parallel_jobs = array_values(array_filter(['lint', 'test'], static fn(string $name): bool => isset($jobs[$name])));
   $processes = [];
   $pipes_list = [];
 
@@ -704,8 +721,10 @@ try {
     processOne($argv[$record_index + 1], $argv[$workspace_index + 1]);
   }
   else {
-    // Orchestrator mode.
-    main();
+    // Orchestrator mode — optional positional asset names limit the run to a
+    // subset (e.g. "init"); with none, every asset is regenerated.
+    $only = array_values(array_filter(array_slice($argv, 1), static fn(string $arg): bool => !str_starts_with($arg, '-')));
+    main($only);
   }
 }
 catch (\Exception $exception) {
