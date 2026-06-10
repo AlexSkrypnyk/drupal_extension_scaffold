@@ -70,6 +70,7 @@
         "squiz",
         "stty",
         "testmode",
+        "twigcs",
         "twigcsfixer",
         "updatedb",
         "vfsstream",
