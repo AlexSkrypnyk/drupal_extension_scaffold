@@ -31,7 +31,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
-- `make test` / `ahoy test` - Run all PHPUnit tests
+- `make test` / `ahoy test` - Run all tests
 <!-- #;< DEV_PHPUNIT -->
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
 - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
