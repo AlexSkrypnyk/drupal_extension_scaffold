@@ -12,7 +12,15 @@
  
  ### Drupal Commands
  
-@@ -88,11 +81,6 @@
+@@ -53,7 +46,6 @@
+ 
+ **Key Directories:**
+ - `src/` - Extension source code (services, forms, etc.)
+-- `tests/src/` - PHPUnit tests (Unit/, Kernel/, Functional/)
+ - `config/schema/` - Configuration schema definitions
+ - `build/` - Assembled Drupal codebase (symlinked extension)
+ - `.devtools/` - Build and deployment scripts used by CI
+@@ -88,11 +80,6 @@
  
  ## Code Quality Tools
  

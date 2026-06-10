@@ -1,4 +1,4 @@
-@@ -1,35 +1,9 @@
+@@ -1,39 +1,8 @@
  {
      "require-dev": {
 -        "behat/mink": "__VERSION__",
@@ -32,7 +32,11 @@
      "extra": {
 -        "phpcodesniffer-search-depth": 10,
 -        "patches": {},
-+        "patches": [],
-         "drupal-scaffold": {
-             "file-mapping": {
-                 "[web-root]/.eslintrc.json": false
+-        "drupal-scaffold": {
+-            "file-mapping": {
+-                "[web-root]/.eslintrc.json": false
+-            }
+-        }
++        "patches": []
+     }
+ }

@@ -27,7 +27,7 @@ This is a Force Crystal template for creating contributed modules or themes. The
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (cspell, phpcs, phpstan, rector dry-run, twig-cs-fixer, eslint, stylelint)
+- `make lint` / `ahoy lint` - Run all linting tools
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**

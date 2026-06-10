@@ -1,5 +1,13 @@
-@@ -178,17 +178,6 @@
- ahoy test-functional-javascript   # Run FunctionalJavascript tests
+@@ -170,25 +170,12 @@
+ make test-unit                    # Run Unit tests
+ make test-kernel                  # Run Kernel tests
+ make test-functional              # Run Functional tests
+-make test-functional-javascript   # Run FunctionalJavascript tests
+ 
+ ahoy test-unit                    # Run Unit tests
+ ahoy test-kernel                  # Run Kernel tests
+ ahoy test-functional              # Run Functional tests
+-ahoy test-functional-javascript   # Run FunctionalJavascript tests
  ```
  
 -### Running FunctionalJavascript tests
