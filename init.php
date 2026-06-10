@@ -474,6 +474,10 @@ function remove_tools(array $tools_remove): void {
     }
 
     remove_composer_dev_dependencies($spec['composer_dev'], $spec['composer_allow_plugins'], $spec['composer_extra']);
+
+    foreach ($spec['composer_scaffold_mappings'] ?? [] as $mapping) {
+      remove_composer_scaffold_mapping($mapping);
+    }
   }
 
   // The shared 'npm run lint' pipeline step covers ESLint and Stylelint;
@@ -495,6 +499,7 @@ function remove_tools(array $tools_remove): void {
  *   composer_dev: list<string>,
  *   composer_allow_plugins: list<string>,
  *   composer_extra: list<string>,
+ *   composer_scaffold_mappings?: list<string>,
  *   }>
  *   Map of tool machine name to its removal specification.
  */
@@ -549,6 +554,7 @@ function tool_specs(): array {
       'composer_dev' => [],
       'composer_allow_plugins' => [],
       'composer_extra' => [],
+      'composer_scaffold_mappings' => ['[web-root]/.eslintrc.json'],
     ],
     'stylelint' => [
       'token' => 'DEV_STYLELINT',
@@ -664,6 +670,61 @@ function remove_composer_dev_dependencies(array $packages, array $allow_plugins 
     if ($config['config'] === []) {
       unset($config['config']);
     }
+  }
+
+  file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);
+}
+
+/**
+ * Remove a 'drupal-scaffold' file-mapping entry from 'composer.dev.json'.
+ *
+ * The 'extra.drupal-scaffold.file-mapping' block is nested, so the generic
+ * 'composer_extra' top-level key removal cannot reach it. Empty 'file-mapping'
+ * and 'drupal-scaffold' parents are pruned once their last child is gone.
+ *
+ * @param string $mapping
+ *   The file-mapping key to remove (e.g. '[web-root]/.eslintrc.json').
+ */
+function remove_composer_scaffold_mapping(string $mapping): void {
+  $file = 'composer.dev.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  if (!isset($config['extra']) || !is_array($config['extra'])) {
+    return;
+  }
+
+  if (!isset($config['extra']['drupal-scaffold']) || !is_array($config['extra']['drupal-scaffold'])) {
+    return;
+  }
+
+  if (!isset($config['extra']['drupal-scaffold']['file-mapping']) || !is_array($config['extra']['drupal-scaffold']['file-mapping'])) {
+    return;
+  }
+
+  unset($config['extra']['drupal-scaffold']['file-mapping'][$mapping]);
+
+  if ($config['extra']['drupal-scaffold']['file-mapping'] === []) {
+    unset($config['extra']['drupal-scaffold']['file-mapping']);
+  }
+
+  if ($config['extra']['drupal-scaffold'] === []) {
+    unset($config['extra']['drupal-scaffold']);
   }
 
   file_put_contents($file, json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . PHP_EOL);

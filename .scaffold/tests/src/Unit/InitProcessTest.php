@@ -278,7 +278,7 @@ final class InitProcessTest extends UnitTestCase {
     yield 'eslint' => [
       ['eslint'],
       ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
-      [],
+      ['[web-root]/.eslintrc.json', 'drupal-scaffold'],
       ['eslint-config-airbnb-base', 'eslint-plugin-prettier', '"prettier"', 'lint-js'],
       [],
     ];
