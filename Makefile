@@ -18,7 +18,16 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+#;< DEV_PHPUNIT
+.PHONY: test-unit test-kernel test-functional
+#;> DEV_PHPUNIT
+#;< DEV_FUNCTIONAL_JAVASCRIPT
+.PHONY: test-functional-javascript selenium-start selenium-stop
+#;> DEV_FUNCTIONAL_JAVASCRIPT
+#;< DEV_JEST
+.PHONY: test-js
+#;> DEV_JEST
 
 help:
 	@echo "COMMANDS"
@@ -36,13 +45,23 @@ help:
 	@echo "start           - Start development environment."
 	@echo "stop            - Stop development environment."
 	@echo "test                       - Run all tests."
+	@#;< DEV_PHPUNIT
 	@echo "test-functional            - Run functional tests."
+	@#;> DEV_PHPUNIT
+	@#;< DEV_FUNCTIONAL_JAVASCRIPT
 	@echo "test-functional-javascript - Run FunctionalJavascript tests."
+	@#;> DEV_FUNCTIONAL_JAVASCRIPT
+	@#;< DEV_PHPUNIT
 	@echo "test-kernel                - Run kernel tests."
 	@echo "test-unit                  - Run unit tests."
+	@#;> DEV_PHPUNIT
+	@#;< DEV_FUNCTIONAL_JAVASCRIPT
 	@echo "selenium-start             - Start Selenium container."
 	@echo "selenium-stop              - Stop Selenium container."
+	@#;> DEV_FUNCTIONAL_JAVASCRIPT
+	@#;< DEV_JEST
 	@echo "test-js                    - Run JavaScript unit tests."
+	@#;> DEV_JEST
 
 build: stop assemble start provision
 
@@ -98,36 +117,61 @@ provision:
 	./.devtools/provision
 
 lint:
+	@#;< DEV_PHPCS
 	$(call title,Running PHPCS)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcs && popd >/dev/null || exit 1
+	@#;> DEV_PHPCS
+	@#;< DEV_PHPSTAN
 	$(call title,Running PHPStan)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpstan && popd >/dev/null || exit 1
+	@#;> DEV_PHPSTAN
+	@#;< DEV_RECTOR
 	$(call title,Running Rector)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/rector --clear-cache --dry-run && popd >/dev/null || exit 1
+	@#;> DEV_RECTOR
+	@#;< DEV_TWIGCS
 	$(call title,Running Twig CS Fixer)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer && popd >/dev/null || exit 1
+	@#;> DEV_TWIGCS
+	@#;< DEV_NODEJS_LINT
 	$(call title,Running ESLint)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint) && popd >/dev/null || exit 1
+	@#;> DEV_NODEJS_LINT
+	@#;< DEV_CSPELL
 	$(call title,Running CSpell)
 	[ -d node_modules ] || npm install --no-audit --no-fund
 	npm run lint-spell
+	@#;> DEV_CSPELL
 
 lint-fix:
+	@#;< DEV_RECTOR
 	$(call title,Running Rector)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/rector --clear-cache && popd >/dev/null || exit 1
+	@#;> DEV_RECTOR
+	@#;< DEV_PHPCS
 	$(call title,Running PHPCBF)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/phpcbf && popd >/dev/null || exit 1
+	@#;> DEV_PHPCS
+	@#;< DEV_TWIGCS
 	$(call title,Running Twig CS Fixer)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer --no-cache --fix && popd >/dev/null || exit 1
+	@#;> DEV_TWIGCS
+	@#;< DEV_NODEJS_LINT
 	$(call title,Running ESLint)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint-fix) && popd >/dev/null || exit 1
+	@#;> DEV_NODEJS_LINT
 
 test:
+	@#;< DEV_PHPUNIT
 	$(call title,Running PHPUnit)
 	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	@#;> DEV_PHPUNIT
+	@#;< DEV_JEST
 	$(call title,Running Jest)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm test) && popd >/dev/null || exit 1
+	@#;> DEV_JEST
 
+#;< DEV_PHPUNIT
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \
 	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit && \
@@ -142,12 +186,16 @@ test-functional:
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
+#;> DEV_PHPUNIT
 
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 test-functional-javascript: selenium-start
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 selenium-start:
 	@if curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
 		echo "Selenium container is already running."; \
@@ -164,11 +212,14 @@ selenium-start:
 
 selenium-stop:
 	docker rm -f selenium 2>/dev/null || true
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 
+#;< DEV_JEST
 test-js:
 	pushd "build" >/dev/null || exit 1 && \
 	([ ! -d node_modules ] || npm test) && \
 	popd >/dev/null || exit 1
+#;> DEV_JEST
 
 reset:
 	killall -9 php >/dev/null 2>&1 || true

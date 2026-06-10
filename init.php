@@ -43,7 +43,7 @@ declare(strict_types=1);
  * used as a part of other files.
  */
 // @phpstan-ignore-next-line
-class Prompty{protected static?self $_p0=NULL;protected?string $_p1=NULL;protected static bool $_p2=FALSE;protected array $_p3=[];protected array $_p4=[];protected $_p5;protected array $_p6=['bar'=>'│','completed'=>'◆','active'=>'◇','intro'=>'┌','outro'=>'└','radio_on'=>'●','radio_off'=>'○','check_on'=>'◼','check_off'=>'◻','hint_arrow'=>'↳',];protected array $_p7=['bar'=>'|','completed'=>'+','active'=>'o','intro'=>'#','outro'=>'#','radio_on'=>'(*)','radio_off'=>'( )','check_on'=>'[x]','check_off'=>'[ ]','hint_arrow'=>'-->',];protected array $_p8=[];protected array $_p9=['reset'=>"\033[0m",'dim'=>"\033[2m",'dim_italic'=>"\033[2;3m",'cyan'=>"\033[36m",'green'=>"\033[32m",'red'=>"\033[31m",'gray'=>"\033[90m",'bold'=>"\033[1m",'white'=>"\033[37m",];protected array $_p10=['indent'=>'  ','hint_indent'=>'    ','hint_cont'=>'      ',];protected array $_p11=['yes'=>'Yes','no'=>'No','cancelled'=>'(cancelled)','none'=>'None','separator'=>'/',];protected?bool $_p12=NULL;protected?bool $_p13=NULL;protected array $_p14=[];protected string $_p15='PROMPTY_';protected array $_p16=['1','true','yes'];protected array $_p17=['0','false','no'];protected function __construct(){if($this->_p12===NULL){$a=getenv('LANG')?:getenv('LC_ALL')?:getenv('LC_CTYPE')?:setlocale(LC_CTYPE,'0')?:'';$this->_p12=stripos($a,'utf')!==FALSE;}$this->_p8=$this->_p12?$this->_p6:$this->_p7;$this->_p14=$this->_p9;if($this->_p13===NULL){$b=getenv('NO_COLOR');$this->_p13=($b!==FALSE&&$b!=='')||getenv('TERM')==='dumb'?FALSE:TRUE;}if($this->_p13===FALSE){$this->_p9=array_fill_keys(array_keys($this->_p9),'');}}protected static function _m0():static{if(!static::$_p0 instanceof Prompty){static::$_p0=new static();}return static::$_p0;}public static function config():array{$c=static::_m0();return['symbols_unicode'=>$c->_p6,'symbols_ascii'=>$c->_p7,'symbols'=>$c->_p8,'colors'=>$c->_p9,'spacing'=>$c->_p10,'labels'=>$c->_p11,'unicode'=>$c->_p12,'ansi'=>$c->_p13,'env_prefix'=>$c->_p15,'truthy'=>$c->_p16,'falsy'=>$c->_p17,];}public static function results():array{return static::_m0()->_p3;}public static function version():string{return str_starts_with('0.4.0','__')?'development':'0.4.0';}public static function configure(?array $symbols_unicode=NULL,?array $symbols_ascii=NULL,?array $colors=NULL,?array $spacing=NULL,?array $labels=NULL,?bool $unicode=NULL,?bool $ansi=NULL,?string $env_prefix=NULL,?array $truthy=NULL,?array $falsy=NULL):void{$c=static::_m0();if($symbols_unicode!==NULL){$c->_p6=array_replace($c->_p6,$symbols_unicode);}if($symbols_ascii!==NULL){$c->_p7=array_replace($c->_p7,$symbols_ascii);}if($colors!==NULL){$c->_p14=array_replace($c->_p14,$colors);$c->_p9=array_replace($c->_p9,$colors);}if($spacing!==NULL){$c->_p10=array_replace($c->_p10,$spacing);}if($labels!==NULL){$c->_p11=array_replace($c->_p11,$labels);}if($unicode!==NULL){$c->_p12=$unicode;}if($ansi!==NULL){$c->_p13=$ansi;}if($env_prefix!==NULL){$c->_p15=$env_prefix;}if($truthy!==NULL){$c->_p16=$truthy;}if($falsy!==NULL){$c->_p17=$falsy;}$c->_p8=$c->_p12?$c->_p6:$c->_p7;$c->_p9=$c->_p13?$c->_p14:array_fill_keys(array_keys($c->_p14),'');}public static function flow(callable $steps,string|callable|null $intro=NULL,string|callable|null $outro=NULL,string|callable|null $cancelled=NULL,bool $numbering=FALSE,?array $symbols_unicode=NULL,?array $symbols_ascii=NULL,?array $colors=NULL,?array $spacing=NULL,?array $labels=NULL,?bool $unicode=NULL,?bool $ansi=NULL,?string $env_prefix=NULL,?array $truthy=NULL,?array $falsy=NULL):?array{if($symbols_unicode!==NULL||$symbols_ascii!==NULL||$colors!==NULL||$spacing!==NULL||$labels!==NULL||$unicode!==NULL||$ansi!==NULL||$env_prefix!==NULL||$truthy!==NULL||$falsy!==NULL){static::configure($symbols_unicode,$symbols_ascii,$colors,$spacing,$labels,$unicode,$ansi,$env_prefix,$truthy,$falsy);}$c=static::_m0();$c->_p3=[];static::$_p2=TRUE;$steps=$steps();$d=['numbering'=>$numbering,];$e=$c->_p5===NULL?(shell_exec('stty -g 2>/dev/null')?:NULL):NULL;if($e!==NULL){$e=trim($e);shell_exec('stty -echo -icanon min 1 time 0 2>/dev/null');register_shutdown_function(function()use($c,$e):void{$c->_m3($e);$c->_m5();});echo"\033[?25l";}if($intro!==NULL){is_callable($intro)?$intro($c->_p3):$c->_m8($c->_m9($intro));}$f=$c->_m19($steps,0,$d,'');if($f===FALSE){if($cancelled!==NULL){is_callable($cancelled)?$cancelled($c->_p3):$c->_m8($c->_m10($cancelled));}if($e!==NULL){$c->_m3($e);$c->_m5();}static::$_p2=FALSE;return NULL;}if($outro!==NULL){is_callable($outro)?$outro($c->_p3):$c->_m8($c->_m10($outro));}if($e!==NULL){$c->_m3($e);$c->_m5();}static::$_p2=FALSE;return $c->_p3;}public static function text(string $label,string $placeholder='',string $description='',mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|string|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|string|null=>static::text($label,placeholder:$placeholder,description:$description,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$k=$discovered??$ctx['env_value']??NULL;if($k!==NULL){$l=(string)$k;$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $l;}$m=function(string $n)use($c,$label,$placeholder,$description,$i,$_p4):array{$o=$c->_m1('█','cyan');$l=$n===''?$c->_m1($placeholder,'gray').$o:$c->_m1($n,'white').$o;if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);$lines[]=$c->_m2().$c->_p10['indent'].$l;$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);$lines[]=$c->_m2().$q.$l;$lines[]=$c->_m2().$q;return $lines;};$n='';$r=$c->_m8($m($n));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$n,$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$l=$n!==''?$n:$placeholder;$c->_m11($r,$c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $l;}if($s==='backspace'){if($n!==''){$n=mb_substr($n,0,-1);}}elseif($s==='space'){$n.=' ';}elseif(mb_strlen($s)===1&&ord($s)>=32){$n.=$s;}$r=$c->_m11($r,$m($n));}}public static function select(string $label,array $options=[],string $description='',array $hints=[],mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|string|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|string|null=>static::select($label,options:$options,description:$description,hints:$hints,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$t=array_keys($options);$u=array_values($options);$v=array_map(fn(int|string $s)=>$hints[$s]??'',$t);$k=$discovered??$ctx['env_value']??NULL;if($k!==NULL){$w=(string)$k;$l=$options[$w]??$w;$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $w;}$m=function(int $x)use($c,$label,$u,$description,$v,$i,$_p4):array{if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);foreach($u as $y=>$z){if($y===$x){$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8['radio_on'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y]));}}else{$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($z,'dim');}}$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);foreach($u as $y=>$z){if($y===$x){$lines[]=$c->_m2().$q.$c->_m1($c->_p8['radio_on'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y],$i,$_p4));}}else{$lines[]=$c->_m2().$q.$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($z,'dim');}}$lines[]=$c->_m2().$q;return $lines;};$x=0;$r=$c->_m8($m($x));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$u[$x],$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$c->_m11($r,$c->_m17($label,$u[$x],$i,$j,$_p4));if($h){$c->_m7();}return $t[$x];}if($s==='up'||$s==='left'){$x=($x-1+count($u))%count($u);}elseif($s==='down'||$s==='right'){$x=($x+1)%count($u);}$r=$c->_m11($r,$m($x));}}public static function multiselect(string $label,array $options=[],string $description='',array $hints=[],mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|null=>static::multiselect($label,options:$options,description:$description,hints:$hints,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$t=array_keys($options);$u=array_values($options);$v=array_map(fn(int|string $s)=>$hints[$s]??'',$t);$aa=$ctx['env_value']??NULL;$k=$discovered??($aa!==NULL?array_map(trim(...),explode(',',(string)$aa)):NULL);if($k!==NULL){$ab=is_array($k)?$k:[$k];$l=$ab!==[]?implode(', ',array_map(fn($s)=>$options[is_string($s)?$s:'']??(is_string($s)?$s:''),$ab)):$c->_p11['none'];$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $ab;}$m=function(int $x,array $ac)use($c,$label,$u,$description,$v,$i,$_p4):array{if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);foreach($u as $y=>$z){$ad=$ac[$y]??FALSE;if($y===$x){$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8[$ad?'check_on':'check_off'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y]));}}else{$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8[$ad?'check_on':'check_off'],$ad?'green':'dim').' '.($ad?$z:$c->_m1($z,'dim'));}}$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);foreach($u as $y=>$z){$ad=$ac[$y]??FALSE;if($y===$x){$lines[]=$c->_m2().$q.$c->_m1($c->_p8[$ad?'check_on':'check_off'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y],$i,$_p4));}}else{$lines[]=$c->_m2().$q.$c->_m1($c->_p8[$ad?'check_on':'check_off'],$ad?'green':'dim').' '.($ad?$z:$c->_m1($z,'dim'));}}$lines[]=$c->_m2().$q;return $lines;};$x=0;$ac=array_fill(0,count($u),FALSE);$r=$c->_m8($m($x,$ac));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,'',$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$ae=[];$af=[];foreach($u as $y=>$ag){if($ac[$y]){$ae[]=$t[$y];$af[]=$ag;}}$c->_m11($r,$c->_m17($label,$af!==[]?implode(', ',$af):$c->_p11['none'],$i,$j,$_p4));if($h){$c->_m7();}return $ae;}if($s==='space'){$ac[$x]=!$ac[$x];}elseif($s==='up'||$s==='left'){$x=($x-1+count($u))%count($u);}elseif($s==='down'||$s==='right'){$x=($x+1)%count($u);}$r=$c->_m11($r,$m($x,$ac));}}public static function confirm(string $label,bool $default=TRUE,string $description='',mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|bool|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|bool|\Closure|null=>static::confirm($label,default:$default,description:$description,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$truthy=$ctx['truthy']??['1','true','yes'];$falsy=$ctx['falsy']??['0','false','no'];$ah=$ctx['env_value']??NULL;if($discovered===NULL&&$ah!==NULL){$ai=strtolower((string)$ah);if(in_array($ai,$truthy,TRUE)){$discovered=TRUE;}elseif(in_array($ai,$falsy,TRUE)){$discovered=FALSE;}}if($discovered!==NULL){$c->_m8($c->_m17($label,$discovered?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return(bool)$discovered;}$m=function(bool $aj)use($c,$label,$description,$i,$_p4):array{$ak=$aj?$c->_m1($c->_p8['radio_on'],'green').' '.$c->_p11['yes'].' '.$c->_m1($c->_p11['separator'],'dim').' '.$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($c->_p11['no'],'dim'):$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($c->_p11['yes'],'dim').' '.$c->_m1($c->_p11['separator'],'dim').' '.$c->_m1($c->_p8['radio_on'],'green').' '.$c->_p11['no'];if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);$lines[]=$c->_m2().$c->_p10['indent'].$ak;$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);$lines[]=$c->_m2().$q.$ak;$lines[]=$c->_m2().$q;return $lines;};$al=$default;$r=$c->_m8($m($al));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$al?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$c->_m11($r,$c->_m17($label,$al?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return $al;}if(in_array($s,['left','right','up','down','tab'],TRUE)){$al=!$al;}elseif($s==='y'||$s==='Y'){$al=TRUE;}elseif($s==='n'||$s==='N'){$al=FALSE;}$r=$c->_m11($r,$m($al));}}public static function intro(string $message):void{$c=static::_m0();$c->_m8($c->_m9($message));}public static function outro(string $message):void{$c=static::_m0();$c->_m8($c->_m10($message));}public static function output(array $lines):int{return static::_m0()->_m8($lines);}protected function _m1(string $am,string $an):string{return isset($this->_p9[$an])?$this->_p9[$an].$am.$this->_p9['reset']:$am;}protected function _m2():string{return $this->_m1($this->_p8['bar'],'gray');}protected function _m3(string $ao):void{shell_exec('stty '.$ao.' 2>/dev/null');}protected function _m4():string{$ap=$this->_p5??STDIN;$aq=fread($ap,1);if($aq===FALSE||$aq===''){return'';}return match($aq){"\x03"=>'ctrl-c',"\n","\r"=>'enter',"\x7f","\x08"=>'backspace',"\t"=>'tab',' '=>'space',"\x1b"=>match(fread($ap,2)){'[A'=>'up','[B'=>'down','[C'=>'right','[D'=>'left',default=>'escape',},default=>$aq,};}protected function _m5():void{echo"\033[?25h";}protected function _m6():void{$this->_p1=$this->_p5===NULL?(shell_exec('stty -g 2>/dev/null')?:NULL):NULL;if($this->_p1!==NULL){$this->_p1=trim($this->_p1);shell_exec('stty -echo -icanon min 1 time 0 2>/dev/null');echo"\033[?25l";}}protected function _m7():void{if($this->_p1!==NULL){$this->_m3($this->_p1);$this->_m5();$this->_p1=NULL;}}protected function _m8(array $lines):int{echo implode(PHP_EOL,$lines).PHP_EOL;return count($lines);}protected function _m9(string $message):array{return['',$this->_m1($this->_p8['intro'],'gray').$this->_p10['indent'].$this->_m1($message,'bold'),$this->_m2(),];}protected function _m10(string $message):array{return[$this->_m2(),$this->_m1($this->_p8['outro'],'gray').$this->_p10['indent'].$this->_m1($message,'green'),'',];}protected function _m11(int $ar,array $lines):int{if($ar>0){echo"\033[{$ar}A\r\033[J";}return $this->_m8($lines);}protected function _m12(int $i,array $_p4):string{$as='  ';for($at=1;$at<$i;$at++){$as.=($_p4[$at]??FALSE)?$this->_m1($this->_p8['bar'],'gray').'  ':'   ';}return $as;}protected function _m13(int $i,array $_p4):string{$as='  ';for($at=1;$at<=$i;$at++){$as.=($_p4[$at]??FALSE)?$this->_m1($this->_p8['bar'],'gray').'  ':'   ';}return $as;}protected function _m14(string $description,int $i=0,array $_p4=[]):array{$q=$i>0?$this->_m13($i,$_p4):$this->_p10['indent'];$lines=array_map(fn(string $au):string=>$this->_m2().$q.$this->_m1($au,'dim_italic'),explode("\n",$description),);$lines[]=$this->_m2().($i>0?$this->_m13($i,$_p4):'');return $lines;}protected function _m15(string $av,int $i=0,array $_p4=[]):array{$q=$i>0?$this->_m13($i,$_p4):'';$aw=explode("\n",$av);return array_map(fn($au,$y):string=>$this->_m2().$q.($y===0?$this->_p10['hint_indent'].$this->_m1($this->_p8['hint_arrow'],'dim').' '.$this->_m1($au,'dim_italic'):$this->_p10['hint_cont'].$this->_m1($au,'dim_italic')),$aw,array_keys($aw),);}protected function _m16(string $label,array $ctx):string{if(isset($ctx['number'])){$ax=$ctx['number'];return $label.' '.$this->_m1('('.$ax.')','dim');}return $label;}protected function _m17(string $label,string $n,int $i=0,bool $j=FALSE,array $_p4=[]):array{if($i===0){return[$this->_m1($this->_p8['completed'],'cyan').$this->_p10['indent'].$label,$this->_m2().$this->_p10['indent'].$this->_m1($n,'dim'),$this->_m2(),];}$p=$this->_m2().$this->_m12($i,$_p4);$q=$this->_m13($i,$_p4);return[$p.$this->_m1($this->_p8['completed'],'cyan').$this->_p10['indent'].$label,$this->_m2().$q.$this->_m1($n,'dim'),$this->_m2().$q,];}protected function _m18(string $label,string $n,int $i=0,bool $j=FALSE,array $_p4=[]):array{if($i===0){return[$this->_m1($this->_p8['active'],'red').$this->_p10['indent'].$label,$this->_m2().$this->_p10['indent'].$this->_m1($n,'dim').$this->_m1(' '.$this->_p11['cancelled'],'red'),$this->_m2(),];}$p=$this->_m2().$this->_m12($i,$_p4);$q=$this->_m13($i,$_p4);return[$p.$this->_m1($this->_p8['active'],'red').$this->_p10['indent'].$label,$this->_m2().$q.$this->_m1($n,'dim').$this->_m1(' '.$this->_p11['cancelled'],'red'),$this->_m2().$q,];}protected function _m19(array $steps,int $i,array $options,string $ay):bool{$az=0;foreach($steps as $s=>$ba){if(is_callable($ba)){$bb=$ba;$condition=NULL;$children=[];}else{$bb=$ba['__call'];$condition=isset($ba['__condition'])&&is_callable($ba['__condition'])?$ba['__condition']:NULL;$children=is_array($ba['__children']??NULL)?$ba['__children']:[];}if($condition!==NULL&&!$condition($this->_p3)){continue;}$az++;$bc=FALSE;$bd=FALSE;foreach($steps as $be=>$bf){if(!$bd){if($be===$s){$bd=TRUE;}continue;}if(is_callable($bf)){$bc=TRUE;break;}$bg=isset($bf['__condition'])&&is_callable($bf['__condition'])?$bf['__condition']:NULL;if($bg===NULL||$bg($this->_p3)){$bc=TRUE;break;}}$j=$i>0&&!$bc;if($i>0){if($j){unset($this->_p4[$i]);}else{$this->_p4[$i]=TRUE;}}$ax=$ay!==''?$ay.'.'.$az:(string)$az;$aa=getenv($this->_p15.strtoupper((string)$s));$ctx=['depth'=>$i,'is_last'=>$j,'open'=>$this->_p4,'results'=>$this->_p3,'number'=>($options['numbering']??FALSE)?$ax:NULL,'env_value'=>$aa!==FALSE?$aa:NULL,'truthy'=>$this->_p16,'falsy'=>$this->_p17,];$n=$bb($ctx);if($n===NULL){return FALSE;}$this->_p3[$s]=$n;if($children!==[]){$bh=FALSE;foreach($children as $bi){if(is_callable($bi)){$bj=NULL;}else{$bj=isset($bi['__condition'])&&is_callable($bi['__condition'])?$bi['__condition']:NULL;}if($bj===NULL||$bj($this->_p3)){$bh=TRUE;break;}}if($bh){$bk=$i+1;$bl=$this->_m2().$this->_m12($bk,$this->_p4).$this->_m2();$this->_m8([$bl]);if(!$this->_m19($children,$bk,$options,$ax)){return FALSE;}}}}return TRUE;}}
+class Prompty{protected static?self $_p0=NULL;protected?string $_p1=NULL;protected static bool $_p2=FALSE;protected array $_p3=[];protected array $_p4=[];protected $_p5;protected array $_p6=['bar'=>'│','completed'=>'◆','active'=>'◇','intro'=>'┌','outro'=>'└','radio_on'=>'●','radio_off'=>'○','check_on'=>'◼','check_off'=>'◻','hint_arrow'=>'↳',];protected array $_p7=['bar'=>'|','completed'=>'+','active'=>'o','intro'=>'#','outro'=>'#','radio_on'=>'(*)','radio_off'=>'( )','check_on'=>'[x]','check_off'=>'[ ]','hint_arrow'=>'-->',];protected array $_p8=[];protected array $_p9=['reset'=>"\033[0m",'dim'=>"\033[2m",'dim_italic'=>"\033[2;3m",'cyan'=>"\033[36m",'green'=>"\033[32m",'red'=>"\033[31m",'gray'=>"\033[90m",'bold'=>"\033[1m",'white'=>"\033[37m",];protected array $_p10=['indent'=>'  ','hint_indent'=>'    ','hint_cont'=>'      ',];protected array $_p11=['yes'=>'Yes','no'=>'No','cancelled'=>'(cancelled)','none'=>'None','separator'=>'/',];protected?bool $_p12=NULL;protected?bool $_p13=NULL;protected array $_p14=[];protected string $_p15='PROMPTY_';protected array $_p16=['1','true','yes'];protected array $_p17=['0','false','no'];protected function __construct(){if($this->_p12===NULL){$a=getenv('LANG')?:getenv('LC_ALL')?:getenv('LC_CTYPE')?:setlocale(LC_CTYPE,'0')?:'';$this->_p12=stripos($a,'utf')!==FALSE;}$this->_p8=$this->_p12?$this->_p6:$this->_p7;$this->_p14=$this->_p9;if($this->_p13===NULL){$b=getenv('NO_COLOR');$this->_p13=($b!==FALSE&&$b!=='')||getenv('TERM')==='dumb'?FALSE:TRUE;}if($this->_p13===FALSE){$this->_p9=array_fill_keys(array_keys($this->_p9),'');}}protected static function _m0():static{if(!static::$_p0 instanceof Prompty){static::$_p0=new static();}return static::$_p0;}public static function config():array{$c=static::_m0();return['symbols_unicode'=>$c->_p6,'symbols_ascii'=>$c->_p7,'symbols'=>$c->_p8,'colors'=>$c->_p9,'spacing'=>$c->_p10,'labels'=>$c->_p11,'unicode'=>$c->_p12,'ansi'=>$c->_p13,'env_prefix'=>$c->_p15,'truthy'=>$c->_p16,'falsy'=>$c->_p17,];}public static function results():array{return static::_m0()->_p3;}public static function version():string{return str_starts_with('0.5.0','__')?'development':'0.5.0';}public static function configure(?array $symbols_unicode=NULL,?array $symbols_ascii=NULL,?array $colors=NULL,?array $spacing=NULL,?array $labels=NULL,?bool $unicode=NULL,?bool $ansi=NULL,?string $env_prefix=NULL,?array $truthy=NULL,?array $falsy=NULL):void{$c=static::_m0();if($symbols_unicode!==NULL){$c->_p6=array_replace($c->_p6,$symbols_unicode);}if($symbols_ascii!==NULL){$c->_p7=array_replace($c->_p7,$symbols_ascii);}if($colors!==NULL){$c->_p14=array_replace($c->_p14,$colors);$c->_p9=array_replace($c->_p9,$colors);}if($spacing!==NULL){$c->_p10=array_replace($c->_p10,$spacing);}if($labels!==NULL){$c->_p11=array_replace($c->_p11,$labels);}if($unicode!==NULL){$c->_p12=$unicode;}if($ansi!==NULL){$c->_p13=$ansi;}if($env_prefix!==NULL){$c->_p15=$env_prefix;}if($truthy!==NULL){$c->_p16=$truthy;}if($falsy!==NULL){$c->_p17=$falsy;}$c->_p8=$c->_p12?$c->_p6:$c->_p7;$c->_p9=$c->_p13?$c->_p14:array_fill_keys(array_keys($c->_p14),'');}public static function flow(callable $steps,string|callable|null $intro=NULL,string|callable|null $outro=NULL,string|callable|null $cancelled=NULL,bool $numbering=FALSE,?array $symbols_unicode=NULL,?array $symbols_ascii=NULL,?array $colors=NULL,?array $spacing=NULL,?array $labels=NULL,?bool $unicode=NULL,?bool $ansi=NULL,?string $env_prefix=NULL,?array $truthy=NULL,?array $falsy=NULL):?array{if($symbols_unicode!==NULL||$symbols_ascii!==NULL||$colors!==NULL||$spacing!==NULL||$labels!==NULL||$unicode!==NULL||$ansi!==NULL||$env_prefix!==NULL||$truthy!==NULL||$falsy!==NULL){static::configure($symbols_unicode,$symbols_ascii,$colors,$spacing,$labels,$unicode,$ansi,$env_prefix,$truthy,$falsy);}$c=static::_m0();$c->_p3=[];static::$_p2=TRUE;$steps=$steps();$d=['numbering'=>$numbering,];$e=$c->_p5===NULL?(shell_exec('stty -g 2>/dev/null')?:NULL):NULL;if($e!==NULL){$e=trim($e);shell_exec('stty -echo -icanon min 1 time 0 2>/dev/null');register_shutdown_function(function()use($c,$e):void{$c->_m3($e);$c->_m5();});echo"\033[?25l";}if($intro!==NULL){is_callable($intro)?$intro($c->_p3):$c->_m8($c->_m9($intro));}$f=$c->_m19($steps,0,$d,'');if($f===FALSE){if($cancelled!==NULL){is_callable($cancelled)?$cancelled($c->_p3):$c->_m8($c->_m10($cancelled));}if($e!==NULL){$c->_m3($e);$c->_m5();}static::$_p2=FALSE;return NULL;}if($outro!==NULL){is_callable($outro)?$outro($c->_p3):$c->_m8($c->_m10($outro));}if($e!==NULL){$c->_m3($e);$c->_m5();}static::$_p2=FALSE;return $c->_p3;}public static function text(string $label,string $default='',string $placeholder='',string $description='',mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|string|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|string|null=>static::text($label,default:$default,placeholder:$placeholder,description:$description,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$k=$discovered??$ctx['env_value']??NULL;if($k!==NULL){$l=(string)$k;$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $l;}$m=function(string $n)use($c,$label,$placeholder,$description,$i,$_p4):array{$o=$c->_m1('█','cyan');$l=$n===''?$c->_m1($placeholder,'gray').$o:$c->_m1($n,'white').$o;if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);$lines[]=$c->_m2().$c->_p10['indent'].$l;$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);$lines[]=$c->_m2().$q.$l;$lines[]=$c->_m2().$q;return $lines;};$n=$default;$r=$c->_m8($m($n));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$n,$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$l=$n!==''?$n:$placeholder;$c->_m11($r,$c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $l;}if($s==='backspace'){if($n!==''){$n=mb_substr($n,0,-1);}}elseif($s==='space'){$n.=' ';}elseif(mb_strlen($s)===1&&ord($s)>=32){$n.=$s;}$r=$c->_m11($r,$m($n));}}public static function select(string $label,array $options=[],string $default='',string $description='',array $hints=[],mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|string|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|string|null=>static::select($label,options:$options,default:$default,description:$description,hints:$hints,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$t=array_keys($options);$u=array_values($options);$v=array_map(fn(int|string $s)=>$hints[$s]??'',$t);$k=$discovered??$ctx['env_value']??NULL;if($k!==NULL){$w=(string)$k;$l=$options[$w]??$w;$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $w;}$m=function(int $x)use($c,$label,$u,$description,$v,$i,$_p4):array{if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);foreach($u as $y=>$z){if($y===$x){$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8['radio_on'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y]));}}else{$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($z,'dim');}}$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);foreach($u as $y=>$z){if($y===$x){$lines[]=$c->_m2().$q.$c->_m1($c->_p8['radio_on'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y],$i,$_p4));}}else{$lines[]=$c->_m2().$q.$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($z,'dim');}}$lines[]=$c->_m2().$q;return $lines;};$x=0;$aa=$default!==''?array_search($default,$t,TRUE):FALSE;if($aa!==FALSE){$x=(int)$aa;}$r=$c->_m8($m($x));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$u[$x],$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$c->_m11($r,$c->_m17($label,$u[$x],$i,$j,$_p4));if($h){$c->_m7();}return $t[$x];}if($s==='up'||$s==='left'){$x=($x-1+count($u))%count($u);}elseif($s==='down'||$s==='right'){$x=($x+1)%count($u);}$r=$c->_m11($r,$m($x));}}public static function multiselect(string $label,array $options=[],array $default=[],string $description='',array $hints=[],mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|\Closure|null=>static::multiselect($label,options:$options,default:$default,description:$description,hints:$hints,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$t=array_keys($options);$u=array_values($options);$v=array_map(fn(int|string $s)=>$hints[$s]??'',$t);$ab=$ctx['env_value']??NULL;$k=$discovered??($ab!==NULL?array_map(trim(...),explode(',',(string)$ab)):NULL);if($k!==NULL){$ac=is_array($k)?$k:[$k];$l=$ac!==[]?implode(', ',array_map(fn($s)=>$options[is_string($s)?$s:'']??(is_string($s)?$s:''),$ac)):$c->_p11['none'];$c->_m8($c->_m17($label,$l,$i,$j,$_p4));if($h){$c->_m7();}return $ac;}$m=function(int $x,array $ad)use($c,$label,$u,$description,$v,$i,$_p4):array{if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);foreach($u as $y=>$z){$ae=$ad[$y]??FALSE;if($y===$x){$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8[$ae?'check_on':'check_off'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y]));}}else{$lines[]=$c->_m2().$c->_p10['indent'].$c->_m1($c->_p8[$ae?'check_on':'check_off'],$ae?'green':'dim').' '.($ae?$z:$c->_m1($z,'dim'));}}$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);foreach($u as $y=>$z){$ae=$ad[$y]??FALSE;if($y===$x){$lines[]=$c->_m2().$q.$c->_m1($c->_p8[$ae?'check_on':'check_off'],'green').' '.$z;if(($v[$y]??'')!==''){$lines=array_merge($lines,$c->_m15($v[$y],$i,$_p4));}}else{$lines[]=$c->_m2().$q.$c->_m1($c->_p8[$ae?'check_on':'check_off'],$ae?'green':'dim').' '.($ae?$z:$c->_m1($z,'dim'));}}$lines[]=$c->_m2().$q;return $lines;};$x=0;$ad=array_map(static fn(string $s):bool=>in_array($s,$default,TRUE),$t);$r=$c->_m8($m($x,$ad));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,'',$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$af=[];$ag=[];foreach($u as $y=>$ah){if($ad[$y]){$af[]=$t[$y];$ag[]=$ah;}}$c->_m11($r,$c->_m17($label,$ag!==[]?implode(', ',$ag):$c->_p11['none'],$i,$j,$_p4));if($h){$c->_m7();}return $af;}if($s==='space'){$ad[$x]=!$ad[$x];}elseif($s==='up'||$s==='left'){$x=($x-1+count($u))%count($u);}elseif($s==='down'||$s==='right'){$x=($x+1)%count($u);}$r=$c->_m11($r,$m($x,$ad));}}public static function confirm(string $label,bool $default=TRUE,string $description='',mixed $discovered=NULL,?callable $condition=NULL,array $children=[],?array $ctx=NULL):\Closure|array|bool|null{if(static::$_p2&&$ctx===NULL){$g=fn(array $ctx):array|bool|\Closure|null=>static::confirm($label,default:$default,description:$description,discovered:$discovered,ctx:$ctx);if($condition!==NULL||$children!==[]){return['__call'=>$g,'__children'=>$children,'__condition'=>$condition];}return $g;}$c=static::_m0();$ctx??=['depth'=>0,'is_last'=>FALSE,'open'=>[],];$h=!static::$_p2;if($h){$c->_m6();}$i=$ctx['depth']??0;$j=$ctx['is_last']??FALSE;$_p4=$ctx['open']??[];$label=$c->_m16($label,$ctx);$truthy=$ctx['truthy']??['1','true','yes'];$falsy=$ctx['falsy']??['0','false','no'];$ai=$ctx['env_value']??NULL;if($discovered===NULL&&$ai!==NULL){$aj=strtolower((string)$ai);if(in_array($aj,$truthy,TRUE)){$discovered=TRUE;}elseif(in_array($aj,$falsy,TRUE)){$discovered=FALSE;}}if($discovered!==NULL){$c->_m8($c->_m17($label,$discovered?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return(bool)$discovered;}$m=function(bool $ak)use($c,$label,$description,$i,$_p4):array{$al=$ak?$c->_m1($c->_p8['radio_on'],'green').' '.$c->_p11['yes'].' '.$c->_m1($c->_p11['separator'],'dim').' '.$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($c->_p11['no'],'dim'):$c->_m1($c->_p8['radio_off'],'dim').' '.$c->_m1($c->_p11['yes'],'dim').' '.$c->_m1($c->_p11['separator'],'dim').' '.$c->_m1($c->_p8['radio_on'],'green').' '.$c->_p11['no'];if($i===0){$lines=[$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description):[$c->_m2()]);$lines[]=$c->_m2().$c->_p10['indent'].$al;$lines[]=$c->_m2();return $lines;}$p=$c->_m2().$c->_m12($i,$_p4);$q=$c->_m13($i,$_p4);$lines=[$p.$c->_m1($c->_p8['active'],'cyan').$c->_p10['indent'].$label];$lines=array_merge($lines,$description!==''?$c->_m14($description,$i,$_p4):[$c->_m2().$q]);$lines[]=$c->_m2().$q.$al;$lines[]=$c->_m2().$q;return $lines;};$am=$default;$r=$c->_m8($m($am));while(TRUE){$s=$c->_m4();if($s==='ctrl-c'||$s==='escape'){$c->_m11($r,$c->_m18($label,$am?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return NULL;}if($s==='enter'){$c->_m11($r,$c->_m17($label,$am?$c->_p11['yes']:$c->_p11['no'],$i,$j,$_p4));if($h){$c->_m7();}return $am;}if(in_array($s,['left','right','up','down','tab'],TRUE)){$am=!$am;}elseif($s==='y'||$s==='Y'){$am=TRUE;}elseif($s==='n'||$s==='N'){$am=FALSE;}$r=$c->_m11($r,$m($am));}}public static function intro(string $message):void{$c=static::_m0();$c->_m8($c->_m9($message));}public static function outro(string $message):void{$c=static::_m0();$c->_m8($c->_m10($message));}public static function output(array $lines):int{return static::_m0()->_m8($lines);}protected function _m1(string $an,string $ao):string{return isset($this->_p9[$ao])?$this->_p9[$ao].$an.$this->_p9['reset']:$an;}protected function _m2():string{return $this->_m1($this->_p8['bar'],'gray');}protected function _m3(string $ap):void{shell_exec('stty '.$ap.' 2>/dev/null');}protected function _m4():string{$aq=$this->_p5??STDIN;$ar=fread($aq,1);if($ar===FALSE||$ar===''){return'';}return match($ar){"\x03"=>'ctrl-c',"\n","\r"=>'enter',"\x7f","\x08"=>'backspace',"\t"=>'tab',' '=>'space',"\x1b"=>match(fread($aq,2)){'[A'=>'up','[B'=>'down','[C'=>'right','[D'=>'left',default=>'escape',},default=>$ar,};}protected function _m5():void{echo"\033[?25h";}protected function _m6():void{$this->_p1=$this->_p5===NULL?(shell_exec('stty -g 2>/dev/null')?:NULL):NULL;if($this->_p1!==NULL){$this->_p1=trim($this->_p1);shell_exec('stty -echo -icanon min 1 time 0 2>/dev/null');echo"\033[?25l";}}protected function _m7():void{if($this->_p1!==NULL){$this->_m3($this->_p1);$this->_m5();$this->_p1=NULL;}}protected function _m8(array $lines):int{echo implode(PHP_EOL,$lines).PHP_EOL;return count($lines);}protected function _m9(string $message):array{return['',$this->_m1($this->_p8['intro'],'gray').$this->_p10['indent'].$this->_m1($message,'bold'),$this->_m2(),];}protected function _m10(string $message):array{return[$this->_m2(),$this->_m1($this->_p8['outro'],'gray').$this->_p10['indent'].$this->_m1($message,'green'),'',];}protected function _m11(int $as,array $lines):int{if($as>0){echo"\033[{$as}A\r\033[J";}return $this->_m8($lines);}protected function _m12(int $i,array $_p4):string{$at='  ';for($au=1;$au<$i;$au++){$at.=($_p4[$au]??FALSE)?$this->_m1($this->_p8['bar'],'gray').'  ':'   ';}return $at;}protected function _m13(int $i,array $_p4):string{$at='  ';for($au=1;$au<=$i;$au++){$at.=($_p4[$au]??FALSE)?$this->_m1($this->_p8['bar'],'gray').'  ':'   ';}return $at;}protected function _m14(string $description,int $i=0,array $_p4=[]):array{$q=$i>0?$this->_m13($i,$_p4):$this->_p10['indent'];$lines=array_map(fn(string $av):string=>$this->_m2().$q.$this->_m1($av,'dim_italic'),explode("\n",$description),);$lines[]=$this->_m2().($i>0?$this->_m13($i,$_p4):'');return $lines;}protected function _m15(string $aw,int $i=0,array $_p4=[]):array{$q=$i>0?$this->_m13($i,$_p4):'';$ax=explode("\n",$aw);return array_map(fn($av,$y):string=>$this->_m2().$q.($y===0?$this->_p10['hint_indent'].$this->_m1($this->_p8['hint_arrow'],'dim').' '.$this->_m1($av,'dim_italic'):$this->_p10['hint_cont'].$this->_m1($av,'dim_italic')),$ax,array_keys($ax),);}protected function _m16(string $label,array $ctx):string{if(isset($ctx['number'])){$ay=$ctx['number'];return $label.' '.$this->_m1('('.$ay.')','dim');}return $label;}protected function _m17(string $label,string $n,int $i=0,bool $j=FALSE,array $_p4=[]):array{if($i===0){return[$this->_m1($this->_p8['completed'],'cyan').$this->_p10['indent'].$label,$this->_m2().$this->_p10['indent'].$this->_m1($n,'dim'),$this->_m2(),];}$p=$this->_m2().$this->_m12($i,$_p4);$q=$this->_m13($i,$_p4);return[$p.$this->_m1($this->_p8['completed'],'cyan').$this->_p10['indent'].$label,$this->_m2().$q.$this->_m1($n,'dim'),$this->_m2().$q,];}protected function _m18(string $label,string $n,int $i=0,bool $j=FALSE,array $_p4=[]):array{if($i===0){return[$this->_m1($this->_p8['active'],'red').$this->_p10['indent'].$label,$this->_m2().$this->_p10['indent'].$this->_m1($n,'dim').$this->_m1(' '.$this->_p11['cancelled'],'red'),$this->_m2(),];}$p=$this->_m2().$this->_m12($i,$_p4);$q=$this->_m13($i,$_p4);return[$p.$this->_m1($this->_p8['active'],'red').$this->_p10['indent'].$label,$this->_m2().$q.$this->_m1($n,'dim').$this->_m1(' '.$this->_p11['cancelled'],'red'),$this->_m2().$q,];}protected function _m19(array $steps,int $i,array $options,string $az):bool{$ba=0;foreach($steps as $s=>$bb){if(is_callable($bb)){$bc=$bb;$condition=NULL;$children=[];}else{$bc=$bb['__call'];$condition=isset($bb['__condition'])&&is_callable($bb['__condition'])?$bb['__condition']:NULL;$children=is_array($bb['__children']??NULL)?$bb['__children']:[];}if($condition!==NULL&&!$condition($this->_p3)){continue;}$ba++;$bd=FALSE;$be=FALSE;foreach($steps as $bf=>$bg){if(!$be){if($bf===$s){$be=TRUE;}continue;}if(is_callable($bg)){$bd=TRUE;break;}$bh=isset($bg['__condition'])&&is_callable($bg['__condition'])?$bg['__condition']:NULL;if($bh===NULL||$bh($this->_p3)){$bd=TRUE;break;}}$j=$i>0&&!$bd;if($i>0){if($j){unset($this->_p4[$i]);}else{$this->_p4[$i]=TRUE;}}$ay=$az!==''?$az.'.'.$ba:(string)$ba;$ab=getenv($this->_p15.strtoupper((string)$s));$ctx=['depth'=>$i,'is_last'=>$j,'open'=>$this->_p4,'results'=>$this->_p3,'number'=>($options['numbering']??FALSE)?$ay:NULL,'env_value'=>$ab!==FALSE?$ab:NULL,'truthy'=>$this->_p16,'falsy'=>$this->_p17,];$n=$bc($ctx);if($n===NULL){return FALSE;}$this->_p3[$s]=$n;if($children!==[]){$bi=FALSE;foreach($children as $bj){if(is_callable($bj)){$bk=NULL;}else{$bk=isset($bj['__condition'])&&is_callable($bj['__condition'])?$bj['__condition']:NULL;}if($bk===NULL||$bk($this->_p3)){$bi=TRUE;break;}}if($bi){$bl=$i+1;$bm=$this->_m2().$this->_m12($bl,$this->_p4).$this->_m2();$this->_m8([$bm]);if(!$this->_m19($children,$bl,$options,$ay)){return FALSE;}}}}return TRUE;}}
 // @embed-end
 // phpcs:enable
 
@@ -65,6 +65,21 @@ function main(array $argv): void {
   // not suited to in-process unit testing. The functional 'InitTest'
   // exercises this path end-to-end via a subprocess.
   // @codeCoverageIgnoreStart
+  // The selectable development tools, all enabled by default.
+  $tool_options = [
+    'phpcs' => 'PHPCS',
+    'phpstan' => 'PHPStan',
+    'rector' => 'Rector',
+    'twigcs' => 'Twig CS Fixer',
+    'eslint' => 'ESLint',
+    'stylelint' => 'Stylelint',
+    'cspell' => 'CSpell',
+    'jest' => 'Jest',
+    'phpunit' => 'PHPUnit',
+    'functional_javascript' => 'FunctionalJavascript tests',
+    'renovate' => 'Renovate',
+  ];
+
   $results = Prompty::flow(
     fn(): array => [
       'name' => Prompty::text('Extension name', placeholder: 'My Extension'),
@@ -81,17 +96,24 @@ function main(array $argv): void {
         'ahoy' => 'Ahoy',
         'makefile' => 'Makefile',
       ]),
+      'tools' => Prompty::multiselect(
+        'Tools',
+        options: $tool_options,
+        default: array_keys($tool_options),
+        description: 'All tools are included by default. Uncheck any to remove from your project.',
+      ),
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
     ],
     intro: 'Drupal Extension Scaffold',
     outro: fn(array $r): string => sprintf(
-      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nWrapper: %s",
+      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nWrapper: %s\nRemoved tools: %s",
       $r['name'],
       $r['machine_name'],
       $r['type'],
       $r['ci_provider'],
       implode(', ', $r['command_wrapper'] ?: ['None']),
+      implode(', ', array_diff(array_keys($tool_options), array_filter((array) $r['tools'], static fn($v): bool => $v !== '')) ?: ['None']),
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
@@ -108,6 +130,9 @@ function main(array $argv): void {
   $ci_provider = (string) $results['ci_provider'];
   /** @var array<string> $command_wrapper */
   $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
+  /** @var array<string> $tools_keep */
+  $tools_keep = array_filter((array) $results['tools'], static fn($v): bool => $v !== '');
+  $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
   $remove_self = empty($results['remove_self']) ? 'n' : 'y';
 
   // Derive machine name from extension name if the user accepted placeholder.
@@ -115,7 +140,7 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $command_wrapper, $remove_self);
+  process($name, $machine_name, $type, $ci_provider, $command_wrapper, $tools_remove, $remove_self);
   // @codeCoverageIgnoreEnd
 }
 
@@ -140,6 +165,11 @@ Environment variables (to pre-fill prompts):
   PROMPTY_TYPE            Extension type: module or theme.
   PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
   PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
+  PROMPTY_TOOLS           Tools to keep: comma-separated. All are kept by
+                         default; list only the ones to keep to drop the rest.
+                         One or more of: phpcs, phpstan, rector, twigcs, eslint,
+                         stylelint, cspell, jest, phpunit, functional_javascript,
+                         renovate.
   PROMPTY_REMOVE_SELF     Remove this script: true or false.
   PROMPTY_PROCEED         Proceed with init: true or false.
 
@@ -160,10 +190,12 @@ EOF;
  *   The CI provider (gha or circleci).
  * @param array<string> $command_wrapper
  *   The selected command wrappers ('ahoy', 'makefile', or both).
+ * @param array<string> $tools_remove
+ *   The machine names of the development tools to remove.
  * @param string $remove_self
  *   Whether to remove this script ('y' or 'n').
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, array $tools_remove, string $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -230,6 +262,8 @@ function process(string $extension_name, string $extension_machine_name, string 
       // @codeCoverageIgnoreEnd
     }
   }
+
+  remove_tools($tools_remove);
 
   process_readme($extension_name);
 
@@ -400,6 +434,465 @@ function process_internal(string $extension_name, string $extension_machine_name
     @unlink('src/' . $extension_machine_name_class . 'Service.php');
     file_put_contents($extension_machine_name . '.info.yml', 'base theme: false' . PHP_EOL, FILE_APPEND);
   }
+}
+
+/**
+ * Remove deselected development tools from the project.
+ *
+ * Each tool's lines across the wrapper, CI, and configuration files are
+ * wrapped in '#;< DEV_<TOOL> ... #;> DEV_<TOOL>' markers; removing a tool
+ * strips those blocks, deletes its config files and directories, and drops
+ * its dependencies from 'composer.dev.json'. Markers for kept tools are
+ * stripped later by 'remove_special_comments()'.
+ *
+ * @param array<string> $tools_remove
+ *   The machine names of the tools to remove.
+ */
+function remove_tools(array $tools_remove): void {
+  // FunctionalJavascript tests require PHPUnit; removing PHPUnit removes them.
+  if (in_array('phpunit', $tools_remove, TRUE) && !in_array('functional_javascript', $tools_remove, TRUE)) {
+    $tools_remove[] = 'functional_javascript';
+  }
+
+  $specs = tool_specs();
+
+  foreach ($tools_remove as $tool) {
+    if (!isset($specs[$tool])) {
+      continue;
+    }
+
+    $spec = $specs[$tool];
+
+    remove_tokens_with_content($spec['token']);
+
+    foreach ($spec['files'] as $file) {
+      @unlink($file);
+    }
+
+    foreach ($spec['dirs'] as $dir) {
+      remove_dir($dir);
+    }
+
+    remove_composer_dev_dependencies($spec['composer_dev'], $spec['composer_allow_plugins'], $spec['composer_extra']);
+
+    foreach ($spec['composer_scaffold_mappings'] ?? [] as $mapping) {
+      remove_composer_scaffold_mapping($mapping);
+    }
+  }
+
+  // The shared 'npm run lint' pipeline step covers ESLint and Stylelint;
+  // remove it only when both are gone.
+  if (in_array('eslint', $tools_remove, TRUE) && in_array('stylelint', $tools_remove, TRUE)) {
+    remove_tokens_with_content('DEV_NODEJS_LINT');
+  }
+
+  remove_npm($tools_remove);
+}
+
+/**
+ * Define the removal footprint for each selectable development tool.
+ *
+ * @return array<string, array{
+ *   token: string,
+ *   files: list<string>,
+ *   dirs: list<string>,
+ *   composer_dev: list<string>,
+ *   composer_allow_plugins: list<string>,
+ *   composer_extra: list<string>,
+ *   composer_scaffold_mappings?: list<string>,
+ *   }>
+ *   Map of tool machine name to its removal specification.
+ */
+function tool_specs(): array {
+  return [
+    'phpcs' => [
+      'token' => 'DEV_PHPCS',
+      'files' => ['phpcs.xml'],
+      'dirs' => [],
+      'composer_dev' => [
+        'drupal/coder',
+        'drevops/phpcs-standard',
+        'dealerdirect/phpcodesniffer-composer-installer',
+        'phpcompatibility/php-compatibility',
+      ],
+      'composer_allow_plugins' => ['dealerdirect/phpcodesniffer-composer-installer'],
+      'composer_extra' => ['phpcodesniffer-search-depth'],
+    ],
+    'phpstan' => [
+      'token' => 'DEV_PHPSTAN',
+      'files' => ['phpstan.neon'],
+      'dirs' => [],
+      'composer_dev' => [
+        'mglaman/phpstan-drupal',
+        'phpstan/phpstan-phpunit',
+        'phpstan/extension-installer',
+        'jangregor/phpstan-prophecy',
+      ],
+      'composer_allow_plugins' => ['phpstan/extension-installer'],
+      'composer_extra' => [],
+    ],
+    'rector' => [
+      'token' => 'DEV_RECTOR',
+      'files' => ['rector.php'],
+      'dirs' => [],
+      'composer_dev' => ['palantirnet/drupal-rector'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'twigcs' => [
+      'token' => 'DEV_TWIGCS',
+      'files' => ['.twig-cs-fixer.php'],
+      'dirs' => [],
+      'composer_dev' => ['vincentlanglet/twig-cs-fixer'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'eslint' => [
+      'token' => 'DEV_ESLINT',
+      'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+      'composer_scaffold_mappings' => ['[web-root]/.eslintrc.json'],
+    ],
+    'stylelint' => [
+      'token' => 'DEV_STYLELINT',
+      'files' => ['.stylelintrc.js'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'cspell' => [
+      'token' => 'DEV_CSPELL',
+      'files' => ['.cspell.json'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'jest' => [
+      'token' => 'DEV_JEST',
+      'files' => ['jest.config.js', 'js/your_extension.test.js'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'phpunit' => [
+      'token' => 'DEV_PHPUNIT',
+      'files' => ['phpunit.xml', 'phpunit.d10.xml'],
+      'dirs' => ['tests'],
+      'composer_dev' => ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream'],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'functional_javascript' => [
+      'token' => 'DEV_FUNCTIONAL_JAVASCRIPT',
+      'files' => [],
+      'dirs' => ['tests/src/FunctionalJavascript'],
+      'composer_dev' => [
+        'behat/mink',
+        'behat/mink-browserkit-driver',
+        'lullabot/mink-selenium2-driver',
+        'symfony/browser-kit',
+        'symfony/css-selector',
+        'symfony/dom-crawler',
+      ],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+    'renovate' => [
+      'token' => 'DEV_RENOVATE',
+      'files' => ['renovate.json'],
+      'dirs' => [],
+      'composer_dev' => [],
+      'composer_allow_plugins' => [],
+      'composer_extra' => [],
+    ],
+  ];
+}
+
+/**
+ * Write 'composer.dev.json', keeping its empty 'patches' map a JSON object.
+ *
+ * 'json_decode()' turns the template's empty '"patches": {}' into an array,
+ * which would re-encode as '[]'; restore it to an object so the manifest keeps
+ * its original shape.
+ *
+ * @param array<int|string, mixed> $config
+ *   The decoded and modified configuration.
+ */
+function write_composer_dev_json(array $config): void {
+  if (isset($config['extra']) && is_array($config['extra']) && ($config['extra']['patches'] ?? NULL) === []) {
+    $config['extra']['patches'] = new \stdClass();
+  }
+
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents('composer.dev.json', $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write composer.dev.json.');
+    // @codeCoverageIgnoreEnd
+  }
+}
+
+/**
+ * Remove development dependencies and config keys from 'composer.dev.json'.
+ *
+ * @param array<string> $packages
+ *   The 'require-dev' package names to remove.
+ * @param array<string> $allow_plugins
+ *   The 'config.allow-plugins' keys to remove.
+ * @param array<string> $extra_keys
+ *   The 'extra' keys to remove.
+ */
+function remove_composer_dev_dependencies(array $packages, array $allow_plugins = [], array $extra_keys = []): void {
+  if ($packages === [] && $allow_plugins === [] && $extra_keys === []) {
+    return;
+  }
+
+  $file = 'composer.dev.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  if (isset($config['require-dev']) && is_array($config['require-dev'])) {
+    foreach ($packages as $package) {
+      unset($config['require-dev'][$package]);
+    }
+  }
+
+  if (isset($config['extra']) && is_array($config['extra'])) {
+    foreach ($extra_keys as $key) {
+      unset($config['extra'][$key]);
+    }
+  }
+
+  if (isset($config['config']) && is_array($config['config'])) {
+    if (isset($config['config']['allow-plugins']) && is_array($config['config']['allow-plugins'])) {
+      foreach ($allow_plugins as $plugin) {
+        unset($config['config']['allow-plugins'][$plugin]);
+      }
+
+      if ($config['config']['allow-plugins'] === []) {
+        unset($config['config']['allow-plugins']);
+      }
+    }
+
+    if ($config['config'] === []) {
+      unset($config['config']);
+    }
+  }
+
+  write_composer_dev_json($config);
+}
+
+/**
+ * Remove a 'drupal-scaffold' file-mapping entry from 'composer.dev.json'.
+ *
+ * The 'extra.drupal-scaffold.file-mapping' block is nested, so the generic
+ * 'composer_extra' top-level key removal cannot reach it. Empty 'file-mapping'
+ * and 'drupal-scaffold' parents are pruned once their last child is gone.
+ *
+ * @param string $mapping
+ *   The file-mapping key to remove (e.g. '[web-root]/.eslintrc.json').
+ */
+function remove_composer_scaffold_mapping(string $mapping): void {
+  $file = 'composer.dev.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  if (!isset($config['extra']) || !is_array($config['extra'])) {
+    return;
+  }
+
+  if (!isset($config['extra']['drupal-scaffold']) || !is_array($config['extra']['drupal-scaffold'])) {
+    return;
+  }
+
+  if (!isset($config['extra']['drupal-scaffold']['file-mapping']) || !is_array($config['extra']['drupal-scaffold']['file-mapping'])) {
+    return;
+  }
+
+  unset($config['extra']['drupal-scaffold']['file-mapping'][$mapping]);
+
+  if ($config['extra']['drupal-scaffold']['file-mapping'] === []) {
+    unset($config['extra']['drupal-scaffold']['file-mapping']);
+  }
+
+  if ($config['extra']['drupal-scaffold'] === []) {
+    unset($config['extra']['drupal-scaffold']);
+  }
+
+  write_composer_dev_json($config);
+}
+
+/**
+ * Remove npm devDependencies and scripts for deselected JavaScript tools.
+ *
+ * The aggregate 'lint' and 'lint-fix' scripts chain per-language sub-scripts;
+ * after dropping a tool's sub-scripts they are rebuilt from the survivors (or
+ * removed when none remain). 'package.json' itself is kept - it still serves
+ * the example module JavaScript.
+ *
+ * @param array<string> $tools_remove
+ *   The machine names of the tools to remove.
+ */
+function remove_npm(array $tools_remove): void {
+  $npm_specs = npm_specs();
+  $remove = array_intersect($tools_remove, array_keys($npm_specs));
+  if ($remove === []) {
+    return;
+  }
+
+  $file = 'package.json';
+  if (!file_exists($file)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config)) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $dev_dependencies = is_array($config['devDependencies'] ?? NULL) ? $config['devDependencies'] : [];
+  $scripts = is_array($config['scripts'] ?? NULL) ? $config['scripts'] : [];
+
+  foreach ($remove as $tool) {
+    foreach ($npm_specs[$tool]['dev'] as $dep) {
+      unset($dev_dependencies[$dep]);
+    }
+
+    foreach ($npm_specs[$tool]['scripts'] as $script) {
+      unset($scripts[$script]);
+    }
+  }
+
+  $scripts = rebuild_npm_chain($scripts, 'lint', ['lint-js', 'lint-css']);
+  $scripts = rebuild_npm_chain($scripts, 'lint-fix', ['lint-fix-js', 'lint-fix-css']);
+  $config['scripts'] = $scripts;
+
+  if ($dev_dependencies === []) {
+    unset($config['devDependencies']);
+  }
+  else {
+    $config['devDependencies'] = $dev_dependencies;
+  }
+
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  // JSON_PRETTY_PRINT indents with four spaces; package.json uses two.
+  $encoded = preg_replace_callback('/^ +/m', static fn(array $m): string => str_repeat(' ', intdiv(strlen($m[0]), 2)), $encoded) ?? $encoded;
+  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write ' . $file . '.');
+    // @codeCoverageIgnoreEnd
+  }
+}
+
+/**
+ * Define the npm removal footprint for each JavaScript tool.
+ *
+ * @return array<string, array{dev: list<string>, scripts: list<string>}>
+ *   Map of tool machine name to its 'devDependencies' and 'scripts' keys.
+ */
+function npm_specs(): array {
+  return [
+    'eslint' => [
+      'dev' => [
+        'eslint',
+        'eslint-config-airbnb-base',
+        'eslint-config-prettier',
+        'eslint-plugin-import',
+        'eslint-plugin-jsdoc',
+        'eslint-plugin-no-jquery',
+        'eslint-plugin-prettier',
+        'eslint-plugin-yml',
+        'prettier',
+        '@homer0/prettier-plugin-jsdoc',
+      ],
+      'scripts' => ['lint-js', 'lint-fix-js'],
+    ],
+    'stylelint' => [
+      'dev' => ['stylelint', 'stylelint-config-standard', 'stylelint-order'],
+      'scripts' => ['lint-css', 'lint-fix-css'],
+    ],
+    'cspell' => [
+      'dev' => ['cspell'],
+      'scripts' => ['lint-spell'],
+    ],
+    'jest' => [
+      'dev' => ['jest', 'jest-environment-jsdom'],
+      'scripts' => ['test'],
+    ],
+  ];
+}
+
+/**
+ * Rebuild an aggregate npm script from its surviving sub-scripts.
+ *
+ * @param array<string, mixed> $scripts
+ *   The 'scripts' map.
+ * @param string $name
+ *   The aggregate script name (e.g. 'lint').
+ * @param array<string> $parts
+ *   The sub-script names the aggregate chains (e.g. 'lint-js', 'lint-css').
+ *
+ * @return array<string, mixed>
+ *   The updated 'scripts' map.
+ */
+function rebuild_npm_chain(array $scripts, string $name, array $parts): array {
+  $surviving = array_values(array_filter($parts, static fn(string $part): bool => isset($scripts[$part])));
+
+  if ($surviving === []) {
+    unset($scripts[$name]);
+
+    return $scripts;
+  }
+
+  $scripts[$name] = implode(' && ', array_map(static fn(string $part): string => 'npm run ' . $part, $surviving));
+
+  return $scripts;
 }
 
 /**
@@ -605,7 +1098,12 @@ function normalise_cspell_words(): void {
   sort($words, SORT_FLAG_CASE | SORT_STRING);
   $config['words'] = $words;
 
-  file_put_contents('.cspell.json', json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents('.cspell.json', $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write .cspell.json.');
+    // @codeCoverageIgnoreEnd
+  }
 }
 
 /**

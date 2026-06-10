@@ -1,0 +1,13 @@
+@@ -29,11 +29,6 @@
+     },
+     "extra": {
+         "phpcodesniffer-search-depth": 10,
+-        "patches": {},
+-        "drupal-scaffold": {
+-            "file-mapping": {
+-                "[web-root]/.eslintrc.json": false
+-            }
+-        }
++        "patches": {}
+     }
+ }

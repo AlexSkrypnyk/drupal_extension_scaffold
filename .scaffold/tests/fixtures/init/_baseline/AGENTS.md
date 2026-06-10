@@ -27,11 +27,11 @@ This is a Force Crystal template for creating contributed modules or themes. The
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (cspell, phpcs, phpstan, rector dry-run, twig-cs-fixer, eslint, stylelint)
+- `make lint` / `ahoy lint` - Run all linting tools
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
-- `make test` / `ahoy test` - Run all PHPUnit tests
+- `make test` / `ahoy test` - Run all tests
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
 - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 - `make test-functional` / `ahoy test-functional` - Run functional tests only

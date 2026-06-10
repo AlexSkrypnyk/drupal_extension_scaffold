@@ -27,18 +27,26 @@ This is a Drupal extension scaffold template for creating contributed modules or
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (cspell, phpcs, phpstan, rector dry-run, twig-cs-fixer, eslint, stylelint)
+- `make lint` / `ahoy lint` - Run all linting tools
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
-- `make test` / `ahoy test` - Run all PHPUnit tests
+- `make test` / `ahoy test` - Run all tests
+<!-- #;< DEV_PHPUNIT -->
 - `make test-unit` / `ahoy test-unit` - Run unit tests only
 - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
 - `make test-functional` / `ahoy test-functional` - Run functional tests only
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 - `make test-functional-javascript` / `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;< DEV_JEST -->
 - `make test-js` / `ahoy test-js` - Run JavaScript unit tests (Jest)
+<!-- #;> DEV_JEST -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 - `make selenium-start` / `ahoy selenium-start` - Start Selenium container
 - `make selenium-stop` / `ahoy selenium-stop` - Stop Selenium container
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 
 ### Drupal Commands
 
@@ -53,7 +61,9 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 **Key Directories:**
 - `src/` - Extension source code (services, forms, etc.)
+<!-- #;< DEV_PHPUNIT -->
 - `tests/src/` - PHPUnit tests (Unit/, Kernel/, Functional/)
+<!-- #;> DEV_PHPUNIT -->
 - `config/schema/` - Configuration schema definitions
 - `build/` - Assembled Drupal codebase (symlinked extension)
 - `.devtools/` - Build and deployment scripts used by CI
@@ -88,11 +98,21 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 ## Code Quality Tools
 
+<!-- #;< DEV_CSPELL -->
 - **CSpell**: Spell checking across the codebase (config at `.cspell.json`)
+<!-- #;> DEV_CSPELL -->
+<!-- #;< DEV_PHPCS -->
 - **PHPCS**: Drupal and DrupalPractice standards
+<!-- #;> DEV_PHPCS -->
+<!-- #;< DEV_PHPSTAN -->
 - **PHPStan**: Static analysis with Drupal extensions
+<!-- #;> DEV_PHPSTAN -->
+<!-- #;< DEV_RECTOR -->
 - **Rector**: Automated refactoring and deprecation fixes
+<!-- #;> DEV_RECTOR -->
+<!-- #;< DEV_TWIGCS -->
 - **Twig CS Fixer**: Twig template formatting
+<!-- #;> DEV_TWIGCS -->
 
 ## CI/CD Support
 

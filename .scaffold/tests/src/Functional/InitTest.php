@@ -125,6 +125,55 @@ final class InitTest extends FunctionalTestCase {
         'remove_self' => 'false',
       ],
     ];
+
+    yield 'no_php_lint' => [
+      [
+        'tools' => 'eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
+      ],
+    ];
+
+    yield 'no_js_lint' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,cspell,jest,phpunit,functional_javascript,renovate',
+      ],
+    ];
+
+    yield 'no_cspell' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,jest,phpunit,functional_javascript,renovate',
+      ],
+    ];
+
+    yield 'no_jest' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,phpunit,functional_javascript,renovate',
+      ],
+    ];
+
+    yield 'no_funcjs' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,renovate',
+      ],
+    ];
+
+    yield 'no_phpunit' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,functional_javascript,renovate',
+      ],
+    ];
+
+    yield 'no_renovate' => [
+      [
+        'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript',
+      ],
+    ];
+
+    yield 'no_tools' => [
+      [
+        'command_wrapper' => 'ahoy,makefile',
+        'tools' => '',
+      ],
+    ];
   }
 
   protected static function defaultAnswers(): array {
@@ -134,6 +183,7 @@ final class InitTest extends FunctionalTestCase {
       'type' => 'module',
       'ci_provider' => 'gha',
       'command_wrapper' => 'ahoy',
+      'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
       'remove_self' => 'true',
       'proceed' => 'true',
     ];

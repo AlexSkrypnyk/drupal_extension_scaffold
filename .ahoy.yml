@@ -57,42 +57,67 @@ commands:
     usage: Check coding standards for violations.
     cmd: |
       pushd "build" >/dev/null || exit 1
+      #;< DEV_PHPCS
       ahoy title "Running PHPCS"
       vendor/bin/phpcs
+      #;> DEV_PHPCS
+      #;< DEV_PHPSTAN
       ahoy title "Running PHPStan"
       vendor/bin/phpstan
+      #;> DEV_PHPSTAN
+      #;< DEV_RECTOR
       ahoy title "Running Rector"
       vendor/bin/rector --clear-cache --dry-run
+      #;> DEV_RECTOR
+      #;< DEV_TWIGCS
       ahoy title "Running Twig CS Fixer"
       vendor/bin/twig-cs-fixer
+      #;> DEV_TWIGCS
+      #;< DEV_NODEJS_LINT
       [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
+      #;> DEV_NODEJS_LINT
       popd >/dev/null || exit 1
+      #;< DEV_CSPELL
       ahoy title "Running CSpell"
       [ -d node_modules ] || npm install --no-audit --no-fund
       npm run lint-spell
+      #;> DEV_CSPELL
 
   lint-fix:
     usage: Fix violations in coding standards.
     cmd: |
       pushd "build" >/dev/null || exit 1
+      #;< DEV_RECTOR
       ahoy title "Running Rector"
       vendor/bin/rector --clear-cache
+      #;> DEV_RECTOR
+      #;< DEV_PHPCS
       ahoy title "Running PHPCBF"
       vendor/bin/phpcbf
+      #;> DEV_PHPCS
+      #;< DEV_TWIGCS
       ahoy title "Running Twig CS Fixer"
       vendor/bin/twig-cs-fixer --no-cache --fix
+      #;> DEV_TWIGCS
+      #;< DEV_NODEJS_LINT
       [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint-fix)
+      #;> DEV_NODEJS_LINT
       popd >/dev/null || exit 1
 
   test:
     usage: Run tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
+      #;< DEV_PHPUNIT
       ahoy title "Running PHPUnit"
       php -d pcov.directory=.. vendor/bin/phpunit "$@"
+      #;> DEV_PHPUNIT
+      #;< DEV_JEST
       [ ! -d node_modules ] || (ahoy title "Running Jest" && npm test)
+      #;> DEV_JEST
       popd >/dev/null || exit 1
 
+  #;< DEV_PHPUNIT
   test-unit:
     usage: Run unit tests.
     cmd: |
@@ -113,7 +138,9 @@ commands:
       pushd "build" >/dev/null || exit 1
       php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional "$@"
       popd >/dev/null || exit 1
+  #;> DEV_PHPUNIT
 
+  #;< DEV_FUNCTIONAL_JAVASCRIPT
   test-functional-javascript:
     usage: Run FunctionalJavascript tests.
     cmd: |
@@ -121,14 +148,18 @@ commands:
       pushd "build" >/dev/null || exit 1
       php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
       popd >/dev/null || exit 1
+  #;> DEV_FUNCTIONAL_JAVASCRIPT
 
+  #;< DEV_JEST
   test-js:
     usage: Run JavaScript unit tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
       [ ! -d node_modules ] || npm test
       popd >/dev/null || exit 1
+  #;> DEV_JEST
 
+  #;< DEV_FUNCTIONAL_JAVASCRIPT
   selenium-start:
     usage: Start Selenium container if not already running.
     cmd: |
@@ -148,6 +179,7 @@ commands:
   selenium-stop:
     usage: Stop Selenium container.
     cmd: docker rm -f selenium 2>/dev/null || true
+  #;> DEV_FUNCTIONAL_JAVASCRIPT
 
   reset:
     usage: Reset project to the default state.

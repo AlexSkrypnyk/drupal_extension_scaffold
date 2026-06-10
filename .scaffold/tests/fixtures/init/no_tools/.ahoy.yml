@@ -1,0 +1,99 @@
+@@ -57,31 +57,12 @@
+     usage: Check coding standards for violations.
+     cmd: |
+       pushd "build" >/dev/null || exit 1
+-      ahoy title "Running PHPCS"
+-      vendor/bin/phpcs
+-      ahoy title "Running PHPStan"
+-      vendor/bin/phpstan
+-      ahoy title "Running Rector"
+-      vendor/bin/rector --clear-cache --dry-run
+-      ahoy title "Running Twig CS Fixer"
+-      vendor/bin/twig-cs-fixer
+-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
+       popd >/dev/null || exit 1
+-      ahoy title "Running CSpell"
+-      [ -d node_modules ] || npm install --no-audit --no-fund
+-      npm run lint-spell
+ 
+   lint-fix:
+     usage: Fix violations in coding standards.
+     cmd: |
+       pushd "build" >/dev/null || exit 1
+-      ahoy title "Running Rector"
+-      vendor/bin/rector --clear-cache
+-      ahoy title "Running PHPCBF"
+-      vendor/bin/phpcbf
+-      ahoy title "Running Twig CS Fixer"
+-      vendor/bin/twig-cs-fixer --no-cache --fix
+-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint-fix)
+       popd >/dev/null || exit 1
+ 
+   test:
+@@ -88,66 +69,11 @@
+     usage: Run tests.
+     cmd: |
+       pushd "build" >/dev/null || exit 1
+-      ahoy title "Running PHPUnit"
+-      php -d pcov.directory=.. vendor/bin/phpunit "$@"
+-      [ ! -d node_modules ] || (ahoy title "Running Jest" && npm test)
+       popd >/dev/null || exit 1
+ 
+-  test-unit:
+-    usage: Run unit tests.
+-    cmd: |
+-      pushd "build" >/dev/null || exit 1
+-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit "$@"
+-      popd >/dev/null || exit 1
+ 
+-  test-kernel:
+-    usage: Run kernel tests.
+-    cmd: |
+-      pushd "build" >/dev/null || exit 1
+-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel "$@"
+-      popd >/dev/null || exit 1
+ 
+-  test-functional:
+-    usage: Run functional tests.
+-    cmd: |
+-      pushd "build" >/dev/null || exit 1
+-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional "$@"
+-      popd >/dev/null || exit 1
+ 
+-  test-functional-javascript:
+-    usage: Run FunctionalJavascript tests.
+-    cmd: |
+-      ahoy selenium-start
+-      pushd "build" >/dev/null || exit 1
+-      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
+-      popd >/dev/null || exit 1
+-
+-  test-js:
+-    usage: Run JavaScript unit tests.
+-    cmd: |
+-      pushd "build" >/dev/null || exit 1
+-      [ ! -d node_modules ] || npm test
+-      popd >/dev/null || exit 1
+-
+-  selenium-start:
+-    usage: Start Selenium container if not already running.
+-    cmd: |
+-      if curl -s http://localhost:4444/status | grep -q '"ready": true'; then
+-        echo "Selenium container is already running."
+-        exit 0
+-      fi
+-      docker rm -f selenium 2>/dev/null || true
+-      docker run -d --name selenium -p 4444:4444 selenium/standalone-chromium:latest
+-      echo "Waiting for Selenium to be ready..."
+-      for i in $(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done
+-      if ! curl -s http://localhost:4444/status | grep -q '"ready": true'; then
+-        echo "ERROR: Selenium failed to become ready after 30 seconds."
+-        exit 1
+-      fi
+-
+-  selenium-stop:
+-    usage: Stop Selenium container.
+-    cmd: docker rm -f selenium 2>/dev/null || true
+ 
+   reset:
+     usage: Reset project to the default state.

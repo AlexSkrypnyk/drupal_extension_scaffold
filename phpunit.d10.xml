@@ -80,10 +80,12 @@
             <directory>web/themes/custom/*/tests/src/Functional</directory>
         </testsuite>
 
+        <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
         <testsuite name="functional-javascript">
             <directory>web/modules/custom/*/tests/src/FunctionalJavascript</directory>
             <directory>web/themes/custom/*/tests/src/FunctionalJavascript</directory>
         </testsuite>
+        <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
     </testsuites>
 
     <logging>
@@ -103,8 +105,10 @@
         <exclude>
             <directory>web/modules/custom/*/tests</directory>
             <directory>web/themes/custom/*/tests</directory>
+            <!-- #;< DEV_RECTOR -->
             <file>web/modules/custom/your_extension/rector.php</file>
             <file>web/themes/custom/your_extension/rector.php</file>
+            <!-- #;> DEV_RECTOR -->
             <directory>**/node_modules/**</directory>
             <!-- #;< META -->
             <file>../init.php</file>

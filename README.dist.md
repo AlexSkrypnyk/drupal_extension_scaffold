@@ -11,10 +11,14 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/YourNamespace/your_extension.svg)](https://github.com/YourNamespace/your_extension/pulls)
 [![Build, test and deploy](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml/badge.svg)](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml)
 [![CircleCI](https://circleci.com/gh/YourNamespace/your_extension.svg?style=shield)](https://circleci.com/gh/YourNamespace/your_extension)
+<!-- #;< DEV_PHPUNIT -->
 [![codecov](https://codecov.io/gh/YourNamespace/your_extension/graph/badge.svg)](https://codecov.io/gh/YourNamespace/your_extension)
+<!-- #;> DEV_PHPUNIT -->
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/YourNamespace/your_extension)
 ![LICENSE](https://img.shields.io/github/license/YourNamespace/your_extension)
+<!-- #;< DEV_RENOVATE -->
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
+<!-- #;> DEV_RENOVATE -->
 
 ![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
@@ -141,12 +145,24 @@ To start and stop debug sessions from the browser, install the Xdebug Helper ext
 
 The `make lint` or `ahoy lint` command checks the codebase using multiple
 tools:
+<!-- #;< DEV_PHPCS -->
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
+<!-- #;> DEV_PHPCS -->
+<!-- #;< DEV_PHPSTAN -->
 - PHP code static analysis with PHPStan.
+<!-- #;> DEV_PHPSTAN -->
+<!-- #;< DEV_RECTOR -->
 - PHP deprecated code analysis and auto-fixing with Drupal Rector.
+<!-- #;> DEV_RECTOR -->
+<!-- #;< DEV_TWIGCS -->
 - Twig code analysis with Twig CS Fixer.
+<!-- #;> DEV_TWIGCS -->
+<!-- #;< DEV_ESLINT -->
 - JavaScript code analysis with ESLint.
+<!-- #;> DEV_ESLINT -->
+<!-- #;< DEV_STYLELINT -->
 - CSS code analysis with Stylelint.
+<!-- #;> DEV_STYLELINT -->
 
 The configuration files for these tools are located in the root of the codebase.
 
@@ -158,7 +174,8 @@ To fix coding standards issues automatically, run the `make lint-fix` or
 
 ## Testing
 
-The `make test` or `ahoy test` command runs the PHPUnit tests for this extension.
+The `make test` or `ahoy test` command runs the tests for this extension.
+<!-- #;< DEV_PHPUNIT -->
 
 The tests are located in the `tests/src` directory. The `phpunit.xml` file
 configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
@@ -170,14 +187,20 @@ The `test` command is a wrapper for multiple test commands:
 make test-unit                    # Run Unit tests
 make test-kernel                  # Run Kernel tests
 make test-functional              # Run Functional tests
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 make test-functional-javascript   # Run FunctionalJavascript tests
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 
 ahoy test-unit                    # Run Unit tests
 ahoy test-kernel                  # Run Kernel tests
 ahoy test-functional              # Run Functional tests
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 ahoy test-functional-javascript   # Run FunctionalJavascript tests
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 ```
 
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 ### Running FunctionalJavascript tests
 
 FunctionalJavascript tests require a browser controlled via WebDriver.
@@ -190,6 +213,8 @@ ahoy test-functional-javascript
 ahoy selenium-stop
 ```
 
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;< DEV_PHPUNIT -->
 ### Running specific tests
 
 You can run specific tests by passing a path to the test file or PHPUnit CLI
@@ -210,6 +235,7 @@ cd build
 php -d pcov.directory=.. vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
 php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 ```
+<!-- #;> DEV_PHPUNIT -->
 
 ---
 _This repository was created using the [Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold) project template_

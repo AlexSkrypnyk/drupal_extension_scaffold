@@ -1,0 +1,16 @@
+@@ -65,7 +65,6 @@
+       vendor/bin/rector --clear-cache --dry-run
+       ahoy title "Running Twig CS Fixer"
+       vendor/bin/twig-cs-fixer
+-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
+       popd >/dev/null || exit 1
+       ahoy title "Running CSpell"
+       [ -d node_modules ] || npm install --no-audit --no-fund
+@@ -81,7 +80,6 @@
+       vendor/bin/phpcbf
+       ahoy title "Running Twig CS Fixer"
+       vendor/bin/twig-cs-fixer --no-cache --fix
+-      [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint-fix)
+       popd >/dev/null || exit 1
+ 
+   test:

@@ -158,7 +158,7 @@ To fix coding standards issues automatically, run the `make lint-fix` or
 
 ## Testing
 
-The `make test` or `ahoy test` command runs the PHPUnit tests for this extension.
+The `make test` or `ahoy test` command runs the tests for this extension.
 
 The tests are located in the `tests/src` directory. The `phpunit.xml` file
 configures PHPUnit to run the tests. It uses Drupal core's bootstrap file

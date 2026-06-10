@@ -1,0 +1,12 @@
+@@ -222,11 +222,6 @@
+       - name: Provision site
+         run: .devtools/provision
+ 
+-      - name: Run JS tests
+-        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        working-directory: build
+-        run: npm test
+-        continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
+ 
+       - name: Run tests
+         working-directory: build

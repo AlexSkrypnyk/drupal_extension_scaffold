@@ -18,7 +18,10 @@ define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset selenium-start selenium-stop start stop test test-functional test-functional-javascript test-js test-kernel test-unit xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+.PHONY: test-unit test-kernel test-functional
+.PHONY: test-functional-javascript selenium-start selenium-stop
+.PHONY: test-js
 
 help:
 	@echo "COMMANDS"

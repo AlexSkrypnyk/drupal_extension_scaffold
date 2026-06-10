@@ -1,0 +1,109 @@
+SHELL=/bin/bash
+
+# Load variables from .env if present and export them to recipe shells. The
+# leading '-' on -include suppresses errors when the file does not exist.
+-include .env
+export
+
+# Resolve a relative TMPDIR to an absolute path so build/-dir tools (which
+# chdir into build) can still find it. No-op when unset or already absolute.
+ifdef TMPDIR
+export TMPDIR := $(abspath $(TMPDIR))
+endif
+
+WEBSERVER_HOST ?= localhost
+WEBSERVER_PORT ?= 8000
+
+define title
+	@echo -e "\n\033[36m$(1)\033[0m"
+endef
+
+.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+
+help:
+	@echo "COMMANDS"
+	@echo "========"
+	@echo "build           - Build or rebuild the project."
+	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
+	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
+	@echo "drush           - Run Drush command."
+	@echo "info            - Print a read-only summary of the current environment (alias: describe)."
+	@echo "lint            - Check coding standards for violations."
+	@echo "lint-fix        - Fix violations in coding standards."
+	@echo "login           - Run Drush login command."
+	@echo "provision       - Provision application within assembled codebase."
+	@echo "reset           - Reset project to the default state (aliases: delete, destroy)."
+	@echo "start           - Start development environment."
+	@echo "stop            - Stop development environment."
+	@echo "test                       - Run all tests."
+
+build: stop assemble start provision
+
+assemble:
+	./.devtools/assemble
+
+start:
+	./.devtools/start
+
+stop:
+	./.devtools/stop
+
+info:
+	@./.devtools/info
+
+# Enable PHP XDebug step-debugging by restarting the PHP server with
+# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. State is
+# probed by `info xdebug`, which inspects the running server's command
+# line. Run `make start` to disable.
+debug:
+	@[ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "XDebug is already enabled. Run 'make start' to disable." || \
+		(XDEBUG=1 ./.devtools/start && sleep 1 && [ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
+
+# Make has no native command aliases - the alias targets declare `debug` as
+# their sole prerequisite, so running e.g. `make xdebug` executes the `debug`
+# recipe via the prerequisite chain.
+debug-on xdebug xdebug-on: debug
+
+# Mirror the ahoy `start` aliases. `make debug-off` runs the `start` recipe
+# via the prerequisite chain, which restarts without XDebug.
+debug-off xdebug-off: start
+
+# DDEV uses `describe` for the equivalent of our `info`. Add the alias so
+# developers coming from DDEV find a familiar verb.
+describe: info
+
+# Lando uses `destroy` and DDEV uses `delete` for what our `reset` does.
+delete destroy: reset
+
+# Allow running Drush commands with `make drush <command>`
+ifeq (drush,$(firstword $(MAKECMDGOALS)))
+  DRUSH_RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(DRUSH_RUN_ARGS):;@:)
+endif
+
+drush:
+	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) $(DRUSH_RUN_ARGS)
+
+login:
+	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) uli
+
+provision:
+	./.devtools/provision
+
+lint:
+
+lint-fix:
+
+test:
+
+
+
+
+
+reset:
+	killall -9 php >/dev/null 2>&1 || true
+	chmod -Rf 777 build .logs > /dev/null 2>&1 || true
+	rm -Rf build > /dev/null 2>&1 || true
+	rm -Rf .logs > /dev/null 2>&1 || true
+
+.DEFAULT_GOAL := build
