@@ -27,7 +27,7 @@ This is a Drupal extension scaffold template for creating contributed modules or
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools (cspell, phpcs, phpstan, rector dry-run, twig-cs-fixer, eslint, stylelint)
+- `make lint` / `ahoy lint` - Run all linting tools
 - `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
@@ -61,7 +61,9 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 **Key Directories:**
 - `src/` - Extension source code (services, forms, etc.)
+<!-- #;< DEV_PHPUNIT -->
 - `tests/src/` - PHPUnit tests (Unit/, Kernel/, Functional/)
+<!-- #;> DEV_PHPUNIT -->
 - `config/schema/` - Configuration schema definitions
 - `build/` - Assembled Drupal codebase (symlinked extension)
 - `.devtools/` - Build and deployment scripts used by CI

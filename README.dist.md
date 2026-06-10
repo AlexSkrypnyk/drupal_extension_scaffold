@@ -174,8 +174,9 @@ To fix coding standards issues automatically, run the `make lint-fix` or
 
 ## Testing
 
-The `make test` or `ahoy test` command runs the PHPUnit tests for this extension.
+The `make test` or `ahoy test` command runs the tests for this extension.
 
+<!-- #;< DEV_PHPUNIT -->
 The tests are located in the `tests/src` directory. The `phpunit.xml` file
 configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
 `core/tests/bootstrap.php` to bootstrap the Drupal environment before running
@@ -186,13 +187,18 @@ The `test` command is a wrapper for multiple test commands:
 make test-unit                    # Run Unit tests
 make test-kernel                  # Run Kernel tests
 make test-functional              # Run Functional tests
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 make test-functional-javascript   # Run FunctionalJavascript tests
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 
 ahoy test-unit                    # Run Unit tests
 ahoy test-kernel                  # Run Kernel tests
 ahoy test-functional              # Run Functional tests
+#;< DEV_FUNCTIONAL_JAVASCRIPT
 ahoy test-functional-javascript   # Run FunctionalJavascript tests
+#;> DEV_FUNCTIONAL_JAVASCRIPT
 ```
+<!-- #;> DEV_PHPUNIT -->
 
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 ### Running FunctionalJavascript tests
@@ -208,6 +214,7 @@ ahoy selenium-stop
 ```
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 
+<!-- #;< DEV_PHPUNIT -->
 ### Running specific tests
 
 You can run specific tests by passing a path to the test file or PHPUnit CLI
@@ -228,6 +235,7 @@ cd build
 php -d pcov.directory=.. vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
 php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 ```
+<!-- #;> DEV_PHPUNIT -->
 
 ---
 _This repository was created using the [Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold) project template_

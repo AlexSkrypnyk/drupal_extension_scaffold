@@ -16,11 +16,13 @@ indent_size = 4
 [package.json]
 indent_size = 2
 
+#;< DEV_ESLINT
 [.eslintrc.json]
 indent_size = 2
 
 [.prettierrc.json]
 indent_size = 2
+#;> DEV_ESLINT
 
 [*.xml]
 indent_size = 4
