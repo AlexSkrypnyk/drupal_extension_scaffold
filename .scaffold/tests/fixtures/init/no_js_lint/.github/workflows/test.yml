@@ -8,5 +8,5 @@
 -        run: npm run lint
 -        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
-   prepare:
+   test:
      runs-on: ubuntu-24.04

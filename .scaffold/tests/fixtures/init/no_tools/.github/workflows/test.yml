@@ -38,11 +38,11 @@
 -        run: npm run lint
 -        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
-   prepare:
+   test:
      runs-on: ubuntu-24.04
-@@ -116,11 +92,6 @@
-       fail-fast: false
-       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+@@ -110,11 +86,6 @@
+             drupal-version: 11@beta
+             stability: canary
  
 -    services:
 -      chrome:
@@ -52,7 +52,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -175,41 +146,4 @@
+@@ -169,41 +140,4 @@
        - name: Provision site
          run: .devtools/provision
  

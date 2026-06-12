@@ -18,22 +18,6 @@ aliases:
   - &selenium_image
     image: selenium/standalone-chromium:latest
 
-  # PHP version Docker images for the test matrix. Bump these to move the
-  # tested PHP floor/ceiling; each value lives in exactly one place.
-  - &php_d10_min_image "cimg/php:__VERSION__"
-  - &php_d10_max_image "cimg/php:__VERSION__"
-  - &php_d11_min_image "cimg/php:__VERSION__"
-  - &php_d11_max_image "cimg/php:__VERSION__"
-
-  # Drupal core versions for the test matrix. Only the legacy pin needs
-  # manual maintenance; stable ("10"/"11") and canary ("*@beta") float to
-  # the newest matching release on every run.
-  - &drupal_d10_stable "10"
-  - &drupal_d11_stable "11"
-  - &drupal_d11_legacy "__VERSION__"
-  - &drupal_d11_canary "11@beta"
-  - &drupal_d12_canary "12@beta"
-
 job-test: &job-test
   steps:
     - checkout
@@ -143,65 +127,55 @@ jobs:
   test-php-min-d10-stable:
     <<: *container_config
     docker:
-      - image: *php_d10_min_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d10_stable
+      DRUPAL_VERSION: 10
     <<: *job-test
 
   test-php-max-d10-stable:
     <<: *container_config
     docker:
-      - image: *php_d10_max_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d10_stable
+      DRUPAL_VERSION: 10
     <<: *job-test
 
   test-php-min-d11-stable:
     <<: *container_config
     docker:
-      - image: *php_d11_min_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d11_stable
+      DRUPAL_VERSION: 11
     <<: *job-test
 
   test-php-max-d11-stable:
     <<: *container_config
     docker:
-      - image: *php_d11_max_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d11_stable
+      DRUPAL_VERSION: 11
     <<: *job-test
 
   test-php-min-d11-legacy:
     <<: *container_config
     docker:
-      - image: *php_d11_min_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d11_legacy
+      DRUPAL_VERSION: __VERSION__
     <<: *job-test
 
   test-php-max-d11-canary:
     <<: *container_config
     docker:
-      - image: *php_d11_max_image
+      - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: *drupal_d11_canary
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-    <<: *job-test
-
-  test-php-max-d12-canary:
-    <<: *container_config
-    docker:
-      - image: *php_d11_max_image
-      - *selenium_image
-    environment:
-      DRUPAL_VERSION: *drupal_d12_canary
+      DRUPAL_VERSION: 11@beta
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
     <<: *job-test
 
@@ -251,10 +225,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - test-php-max-d12-canary:
-          filters:
-            tags:
-              only: /.*/
       - deploy:
           requires:
             - test-php-min-d10-stable
@@ -263,7 +233,6 @@ workflows:
             - test-php-max-d11-stable
             - test-php-min-d11-legacy
             - test-php-max-d11-canary
-            - test-php-max-d12-canary
           filters:
             tags:
               only: /.*/
