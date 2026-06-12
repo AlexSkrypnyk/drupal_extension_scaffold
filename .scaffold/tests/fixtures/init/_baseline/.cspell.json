@@ -1,4 +1,7 @@
 {
+    "files": [
+        "**"
+    ],
     "dictionaries": [
         "bash",
         "misc",
