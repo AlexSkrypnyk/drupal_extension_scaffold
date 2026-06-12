@@ -150,7 +150,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.2
+      DRUPAL_VERSION: 10.4.0
     <<: *job-test
 
   test-php-8.2-d10-stable:
@@ -161,7 +161,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.3
+      DRUPAL_VERSION: 10
     <<: *job-test
 
   test-php-8.2-d10-canary:
@@ -172,7 +172,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.4@beta
+      DRUPAL_VERSION: 10@beta
       #;< DEV_PHPSTAN
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
       #;> DEV_PHPSTAN
@@ -186,7 +186,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.2
+      DRUPAL_VERSION: 10.4.0
     <<: *job-test
 
   test-php-8.3-d10-stable:
@@ -197,7 +197,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.3
+      DRUPAL_VERSION: 10
     <<: *job-test
 
   test-php-8.3-d10-canary:
@@ -208,7 +208,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.4@beta
+      DRUPAL_VERSION: 10@beta
       #;< DEV_PHPSTAN
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
       #;> DEV_PHPSTAN
@@ -222,7 +222,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.3 # Lowest Drupal version that supports PHP 8.4.
+      DRUPAL_VERSION: 10.4.0
     <<: *job-test
 
   test-php-8.4-d10-stable:
@@ -233,7 +233,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.3
+      DRUPAL_VERSION: 10
     <<: *job-test
 
   test-php-8.4-d10-canary:
@@ -244,7 +244,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.4@beta
+      DRUPAL_VERSION: 10@beta
       #;< DEV_PHPSTAN
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
       #;> DEV_PHPSTAN
@@ -258,7 +258,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
+      DRUPAL_VERSION: 11.1.0
     <<: *job-test
 
   test-php-8.3-d11-stable:
@@ -269,7 +269,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.0
+      DRUPAL_VERSION: 11
     <<: *job-test
 
   test-php-8.3-d11-canary:
@@ -294,7 +294,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.0 # Lowest Drupal version that exists.
+      DRUPAL_VERSION: 11.1.0
     <<: *job-test
 
   test-php-8.4-d11-stable:
@@ -305,7 +305,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.0
+      DRUPAL_VERSION: 11
     <<: *job-test
 
   test-php-8.4-d11-canary:
@@ -330,7 +330,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.3 # Lowest Drupal version that supports PHP 8.5.
+      DRUPAL_VERSION: 11.3.0
     <<: *job-test
 
   test-php-8.5-d11-stable:
@@ -341,7 +341,7 @@ jobs:
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 11.3
+      DRUPAL_VERSION: 11
     <<: *job-test
 
   test-php-8.5-d11-canary:
