@@ -20,6 +20,22 @@ aliases:
     image: selenium/standalone-chromium:latest
   #;> DEV_FUNCTIONAL_JAVASCRIPT
 
+  # PHP version Docker images for the test matrix. Bump these to move the
+  # tested PHP floor/ceiling; each value lives in exactly one place.
+  - &php_d10_min_image "cimg/php:8.2-browsers"
+  - &php_d10_max_image "cimg/php:8.4-browsers"
+  - &php_d11_min_image "cimg/php:8.3-browsers"
+  - &php_d11_max_image "cimg/php:8.5-browsers"
+
+  # Drupal core versions for the test matrix. Only the legacy pin needs
+  # manual maintenance; stable ("10"/"11") and canary ("*@beta") float to
+  # the newest matching release on every run.
+  - &drupal_d10_stable "10"
+  - &drupal_d11_stable "11"
+  - &drupal_d11_legacy "11.1.0"
+  - &drupal_d11_canary "11@beta"
+  - &drupal_d12_canary "12@beta"
+
 job-test: &job-test
   steps:
     - checkout
@@ -142,217 +158,84 @@ job-test: &job-test
     #;> DEV_PHPUNIT
 
 jobs:
-  test-php-8.2-d10-legacy:
+  test-php-min-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: *php_d10_min_image
       #;< DEV_FUNCTIONAL_JAVASCRIPT
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.4.0
+      DRUPAL_VERSION: *drupal_d10_stable
     <<: *job-test
 
-  test-php-8.2-d10-stable:
+  test-php-max-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: *php_d10_max_image
       #;< DEV_FUNCTIONAL_JAVASCRIPT
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10
+      DRUPAL_VERSION: *drupal_d10_stable
     <<: *job-test
 
-  test-php-8.2-d10-canary:
+  test-php-min-d11-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: *php_d11_min_image
       #;< DEV_FUNCTIONAL_JAVASCRIPT
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10@beta
+      DRUPAL_VERSION: *drupal_d11_stable
+    <<: *job-test
+
+  test-php-max-d11-stable:
+    <<: *container_config
+    docker:
+      - image: *php_d11_max_image
+      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - *selenium_image
+      #;> DEV_FUNCTIONAL_JAVASCRIPT
+    environment:
+      DRUPAL_VERSION: *drupal_d11_stable
+    <<: *job-test
+
+  test-php-min-d11-legacy:
+    <<: *container_config
+    docker:
+      - image: *php_d11_min_image
+      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - *selenium_image
+      #;> DEV_FUNCTIONAL_JAVASCRIPT
+    environment:
+      DRUPAL_VERSION: *drupal_d11_legacy
+    <<: *job-test
+
+  test-php-max-d11-canary:
+    <<: *container_config
+    docker:
+      - image: *php_d11_max_image
+      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - *selenium_image
+      #;> DEV_FUNCTIONAL_JAVASCRIPT
+    environment:
+      DRUPAL_VERSION: *drupal_d11_canary
       #;< DEV_PHPSTAN
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
       #;> DEV_PHPSTAN
     <<: *job-test
 
-  test-php-8.3-d10-legacy:
+  test-php-max-d12-canary:
     <<: *container_config
     docker:
-      - image: cimg/php:8.3-browsers
+      - image: *php_d11_max_image
       #;< DEV_FUNCTIONAL_JAVASCRIPT
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
-      DRUPAL_VERSION: 10.4.0
-    <<: *job-test
-
-  test-php-8.3-d10-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 10
-    <<: *job-test
-
-  test-php-8.3-d10-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 10@beta
-      #;< DEV_PHPSTAN
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-      #;> DEV_PHPSTAN
-    <<: *job-test
-
-  test-php-8.4-d10-legacy:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 10.4.0
-    <<: *job-test
-
-  test-php-8.4-d10-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 10
-    <<: *job-test
-
-  test-php-8.4-d10-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 10@beta
-      #;< DEV_PHPSTAN
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-      #;> DEV_PHPSTAN
-    <<: *job-test
-
-  test-php-8.3-d11-legacy:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11.1.0
-    <<: *job-test
-
-  test-php-8.3-d11-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11
-    <<: *job-test
-
-  test-php-8.3-d11-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11@beta
-      #;< DEV_PHPSTAN
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-      #;> DEV_PHPSTAN
-    <<: *job-test
-
-  test-php-8.4-d11-legacy:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11.1.0
-    <<: *job-test
-
-  test-php-8.4-d11-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11
-    <<: *job-test
-
-  test-php-8.4-d11-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11@beta
-      #;< DEV_PHPSTAN
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-      #;> DEV_PHPSTAN
-    <<: *job-test
-
-  test-php-8.5-d11-legacy:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.5-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11.3.0
-    <<: *job-test
-
-  test-php-8.5-d11-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.5-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11
-    <<: *job-test
-
-  test-php-8.5-d11-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.5-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11@beta
+      DRUPAL_VERSION: *drupal_d12_canary
       #;< DEV_PHPSTAN
       CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
       #;> DEV_PHPSTAN
@@ -380,98 +263,43 @@ workflows:
   version: 2
   commit:
     jobs:
-      - test-php-8.2-d10-legacy:
+      - test-php-min-d10-stable:
           filters:
             tags:
               only: /.*/
-      - test-php-8.2-d10-stable:
+      - test-php-max-d10-stable:
           filters:
             tags:
               only: /.*/
-      - test-php-8.2-d10-canary:
+      - test-php-min-d11-stable:
           filters:
             tags:
               only: /.*/
-      - test-php-8.3-d10-legacy:
+      - test-php-max-d11-stable:
           filters:
             tags:
               only: /.*/
-      - test-php-8.3-d10-stable:
+      - test-php-min-d11-legacy:
           filters:
             tags:
               only: /.*/
-      - test-php-8.3-d10-canary:
+      - test-php-max-d11-canary:
           filters:
             tags:
               only: /.*/
-      - test-php-8.4-d10-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.4-d10-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.4-d10-canary:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.3-d11-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.3-d11-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.3-d11-canary:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.4-d11-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.4-d11-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.4-d11-canary:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.5-d11-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.5-d11-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-8.5-d11-canary:
+      - test-php-max-d12-canary:
           filters:
             tags:
               only: /.*/
       - deploy:
           requires:
-            - test-php-8.2-d10-legacy
-            - test-php-8.2-d10-stable
-            - test-php-8.2-d10-canary
-            - test-php-8.3-d10-legacy
-            - test-php-8.3-d10-stable
-            - test-php-8.3-d10-canary
-            - test-php-8.4-d10-legacy
-            - test-php-8.4-d10-stable
-            - test-php-8.4-d10-canary
-            - test-php-8.3-d11-legacy
-            - test-php-8.3-d11-stable
-            - test-php-8.3-d11-canary
-            - test-php-8.4-d11-legacy
-            - test-php-8.4-d11-stable
-            - test-php-8.4-d11-canary
-            - test-php-8.5-d11-legacy
-            - test-php-8.5-d11-stable
-            - test-php-8.5-d11-canary
+            - test-php-min-d10-stable
+            - test-php-max-d10-stable
+            - test-php-min-d11-stable
+            - test-php-max-d11-stable
+            - test-php-min-d11-legacy
+            - test-php-max-d11-canary
+            - test-php-max-d12-canary
           filters:
             tags:
               only: /.*/
