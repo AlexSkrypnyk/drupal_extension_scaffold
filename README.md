@@ -187,10 +187,7 @@ The two axes behave differently:
 - **Drupal versions float, with one exception.** `stable` (`10`, `11`) resolves to the newest stable minor, and `canary` (`11@beta`) resolves to the latest alpha, beta or release candidate, falling back to the current stable when none exists. Both follow Drupal core on their own with no edits. The only Drupal value that does not float is the pinned `legacy` minor (`11.1.0`, which Composer resolves to the newest `11.1.x` patch), pinned on purpose so the job genuinely exercises an older minor.
 - **PHP versions are pinned bounds.** Neither provider can float a PHP version - the GitHub Actions setup action and the CircleCI images both take an explicit version - so the `min` and `max` PHP values are fixed. They change rarely: `max` when a newer PHP is added, `min` only when support for an old PHP is dropped.
 
-Because `stable` and `canary` float, the matrix follows Drupal core on its own - a new stable minor or pre-release is picked up on the next CI run with no changes. Only the pinned `legacy` value needs occasional attention as core advances, and you have two ways to keep it current:
-
-1. **Manage it yourself** - bump the `legacy` value in [`.github/workflows/test.yml`](.github/workflows/test.yml) and [`.circleci/config.yml`](.circleci/config.yml) when you want to move the tested floor forward.
-2. **Re-pull from the scaffold** - run the scaffold update (see [Updating your extension](#updating-your-extension)) after each minor core release. This template stays in line with the versions Drupal core provides, so updating from it brings the refreshed `legacy` pin (and any PHP version changes) into your project for you.
+Because `stable` and `canary` float, the matrix follows Drupal core on its own - a new stable minor or pre-release is picked up on the next CI run with no manual changes. The pinned `legacy` minor and the PHP versions are set-and-forget: they keep exercising the same floor indefinitely, so there is nothing you have to maintain by hand. When you want to move that floor forward as core and PHP advance, re-pull from the scaffold (see [Updating your extension](#updating-your-extension)) - this template tracks the versions Drupal core provides, so updating from it refreshes the `legacy` pin and the PHP versions for you.
 
 ### Patching dependencies
 
