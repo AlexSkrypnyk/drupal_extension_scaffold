@@ -77,91 +77,44 @@ jobs:
         run: npm run lint
         continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
+  prepare:
+    runs-on: ubuntu-24.04
+
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+
+    steps:
+      - name: Build the test matrix
+        id: matrix
+        # Define every PHP and Drupal version once here. Only the legacy
+        # Drupal pin needs manual maintenance; stable and canary float.
+        run: |
+          matrix="$(jq -c -n \
+            --arg php_d10_min '8.2' \
+            --arg php_d10_max '8.4' \
+            --arg php_d11_min '8.3' \
+            --arg php_d11_max '8.5' \
+            --arg drupal_legacy '__VERSION__' \
+            '{
+              include: [
+                {name: "test-php-min-d10-stable", "php-version": $php_d10_min, "drupal-version": "__VERSION__"},
+                {name: "test-php-max-d10-stable", "php-version": $php_d10_max, "drupal-version": "__VERSION__"},
+                {name: "test-php-min-d11-stable", "php-version": $php_d11_min, "drupal-version": "__VERSION__"},
+                {name: "test-php-max-d11-stable", "php-version": $php_d11_max, "drupal-version": "__VERSION__"},
+                {name: "test-php-min-d11-legacy", "php-version": $php_d11_min, "drupal-version": $drupal_legacy},
+                {name: "test-php-max-d11-canary", "php-version": $php_d11_max, "drupal-version": "__VERSION__"},
+                {name: "test-php-max-d12-canary", "php-version": $php_d11_max, "drupal-version": "__VERSION__"}
+              ]
+            }')"
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+
   test:
+    needs: prepare
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
-
-      matrix:
-        include:
-          - name: test-php-8.2-d10-legacy
-            php-version: 8.2
-            drupal-version: __VERSION__
-
-          - name: test-php-8.2-d10-stable
-            php-version: 8.2
-            drupal-version: 10
-
-          - name: test-php-8.2-d10-canary
-            php-version: 8.2
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.3-d10-legacy
-            php-version: 8.3
-            drupal-version: __VERSION__
-
-          - name: test-php-8.3-d10-stable
-            php-version: 8.3
-            drupal-version: 10
-
-          - name: test-php-8.3-d10-canary
-            php-version: 8.3
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.4-d10-legacy
-            php-version: 8.4
-            drupal-version: __VERSION__
-
-          - name: test-php-8.4-d10-stable
-            php-version: 8.4
-            drupal-version: 10
-
-          - name: test-php-8.4-d10-canary
-            php-version: 8.4
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.3-d11-legacy
-            php-version: 8.3
-            drupal-version: __VERSION__
-
-          - name: test-php-8.3-d11-stable
-            php-version: 8.3
-            drupal-version: 11
-
-          - name: test-php-8.3-d11-canary
-            php-version: 8.3
-            drupal-version: 11@beta
-            stability: canary
-
-          - name: test-php-8.4-d11-legacy
-            php-version: 8.4
-            drupal-version: __VERSION__
-
-          - name: test-php-8.4-d11-stable
-            php-version: 8.4
-            drupal-version: 11
-
-          - name: test-php-8.4-d11-canary
-            php-version: 8.4
-            drupal-version: 11@beta
-            stability: canary
-
-          - name: test-php-8.5-d11-legacy
-            php-version: 8.5
-            drupal-version: __VERSION__
-
-          - name: test-php-8.5-d11-stable
-            php-version: 8.5
-            drupal-version: 11
-
-          - name: test-php-8.5-d11-canary
-            php-version: 8.5
-            drupal-version: 11@beta
-            stability: canary
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
 
     services:
       chrome:

@@ -1,6 +1,6 @@
-@@ -163,11 +163,6 @@
-             drupal-version: 11@beta
-             stability: canary
+@@ -116,11 +116,6 @@
+       fail-fast: false
+       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
  
 -    services:
 -      chrome:
@@ -10,7 +10,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -228,35 +223,3 @@
+@@ -181,35 +176,3 @@
          run: npm test
          continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  

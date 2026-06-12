@@ -1,6 +1,6 @@
-@@ -163,11 +163,6 @@
-             drupal-version: 11@beta
-             stability: canary
+@@ -116,11 +116,6 @@
+       fail-fast: false
+       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
  
 -    services:
 -      chrome:
