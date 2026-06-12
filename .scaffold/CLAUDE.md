@@ -45,24 +45,26 @@ All commands run from `.scaffold/tests/`. Install dependencies once with `compos
 
 When source files change (workflows, `.devtools/`, `init.php`, Claude settings, etc.), the fixtures fall out of date. Regenerate them.
 
-**HARD RULE - `cd` into `.scaffold/tests` and regenerate serially with `--jobs=1`.**
+**HARD RULE - regenerate snapshots in this exact order. Never manipulate `TMPDIR` and never pass `--jobs`.**
+
+1. Commit your current source changes first (as their own commit).
+2. `cd` into `.scaffold/tests`.
+3. Run `composer update-snapshots`.
 
 ```bash
 cd .scaffold/tests
-composer update-snapshots -- --jobs=1
+composer update-snapshots
 ```
 
-By default the runner regenerates the per-dataset fixtures in parallel. In automated or sandboxed environments - where `TMPDIR` may be a relative path that the runner resolves against its own working copy - the parallel workers race against each other and the shared temp area: one or more datasets are then silently dropped from, or written as raw diff garbage into, the regenerated set while the run still reports overall success, leaving broken fixtures that only surface as a CI failure later. `--jobs=1` forces a deterministic serial run so every dataset regenerates correctly. Always `git show --stat` the resulting commit and confirm it touches only the files your change should have affected.
-
-**HARD RULE - commit source changes before regenerating.** `update-snapshots` stages, commits, and amends the fixture diffs via `git`. Always commit your source changes (`.ahoy.yml`, `Makefile`, `.devtools/`, `init.php`, etc.) as their own commit **first**, then run `update-snapshots` so the regenerated fixtures land in a separate, clean commit on top. Running it with uncommitted source mixes the two changesets and leaves the branch history tangled.
+Committing the source first matters because `update-snapshots` stages, commits, and amends the fixture diffs via `git`: with the source already in its own commit, the regenerated fixtures land in a separate, clean commit on top instead of mixing the two changesets.
 
 This wraps `vendor/bin/update-snapshots` from `alexskrypnyk/snapshot`. It:
 
 1. Runs the baseline dataset first and commits any baseline diff as its own commit.
-2. Runs the remaining datasets (serially under `--jobs=1`) and amends the baseline commit with each fixture diff.
+2. Runs the remaining datasets and amends the baseline commit with each fixture diff.
 3. Exits non-zero on the first run because the original tests failed against the stale snapshots - that is expected; the snapshots are now correct.
 
-From inside `.scaffold/tests`, run `composer test -- --filter=InitTest` afterwards to confirm everything is green, then review the committed diffs before pushing.
+After it finishes, `git show --stat` the resulting commit to confirm it touches only the files your change should have affected, then run `composer test -- --filter=InitTest` from inside `.scaffold/tests` to confirm everything is green before pushing.
 
 The trait that drives the diff-and-update behaviour is `SnapshotTrait` (see `tearDown()` in `InitTest`); it calls `snapshotUpdateOnFailure()` so a normal `test` run will also rewrite fixtures if you have not used the dedicated `update-snapshots` command.
 
