@@ -49,16 +49,6 @@ job-test: &job-test
           fi
 
     - run:
-        name: Install Node.js dependencies
-        command: npm ci --ignore-scripts
-
-    #;< DEV_CSPELL
-    - run:
-        name: Lint code with CSpell
-        command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
-    #;> DEV_CSPELL
-
-    - run:
         name: Assemble the codebase
         command: .devtools/assemble
 
@@ -71,41 +61,6 @@ job-test: &job-test
     - run:
         name: Provision site
         command: .devtools/provision
-
-    #;< DEV_PHPCS
-    - run:
-        name: Lint code with PHPCS
-        command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
-        working_directory: build
-    #;> DEV_PHPCS
-
-    #;< DEV_PHPSTAN
-    - run:
-        name: Lint code with PHPStan
-        command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
-        working_directory: build
-    #;> DEV_PHPSTAN
-
-    #;< DEV_RECTOR
-    - run:
-        name: Lint code with Rector
-        command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
-        working_directory: build
-    #;> DEV_RECTOR
-
-    #;< DEV_TWIGCS
-    - run:
-        name: Lint code with Twig CS Fixer
-        command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
-        working_directory: build
-    #;> DEV_TWIGCS
-
-    #;< DEV_NODEJS_LINT
-    - run:
-        name: Lint module code with NodeJS linters
-        command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
-        working_directory: build
-    #;> DEV_NODEJS_LINT
 
     #;< DEV_JEST
     - run:
@@ -142,6 +97,62 @@ job-test: &job-test
     #;> DEV_PHPUNIT
 
 jobs:
+  lint:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.5-browsers
+    steps:
+      - checkout
+
+      - run:
+          name: Install Node.js dependencies
+          command: npm ci --ignore-scripts
+
+      #;< DEV_CSPELL
+      - run:
+          name: Lint code with CSpell
+          command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> DEV_CSPELL
+
+      - run:
+          name: Assemble the codebase
+          command: .devtools/assemble
+
+      #;< DEV_PHPCS
+      - run:
+          name: Lint code with PHPCS
+          command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+      #;> DEV_PHPCS
+
+      #;< DEV_PHPSTAN
+      - run:
+          name: Lint code with PHPStan
+          command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+      #;> DEV_PHPSTAN
+
+      #;< DEV_RECTOR
+      - run:
+          name: Lint code with Rector
+          command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+      #;> DEV_RECTOR
+
+      #;< DEV_TWIGCS
+      - run:
+          name: Lint code with Twig CS Fixer
+          command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+      #;> DEV_TWIGCS
+
+      #;< DEV_NODEJS_LINT
+      - run:
+          name: Lint module code with NodeJS linters
+          command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
+          working_directory: build
+      #;> DEV_NODEJS_LINT
+
   test-php-min-d10-stable:
     <<: *container_config
     docker:
@@ -206,9 +217,6 @@ jobs:
       #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
       DRUPAL_VERSION: 11@beta
-      #;< DEV_PHPSTAN
-      CI_PHPSTAN_IGNORE_FAILURE: 1 # PHPStan levels for canary releases are not the same as for this project.
-      #;> DEV_PHPSTAN
     <<: *job-test
 
   deploy:
@@ -233,6 +241,10 @@ workflows:
   version: 2
   commit:
     jobs:
+      - lint:
+          filters:
+            tags:
+              only: /.*/
       - test-php-min-d10-stable:
           filters:
             tags:
@@ -259,6 +271,7 @@ workflows:
               only: /.*/
       - deploy:
           requires:
+            - lint
             - test-php-min-d10-stable
             - test-php-max-d10-stable
             - test-php-min-d11-stable
