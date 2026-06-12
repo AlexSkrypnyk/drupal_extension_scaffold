@@ -167,6 +167,40 @@ DRUPAL_VERSION=11.1 make build      # Drupal 11.1
 The `minimum-stability` setting in the `composer.json` file is
 automatically adjusted to match the specified Drupal version's stability.
 
+### CI Drupal version matrix
+
+The CI configuration ([GitHub Actions](.github/workflows/test.yml) and
+[CircleCI](.circleci/config.yml)) tests the extension against several Drupal
+core versions, grouped into three tiers for each supported PHP version:
+
+- **`stable`** (`10`, `11`) — the latest stable release of a core major. This
+  value floats: Composer resolves it to the newest stable minor, so it never
+  needs updating.
+- **`canary`** (`10@beta`, `11@beta`) — the newest pre-release of a core
+  major. This value also floats: it resolves to the latest alpha, beta or
+  release candidate when one exists, and otherwise falls back to the current
+  stable release. It never needs updating.
+- **`legacy`** (for example `11.1.0`) — the oldest core minor the extension is
+  tested against, pinned to an exact minor series (Composer resolves `11.1.0`
+  to the newest `11.1.x` patch). It is pinned on purpose so the job genuinely
+  exercises an older minor instead of floating up to the latest one, which
+  makes it the only value in the matrix that is not automatic.
+
+Because `stable` and `canary` float, the matrix follows Drupal core on its own
+— a new stable minor or pre-release is picked up on the next CI run with no
+changes. Only the pinned `legacy` value needs occasional attention as core
+advances, and you have two ways to keep it current:
+
+1. **Manage it yourself** — bump the `legacy` values in
+   [`.github/workflows/test.yml`](.github/workflows/test.yml) and
+   [`.circleci/config.yml`](.circleci/config.yml) when you want to move the
+   tested floor forward.
+2. **Re-pull from the scaffold** — run the scaffold update (see
+   [Updating your extension](#updating-your-extension)) after each minor core
+   release. This template stays in line with the versions Drupal core
+   provides, so updating from it brings the refreshed `legacy` pins (and any
+   PHP version changes) into your project for you.
+
 ### Patching dependencies
 
 To apply patches to the dependencies, add a patch to the `patches` section of
