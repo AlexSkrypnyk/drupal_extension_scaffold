@@ -87,50 +87,50 @@ jobs:
         include:
           - name: test-php-8.2-d10-legacy
             php-version: 8.2
-            drupal-version: __VERSION__
+            drupal-version: 10.2
 
           - name: test-php-8.2-d10-stable
             php-version: 8.2
-            drupal-version: 10
+            drupal-version: 10.3
 
           - name: test-php-8.2-d10-canary
             php-version: 8.2
-            drupal-version: 10@beta
+            drupal-version: 10.4@beta
             stability: canary
 
           - name: test-php-8.3-d10-legacy
             php-version: 8.3
-            drupal-version: __VERSION__
+            drupal-version: 10.2
 
           - name: test-php-8.3-d10-stable
             php-version: 8.3
-            drupal-version: 10
+            drupal-version: 10.3
 
           - name: test-php-8.3-d10-canary
             php-version: 8.3
-            drupal-version: 10@beta
+            drupal-version: 10.4@beta
             stability: canary
 
           - name: test-php-8.4-d10-legacy
             php-version: 8.4
-            drupal-version: __VERSION__
+            drupal-version: 10.3 # Lowest Drupal version that supports PHP 8.4.
 
           - name: test-php-8.4-d10-stable
             php-version: 8.4
-            drupal-version: 10
+            drupal-version: 10.3
 
           - name: test-php-8.4-d10-canary
             php-version: 8.4
-            drupal-version: 10@beta
+            drupal-version: 10.4@beta
             stability: canary
 
           - name: test-php-8.3-d11-legacy
             php-version: 8.3
-            drupal-version: __VERSION__
+            drupal-version: 11.0 # Lowest Drupal version that exists.
 
           - name: test-php-8.3-d11-stable
             php-version: 8.3
-            drupal-version: 11
+            drupal-version: 11.0
 
           - name: test-php-8.3-d11-canary
             php-version: 8.3
@@ -139,11 +139,11 @@ jobs:
 
           - name: test-php-8.4-d11-legacy
             php-version: 8.4
-            drupal-version: __VERSION__
+            drupal-version: 11.0 # Lowest Drupal version that exists.
 
           - name: test-php-8.4-d11-stable
             php-version: 8.4
-            drupal-version: 11
+            drupal-version: 11.0
 
           - name: test-php-8.4-d11-canary
             php-version: 8.4
@@ -152,11 +152,11 @@ jobs:
 
           - name: test-php-8.5-d11-legacy
             php-version: 8.5
-            drupal-version: __VERSION__
+            drupal-version: 11.3 # Lowest Drupal version that supports PHP 8.5.
 
           - name: test-php-8.5-d11-stable
             php-version: 8.5
-            drupal-version: 11
+            drupal-version: 11.3
 
           - name: test-php-8.5-d11-canary
             php-version: 8.5
