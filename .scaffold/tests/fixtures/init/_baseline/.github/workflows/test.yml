@@ -85,80 +85,27 @@ jobs:
 
       matrix:
         include:
-          - name: test-php-8.2-d10-legacy
-            php-version: 8.2
-            drupal-version: __VERSION__
-
-          - name: test-php-8.2-d10-stable
+          - name: test-php-min-d10-stable
             php-version: 8.2
             drupal-version: 10
 
-          - name: test-php-8.2-d10-canary
-            php-version: 8.2
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.3-d10-legacy
-            php-version: 8.3
-            drupal-version: __VERSION__
-
-          - name: test-php-8.3-d10-stable
-            php-version: 8.3
-            drupal-version: 10
-
-          - name: test-php-8.3-d10-canary
-            php-version: 8.3
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.4-d10-legacy
-            php-version: 8.4
-            drupal-version: __VERSION__
-
-          - name: test-php-8.4-d10-stable
+          - name: test-php-max-d10-stable
             php-version: 8.4
             drupal-version: 10
 
-          - name: test-php-8.4-d10-canary
-            php-version: 8.4
-            drupal-version: 10@beta
-            stability: canary
-
-          - name: test-php-8.3-d11-legacy
-            php-version: 8.3
-            drupal-version: __VERSION__
-
-          - name: test-php-8.3-d11-stable
+          - name: test-php-min-d11-stable
             php-version: 8.3
             drupal-version: 11
 
-          - name: test-php-8.3-d11-canary
-            php-version: 8.3
-            drupal-version: 11@beta
-            stability: canary
-
-          - name: test-php-8.4-d11-legacy
-            php-version: 8.4
-            drupal-version: __VERSION__
-
-          - name: test-php-8.4-d11-stable
-            php-version: 8.4
-            drupal-version: 11
-
-          - name: test-php-8.4-d11-canary
-            php-version: 8.4
-            drupal-version: 11@beta
-            stability: canary
-
-          - name: test-php-8.5-d11-legacy
-            php-version: 8.5
-            drupal-version: __VERSION__
-
-          - name: test-php-8.5-d11-stable
+          - name: test-php-max-d11-stable
             php-version: 8.5
             drupal-version: 11
 
-          - name: test-php-8.5-d11-canary
+          - name: test-php-min-d11-legacy
+            php-version: 8.3
+            drupal-version: __VERSION__
+
+          - name: test-php-max-d11-canary
             php-version: 8.5
             drupal-version: 11@beta
             stability: canary
