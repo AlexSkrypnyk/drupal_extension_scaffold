@@ -153,6 +153,7 @@ jobs:
           working_directory: build
       #;> DEV_NODEJS_LINT
 
+  #;< DRUPAL_10
   test-php-min-d10-stable:
     <<: *container_config
     docker:
@@ -175,6 +176,8 @@ jobs:
       DRUPAL_VERSION: 10
     <<: *job-test
 
+  #;> DRUPAL_10
+  #;< DRUPAL_11
   test-php-min-d11-stable:
     <<: *container_config
     docker:
@@ -219,6 +222,7 @@ jobs:
       DRUPAL_VERSION: 11@beta
     <<: *job-test
 
+  #;> DRUPAL_11
   deploy:
     <<: *container_config
 
@@ -245,6 +249,7 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #;< DRUPAL_10
       - test-php-min-d10-stable:
           filters:
             tags:
@@ -253,6 +258,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #;> DRUPAL_10
+      #;< DRUPAL_11
       - test-php-min-d11-stable:
           filters:
             tags:
@@ -269,15 +276,20 @@ workflows:
           filters:
             tags:
               only: /.*/
+      #;> DRUPAL_11
       - deploy:
           requires:
             - lint
+            #;< DRUPAL_10
             - test-php-min-d10-stable
             - test-php-max-d10-stable
+            #;> DRUPAL_10
+            #;< DRUPAL_11
             - test-php-min-d11-stable
             - test-php-max-d11-stable
             - test-php-min-d11-legacy
             - test-php-max-d11-canary
+            #;> DRUPAL_11
           filters:
             tags:
               only: /.*/
