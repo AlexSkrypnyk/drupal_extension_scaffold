@@ -8,6 +8,36 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 ## Development Commands
 
+**HARD RULE - use the provided command wrappers, never the tool binaries directly.** When `make` or `ahoy` exposes a command for a task, use that command; do not call the underlying binary directly. Each wrapper `chdir`s into `build/` and runs the tool with the config, plugins, and environment that CI uses, so a raw invocation from the repository root silently diverges from CI - it can pass locally while CI fails (or vice versa), or crash outright when a relative path resolves against the wrong directory. If no wrapped command covers what you need, extend the `make` / `ahoy` target rather than making a one-off raw call; if that is not feasible, stop and ask.
+
+Run each tool through its wrapper (the `make` targets below; `ahoy` mirrors each one) - never the binary directly:
+
+<!-- #;< DEV_PHPCS -->
+- **PHPCS / PHPCBF**: `make lint` / `make lint-fix` - never `vendor/bin/phpcs` or `vendor/bin/phpcbf`.
+<!-- #;> DEV_PHPCS -->
+<!-- #;< DEV_PHPSTAN -->
+- **PHPStan**: `make lint` - never `vendor/bin/phpstan`.
+<!-- #;> DEV_PHPSTAN -->
+<!-- #;< DEV_RECTOR -->
+- **Rector**: `make lint` (dry-run) / `make lint-fix` - never `vendor/bin/rector`.
+<!-- #;> DEV_RECTOR -->
+<!-- #;< DEV_TWIGCS -->
+- **Twig CS Fixer**: `make lint` / `make lint-fix` - never `vendor/bin/twig-cs-fixer`.
+<!-- #;> DEV_TWIGCS -->
+<!-- #;< DEV_NODEJS_LINT -->
+- **ESLint / Stylelint**: `make lint` / `make lint-fix` - never `npx eslint` or `npx stylelint`.
+<!-- #;> DEV_NODEJS_LINT -->
+<!-- #;< DEV_CSPELL -->
+- **CSpell**: `make lint` - never `npx cspell`.
+<!-- #;> DEV_CSPELL -->
+<!-- #;< DEV_PHPUNIT -->
+- **PHPUnit**: `make test` / `make test-unit` / `make test-kernel` / `make test-functional` - never `vendor/bin/phpunit`.
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_JEST -->
+- **Jest**: `make test-js` - never `npx jest`.
+<!-- #;> DEV_JEST -->
+- **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
+
 ### Build and Environment Management
 
 **Using Make (default):**
