@@ -1,12 +1,12 @@
-@@ -17,7 +17,6 @@
- - **Rector**: `make lint` (dry-run) / `make lint-fix` - never `vendor/bin/rector`.
- - **Twig CS Fixer**: `make lint` / `make lint-fix` - never `vendor/bin/twig-cs-fixer`.
- - **ESLint / Stylelint**: `make lint` / `make lint-fix` - never `npx eslint` or `npx stylelint`.
--- **CSpell**: `make lint` - never `npx cspell`.
- - **PHPUnit**: `make test` / `make test-unit` / `make test-kernel` / `make test-functional` - never `vendor/bin/phpunit`.
- - **Jest**: `make test-js` - never `npx jest`.
- - **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
-@@ -102,7 +101,6 @@
+@@ -18,7 +18,6 @@
+ - **Rector**: `ahoy lint` (dry-run) / `ahoy lint-fix` - never `vendor/bin/rector`.
+ - **Twig CS Fixer**: `ahoy lint` / `ahoy lint-fix` - never `vendor/bin/twig-cs-fixer`.
+ - **ESLint / Stylelint**: `ahoy lint` / `ahoy lint-fix` - never `npx eslint` or `npx stylelint`.
+-- **CSpell**: `ahoy lint` - never `npx cspell`.
+ - **PHPUnit**: `ahoy test` / `ahoy test-unit` / `ahoy test-kernel` / `ahoy test-functional` - never `vendor/bin/phpunit`.
+ - **Jest**: `ahoy test-js` - never `npx jest`.
+ - **Drush**: `ahoy drush <command>` - never `build/vendor/bin/drush` directly.
+@@ -103,7 +102,6 @@
  
  ## Code Quality Tools
  
