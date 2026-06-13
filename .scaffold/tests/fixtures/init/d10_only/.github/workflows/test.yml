@@ -1,0 +1,24 @@
+@@ -93,23 +93,6 @@
+             php-version: 8.4
+             drupal-version: 10
+ 
+-          - name: test-php-min-d11-stable
+-            php-version: 8.3
+-            drupal-version: 11
+-
+-          - name: test-php-max-d11-stable
+-            php-version: 8.5
+-            drupal-version: 11
+-
+-          - name: test-php-min-d11-legacy
+-            php-version: 8.3
+-            drupal-version: __VERSION__
+-
+-          - name: test-php-max-d11-canary
+-            php-version: 8.5
+-            drupal-version: 11@beta
+-            stability: canary
+-
+     services:
+       chrome:
+         image: selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b

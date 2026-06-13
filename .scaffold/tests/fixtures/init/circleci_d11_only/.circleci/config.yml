@@ -1,0 +1,225 @@
+# @see https://github.com/AlexSkrypnyk/drupal_extension_scaffold
+version: 2
+
+aliases:
+  # Default git branch name used for deploying tagged releases.
+  - &default_branch "1.x"
+
+  # SSH deployment key fingerprint from CircleCI App -> Project -> Settings -> SSH Permissions.
+  # Replace with the value used for your project.
+  - &deploy_ssh_key_fingerprint "SHA256:AND4unJGhp4XCwNKyLj6uY3eJtUCZrVbpAtogtvxHbs"
+
+  # Configuration for shared runner containers, applied to each job.
+  - &container_config
+    working_directory: ~/project
+    docker:
+      - image: cimg/php:__VERSION__
+
+  - &selenium_image
+    image: selenium/standalone-chromium:latest
+
+job-test: &job-test
+  steps:
+    - checkout
+
+    - run:
+        name: Upgrade sqlite3
+        command: |
+          wget https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz -O /tmp/sqlite.tar.gz
+          tar -xzf /tmp/sqlite.tar.gz -C /tmp
+          cd /tmp/sqlite-autoconf-3450300
+          ./configure CFLAGS="-DSQLITE_ENABLE_COLUMN_METADATA=1" --prefix=/usr/local
+          make && sudo make install
+          sudo ldconfig
+          echo "export LD_LIBRARY_PATH=/usr/local/lib" >> $BASH_ENV
+
+    - run:
+        name: Install PCOV
+        command: |
+          sudo pecl install pcov
+          echo -e "extension=pcov.so\npcov.enabled=1" | sudo tee -a /usr/local/etc/php/conf.d/pcov.ini
+
+    - run:
+        name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4+
+        command: |
+          if [ "$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')" -ge "84" ]; then
+            echo "SYMFONY_DEPRECATIONS_HELPER=disabled" >> $BASH_ENV
+          fi
+
+    - run:
+        name: Assemble the codebase
+        command: .devtools/assemble
+
+    - run:
+        name: Start built-in PHP server
+        command: .devtools/start
+        environment:
+          WEBSERVER_HOST: __VERSION__.0
+
+    - run:
+        name: Provision site
+        command: .devtools/provision
+
+    - run:
+        name: Run JS tests
+        command: '[ ! -d node_modules ] || npm test || [ "${CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]'
+        working_directory: build
+
+    - run:
+        name: Run tests
+        command: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+        environment:
+          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
+          SIMPLETEST_DB: sqlite://tmp/db.sqlite
+
+    - store_test_results:
+        path: .logs/test_results
+
+    - store_artifacts:
+        path: build/web/sites/simpletest/browser_output
+
+    - store_artifacts:
+        path: .logs/coverage
+
+    - run:
+        name: Upload code coverage reports to Codecov
+        command: |
+          if [ -z "${CIRCLE_TAG-}" ] && [ -n "${CODECOV_TOKEN-}" ] && [ -d .logs/coverage/phpunit ]; then
+            curl -Os https://cli.codecov.io/latest/linux/codecov && sudo chmod +x codecov
+            ./codecov --verbose upload-process --fail-on-error -n "circleci-$CIRCLE_JOB" -s .logs/coverage
+          fi
+
+jobs:
+  lint:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+    steps:
+      - checkout
+
+      - run:
+          name: Install Node.js dependencies
+          command: npm ci --ignore-scripts
+
+      - run:
+          name: Lint code with CSpell
+          command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Assemble the codebase
+          command: .devtools/assemble
+
+      - run:
+          name: Lint code with PHPCS
+          command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+
+      - run:
+          name: Lint code with PHPStan
+          command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+
+      - run:
+          name: Lint code with Rector
+          command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+
+      - run:
+          name: Lint code with Twig CS Fixer
+          command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+          working_directory: build
+
+      - run:
+          name: Lint module code with NodeJS linters
+          command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
+          working_directory: build
+
+  test-php-min-d11-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 11
+    <<: *job-test
+
+  test-php-max-d11-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 11
+    <<: *job-test
+
+  test-php-min-d11-legacy:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: __VERSION__
+    <<: *job-test
+
+  test-php-max-d11-canary:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 11@beta
+    <<: *job-test
+
+  deploy:
+    <<: *container_config
+
+    environment:
+      DEPLOY_SSH_KEY_FINGERPRINT: *deploy_ssh_key_fingerprint
+      DEFAULT_BRANCH: *default_branch
+
+    steps:
+      - checkout
+
+      - add_ssh_keys:
+          fingerprints:
+            - *deploy_ssh_key_fingerprint
+
+      - run:
+          name: Deploy
+          command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH:-${DEFAULT_BRANCH}}} .devtools/deploy
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - lint:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-min-d11-stable:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-max-d11-stable:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-min-d11-legacy:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-max-d11-canary:
+          filters:
+            tags:
+              only: /.*/
+      - deploy:
+          requires:
+            - lint
+            - test-php-min-d11-stable
+            - test-php-max-d11-stable
+            - test-php-min-d11-legacy
+            - test-php-max-d11-canary
+          filters:
+            tags:
+              only: /.*/
