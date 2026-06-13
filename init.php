@@ -220,12 +220,15 @@ function process(string $extension_name, string $extension_machine_name, string 
     remove_dir('.circleci');
   }
 
-  // Remove unwanted command wrappers.
+  // Remove unwanted command wrappers and their wrapper-specific documentation
+  // blocks (marked with '#;< DEV_AHOY' / '#;< DEV_MAKEFILE').
   if (!in_array('ahoy', $command_wrapper, TRUE)) {
     @unlink('.ahoy.yml');
+    remove_tokens_with_content('DEV_AHOY');
   }
   if (!in_array('makefile', $command_wrapper, TRUE)) {
     @unlink('Makefile');
+    remove_tokens_with_content('DEV_MAKEFILE');
   }
 
   // Trim wrapper-specific permissions from Claude settings to match selection.
