@@ -1,4 +1,4 @@
-@@ -10,17 +10,12 @@
+@@ -10,21 +10,23 @@
  
  **HARD RULE - use the provided command wrappers, never the tool binaries directly.** When `make` or `ahoy` exposes a command for a task, use that command; do not call the underlying binary directly. Each wrapper `chdir`s into `build/` and runs the tool with the config, plugins, and environment that CI uses, so a raw invocation from the repository root silently diverges from CI - it can pass locally while CI fails (or vice versa), or crash outright when a relative path resolves against the wrong directory. If no wrapped command covers what you need, extend the `make` / `ahoy` target rather than making a one-off raw call; if that is not feasible, stop and ask.
  
@@ -19,21 +19,51 @@
  - **Drush**: `ahoy drush <command>` - never `build/vendor/bin/drush` directly.
  
  ### Build and Environment Management
-@@ -47,13 +42,6 @@
+ 
++**Using Make (default):**
++- `make build` - Complete build (stop → assemble → start → provision)
++- `make assemble` - Assemble codebase with dependencies
++- `make start` - Start PHP development server
++- `make stop` - Stop development server
++- `make provision` - Install/provision Drupal site
++- `make reset` - Clean build directory and logs (aliases: `make delete`, `make destroy`)
+ 
+ **Using Ahoy (alternative):**
+ - `ahoy build` - Complete build process
+@@ -35,26 +37,25 @@
+ ### Code Quality
+ 
+ **Linting:**
++- `make lint` - Run all linting tools
++- `make lint-fix` - Auto-fix coding standards violations
+ - `ahoy lint` - Run all linting tools
+ - `ahoy lint-fix` - Auto-fix coding standards violations
  
  **Testing:**
- - `make test` / `ahoy test` - Run all tests
--- `make test-unit` / `ahoy test-unit` - Run unit tests only
--- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
--- `make test-functional` / `ahoy test-functional` - Run functional tests only
--- `make test-functional-javascript` / `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
--- `make test-js` / `ahoy test-js` - Run JavaScript unit tests (Jest)
--- `make selenium-start` / `ahoy selenium-start` - Start Selenium container
--- `make selenium-stop` / `ahoy selenium-stop` - Stop Selenium container
++- `make test` - Run all tests
+ - `ahoy test` - Run all tests
+-- `ahoy test-unit` - Run unit tests only
+-- `ahoy test-kernel` - Run kernel tests only
+-- `ahoy test-functional` - Run functional tests only
+-- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+-- `ahoy test-js` - Run JavaScript unit tests (Jest)
+-- `ahoy selenium-start` - Start Selenium container
+-- `ahoy selenium-stop` - Stop Selenium container
  
  ### Drupal Commands
  
-@@ -68,7 +56,6 @@
++- `make drush <command>` - Run Drush commands
++- `make login` - Get one-time login link
+ - `ahoy drush <command>` - Run Drush commands
+ - `ahoy login` - Get one-time login link
+ 
+ ### Diagnostics
+ 
++- `make info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `make describe`)
+ - `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `ahoy describe`)
+ 
+ ## Project Structure
+@@ -61,7 +62,6 @@
  
  **Key Directories:**
  - `src/` - Extension source code (services, forms, etc.)
@@ -41,7 +71,7 @@
  - `config/schema/` - Configuration schema definitions
  - `build/` - Assembled Drupal codebase (symlinked extension)
  - `.devtools/` - Build and deployment scripts used by CI
-@@ -103,11 +90,6 @@
+@@ -96,11 +96,6 @@
  
  ## Code Quality Tools
  

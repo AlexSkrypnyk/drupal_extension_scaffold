@@ -25,13 +25,6 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 ### Build and Environment Management
 
-**Using Make (default):**
-- `make build` - Complete build (stop → assemble → start → provision)
-- `make assemble` - Assemble codebase with dependencies
-- `make start` - Start PHP development server
-- `make stop` - Stop development server
-- `make provision` - Install/provision Drupal site
-- `make reset` - Clean build directory and logs (aliases: `make delete`, `make destroy`)
 
 **Using Ahoy (alternative):**
 - `ahoy build` - Complete build process
@@ -42,27 +35,27 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools
-- `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
+- `ahoy lint` - Run all linting tools
+- `ahoy lint-fix` - Auto-fix coding standards violations
 
 **Testing:**
-- `make test` / `ahoy test` - Run all tests
-- `make test-unit` / `ahoy test-unit` - Run unit tests only
-- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
-- `make test-functional` / `ahoy test-functional` - Run functional tests only
-- `make test-functional-javascript` / `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
-- `make test-js` / `ahoy test-js` - Run JavaScript unit tests (Jest)
-- `make selenium-start` / `ahoy selenium-start` - Start Selenium container
-- `make selenium-stop` / `ahoy selenium-stop` - Stop Selenium container
+- `ahoy test` - Run all tests
+- `ahoy test-unit` - Run unit tests only
+- `ahoy test-kernel` - Run kernel tests only
+- `ahoy test-functional` - Run functional tests only
+- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+- `ahoy test-js` - Run JavaScript unit tests (Jest)
+- `ahoy selenium-start` - Start Selenium container
+- `ahoy selenium-stop` - Stop Selenium container
 
 ### Drupal Commands
 
-- `make drush <command>` - Run Drush commands
-- `make login` / `ahoy login` - Get one-time login link
+- `ahoy drush <command>` - Run Drush commands
+- `ahoy login` - Get one-time login link
 
 ### Diagnostics
 
-- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (aliases: `make describe`, `ahoy describe`)
+- `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `ahoy describe`)
 
 ## Project Structure
 
