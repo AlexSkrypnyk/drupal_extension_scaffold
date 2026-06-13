@@ -7,11 +7,14 @@ on:
       - reopened
 
 permissions:
-  pull-requests: write
+  contents: read
 
 jobs:
   assign-author:
     runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Assign author

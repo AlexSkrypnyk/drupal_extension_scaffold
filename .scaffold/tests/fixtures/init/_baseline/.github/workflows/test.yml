@@ -17,9 +17,14 @@ jobs:
   lint:
     runs-on: ubuntu-24.04
 
+    permissions:
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@__HASH__ # __VERSION__
@@ -80,6 +85,9 @@ jobs:
   test:
     runs-on: ubuntu-24.04
 
+    permissions:
+      contents: read
+
     strategy:
       fail-fast: false
 
@@ -124,6 +132,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
 
       - name: Cache Composer dependencies
         uses: actions/cache@__HASH__ # __VERSION__

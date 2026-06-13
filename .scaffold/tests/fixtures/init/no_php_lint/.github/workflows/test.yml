@@ -1,4 +1,4 @@
-@@ -51,25 +51,9 @@
+@@ -56,25 +56,9 @@
          env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  

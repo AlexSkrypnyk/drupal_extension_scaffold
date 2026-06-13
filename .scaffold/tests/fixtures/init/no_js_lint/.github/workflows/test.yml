@@ -1,4 +1,4 @@
-@@ -71,11 +71,6 @@
+@@ -76,11 +76,6 @@
          run: vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
  
