@@ -1,4 +1,12 @@
-@@ -32,13 +32,7 @@
+@@ -18,7 +18,6 @@
+ - **Twig CS Fixer**: `make lint` / `make lint-fix` - never `vendor/bin/twig-cs-fixer`.
+ - **ESLint / Stylelint**: `make lint` / `make lint-fix` - never `npx eslint` or `npx stylelint`.
+ - **CSpell**: `make lint` - never `npx cspell`.
+-- **PHPUnit**: `make test` / `make test-unit` / `make test-kernel` / `make test-functional` - never `vendor/bin/phpunit`.
+ - **Jest**: `make test-js` - never `npx jest`.
+ - **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
+ 
+@@ -46,13 +45,7 @@
  
  **Testing:**
  - `make test` / `ahoy test` - Run all tests
@@ -12,7 +20,7 @@
  
  ### Drupal Commands
  
-@@ -53,7 +47,6 @@
+@@ -67,7 +60,6 @@
  
  **Key Directories:**
  - `src/` - Extension source code (services, forms, etc.)

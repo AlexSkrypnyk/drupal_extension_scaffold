@@ -1,4 +1,19 @@
-@@ -32,13 +32,6 @@
+@@ -12,14 +12,6 @@
+ 
+ Run each tool through its wrapper (the `make` targets below; `ahoy` mirrors each one) - never the binary directly:
+ 
+-- **PHPCS / PHPCBF**: `make lint` / `make lint-fix` - never `vendor/bin/phpcs` or `vendor/bin/phpcbf`.
+-- **PHPStan**: `make lint` - never `vendor/bin/phpstan`.
+-- **Rector**: `make lint` (dry-run) / `make lint-fix` - never `vendor/bin/rector`.
+-- **Twig CS Fixer**: `make lint` / `make lint-fix` - never `vendor/bin/twig-cs-fixer`.
+-- **ESLint / Stylelint**: `make lint` / `make lint-fix` - never `npx eslint` or `npx stylelint`.
+-- **CSpell**: `make lint` - never `npx cspell`.
+-- **PHPUnit**: `make test` / `make test-unit` / `make test-kernel` / `make test-functional` - never `vendor/bin/phpunit`.
+-- **Jest**: `make test-js` - never `npx jest`.
+ - **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
+ 
+ ### Build and Environment Management
+@@ -46,13 +38,6 @@
  
  **Testing:**
  - `make test` / `ahoy test` - Run all tests
@@ -12,7 +27,7 @@
  
  ### Drupal Commands
  
-@@ -53,7 +46,6 @@
+@@ -67,7 +52,6 @@
  
  **Key Directories:**
  - `src/` - Extension source code (services, forms, etc.)
@@ -20,7 +35,7 @@
  - `config/schema/` - Configuration schema definitions
  - `build/` - Assembled Drupal codebase (symlinked extension)
  - `.devtools/` - Build and deployment scripts used by CI
-@@ -88,11 +80,6 @@
+@@ -102,11 +86,6 @@
  
  ## Code Quality Tools
  

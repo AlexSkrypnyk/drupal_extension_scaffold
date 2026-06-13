@@ -1,4 +1,4 @@
-@@ -35,10 +35,7 @@
+@@ -49,10 +49,7 @@
  - `make test-unit` / `ahoy test-unit` - Run unit tests only
  - `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
  - `make test-functional` / `ahoy test-functional` - Run functional tests only
