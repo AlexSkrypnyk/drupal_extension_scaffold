@@ -410,10 +410,12 @@ function recordSession(string $cast_file, string $expect_script, int $rows = TER
  * 2. Text "Machine name" — accept placeholder default, press enter.
  * 3. Select "Extension type" — press enter (Module, first option).
  * 4. Select "CI provider" — press enter (GitHub Actions, first option).
- * 5. Multi-select "Command wrapper" — press space to select Ahoy, press enter.
- * 6. Multi-select "Tools" — all pre-checked; press enter to keep all tools.
- * 7. Confirm "Remove this script" — type "y", press enter.
- * 8. Confirm "Proceed" — type "y", press enter.
+ * 5. Multi-select "Target Drupal versions" — all pre-checked; press enter to
+ *    keep all majors.
+ * 6. Multi-select "Command wrapper" — press space to select Ahoy, press enter.
+ * 7. Multi-select "Tools" — all pre-checked; press enter to keep all tools.
+ * 8. Confirm "Remove this script" — type "y", press enter.
+ * 9. Confirm "Proceed" — type "y", press enter.
  *
  * @param string $script_path
  *   Path to write the expect script.
@@ -481,6 +483,13 @@ expect "Extension type" {
 expect "CI provider" {
     sleep {$delay}
     wait_and_enter
+}
+
+# Multi-select: Target Drupal versions — all pre-checked by default; confirm
+# with enter to keep all majors.
+expect "Target Drupal versions" {
+    sleep {$delay}
+    safe_send "\\r"
 }
 
 # Multi-select: Command wrapper — select "Ahoy" (first option) with space,

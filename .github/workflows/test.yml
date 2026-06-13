@@ -97,6 +97,7 @@ jobs:
 
       matrix:
         include:
+          #;< DRUPAL_10
           - name: test-php-min-d10-stable
             php-version: 8.2
             drupal-version: 10
@@ -105,6 +106,8 @@ jobs:
             php-version: 8.4
             drupal-version: 10
 
+          #;> DRUPAL_10
+          #;< DRUPAL_11
           - name: test-php-min-d11-stable
             php-version: 8.3
             drupal-version: 11
@@ -122,6 +125,7 @@ jobs:
             drupal-version: 11@beta
             stability: canary
 
+          #;> DRUPAL_11
     #;< DEV_FUNCTIONAL_JAVASCRIPT
     services:
       chrome:

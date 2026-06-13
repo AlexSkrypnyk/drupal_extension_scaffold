@@ -13,12 +13,10 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: cimg/php:__VERSION__
 
-  #;< DEV_FUNCTIONAL_JAVASCRIPT
   - &selenium_image
     image: selenium/standalone-chromium:latest
-  #;> DEV_FUNCTIONAL_JAVASCRIPT
 
 job-test: &job-test
   steps:
@@ -56,20 +54,17 @@ job-test: &job-test
         name: Start built-in PHP server
         command: .devtools/start
         environment:
-          WEBSERVER_HOST: 0.0.0.0
+          WEBSERVER_HOST: __VERSION__.0
 
     - run:
         name: Provision site
         command: .devtools/provision
 
-    #;< DEV_JEST
     - run:
         name: Run JS tests
         command: '[ ! -d node_modules ] || npm test || [ "${CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]'
         working_directory: build
-    #;> DEV_JEST
 
-    #;< DEV_PHPUNIT
     - run:
         name: Run tests
         command: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
@@ -94,13 +89,12 @@ job-test: &job-test
             curl -Os https://cli.codecov.io/latest/linux/codecov && sudo chmod +x codecov
             ./codecov --verbose upload-process --fail-on-error -n "circleci-$CIRCLE_JOB" -s .logs/coverage
           fi
-    #;> DEV_PHPUNIT
 
 jobs:
   lint:
     <<: *container_config
     docker:
-      - image: cimg/php:8.5-browsers
+      - image: cimg/php:__VERSION__
     steps:
       - checkout
 
@@ -108,59 +102,44 @@ jobs:
           name: Install Node.js dependencies
           command: npm ci --ignore-scripts
 
-      #;< DEV_CSPELL
       - run:
           name: Lint code with CSpell
           command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> DEV_CSPELL
 
       - run:
           name: Assemble the codebase
           command: .devtools/assemble
 
-      #;< DEV_PHPCS
       - run:
           name: Lint code with PHPCS
           command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
           working_directory: build
-      #;> DEV_PHPCS
 
-      #;< DEV_PHPSTAN
       - run:
           name: Lint code with PHPStan
           command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
           working_directory: build
-      #;> DEV_PHPSTAN
 
-      #;< DEV_RECTOR
       - run:
           name: Lint code with Rector
           command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
           working_directory: build
-      #;> DEV_RECTOR
 
-      #;< DEV_TWIGCS
       - run:
           name: Lint code with Twig CS Fixer
           command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
           working_directory: build
-      #;> DEV_TWIGCS
 
-      #;< DEV_NODEJS_LINT
       - run:
           name: Lint module code with NodeJS linters
           command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
           working_directory: build
-      #;> DEV_NODEJS_LINT
 
-  #;< DRUPAL_10
   test-php-min-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - image: cimg/php:__VERSION__
       - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
       DRUPAL_VERSION: 10
     <<: *job-test
@@ -168,61 +147,12 @@ jobs:
   test-php-max-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.4-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - image: cimg/php:__VERSION__
       - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
     environment:
       DRUPAL_VERSION: 10
     <<: *job-test
 
-  #;> DRUPAL_10
-  #;< DRUPAL_11
-  test-php-min-d11-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11
-    <<: *job-test
-
-  test-php-max-d11-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.5-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11
-    <<: *job-test
-
-  test-php-min-d11-legacy:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.3-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11.1.0
-    <<: *job-test
-
-  test-php-max-d11-canary:
-    <<: *container_config
-    docker:
-      - image: cimg/php:8.5-browsers
-      #;< DEV_FUNCTIONAL_JAVASCRIPT
-      - *selenium_image
-      #;> DEV_FUNCTIONAL_JAVASCRIPT
-    environment:
-      DRUPAL_VERSION: 11@beta
-    <<: *job-test
-
-  #;> DRUPAL_11
   deploy:
     <<: *container_config
 
@@ -249,7 +179,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      #;< DRUPAL_10
       - test-php-min-d10-stable:
           filters:
             tags:
@@ -258,38 +187,11 @@ workflows:
           filters:
             tags:
               only: /.*/
-      #;> DRUPAL_10
-      #;< DRUPAL_11
-      - test-php-min-d11-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-max-d11-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-min-d11-legacy:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-max-d11-canary:
-          filters:
-            tags:
-              only: /.*/
-      #;> DRUPAL_11
       - deploy:
           requires:
             - lint
-            #;< DRUPAL_10
             - test-php-min-d10-stable
             - test-php-max-d10-stable
-            #;> DRUPAL_10
-            #;< DRUPAL_11
-            - test-php-min-d11-stable
-            - test-php-max-d11-stable
-            - test-php-min-d11-legacy
-            - test-php-max-d11-canary
-            #;> DRUPAL_11
           filters:
             tags:
               only: /.*/

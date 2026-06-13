@@ -92,6 +92,12 @@ function main(array $argv): void {
         'gha' => 'GitHub Actions',
         'circleci' => 'CircleCI',
       ]),
+      'drupal_version' => Prompty::multiselect(
+        'Target Drupal versions',
+        options: drupal_version_options(),
+        default: array_keys(drupal_version_options()),
+        description: 'CI runs against every selected major. Uncheck any you do not support.',
+      ),
       'command_wrapper' => Prompty::multiselect('Command wrapper', options: [
         'ahoy' => 'Ahoy',
         'makefile' => 'Makefile',
@@ -107,11 +113,12 @@ function main(array $argv): void {
     ],
     intro: 'Drupal Extension Scaffold',
     outro: fn(array $r): string => sprintf(
-      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nWrapper: %s\nRemoved tools: %s",
+      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nDrupal: %s\nWrapper: %s\nRemoved tools: %s",
       $r['name'],
       $r['machine_name'],
       $r['type'],
       $r['ci_provider'],
+      implode(', ', $r['drupal_version'] ?: ['None']),
       implode(', ', $r['command_wrapper'] ?: ['None']),
       implode(', ', array_diff(array_keys($tool_options), array_filter((array) $r['tools'], static fn($v): bool => $v !== '')) ?: ['None']),
     ),
@@ -128,6 +135,8 @@ function main(array $argv): void {
   $machine_name = (string) $results['machine_name'];
   $type = (string) $results['type'];
   $ci_provider = (string) $results['ci_provider'];
+  /** @var array<string> $drupal_versions */
+  $drupal_versions = array_filter((array) $results['drupal_version'], static fn($v): bool => $v !== '');
   /** @var array<string> $command_wrapper */
   $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
   /** @var array<string> $tools_keep */
@@ -140,8 +149,28 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $command_wrapper, $tools_remove, $remove_self);
+  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_self);
   // @codeCoverageIgnoreEnd
+}
+
+/**
+ * Define the selectable Drupal major versions.
+ *
+ * The canonical list of supported majors, used both to build the 'init'
+ * prompt and to prune the CI matrix in 'process()'. Adding a new major here
+ * (and wrapping its CI corners in '#;< DRUPAL_<major>' markers, plus bumping
+ * the 'DRUPAL_VERSION' default in '.devtools/assemble' to the new highest
+ * major) is all that is needed to extend support.
+ *
+ * @return non-empty-array<int, string>
+ *   Map of major version to its human-readable label. PHP casts the
+ *   numeric-string keys to integers.
+ */
+function drupal_version_options(): array {
+  return [
+    '10' => 'Drupal 10',
+    '11' => 'Drupal 11',
+  ];
 }
 
 /**
@@ -164,6 +193,9 @@ Environment variables (to pre-fill prompts):
   PROMPTY_MACHINE_NAME    Extension machine name.
   PROMPTY_TYPE            Extension type: module or theme.
   PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
+  PROMPTY_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11). All
+                         are targeted by default; CI runs against every
+                         selected major. One or more of: 10, 11.
   PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
   PROMPTY_TOOLS           Tools to keep: comma-separated. All are kept by
                          default; list only the ones to keep to drop the rest.
@@ -188,6 +220,8 @@ EOF;
  *   The extension type (module or theme).
  * @param string $ci_provider
  *   The CI provider (gha or circleci).
+ * @param array<string> $drupal_versions
+ *   The selected Drupal major versions to target (e.g. '10', '11').
  * @param array<string> $command_wrapper
  *   The selected command wrappers ('ahoy', 'makefile', or both).
  * @param array<string> $tools_remove
@@ -195,7 +229,7 @@ EOF;
  * @param string $remove_self
  *   Whether to remove this script ('y' or 'n').
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $command_wrapper, array $tools_remove, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, string $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -212,12 +246,38 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($ci_provider === '') {
     throw new \Exception('CI provider is required.');
   }
+  if ($drupal_versions === []) {
+    throw new \Exception('At least one Drupal version is required.');
+  }
   // Remove unwanted CI provider.
   if ($ci_provider === 'circleci') {
     remove_dir('.github/workflows');
   }
   else {
     remove_dir('.circleci');
+  }
+
+  // Prune CI matrix corners for deselected Drupal majors. Each major's corners
+  // are wrapped in '#;< DRUPAL_<major>' markers across the CI files; removing a
+  // major strips those blocks. Markers for kept majors are cleared later by
+  // 'remove_special_comments()'. Normalise both sides to strings: PHP casts
+  // numeric-string array keys to integers, so 'array_keys()' returns ints that
+  // would never strictly match the string selection.
+  $supported_majors = array_map(strval(...), array_keys(drupal_version_options()));
+  $selected_majors = array_map(strval(...), $drupal_versions);
+  foreach ($supported_majors as $major) {
+    if (!in_array($major, $selected_majors, TRUE)) {
+      remove_tokens_with_content('DRUPAL_' . $major);
+    }
+  }
+
+  // Narrow the local-dev assemble default to the highest selected major. The
+  // template ships with the default set to the highest supported major, so a
+  // rewrite is only needed when the author drops that major.
+  $highest_supported = (string) max(array_map(intval(...), $supported_majors));
+  $highest_selected = (string) max(array_map(intval(...), $selected_majors));
+  if ($highest_selected !== $highest_supported) {
+    replace_string_content("getenv_default('DRUPAL_VERSION', '" . $highest_supported . "')", "getenv_default('DRUPAL_VERSION', '" . $highest_selected . "')");
   }
 
   // Remove unwanted command wrappers and their wrapper-specific documentation
