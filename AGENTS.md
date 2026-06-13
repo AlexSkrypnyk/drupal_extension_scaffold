@@ -72,6 +72,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 ### Build and Environment Management
 
+<!-- #;< DEV_MAKEFILE -->
 **Using Make (default):**
 - `make build` - Complete build (stop → assemble → start → provision)
 - `make assemble` - Assemble codebase with dependencies
@@ -79,45 +80,85 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `make stop` - Stop development server
 - `make provision` - Install/provision Drupal site
 - `make reset` - Clean build directory and logs (aliases: `make delete`, `make destroy`)
+<!-- #;> DEV_MAKEFILE -->
 
+<!-- #;< DEV_AHOY -->
 **Using Ahoy (alternative):**
 - `ahoy build` - Complete build process
 - `ahoy assemble` - Assemble codebase
 - `ahoy start` - Start development server
 - `ahoy provision` - Provision Drupal site
+<!-- #;> DEV_AHOY -->
 
 ### Code Quality
 
 **Linting:**
-- `make lint` / `ahoy lint` - Run all linting tools
-- `make lint-fix` / `ahoy lint-fix` - Auto-fix coding standards violations
+<!-- #;< DEV_MAKEFILE -->
+- `make lint` - Run all linting tools
+- `make lint-fix` - Auto-fix coding standards violations
+<!-- #;> DEV_MAKEFILE -->
+<!-- #;< DEV_AHOY -->
+- `ahoy lint` - Run all linting tools
+- `ahoy lint-fix` - Auto-fix coding standards violations
+<!-- #;> DEV_AHOY -->
 
 **Testing:**
-- `make test` / `ahoy test` - Run all tests
+<!-- #;< DEV_MAKEFILE -->
+- `make test` - Run all tests
 <!-- #;< DEV_PHPUNIT -->
-- `make test-unit` / `ahoy test-unit` - Run unit tests only
-- `make test-kernel` / `ahoy test-kernel` - Run kernel tests only
-- `make test-functional` / `ahoy test-functional` - Run functional tests only
+- `make test-unit` - Run unit tests only
+- `make test-kernel` - Run kernel tests only
+- `make test-functional` - Run functional tests only
 <!-- #;> DEV_PHPUNIT -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `make test-functional-javascript` / `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+- `make test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;< DEV_JEST -->
-- `make test-js` / `ahoy test-js` - Run JavaScript unit tests (Jest)
+- `make test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `make selenium-start` / `ahoy selenium-start` - Start Selenium container
-- `make selenium-stop` / `ahoy selenium-stop` - Stop Selenium container
+- `make selenium-start` - Start Selenium container
+- `make selenium-stop` - Stop Selenium container
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;> DEV_MAKEFILE -->
+<!-- #;< DEV_AHOY -->
+- `ahoy test` - Run all tests
+<!-- #;< DEV_PHPUNIT -->
+- `ahoy test-unit` - Run unit tests only
+- `ahoy test-kernel` - Run kernel tests only
+- `ahoy test-functional` - Run functional tests only
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
+- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;< DEV_JEST -->
+- `ahoy test-js` - Run JavaScript unit tests (Jest)
+<!-- #;> DEV_JEST -->
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
+- `ahoy selenium-start` - Start Selenium container
+- `ahoy selenium-stop` - Stop Selenium container
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
+<!-- #;> DEV_AHOY -->
 
 ### Drupal Commands
 
+<!-- #;< DEV_MAKEFILE -->
 - `make drush <command>` - Run Drush commands
-- `make login` / `ahoy login` - Get one-time login link
+- `make login` - Get one-time login link
+<!-- #;> DEV_MAKEFILE -->
+<!-- #;< DEV_AHOY -->
+- `ahoy drush <command>` - Run Drush commands
+- `ahoy login` - Get one-time login link
+<!-- #;> DEV_AHOY -->
 
 ### Diagnostics
 
-- `make info` / `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (aliases: `make describe`, `ahoy describe`)
+<!-- #;< DEV_MAKEFILE -->
+- `make info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `make describe`)
+<!-- #;> DEV_MAKEFILE -->
+<!-- #;< DEV_AHOY -->
+- `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `ahoy describe`)
+<!-- #;> DEV_AHOY -->
 
 ## Project Structure
 

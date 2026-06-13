@@ -361,11 +361,15 @@ final class InitProcessTest extends UnitTestCase {
 
     $agents = (string) file_get_contents(self::$sut . '/AGENTS.md');
 
-    $make_block = '`make lint` / `make lint-fix` - never `vendor/bin/phpcs`';
-    $ahoy_block = '`ahoy lint` / `ahoy lint-fix` - never `vendor/bin/phpcs`';
+    $make_rule = '`make lint` / `make lint-fix` - never `vendor/bin/phpcs`';
+    $ahoy_rule = '`ahoy lint` / `ahoy lint-fix` - never `vendor/bin/phpcs`';
+    $make_command = '- `make build` - Complete build';
+    $ahoy_command = '- `ahoy build` - Complete build';
 
-    $this->assertSame($expect_make, str_contains($agents, $make_block), 'AGENTS.md make wrapper block presence mismatch.');
-    $this->assertSame($expect_ahoy, str_contains($agents, $ahoy_block), 'AGENTS.md ahoy wrapper block presence mismatch.');
+    $this->assertSame($expect_make, str_contains($agents, $make_rule), 'AGENTS.md make rule block presence mismatch.');
+    $this->assertSame($expect_ahoy, str_contains($agents, $ahoy_rule), 'AGENTS.md ahoy rule block presence mismatch.');
+    $this->assertSame($expect_make, str_contains($agents, $make_command), 'AGENTS.md make command list presence mismatch.');
+    $this->assertSame($expect_ahoy, str_contains($agents, $ahoy_command), 'AGENTS.md ahoy command list presence mismatch.');
   }
 
   public static function dataProviderProcessRemovesWrapperDocs(): \Iterator {
