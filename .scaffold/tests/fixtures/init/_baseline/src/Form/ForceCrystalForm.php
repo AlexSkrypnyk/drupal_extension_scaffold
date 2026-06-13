@@ -17,23 +17,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ForceCrystalForm extends ConfigFormBase {
 
   /**
-   * The Force Crystal service.
-   *
-   * @var \Drupal\force_crystal\ForceCrystalService
-   */
-  protected ForceCrystalService $yourExtensionService;
-
-  /**
    * Constructs a ForceCrystalForm instance.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
-    ForceCrystalService $force_crystal_service,
+    /**
+     * The Force Crystal service.
+     */
+    protected ForceCrystalService $yourExtensionService,
   ) {
     // @phpstan-ignore-next-line
     parent::__construct($config_factory, $typedConfigManager);
-    $this->yourExtensionService = $force_crystal_service;
   }
 
   /**
@@ -51,14 +46,14 @@ class ForceCrystalForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return ['force_crystal.settings'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'force_crystal_settings_form';
   }
 
@@ -81,7 +76,7 @@ class ForceCrystalForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('force_crystal.settings');
     $config->set('text', $form_state->getValue('text'));
     $config->save();

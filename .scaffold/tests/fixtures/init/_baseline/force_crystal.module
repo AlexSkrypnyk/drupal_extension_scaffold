@@ -13,14 +13,14 @@ declare(strict_types=1);
 /**
  * Implements hook_page_attachments().
  */
-function force_crystal_page_attachments(array &$attachments) {
+function force_crystal_page_attachments(array &$attachments): void {
   $attachments['#attached']['library'][] = 'force_crystal/global';
 }
 
 /**
  * Implements hook_page_bottom().
  */
-function force_crystal_page_bottom(array &$page_bottom) {
+function force_crystal_page_bottom(array &$page_bottom): void {
   /** @var \Drupal\force_crystal\ForceCrystalService $force_crystal_service */
   $force_crystal_service = \Drupal::getContainer()->get('force_crystal.service');
 

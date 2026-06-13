@@ -20,7 +20,7 @@ class ForceCrystalServiceUnitTest extends UnitTestCase {
    * @covers \Drupal\force_crystal\ForceCrystalService::sanitize
    * @dataProvider dataProviderSanitize
    */
-  public function testSanitize(string $input, string $expected) {
+  public function testSanitize(string $input, string $expected): void {
     $this->assertEquals($expected, ForceCrystalService::sanitize($input));
   }
 
