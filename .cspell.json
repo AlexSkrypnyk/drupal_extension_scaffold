@@ -67,6 +67,7 @@
         "rector",
         "renovatebot",
         "ruleset",
+        "sarif",
         "shivammathur",
         "simpletest",
         "skrypnyk",
@@ -81,7 +82,9 @@
         "webroot",
         "yournamespace",
         "yourproject",
-        "yoyodyne"
+        "yoyodyne",
+        "zizmor",
+        "zizmorcore"
     ],
     "ignorePaths": [
         ".git/",

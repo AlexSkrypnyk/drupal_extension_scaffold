@@ -19,6 +19,9 @@ jobs:
   scaffold-test-devtools:
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: read # Read repository contents; coverage is uploaded to external Codecov.
+
     strategy:
       fail-fast: false
 
@@ -29,6 +32,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Upgrade sqlite3 (Linux)
         if: matrix.group != 'p0' && runner.os == 'Linux'
@@ -103,9 +108,10 @@ jobs:
 
       - name: Run PHP tests with coverage
         if: matrix.group != 'p5'
-        run: composer test-coverage -- --group=${{ matrix.group }}
+        run: composer test-coverage -- --group="${GROUP}"
         working-directory: .scaffold/tests
         env:
+          GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
           SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT: ${{ runner.os == 'macOS' && '1' || '0' }}
@@ -114,9 +120,10 @@ jobs:
       # (not pcov) for the XDebug toggle behaviour test.
       - name: Run PHP tests
         if: matrix.group == 'p5'
-        run: composer test -- --group=${{ matrix.group }}
+        run: composer test -- --group="${GROUP}"
         working-directory: .scaffold/tests
         env:
+          GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage report as an artifact
@@ -141,9 +148,16 @@ jobs:
   scaffold-test-actions:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read # Read workflows for the GitHub Actions linters.
+      security-events: write # Upload Zizmor SARIF results to code scanning.
+      actions: read # Required by code scanning SARIF upload on private repositories.
+
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Check coding standards with yamllint
         run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
@@ -152,3 +166,9 @@ jobs:
       - name: Check coding standards with actionlint
         run: docker run --rm -v "${GITHUB_WORKSPACE:-.}":/app --workdir /app rhysd/actionlint:1.7.11 -ignore 'SC2002:' -ignore 'SC2155:'
         continue-on-error: ${{ vars.DREVOPS_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
+
+      - name: Check GitHub Actions security with Zizmor
+        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        with:
+          config: .scaffold/tests/zizmor.yml
+        continue-on-error: ${{ vars.CI_ZIZMOR_IGNORE_FAILURE == '1' }}
