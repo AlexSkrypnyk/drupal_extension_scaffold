@@ -20,8 +20,6 @@ parameters:
     - node_modules/*
     - ../*/node_modules/*
     #;< META
-    - init.php
-    - modules/custom/your_extension/init.php
     - web/modules/custom/your_extension/init.php
     #;> META
 
