@@ -15,6 +15,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04
 
+    permissions:
+      contents: read
+
     env:
       DEPLOY_USER_NAME: ${{ secrets.DEPLOY_USER_NAME }}
       DEPLOY_USER_EMAIL: ${{ secrets.DEPLOY_USER_EMAIL }}
@@ -26,6 +29,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@6b84f2e793b32fa0b03a379cadadec75cc539391 # v2

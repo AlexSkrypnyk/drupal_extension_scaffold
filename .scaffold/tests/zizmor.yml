@@ -1,0 +1,34 @@
+# Zizmor configuration for auditing the scaffold template's own GitHub Actions
+# workflows. Consumed by the 'scaffold-test-actions' job in
+# '.github/workflows/scaffold-test.yml' (a maintenance-only workflow that is not
+# shipped to projects created from this scaffold).
+#
+# Every entry below documents an intentional, accepted finding. Genuine issues
+# are fixed in the workflows themselves rather than ignored here.
+#
+# https://docs.zizmor.sh/configuration/
+rules:
+  dangerous-triggers:
+    # These triggers are required and do not execute attacker-supplied code:
+    # - assign-author: assigns the PR author via 'toshimaru/auto-author-assign';
+    #   needs a write token on fork PRs and never checks out PR code.
+    # - deploy: a chained run after the 'Test' workflow completes; it deploys
+    #   the already-tested branch over an SSH key and never checks out PR code.
+    ignore:
+      - assign-author.yml
+      - deploy.yml
+  cache-poisoning:
+    # Low-confidence findings on 'test.yml'. The 'actions/cache' and
+    # 'actions/setup-node' caches are keyed on lock files and consumed only by
+    # the test jobs themselves; deployment mirrors the source tree to Drupal.org
+    # over SSH ('.devtools/deploy') and never builds release artifacts from
+    # these caches, so the poisoning surface is accepted.
+    ignore:
+      - test.yml
+  ref-version-mismatch:
+    # Actions are pinned by commit SHA, which is the security control enforced
+    # by the 'unpinned-uses' audit. The trailing version comment is
+    # informational and managed by Renovate, which may lag the moving major tag.
+    # This is also an online audit that resolves inconsistently across runs, so
+    # it is disabled entirely to keep a stable baseline.
+    disable: true
