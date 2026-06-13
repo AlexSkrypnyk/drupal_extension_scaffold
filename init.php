@@ -162,8 +162,9 @@ function main(array $argv): void {
  * the 'DRUPAL_VERSION' default in '.devtools/assemble' to the new highest
  * major) is all that is needed to extend support.
  *
- * @return array<string, string>
- *   Map of major version to its human-readable label.
+ * @return non-empty-array<int, string>
+ *   Map of major version to its human-readable label. PHP casts the
+ *   numeric-string keys to integers.
  */
 function drupal_version_options(): array {
   return [
@@ -262,8 +263,8 @@ function process(string $extension_name, string $extension_machine_name, string 
   // 'remove_special_comments()'. Normalise both sides to strings: PHP casts
   // numeric-string array keys to integers, so 'array_keys()' returns ints that
   // would never strictly match the string selection.
-  $supported_majors = array_map('strval', array_keys(drupal_version_options()));
-  $selected_majors = array_map('strval', $drupal_versions);
+  $supported_majors = array_map(strval(...), array_keys(drupal_version_options()));
+  $selected_majors = array_map(strval(...), $drupal_versions);
   foreach ($supported_majors as $major) {
     if (!in_array($major, $selected_majors, TRUE)) {
       remove_tokens_with_content('DRUPAL_' . $major);
@@ -273,8 +274,8 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Narrow the local-dev assemble default to the highest selected major. The
   // template ships with the default set to the highest supported major, so a
   // rewrite is only needed when the author drops that major.
-  $highest_supported = (string) max(array_map('intval', $supported_majors));
-  $highest_selected = (string) max(array_map('intval', $selected_majors));
+  $highest_supported = (string) max(array_map(intval(...), $supported_majors));
+  $highest_selected = (string) max(array_map(intval(...), $selected_majors));
   if ($highest_selected !== $highest_supported) {
     replace_string_content("getenv_default('DRUPAL_VERSION', '" . $highest_supported . "')", "getenv_default('DRUPAL_VERSION', '" . $highest_selected . "')");
   }
