@@ -10,7 +10,8 @@ This is a Drupal extension scaffold template for creating contributed modules or
 
 **HARD RULE - use the provided command wrappers, never the tool binaries directly.** When `make` or `ahoy` exposes a command for a task, use that command; do not call the underlying binary directly. Each wrapper `chdir`s into `build/` and runs the tool with the config, plugins, and environment that CI uses, so a raw invocation from the repository root silently diverges from CI - it can pass locally while CI fails (or vice versa), or crash outright when a relative path resolves against the wrong directory. If no wrapped command covers what you need, extend the `make` / `ahoy` target rather than making a one-off raw call; if that is not feasible, stop and ask.
 
-Each tool runs through its `make` / `ahoy` wrapper - never the binary directly:
+<!-- #;< DEV_MAKEFILE -->
+Run each tool through its `make` wrapper, never the binary directly:
 
 <!-- #;< DEV_PHPCS -->
 - **PHPCS / PHPCBF**: `make lint` / `make lint-fix` - never `vendor/bin/phpcs` or `vendor/bin/phpcbf`.
@@ -37,6 +38,37 @@ Each tool runs through its `make` / `ahoy` wrapper - never the binary directly:
 - **Jest**: `make test-js` - never `npx jest`.
 <!-- #;> DEV_JEST -->
 - **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
+<!-- #;> DEV_MAKEFILE -->
+
+<!-- #;< DEV_AHOY -->
+Run each tool through its `ahoy` wrapper, never the binary directly:
+
+<!-- #;< DEV_PHPCS -->
+- **PHPCS / PHPCBF**: `ahoy lint` / `ahoy lint-fix` - never `vendor/bin/phpcs` or `vendor/bin/phpcbf`.
+<!-- #;> DEV_PHPCS -->
+<!-- #;< DEV_PHPSTAN -->
+- **PHPStan**: `ahoy lint` - never `vendor/bin/phpstan`.
+<!-- #;> DEV_PHPSTAN -->
+<!-- #;< DEV_RECTOR -->
+- **Rector**: `ahoy lint` (dry-run) / `ahoy lint-fix` - never `vendor/bin/rector`.
+<!-- #;> DEV_RECTOR -->
+<!-- #;< DEV_TWIGCS -->
+- **Twig CS Fixer**: `ahoy lint` / `ahoy lint-fix` - never `vendor/bin/twig-cs-fixer`.
+<!-- #;> DEV_TWIGCS -->
+<!-- #;< DEV_NODEJS_LINT -->
+- **ESLint / Stylelint**: `ahoy lint` / `ahoy lint-fix` - never `npx eslint` or `npx stylelint`.
+<!-- #;> DEV_NODEJS_LINT -->
+<!-- #;< DEV_CSPELL -->
+- **CSpell**: `ahoy lint` - never `npx cspell`.
+<!-- #;> DEV_CSPELL -->
+<!-- #;< DEV_PHPUNIT -->
+- **PHPUnit**: `ahoy test` / `ahoy test-unit` / `ahoy test-kernel` / `ahoy test-functional` - never `vendor/bin/phpunit`.
+<!-- #;> DEV_PHPUNIT -->
+<!-- #;< DEV_JEST -->
+- **Jest**: `ahoy test-js` - never `npx jest`.
+<!-- #;> DEV_JEST -->
+- **Drush**: `ahoy drush <command>` - never `build/vendor/bin/drush` directly.
+<!-- #;> DEV_AHOY -->
 
 ### Build and Environment Management
 

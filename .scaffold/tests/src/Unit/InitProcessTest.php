@@ -351,6 +351,31 @@ final class InitProcessTest extends UnitTestCase {
   }
 
   /**
+   * The 'AGENTS.md' wrapper blocks follow the command wrapper selection.
+   *
+   * @param array<string> $command_wrapper
+   */
+  #[DataProvider('dataProviderProcessRemovesWrapperDocs')]
+  public function testProcessRemovesWrapperDocs(array $command_wrapper, bool $expect_make, bool $expect_ahoy): void {
+    process('My Extension', 'my_extension', 'module', 'gha', $command_wrapper, [], 'n');
+
+    $agents = (string) file_get_contents(self::$sut . '/AGENTS.md');
+
+    $make_block = '`make lint` / `make lint-fix` - never `vendor/bin/phpcs`';
+    $ahoy_block = '`ahoy lint` / `ahoy lint-fix` - never `vendor/bin/phpcs`';
+
+    $this->assertSame($expect_make, str_contains($agents, $make_block), 'AGENTS.md make wrapper block presence mismatch.');
+    $this->assertSame($expect_ahoy, str_contains($agents, $ahoy_block), 'AGENTS.md ahoy wrapper block presence mismatch.');
+  }
+
+  public static function dataProviderProcessRemovesWrapperDocs(): \Iterator {
+    yield 'both wrappers' => [['ahoy', 'makefile'], TRUE, TRUE];
+    yield 'ahoy only' => [['ahoy'], FALSE, TRUE];
+    yield 'makefile only' => [['makefile'], TRUE, FALSE];
+    yield 'no wrappers' => [[], FALSE, FALSE];
+  }
+
+  /**
    * @param array<string> $tools_remove
    * @param array<string> $expected_absent
    */
