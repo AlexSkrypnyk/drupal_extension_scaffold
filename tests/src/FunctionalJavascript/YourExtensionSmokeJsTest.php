@@ -22,7 +22,6 @@ class YourExtensionSmokeJsTest extends YourExtensionJsTestBase {
     // Create user and log in.
     $account = $this->drupalCreateUser(['administer site configuration']);
     $this->assertNotEmpty($account);
-    /** @var \Drupal\Core\Session\AccountInterface $account */
     $this->drupalLogin($account);
 
     // Verify authenticated page renders.

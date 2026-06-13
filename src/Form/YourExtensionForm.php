@@ -17,23 +17,18 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class YourExtensionForm extends ConfigFormBase {
 
   /**
-   * The Your Extension service.
-   *
-   * @var \Drupal\your_extension\YourExtensionService
-   */
-  protected YourExtensionService $yourExtensionService;
-
-  /**
    * Constructs a YourExtensionForm instance.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
-    YourExtensionService $your_extension_service,
+    /**
+     * The Your Extension service.
+     */
+    protected YourExtensionService $yourExtensionService,
   ) {
     // @phpstan-ignore-next-line
     parent::__construct($config_factory, $typedConfigManager);
-    $this->yourExtensionService = $your_extension_service;
   }
 
   /**
@@ -51,14 +46,14 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return ['your_extension.settings'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'your_extension_settings_form';
   }
 
@@ -81,7 +76,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('your_extension.settings');
     $config->set('text', $form_state->getValue('text'));
     $config->save();

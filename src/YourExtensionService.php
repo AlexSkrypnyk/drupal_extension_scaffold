@@ -37,9 +37,7 @@ class YourExtensionService {
   public function getText(): string {
     $text = $this->yourExtensionConfig->get('text');
 
-    $text = $this->sanitize($text);
-
-    return $text;
+    return static::sanitize($text);
   }
 
   /**
@@ -52,9 +50,7 @@ class YourExtensionService {
    *   The sanitized string.
    */
   public static function sanitize(string $string): string {
-    $string = strip_tags($string);
-
-    return $string;
+    return strip_tags($string);
   }
 
 }
