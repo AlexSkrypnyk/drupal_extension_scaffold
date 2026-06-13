@@ -13,14 +13,14 @@ declare(strict_types=1);
 /**
  * Implements hook_page_attachments().
  */
-function your_extension_page_attachments(array &$attachments) {
+function your_extension_page_attachments(array &$attachments): void {
   $attachments['#attached']['library'][] = 'your_extension/global';
 }
 
 /**
  * Implements hook_page_bottom().
  */
-function your_extension_page_bottom(array &$page_bottom) {
+function your_extension_page_bottom(array &$page_bottom): void {
   /** @var \Drupal\your_extension\YourExtensionService $your_extension_service */
   $your_extension_service = \Drupal::getContainer()->get('your_extension.service');
 

@@ -20,7 +20,7 @@ class YourExtensionServiceUnitTest extends UnitTestCase {
    * @covers \Drupal\your_extension\YourExtensionService::sanitize
    * @dataProvider dataProviderSanitize
    */
-  public function testSanitize(string $input, string $expected) {
+  public function testSanitize(string $input, string $expected): void {
     $this->assertEquals($expected, YourExtensionService::sanitize($input));
   }
 

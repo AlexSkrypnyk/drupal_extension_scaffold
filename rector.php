@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
 use DrupalRector\Set\Drupal10SetList;
+use DrupalRector\Set\Drupal11SetList;
 use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
@@ -31,6 +32,7 @@ use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
 use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
 use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
+use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
 use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
@@ -55,6 +57,7 @@ return RectorConfig::configure()
     PrivatizeFinalClassPropertyRector::class,
     PrivatizeLocalGetterToPropertyRector::class,
     RemoveAlwaysTrueIfConditionRector::class,
+    RenameForeachValueVariableToMatchExprVariableRector::class,
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
     RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
@@ -62,39 +65,37 @@ return RectorConfig::configure()
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class,
     // Directories to skip.
-    '*/vendor/*',
     '*/node_modules/*',
-    // Core and contribs.
-    '*/core/*',
-    '*/modules/contrib/*',
-    '*/themes/contrib/*',
-    '*/profiles/contrib/*',
-    // Files.
-    '*/sites/simpletest/*',
-    '*/sites/default/files/*',
-    // Composer scripts.
-    '*/scripts/composer/*',
   ])
   // PHP version upgrade sets - modernizes syntax to PHP 8.2.
   // Includes all rules from PHP 5.3 through 8.2.
   ->withPhpSets(php82: TRUE)
   // Code quality improvement sets.
   ->withPreparedSets(
+    deadCode: TRUE,
     codeQuality: TRUE,
     codingStyle: TRUE,
-    deadCode: TRUE,
-    naming: TRUE,
-    privatization: TRUE,
     typeDeclarations: TRUE,
+    privatization: TRUE,
+    naming: TRUE,
   )
   // Drupal-specific deprecation fixes.
   ->withSets([
     Drupal9SetList::DRUPAL_9,
     Drupal10SetList::DRUPAL_10,
+    Drupal11SetList::DRUPAL_11,
   ])
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
+  ])
+  // Paths to the extension's source. Each top-level item of the extension is
+  // symlinked individually into the build and Rector's finder does not follow
+  // symlinked directories, so the module children are matched directly (each is
+  // passed to the finder as its own root, which a symlinked root resolves).
+  ->withPaths([
+    __DIR__ . '/web/modules/custom/*/*',
+    __DIR__ . '/web/themes/custom/*/*',
   ])
   // Configure Drupal autoloading.
   ->withAutoloadPaths((function (): array {

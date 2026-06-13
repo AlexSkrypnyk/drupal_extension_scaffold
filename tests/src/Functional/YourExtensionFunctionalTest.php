@@ -29,7 +29,7 @@ class YourExtensionFunctionalTest extends BrowserTestBase {
   /**
    * Tests the functionality of the getText method.
    */
-  public function testGetText() {
+  public function testGetText(): void {
     $user = $this->createUser(['administer site configuration']);
     if (!$user instanceof AccountInterface) {
       throw new \Exception('User could not be created.');

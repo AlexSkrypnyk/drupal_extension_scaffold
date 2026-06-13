@@ -10,7 +10,7 @@ declare(strict_types=1);
 /**
  * Implements hook_install().
  */
-function force_crystal_install() {
+function force_crystal_install(): void {
   // Set default configuration values.
   $config = \Drupal::service('config.factory')->getEditable('force_crystal.settings');
   $config->set('text', 'Default content to be displayed if JS is disabled.')->save();
@@ -21,6 +21,6 @@ function force_crystal_install() {
 /**
  * Implements hook_uninstall().
  */
-function force_crystal_uninstall() {
+function force_crystal_uninstall(): void {
   \Drupal::configFactory()->getEditable('force_crystal.settings')->delete();
 }

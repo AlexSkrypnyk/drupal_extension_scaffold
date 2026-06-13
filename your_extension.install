@@ -10,7 +10,7 @@ declare(strict_types=1);
 /**
  * Implements hook_install().
  */
-function your_extension_install() {
+function your_extension_install(): void {
   // Set default configuration values.
   $config = \Drupal::service('config.factory')->getEditable('your_extension.settings');
   $config->set('text', 'Default content to be displayed if JS is disabled.')->save();
@@ -21,6 +21,6 @@ function your_extension_install() {
 /**
  * Implements hook_uninstall().
  */
-function your_extension_uninstall() {
+function your_extension_uninstall(): void {
   \Drupal::configFactory()->getEditable('your_extension.settings')->delete();
 }

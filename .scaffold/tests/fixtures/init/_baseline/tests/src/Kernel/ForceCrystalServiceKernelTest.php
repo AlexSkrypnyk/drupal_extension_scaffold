@@ -51,7 +51,7 @@ class ForceCrystalServiceKernelTest extends KernelTestBase {
   /**
    * Tests the getText method of ForceCrystalService.
    */
-  public function testGetText() {
+  public function testGetText(): void {
     // Get the text using the service.
     $text = $this->yourExtensionService->getText();
 
