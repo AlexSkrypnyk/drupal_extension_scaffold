@@ -1,6 +1,6 @@
 @@ -12,14 +12,6 @@
  
- Run each tool through its wrapper (the `make` targets below; `ahoy` mirrors each one) - never the binary directly:
+ Each tool runs through its `make` / `ahoy` wrapper - never the binary directly:
  
 -- **PHPCS / PHPCBF**: `make lint` / `make lint-fix` - never `vendor/bin/phpcs` or `vendor/bin/phpcbf`.
 -- **PHPStan**: `make lint` - never `vendor/bin/phpstan`.
