@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\your_extension\YourExtensionService;
 
@@ -12,6 +14,7 @@ use Drupal\your_extension\YourExtensionService;
  *
  * @group your_extension
  */
+#[Group('your_extension')]
 class YourExtensionServiceUnitTest extends UnitTestCase {
 
   /**
@@ -20,6 +23,7 @@ class YourExtensionServiceUnitTest extends UnitTestCase {
    * @covers \Drupal\your_extension\YourExtensionService::sanitize
    * @dataProvider dataProviderSanitize
    */
+  #[DataProvider('dataProviderSanitize')]
   public function testSanitize(string $input, string $expected): void {
     $this->assertEquals($expected, YourExtensionService::sanitize($input));
   }

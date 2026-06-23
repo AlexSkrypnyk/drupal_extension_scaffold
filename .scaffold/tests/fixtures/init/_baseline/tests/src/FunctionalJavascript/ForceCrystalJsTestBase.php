@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
@@ -11,6 +12,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
  *
  * @group force_crystal
  */
+#[Group('force_crystal')]
 abstract class ForceCrystalJsTestBase extends WebDriverTestBase {
 
   /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\Functional;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\BrowserTestBase;
 
@@ -14,6 +15,7 @@ use Drupal\Tests\BrowserTestBase;
  *
  * @group force_crystal
  */
+#[Group('force_crystal')]
 class ForceCrystalFunctionalTest extends BrowserTestBase {
 
   /**

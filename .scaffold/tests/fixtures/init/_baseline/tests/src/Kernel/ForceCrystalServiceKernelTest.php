@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\KernelTests\KernelTestBase;
@@ -15,6 +16,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
  *
  * @group force_crystal
  */
+#[Group('force_crystal')]
 class ForceCrystalServiceKernelTest extends KernelTestBase {
 
   use ProphecyTrait;

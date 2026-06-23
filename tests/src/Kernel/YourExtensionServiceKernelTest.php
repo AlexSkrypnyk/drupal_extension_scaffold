@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\KernelTests\KernelTestBase;
@@ -15,6 +16,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
  *
  * @group your_extension
  */
+#[Group('your_extension')]
 class YourExtensionServiceKernelTest extends KernelTestBase {
 
   use ProphecyTrait;
