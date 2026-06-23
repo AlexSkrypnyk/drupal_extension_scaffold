@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Tests\UnitTestCase;
 use Drupal\force_crystal\ForceCrystalService;
 
@@ -12,6 +14,7 @@ use Drupal\force_crystal\ForceCrystalService;
  *
  * @group force_crystal
  */
+#[Group('force_crystal')]
 class ForceCrystalServiceUnitTest extends UnitTestCase {
 
   /**
@@ -20,6 +23,7 @@ class ForceCrystalServiceUnitTest extends UnitTestCase {
    * @covers \Drupal\force_crystal\ForceCrystalService::sanitize
    * @dataProvider dataProviderSanitize
    */
+  #[DataProvider('dataProviderSanitize')]
   public function testSanitize(string $input, string $expected): void {
     $this->assertEquals($expected, ForceCrystalService::sanitize($input));
   }

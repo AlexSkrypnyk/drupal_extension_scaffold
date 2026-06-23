@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Smoke test validating the WebDriver and screenshot pipeline.
  *
  * @group force_crystal
  */
+#[Group('force_crystal')]
 class ForceCrystalSmokeJsTest extends ForceCrystalJsTestBase {
 
   /**
