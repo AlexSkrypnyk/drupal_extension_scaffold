@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\Group;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
@@ -11,6 +12,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
  *
  * @group your_extension
  */
+#[Group('your_extension')]
 abstract class YourExtensionJsTestBase extends WebDriverTestBase {
 
   /**

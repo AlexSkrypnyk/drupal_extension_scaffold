@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\Group;
+
 /**
  * Smoke test validating the WebDriver and screenshot pipeline.
  *
  * @group your_extension
  */
+#[Group('your_extension')]
 class YourExtensionSmokeJsTest extends YourExtensionJsTestBase {
 
   /**
