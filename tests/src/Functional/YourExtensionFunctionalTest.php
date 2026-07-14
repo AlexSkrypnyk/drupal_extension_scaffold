@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\your_extension\Functional;
 
 use PHPUnit\Framework\Attributes\Group;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -33,9 +32,6 @@ class YourExtensionFunctionalTest extends BrowserTestBase {
    */
   public function testGetText(): void {
     $user = $this->createUser(['administer site configuration']);
-    if (!$user instanceof AccountInterface) {
-      throw new \Exception('User could not be created.');
-    }
     $this->drupalLogin($user);
 
     $this->drupalGet('admin/config/development/your-extension');
