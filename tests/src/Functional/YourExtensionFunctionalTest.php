@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\BrowserTestBase;
 
@@ -15,6 +16,7 @@ use Drupal\Tests\BrowserTestBase;
  * @group your_extension
  */
 #[Group('your_extension')]
+#[RunTestsInSeparateProcesses]
 class YourExtensionFunctionalTest extends BrowserTestBase {
 
   /**

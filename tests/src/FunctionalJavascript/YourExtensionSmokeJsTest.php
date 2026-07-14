@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\your_extension\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @group your_extension
  */
 #[Group('your_extension')]
+#[RunTestsInSeparateProcesses]
 class YourExtensionSmokeJsTest extends YourExtensionJsTestBase {
 
   /**
