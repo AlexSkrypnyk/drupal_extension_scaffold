@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\Functional;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Tests\BrowserTestBase;
 
 /**
@@ -16,6 +16,7 @@ use Drupal\Tests\BrowserTestBase;
  * @group force_crystal
  */
 #[Group('force_crystal')]
+#[RunTestsInSeparateProcesses]
 class ForceCrystalFunctionalTest extends BrowserTestBase {
 
   /**
@@ -33,9 +34,6 @@ class ForceCrystalFunctionalTest extends BrowserTestBase {
    */
   public function testGetText(): void {
     $user = $this->createUser(['administer site configuration']);
-    if (!$user instanceof AccountInterface) {
-      throw new \Exception('User could not be created.');
-    }
     $this->drupalLogin($user);
 
     $this->drupalGet('admin/config/development/force_crystal');
