@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\force_crystal\FunctionalJavascript;
 
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -12,6 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @group force_crystal
  */
 #[Group('force_crystal')]
+#[RunTestsInSeparateProcesses]
 class ForceCrystalSmokeJsTest extends ForceCrystalJsTestBase {
 
   /**

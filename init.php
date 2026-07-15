@@ -1178,7 +1178,7 @@ function normalise_cspell_words(): void {
 function get_files(): array {
   $excluded = ['.git', '.idea', 'vendor', 'node_modules'];
   $directory = new \RecursiveDirectoryIterator((string) getcwd(), \FilesystemIterator::SKIP_DOTS);
-  $filter = new \RecursiveCallbackFilterIterator($directory, static fn(\SplFileInfo $current): bool => !($current->isDir() && in_array($current->getFilename(), $excluded, TRUE)));
+  $filter = new \RecursiveCallbackFilterIterator($directory, static fn(\SplFileInfo $current): bool => !$current->isDir() || !in_array($current->getFilename(), $excluded, TRUE));
   $iterator = new \RecursiveIteratorIterator($filter);
 
   $files = [];
