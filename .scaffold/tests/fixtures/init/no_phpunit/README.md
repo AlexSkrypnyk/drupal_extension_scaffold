@@ -6,7 +6,7 @@
  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/force_crystal/force_crystal)
  ![LICENSE](https://img.shields.io/github/license/force_crystal/force_crystal)
  ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
-@@ -159,57 +158,6 @@
+@@ -158,57 +157,6 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.

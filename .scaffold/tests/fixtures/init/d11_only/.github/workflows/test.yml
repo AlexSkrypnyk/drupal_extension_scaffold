@@ -3,7 +3,7 @@
        matrix:
          include:
 -          - name: test-php-min-d10-stable
--            php-version: 8.2
+-            php-version: 8.3
 -            drupal-version: 10
 -
 -          - name: test-php-max-d10-stable

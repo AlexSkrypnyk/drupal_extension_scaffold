@@ -7,9 +7,9 @@
  ![LICENSE](https://img.shields.io/github/license/force_crystal/force_crystal)
 -![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
  
- ![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
  ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
-@@ -141,12 +139,6 @@
+ ![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)
+@@ -140,12 +138,6 @@
  
  The `make lint` or `ahoy lint` command checks the codebase using multiple
  tools:
@@ -22,7 +22,7 @@
  
  The configuration files for these tools are located in the root of the codebase.
  
-@@ -159,57 +151,6 @@
+@@ -158,57 +150,6 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
