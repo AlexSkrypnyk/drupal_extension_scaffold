@@ -26,13 +26,13 @@ parameters:
   ignoreErrors:
     -
       # Hook implementations do not provide docblocks for parameters, so there
-      # is no way to provide this information.
+      # is no way to provide this information. These are left unscoped (no
+      # 'paths') so they apply regardless of the directory PHPStan is run from:
+      # some environments analyse from within the module directory, where a
+      # 'web/modules/custom/*' scope would never match.
       messages:
         - '#.* no value type specified in iterable type array#'
         - '#.* has no return type specified#'
-      paths:
-        - web/modules/custom/*
-        - web/themes/custom/*
       reportUnmatched: false
 
   reportUnmatchedIgnoredErrors: false
