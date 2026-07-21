@@ -224,8 +224,19 @@ trait MockTrait {
 
       /** @var array{cmd: string, output: string, result_code: int, return: NULL|FALSE} $response */
 
+      // The quiet-mode command runners - passthru_or_fail() and drush() without
+      // DEBUG - wrap the command in a brace group ("{ <cmd>; } 2>&1") so a
+      // normal run captures stdout and stderr together. Strip that wrapper
+      // before matching so expectations assert the logical command regardless
+      // of whether the runner is capturing or streaming (DEBUG=1) it. The
+      // wrapper format itself is asserted in HelpersPassthruCaptureTest.
+      $matched = $command;
+      if (str_starts_with($matched, '{ ') && str_ends_with($matched, '; } 2>&1')) {
+        $matched = substr($matched, 2, -8);
+      }
+
       // Expectation error.
-      if ($response['cmd'] !== $command) {
+      if ($response['cmd'] !== $matched) {
         throw new \RuntimeException(sprintf('passthru() called with unexpected command. Expected "%s", got "%s".', $response['cmd'], $command));
       }
 

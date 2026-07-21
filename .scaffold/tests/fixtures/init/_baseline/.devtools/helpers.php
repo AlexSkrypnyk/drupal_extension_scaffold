@@ -477,14 +477,75 @@ function command_must_exist(string $command): void {
 }
 
 /**
+ * Run a command and capture its combined stdout and stderr.
+ *
+ * The command is wrapped in a brace group so both streams are captured
+ * together and the exit status is preserved, even for compound commands.
+ *
+ * @param string $cmd
+ *   The command to run.
+ * @param int|null &$exit_code
+ *   Populated with the command's exit code.
+ *
+ * @param-out int $exit_code
+ *
+ * @return string
+ *   The captured combined output.
+ */
+function passthru_capture(string $cmd, ?int &$exit_code = NULL): string {
+  ob_start();
+  passthru('{ ' . $cmd . '; } 2>&1', $exit_code);
+
+  return ob_get_clean() ?: '';
+}
+
+/**
  * Run a command via passthru, failing if exit code is non-zero.
+ *
+ * Command output is suppressed during a normal run and surfaced only when the
+ * command fails; set DEBUG=1 to stream it live instead.
  */
 function passthru_or_fail(string $cmd, string $format = '', string|int|float ...$args): void {
-  passthru($cmd, $exit_code);
+  $exit_code = 0;
+
+  if (is_debug()) {
+    passthru($cmd, $exit_code);
+  }
+  else {
+    $output = passthru_capture($cmd, $exit_code);
+
+    // Surface the captured output only on failure so the error stays
+    // diagnosable while a successful run remains quiet.
+    if ($exit_code !== 0) {
+      echo $output;
+    }
+  }
+
   if ($exit_code !== 0) {
     if ($format !== '') {
       FAIL($format, ...$args);
     }
+
+    quit($exit_code);
+  }
+}
+
+/**
+ * Run a command via passthru, always showing output, failing on non-zero exit.
+ *
+ * The counterpart to passthru_or_fail(): here the command's output is always
+ * streamed to the terminal rather than suppressed, for commands whose output
+ * is meaningful in its own right rather than dependency-tool noise.
+ */
+function passthru_verbose_or_fail(string $cmd, string $format = '', string|int|float ...$args): void {
+  $exit_code = 0;
+  passthru($cmd, $exit_code);
+
+  if ($exit_code !== 0) {
+    if ($format !== '') {
+      FAIL($format, ...$args);
+    }
+
     quit($exit_code);
   }
 }
@@ -523,7 +584,9 @@ function run_custom_scripts(string $dir, string $prefix): void {
       continue;
     }
     TASK("Running custom script '%s'.", $file);
-    passthru_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
+    // Show the hook's output - these scripts are the project's own and their
+    // output is intentional, unlike the suppressed dependency-tool commands.
+    passthru_verbose_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
     PASS("Completed custom script '%s'.", $file);
   }
 }
@@ -556,15 +619,31 @@ function drush(string $command, mixed $args = NULL, ?int &$exit_code = NULL): st
 
   $command = 'build/vendor/bin/drush -r ' . escapeshellarg(getcwd() . '/build/web') . ' -y ' . $command;
 
-  ob_start();
-  passthru($command, $exit_code);
-  $output = ob_get_clean();
+  if (is_debug()) {
+    // Stream drush's progress - which it writes to stderr - live, while still
+    // capturing stdout for the return value.
+    ob_start();
+    passthru($command, $exit_code);
+    $output = ob_get_clean() ?: '';
+  }
+  else {
+    // Fold stderr into the captured output so drush's progress notices stay
+    // hidden during a normal run; the return value is still available to
+    // callers that read it.
+    $output = passthru_capture($command, $exit_code);
+  }
 
   if (!$exit_code_provided && $exit_code !== 0) {
+    // Surface the captured output on a quiet run so the failure is diagnosable;
+    // in debug mode it already streamed live.
+    if (!is_debug()) {
+      echo $output;
+    }
+
     FAIL('Drush command failed: %s', $command);
   }
 
-  return $output ?: '';
+  return $output;
 }
 
 /**

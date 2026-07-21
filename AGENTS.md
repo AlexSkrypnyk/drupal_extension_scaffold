@@ -189,6 +189,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `WEBSERVER_HOST` - Development server host (default: localhost)
 - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
+- `DEBUG` - Set to `1` to stream the full output of the underlying commands (Composer, npm, Drush). By default this output is suppressed and shown only when a command fails
 
 ## Development Workflow
 

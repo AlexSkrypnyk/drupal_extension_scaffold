@@ -88,4 +88,15 @@ final class HelpersDrushTest extends UnitTestCase {
     $this->assertSame(2, $exit_code);
   }
 
+  public function testDrushStreamsLiveInDebugMode(): void {
+    $this->envSet('DEBUG', '1');
+    $cwd = getcwd();
+    $expected_cmd = 'build/vendor/bin/drush -r ' . escapeshellarg($cwd . '/build/web') . ' -y status';
+    $this->mockPassthru(['cmd' => $expected_cmd, 'output' => 'Drupal version : 11', 'result_code' => 0]);
+    $exit_code = 0;
+    $result = drush('status', NULL, $exit_code);
+    $this->assertSame('Drupal version : 11', $result);
+    $this->assertSame(0, $exit_code);
+  }
+
 }

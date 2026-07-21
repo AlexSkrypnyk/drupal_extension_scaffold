@@ -260,12 +260,13 @@ final class AssembleTest extends UnitTestCase {
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
-    // 8. NPM install and build (if applicable).
+    // 8. NPM install (suppressed) and build (shown), if applicable.
     if ($config['has_package_lock'] && !$config['has_skip_npm_build']) {
-      $cmd = $config['has_nvmrc'] ? 'nvm use && ' : '';
-      $cmd .= $config['has_node_modules'] ? '' : 'npm --prefix build ci && ';
-      $cmd .= 'npm --prefix build run build';
-      $passthru_responses[] = ['cmd' => $cmd];
+      $nvm = $config['has_nvmrc'] ? 'nvm use && ' : '';
+      if (!$config['has_node_modules']) {
+        $passthru_responses[] = ['cmd' => $nvm . 'npm --prefix build ci'];
+      }
+      $passthru_responses[] = ['cmd' => $nvm . 'npm --prefix build run build'];
     }
 
     $this->mockPassthruMultiple($passthru_responses);
