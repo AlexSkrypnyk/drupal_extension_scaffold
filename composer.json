@@ -17,7 +17,7 @@
         "source": "https://git.drupalcode.org/project/your_extension"
     },
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "require-dev": {
         "drupal/autologout": "^2"

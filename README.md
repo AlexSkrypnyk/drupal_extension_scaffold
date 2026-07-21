@@ -16,7 +16,6 @@
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
-![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
 ![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)
 ![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)
@@ -49,7 +48,7 @@ and push the code to [Drupal.org](https://drupal.org).
 ## Features
 
 - Turnkey CI configuration:
-  - PHP version matrix: `8.2`, `8.3`, `8.4`, `8.5`.
+  - PHP version matrix: `8.3`, `8.4`, `8.5`.
   - Drupal version matrix: `stable`, `canary` and `legacy` across Drupal 10 and 11.
   - CI providers: [GitHub Actions](.github/workflows/test.yml)
     and [CircleCI](.circleci/config.yml)
@@ -173,7 +172,7 @@ The CI configuration ([GitHub Actions](.github/workflows/test.yml) and [CircleCI
 
 | Job | PHP | Drupal | Role |
 |-----|-----|--------|------|
-| `test-php-min-d10-stable` | `8.2` | `10` | Drupal 10 on the lowest supported PHP |
+| `test-php-min-d10-stable` | `8.3` | `10` | Drupal 10 on the lowest supported PHP |
 | `test-php-max-d10-stable` | `8.4` | `10` | Drupal 10 on the highest supported PHP |
 | `test-php-min-d11-stable` | `8.3` | `11` | Drupal 11 on the lowest supported PHP |
 | `test-php-max-d11-stable` | `8.5` | `11` | Drupal 11 on the highest supported PHP |

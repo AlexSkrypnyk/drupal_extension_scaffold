@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce162675181965a90e663ed6a4a7236e",
+    "content-hash": "277e197e6baa9647d6b461fb81025cff",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -3953,7 +3953,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.2"
+        "php": ">=8.3"
     },
     "platform-dev": {},
     "platform-overrides": {
