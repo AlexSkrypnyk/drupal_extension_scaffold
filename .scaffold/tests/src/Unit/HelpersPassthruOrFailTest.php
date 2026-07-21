@@ -7,6 +7,7 @@ namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 use function DrupalExtensionScaffold\DevTools\passthru_or_fail;
 use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 #[CoversFunction('DrupalExtensionScaffold\DevTools\passthru_or_fail')]
@@ -70,6 +71,46 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $this->assertIsString($output);
       $this->assertStringContainsString('Failed to download from http://example.com.', $output);
     }
+  }
+
+  #[DataProvider('dataProviderOutputVisibility')]
+  public function testOutputVisibility(bool $debug, int $result_code, bool $expect_visible): void {
+    if ($debug) {
+      $this->envSet('DEBUG', '1');
+    }
+    else {
+      $this->envUnset('DEBUG');
+    }
+
+    $this->mockPassthru(['cmd' => 'run-tool', 'output' => 'TOOL_NOISE', 'result_code' => $result_code]);
+
+    if ($result_code !== 0) {
+      $this->mockQuit($result_code);
+    }
+
+    ob_start();
+    try {
+      passthru_or_fail('run-tool');
+    }
+    catch (QuitErrorException) {
+      // Expected when the command fails.
+    }
+    finally {
+      $output = (string) ob_get_clean();
+    }
+
+    if ($expect_visible) {
+      $this->assertStringContainsString('TOOL_NOISE', $output);
+    }
+    else {
+      $this->assertStringNotContainsString('TOOL_NOISE', $output);
+    }
+  }
+
+  public static function dataProviderOutputVisibility(): \Iterator {
+    yield 'debug streams output live' => ['debug' => TRUE, 'result_code' => 0, 'expect_visible' => TRUE];
+    yield 'quiet suppresses output on success' => ['debug' => FALSE, 'result_code' => 0, 'expect_visible' => FALSE];
+    yield 'quiet shows captured output on failure' => ['debug' => FALSE, 'result_code' => 1, 'expect_visible' => TRUE];
   }
 
 }
