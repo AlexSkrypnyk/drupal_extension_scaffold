@@ -170,7 +170,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `config/schema/` - Configuration schema definitions
 - `build/` - Assembled Drupal codebase (symlinked extension)
 - `.devtools/` - Build and deployment scripts used by CI
-- `scripts/` - Custom post-assemble (`assemble-*.sh`) and post-provision (`provision-*.sh`) hooks. Run automatically at the end of each phase in lexicographic order; non-zero exit aborts the parent. Excluded from distribution archives via `.gitattributes`
+- `scripts/` - Custom lifecycle hooks: post-assemble (`assemble-*.sh`), post-provision (`provision-*.sh`), post-start (`start-*.sh`), and pre-stop (`stop-*.sh`). Run automatically during each phase in lexicographic order; non-zero exit aborts the parent. Excluded from distribution archives via `.gitattributes`
 
 **Template Files (before init):**
 - `your_extension.*` - Template extension files

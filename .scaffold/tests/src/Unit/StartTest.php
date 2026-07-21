@@ -406,6 +406,45 @@ final class StartTest extends UnitTestCase {
     fclose($fp);
   }
 
+  public function testStartDisplaysTunnelUrlWhenSet(): void {
+    $cwd = '/test/project';
+    $tunnel_url = 'https://random-words.trycloudflare.com';
+
+    $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
+
+    // .env carries both the port and an active tunnel URL. The server still
+    // binds and is health-checked on the local host:port, but the READY
+    // banner reports the public tunnel URL.
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBSERVER_PORT=8000\nTUNNEL_URL=" . $tunnel_url . "\n");
+
+    $this->mockPassthruMultiple([
+      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
+    ]);
+
+    $this->mockSleep();
+
+    $fp = fopen('php://memory', 'r');
+    $this->assertNotFalse($fp);
+    $this->registerMock('fsockopen', 'DrupalExtensionScaffold\\DevTools', fn() => $fp);
+    $this->registerMock('fclose', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
+
+    $context = stream_context_create();
+    $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
+    $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['HTTP/1.1 200 OK']);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/start';
+    $output = ob_get_clean();
+
+    $this->assertIsString($output);
+    $this->assertStringContainsString('URL       : ' . $tunnel_url, $output);
+    $this->assertStringNotContainsString('URL       : http://localhost:8000', $output);
+
+    fclose($fp);
+  }
+
   public function testStartGetHeadersEmptyArray(): void {
     $this->envSet('WEBSERVER_PORT', '8000');
     $cwd = '/test/project';

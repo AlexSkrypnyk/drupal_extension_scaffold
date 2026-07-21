@@ -14,6 +14,12 @@ endif
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
+# Resolve the site URL through the shared `.devtools/info` resolver so `drush`
+# and `login` report the same tunnel-aware URL as start, provision, and info
+# (see resolve_site_url()). Lazy `=` so the probe runs only when drush/login
+# are invoked.
+DRUSH_URI = $(shell ./.devtools/info site-url)
+
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
@@ -92,10 +98,10 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
 endif
 
 drush:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) $(DRUSH_RUN_ARGS)
+	build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS)
 
 login:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) uli
+	build/vendor/bin/drush -l $(DRUSH_URI) uli
 
 provision:
 	./.devtools/provision

@@ -89,14 +89,16 @@ PASS('Caches pre-warmed.');
 // Run custom post-provision scripts from "scripts/provision-*.sh", if any.
 run_custom_scripts('scripts', 'provision-');
 
+$site_url = resolve_site_url($webserver_host, $webserver_port);
+
 echo PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo '   🚀 PROVISION COMPLETE  ✅  ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
-echo 'Site URL:            http://' . $webserver_host . ':' . $webserver_port . PHP_EOL;
+echo 'Site URL:            ' . $site_url . PHP_EOL;
 echo 'One-time login link: ';
-echo drush(sprintf('uli -l http://%s:%s --no-browser', $webserver_host, $webserver_port));
+echo drush(sprintf('uli -l %s --no-browser', $site_url));
 echo PHP_EOL;
 if (file_exists('.ahoy.yml')) {
   echo 'Run `ahoy` to see available commands.' . PHP_EOL;

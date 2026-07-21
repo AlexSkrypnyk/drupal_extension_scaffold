@@ -163,6 +163,42 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Site URL:           http://localhost:8123', $output);
   }
 
+  public function testSiteUrlPrefersTunnelUrl(): void {
+    $cwd = '/test/project';
+    $tunnel_url = 'https://random-words.trycloudflare.com';
+
+    $this->configureInfoMocks(
+      shell_exec_map: ['*' => ''],
+      files: ['.env' => TRUE],
+      info_files: [],
+      cwd: $cwd,
+      file_contents: ['.env' => "WEBSERVER_PORT=8000\nTUNNEL_URL=" . $tunnel_url . "\n"],
+    );
+
+    $output = $this->runInfo();
+
+    // Host and port still report the local values; only the site URL follows
+    // the tunnel.
+    $this->assertStringContainsString('Webserver port:     8000 (.env)', $output);
+    $this->assertStringContainsString('Site URL:           ' . $tunnel_url, $output);
+  }
+
+  public function testSiteUrlFieldPrefersTunnelUrl(): void {
+    $tunnel_url = 'https://random-words.trycloudflare.com';
+
+    $this->configureInfoMocks(
+      shell_exec_map: ['*' => ''],
+      files: ['.env' => TRUE],
+      info_files: [],
+      cwd: '/test/project',
+      file_contents: ['.env' => "TUNNEL_URL=" . $tunnel_url . "\n"],
+    );
+
+    $output = $this->runInfoField('site-url', 0);
+
+    $this->assertSame($tunnel_url . PHP_EOL, $output);
+  }
+
   public function testFallsBackToDefaultsWhenNothingResolves(): void {
     $cwd = '/test/project';
 

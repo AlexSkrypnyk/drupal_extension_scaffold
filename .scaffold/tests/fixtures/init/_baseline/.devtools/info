@@ -50,8 +50,6 @@ $db_file = $extension_name !== '' ? '/tmp/site_' . $extension_name . '.sqlite' :
 $drush_bin = 'build/vendor/bin/drush';
 $has_drush = is_file($drush_bin);
 
-$site_url = sprintf('http://%s:%s', $webserver_host, $webserver_port);
-
 // -----------------------------------------------------------------------------
 // Field resolvers. Each closure is invoked only when its field is requested.
 // -----------------------------------------------------------------------------
@@ -65,7 +63,7 @@ $fields = [
   'npm' => fn(): string => info_tool_version('npm --version 2>/dev/null', '/(.+)/'),
   'webserver-host' => fn(): string => $webserver_host,
   'webserver-port' => fn(): string => $webserver_port,
-  'site-url' => fn(): string => $site_url,
+  'site-url' => fn(): string => resolve_site_url($webserver_host, $webserver_port),
   'xdebug' => fn(): string => xdebug_state($webserver_port),
   'build-dir' => fn(): string => $build_dir,
   'database' => fn(): string => $db_file,

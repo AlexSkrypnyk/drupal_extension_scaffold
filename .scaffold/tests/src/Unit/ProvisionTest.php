@@ -253,4 +253,54 @@ final class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString('http://' . $expected_host . ':' . $expected_port, $output);
   }
 
+  public function testProvisionDisplaysTunnelUrlWhenSet(): void {
+    $extension_name = 'test_extension';
+    $info_content = "name: Test\ntype: module\n";
+    $cwd = '/test/project';
+    $tunnel_url = 'https://abc.trycloudflare.com';
+
+    $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
+    $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => [$extension_name . '.info.yml']);
+
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content, $tunnel_url): string {
+      if (str_ends_with($file, '.info.yml')) {
+        return $info_content;
+      }
+      if ($file === '.env') {
+        return "WEBSERVER_PORT=8000\nTUNNEL_URL=" . $tunnel_url . "\n";
+      }
+      if ($file === 'composer.json') {
+        return json_encode(['suggest' => []], JSON_THROW_ON_ERROR);
+      }
+      if (str_starts_with($file, 'http://')) {
+        return '<html></html>';
+      }
+
+      return '';
+    });
+
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
+
+    $prefix = self::drushPrefix($cwd);
+    $db_file = '/tmp/site_' . $extension_name . '.sqlite';
+    // The pre-warm still hits the local host:port, but the login link and the
+    // completion banner report the public tunnel URL.
+    $this->mockPassthruMultiple([
+      ['cmd' => $prefix . 'status --field=db-status', 'output' => ''],
+      ['cmd' => $prefix . sprintf('site-install %s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), $db_file)],
+      ['cmd' => $prefix . 'status'],
+      ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
+      ['cmd' => $prefix . 'cr'],
+      ['cmd' => $prefix . sprintf('uli -l %s --no-browser', $tunnel_url), 'output' => $tunnel_url . '/user/reset/1/abc/login'],
+    ]);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/provision';
+    $output = ob_get_clean();
+
+    $this->assertIsString($output);
+    $this->assertStringContainsString('Site URL:            ' . $tunnel_url, $output);
+    $this->assertStringNotContainsString('Site URL:            http://', $output);
+  }
+
 }
