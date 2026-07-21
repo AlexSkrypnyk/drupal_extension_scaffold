@@ -14,10 +14,11 @@ endif
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
-# Prefer an active tunnel URL over the local host:port so Drush generates
-# links that work from outside the dev host. TUNNEL_URL is written to .env by
-# a start hook such as scripts/start-cloudflared.sh and loaded via -include.
-DRUSH_URI := $(if $(TUNNEL_URL),$(TUNNEL_URL),http://$(WEBSERVER_HOST):$(WEBSERVER_PORT))
+# Resolve the site URL through the shared `.devtools/info` resolver so `drush`
+# and `login` report the same tunnel-aware URL as start, provision, and info
+# (see resolve_site_url()). Lazy `=` so the probe runs only when drush/login
+# are invoked.
+DRUSH_URI = $(shell ./.devtools/info site-url)
 
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
