@@ -53,6 +53,7 @@ and push the code to [Drupal.org](https://drupal.org).
   - CI providers: [GitHub Actions](.github/workflows/test.yml)
     and [CircleCI](.circleci/config.yml)
   - Code coverage with https://github.com/krakjoe/pcov pushed to [codecov.io](https://codecov.io).
+  - Compatible with Drupal.org GitLab CI ([DrupalCI](#drupalorg-ci-drupalci)).
 - Develop locally using PHP running on your host using
   identical [`.devtools`](.devtools) scripts as in CI:
   - Uses [drupal/recommended-project](https://www.drupal.org/docs/develop/using-composer/starting-a-site-using-drupal-composer-project-templates)
@@ -461,6 +462,28 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
 - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
   deploy. Without this variable, the deployment job will run but will not
   push the code. This is useful for testing the deployment job.
+
+### Drupal.org CI (DrupalCI)
+
+Once your extension is mirrored to Drupal.org, its GitLab CI ("DrupalCI") runs
+automatically. The scaffold's configuration is compatible with DrupalCI out of
+the box - the PHPStan error suppressions resolve correctly even though DrupalCI
+runs the analysis from within the module directory.
+
+PHPUnit needs one override: disable code coverage on DrupalCI. DrupalCI symlinks
+your project back into the built site's `web/modules/custom/<name>/` directory,
+so PHPUnit's coverage scan follows that recursive symlink into
+`web/core/node_modules` and exhausts the available file descriptors. Coverage is
+already collected by GitHub Actions and CircleCI, so turning it off on DrupalCI
+is safe.
+
+Add the [standard DrupalCI includes](https://git.drupalcode.org/project/gitlab_templates)
+to a `.gitlab-ci.yml` in your project root and set the override:
+
+```yaml
+variables:
+  _PHPUNIT_EXTRA: '--no-coverage'
+```
 
 ## Updating your extension
 
