@@ -30,7 +30,6 @@ abstract class DevtoolsTestCase extends FunctionalTestCase {
   /**
    * {@inheritdoc}
    */
-  #[\Override]
   protected function tearDown(): void {
     // Kill PHP webserver processes on port 8000.
     // phpcs:ignore
