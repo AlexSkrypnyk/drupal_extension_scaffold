@@ -75,14 +75,14 @@ job-test: &job-test
         command: php -d pcov.directory=.. vendor/bin/phpunit || [ "${CI_TEST_IGNORE_FAILURE:-0}" -eq 1 ]
         working_directory: build
         environment:
-          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
+          BROWSERTEST_OUTPUT_DIRECTORY: ../.logs/browser_output
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
 
     - store_test_results:
         path: .logs/test_results
 
     - store_artifacts:
-        path: build/web/sites/simpletest/browser_output
+        path: .logs/browser_output
 
     - store_artifacts:
         path: .logs/coverage

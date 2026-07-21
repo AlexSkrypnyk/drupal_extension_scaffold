@@ -133,7 +133,7 @@ lint-fix:
 
 test:
 	$(call title,Running PHPUnit)
-	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
 	$(call title,Running Jest)
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm test) && popd >/dev/null || exit 1
 
@@ -149,12 +149,12 @@ test-kernel:
 
 test-functional:
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
+	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
 
 test-functional-javascript: selenium-start
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
+	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
 
 selenium-start:

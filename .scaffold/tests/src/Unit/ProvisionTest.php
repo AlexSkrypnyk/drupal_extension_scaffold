@@ -42,7 +42,8 @@ final class ProvisionTest extends UnitTestCase {
 
     $extension_name = 'test_extension';
     $info_content = $extension_type === 'theme' ? "name: Test\ntype: theme\n" : "name: Test\ntype: module\n";
-    $cwd = '/test/project';
+    $cwd = self::$tmp . '/provision_' . uniqid();
+    mkdir($cwd . '/build/web', 0755, TRUE);
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
@@ -136,8 +137,13 @@ final class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString('Clearing caches', $output);
     $this->assertStringContainsString('Suggested modules enabled', $output);
     $this->assertStringContainsString('Caches pre-warmed', $output);
+    $this->assertStringContainsString('Browser test output linked', $output);
     $this->assertStringContainsString('PROVISION COMPLETE', $output);
     $this->assertStringContainsString('http://' . $expected_host . ':' . $expected_port, $output);
+
+    $browser_output_link = $cwd . '/build/web/sites/simpletest/browser_output';
+    $this->assertTrue(is_link($browser_output_link));
+    $this->assertSame($cwd . '/.logs/browser_output', readlink($browser_output_link));
 
     if ($has_ahoy) {
       $this->assertStringContainsString('Run `ahoy` to see available commands', $output);
