@@ -705,7 +705,7 @@ function chmod_recursive(string $path, int $mode): void {
  * browser_output", ignoring any configured output directory
  * (https://www.drupal.org/node/2992069). Replacing that location with a
  * symlink into the logs directory gathers the output alongside the other
- * test artefacts instead of leaving it in the docroot.
+ * test artifacts instead of leaving it under the web root.
  *
  * Any existing file, directory, or symlink at the browser output location is
  * removed first. Does nothing when the web root is absent.
@@ -713,7 +713,7 @@ function chmod_recursive(string $path, int $mode): void {
  * @param string $webroot
  *   Absolute path to the Drupal web root: the directory that contains "sites".
  * @param string $logs_dir
- *   Absolute path to the directory that gathers test artefacts.
+ *   Absolute path to the directory that gathers test artifacts.
  */
 function link_browser_output(string $webroot, string $logs_dir): void {
   if (!is_dir($webroot)) {
