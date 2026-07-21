@@ -71,7 +71,7 @@
  - `config/schema/` - Configuration schema definitions
  - `build/` - Assembled Drupal codebase (symlinked extension)
  - `.devtools/` - Build and deployment scripts used by CI
-@@ -96,11 +96,6 @@
+@@ -97,11 +97,6 @@
  
  ## Code Quality Tools
  
