@@ -12,6 +12,8 @@
     "words": [
         "ahoy",
         "alexskrypnyk",
+        "ansiutf",
+        "ansiutf8",
         "autologout",
         "autoloading",
         "autoupdate",
@@ -70,6 +72,8 @@
         "prompty",
         "prophesize",
         "pushd",
+        "qrcode",
+        "qrencode",
         "rector",
         "renovatebot",
         "ruleset",

@@ -102,7 +102,9 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 echo 'Site URL:            ' . $site_url . PHP_EOL;
 echo 'One-time login link: ';
-echo drush(sprintf('uli -l %s --no-browser', $site_url));
+$login_link = trim(drush(sprintf('uli -l %s --no-browser', $site_url)));
+echo $login_link . PHP_EOL;
+print_qrcode($login_link);
 echo PHP_EOL;
 if (file_exists('.ahoy.yml')) {
   echo 'Run `ahoy` to see available commands.' . PHP_EOL;

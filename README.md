@@ -284,6 +284,10 @@ With `CLOUDFLARE_TUNNEL` set and the [`cloudflared`](https://developers.cloudfla
 
 Any tool that writes a `TUNNEL_URL` to `.env` (ngrok, tailscale funnel, etc.) is picked up the same way - the core scripts are tunnel-agnostic.
 
+#### Scannable QR codes
+
+When [`qrencode`](https://fukuchi.org/works/qrencode/) is on `PATH`, the one-time login link in the `provision` output is also rendered as a terminal QR code, and `make login` / `ahoy login` (and `make drush uli` / `ahoy drush uli`) print one for the link they generate. Scan it to open the site - already logged in - on a phone or another device, which is most useful when the site is exposed through a public tunnel. Without `qrencode` installed the output is unchanged, so nothing breaks in CI or on hosts that lack it.
+
 ### Step-debugging with XDebug
 
 PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then toggle it on the development server:

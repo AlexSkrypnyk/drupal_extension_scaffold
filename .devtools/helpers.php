@@ -490,6 +490,29 @@ function passthru_or_fail(string $cmd, string $format = '', string|int|float ...
 }
 
 /**
+ * Render a URL as a scannable QR code in the terminal.
+ *
+ * Uses `qrencode -t ANSIUTF8` to draw the code with Unicode block glyphs.
+ * A no-op when the URL is empty or the `qrencode` binary is not installed,
+ * so callers may invoke it unconditionally and terminals without qrencode
+ * (including CI) keep their output unchanged.
+ *
+ * @param string $url
+ *   The URL to encode. An empty string renders nothing.
+ */
+function print_qrcode(string $url): void {
+  if ($url === '') {
+    return;
+  }
+
+  if (!command_path('qrencode')) {
+    return;
+  }
+
+  passthru(sprintf('qrencode -t ANSIUTF8 %s', escapeshellarg($url)));
+}
+
+/**
  * Run custom shell scripts from a directory matching a filename prefix.
  *
  * Scripts are matched as "<dir>/<prefix>*.sh", sorted lexicographically,
