@@ -277,6 +277,9 @@ export CLOUDFLARE_TUNNEL=1
 make build
 ```
 
+> [!WARNING]
+> A quick tunnel publishes your local site to a public URL with no authentication in front of it - anyone with the URL can reach it while the tunnel is up. A local Drupal install typically ships with a known admin account and no firewall, so treat the exposed site as fully public: use disposable test data only, never real or sensitive content, and stop the tunnel with `make stop` when you are done.
+
 With `CLOUDFLARE_TUNNEL` set and the [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) binary on `PATH`, `scripts/start-cloudflared.sh` starts (or reuses a healthy) tunnel and writes its URL to `.env` as `TUNNEL_URL`. The `start`, `provision`, and `info` output, and `make`/`ahoy drush` and `login`, then use that URL. `scripts/provision-cloudflared.sh` configures Drupal's reverse-proxy and trusted-host settings so the tunnel serves correctly, and `scripts/stop-cloudflared.sh` tears the tunnel down on `make stop`. Without the env var, behaviour is unchanged; with it set but `cloudflared` absent, the hook skips with a note.
 
 Any tool that writes a `TUNNEL_URL` to `.env` (ngrok, tailscale funnel, etc.) is picked up the same way - the core scripts are tunnel-agnostic.
