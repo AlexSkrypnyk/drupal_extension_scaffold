@@ -88,16 +88,19 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $this->mockQuit($result_code);
     }
 
+    $quit_thrown = FALSE;
     ob_start();
     try {
       passthru_or_fail('run-tool');
     }
     catch (QuitErrorException) {
-      // Expected when the command fails.
+      $quit_thrown = TRUE;
     }
     finally {
       $output = (string) ob_get_clean();
     }
+
+    $this->assertSame($result_code !== 0, $quit_thrown);
 
     if ($expect_visible) {
       $this->assertStringContainsString('TOOL_NOISE', $output);
