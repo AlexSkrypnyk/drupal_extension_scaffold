@@ -6,7 +6,7 @@
  - **PHPUnit**: `ahoy test` / `ahoy test-unit` / `ahoy test-kernel` / `ahoy test-functional` - never `vendor/bin/phpunit`.
  - **Jest**: `ahoy test-js` - never `npx jest`.
  - **Drush**: `ahoy drush <command>` - never `build/vendor/bin/drush` directly.
-@@ -97,7 +96,6 @@
+@@ -100,7 +99,6 @@
  
  ## Code Quality Tools
  

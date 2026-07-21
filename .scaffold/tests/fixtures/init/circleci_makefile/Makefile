@@ -26,7 +26,7 @@ endef
 
 .PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
 .PHONY: test-unit test-kernel test-functional
-.PHONY: test-functional-javascript selenium-start selenium-stop
+.PHONY: test-functional-javascript chromedriver-start chromedriver-stop selenium-start selenium-stop
 .PHONY: test-js
 
 help:
@@ -49,6 +49,8 @@ help:
 	@echo "test-functional-javascript - Run FunctionalJavascript tests."
 	@echo "test-kernel                - Run kernel tests."
 	@echo "test-unit                  - Run unit tests."
+	@echo "chromedriver-start         - Start chromedriver against the local Chrome."
+	@echo "chromedriver-stop          - Stop chromedriver."
 	@echo "selenium-start             - Start Selenium container."
 	@echo "selenium-stop              - Stop Selenium container."
 	@echo "test-js                    - Run JavaScript unit tests."
@@ -152,10 +154,43 @@ test-functional:
 	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
 	popd >/dev/null || exit 1
 
-test-functional-javascript: selenium-start
+test-functional-javascript:
+	@if [ "$${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then $(MAKE) selenium-start; else $(MAKE) chromedriver-start; fi
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
+
+chromedriver-start:
+	@if curl -s http://localhost:4444/status | grep -qE '"ready": ?true'; then \
+		echo "WebDriver is already running on port 4444."; \
+	else \
+		if [ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then \
+			chrome_version=$$("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --version); \
+		elif command -v google-chrome >/dev/null 2>&1; then \
+			chrome_version=$$(google-chrome --version); \
+		elif command -v chromium >/dev/null 2>&1; then \
+			chrome_version=$$(chromium --version); \
+		elif command -v chromium-browser >/dev/null 2>&1; then \
+			chrome_version=$$(chromium-browser --version); \
+		else \
+			echo "ERROR: Google Chrome or Chromium was not found. Install Chrome, or set WEBDRIVER_BACKEND=selenium to use Docker."; \
+			exit 1; \
+		fi; \
+		chrome_version=$$(echo "$$chrome_version" | grep -oE '[0-9]+(\.[0-9]+){3}' | head -1); \
+		mkdir -p .chromedriver; \
+		echo "Fetching chromedriver matching Chrome $$chrome_version..."; \
+		chromedriver_bin=$$(npx -y @puppeteer/browsers install "chromedriver@$$chrome_version" --path .chromedriver | awk 'END {print $$NF}'); \
+		nohup "$$chromedriver_bin" --port=4444 >.chromedriver/chromedriver.log 2>&1 & \
+		echo "Waiting for chromedriver to be ready..."; \
+		for i in $$(seq 1 30); do curl -s http://localhost:4444/status | grep -qE '"ready": ?true' && break; sleep 1; done; \
+		if ! curl -s http://localhost:4444/status | grep -qE '"ready": ?true'; then \
+			echo "ERROR: chromedriver failed to become ready after 30 seconds."; \
+			exit 1; \
+		fi; \
+	fi
+
+chromedriver-stop:
+	pkill -f "chromedriver --port=4444" 2>/dev/null || true
 
 selenium-start:
 	@if curl -s http://localhost:4444/status | grep -q '"ready": true'; then \

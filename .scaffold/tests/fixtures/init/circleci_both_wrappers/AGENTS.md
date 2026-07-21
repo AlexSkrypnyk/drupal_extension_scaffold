@@ -31,7 +31,7 @@
  
  **Using Ahoy (alternative):**
  - `ahoy build` - Complete build process
-@@ -35,10 +53,20 @@
+@@ -35,10 +53,22 @@
  ### Code Quality
  
  **Linting:**
@@ -45,14 +45,16 @@
 +- `make test-unit` - Run unit tests only
 +- `make test-kernel` - Run kernel tests only
 +- `make test-functional` - Run functional tests only
-+- `make test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
++- `make test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 +- `make test-js` - Run JavaScript unit tests (Jest)
++- `make chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
++- `make chromedriver-stop` - Stop chromedriver
 +- `make selenium-start` - Start Selenium container
 +- `make selenium-stop` - Stop Selenium container
  - `ahoy test` - Run all tests
  - `ahoy test-unit` - Run unit tests only
  - `ahoy test-kernel` - Run kernel tests only
-@@ -50,11 +78,14 @@
+@@ -52,11 +82,14 @@
  
  ### Drupal Commands
  

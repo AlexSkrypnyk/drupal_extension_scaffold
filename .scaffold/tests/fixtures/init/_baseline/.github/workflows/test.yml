@@ -192,6 +192,7 @@ jobs:
         env:
           BROWSERTEST_OUTPUT_DIRECTORY: ../.logs/browser_output
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
+          WEBDRIVER_BACKEND: selenium
 
       - name: Upload test results as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__

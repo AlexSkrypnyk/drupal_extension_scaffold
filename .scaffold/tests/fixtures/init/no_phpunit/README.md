@@ -6,7 +6,7 @@
  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/force_crystal/force_crystal)
  ![LICENSE](https://img.shields.io/github/license/force_crystal/force_crystal)
  ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
-@@ -158,57 +157,6 @@
+@@ -158,70 +157,6 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
@@ -31,13 +31,26 @@
 -
 -### Running FunctionalJavascript tests
 -
--FunctionalJavascript tests require a browser controlled via WebDriver.
+-FunctionalJavascript tests need a real browser driven via WebDriver. By
+-default they use the Google Chrome already installed on your machine - a
+-matching `chromedriver` is downloaded automatically on first run, so no
+-Docker is required:
 -
 -```bash
--ahoy selenium-start
--WEBSERVER_HOST=__VERSION__.0 ahoy start
+-ahoy start
 -ahoy provision
 -ahoy test-functional-javascript
+-ahoy chromedriver-stop
+-```
+-
+-To run the browser in a Docker Selenium container instead, set
+-`WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's
+-`localhost`, so start the webserver on all interfaces:
+-
+-```bash
+-WEBSERVER_HOST=__VERSION__.0 ahoy start
+-ahoy provision
+-WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
 -ahoy selenium-stop
 -```
 -
