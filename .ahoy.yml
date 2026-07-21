@@ -193,7 +193,15 @@ commands:
       fi
       mkdir -p .chromedriver
       echo "Fetching chromedriver matching Chrome $chrome_version..."
-      chromedriver_bin=$(npx -y @puppeteer/browsers install "chromedriver@$chrome_version" --path .chromedriver | awk 'END {print $NF}')
+      if ! npx -y @puppeteer/browsers install "chromedriver@$chrome_version" --path .chromedriver >.chromedriver/install.log; then
+        echo "ERROR: Failed to install chromedriver matching Chrome $chrome_version."
+        exit 1
+      fi
+      chromedriver_bin=$(sed -n '$s/^[^ ]* //p' .chromedriver/install.log)
+      if [ -z "$chromedriver_bin" ]; then
+        echo "ERROR: Could not determine the chromedriver binary path."
+        exit 1
+      fi
       nohup "$chromedriver_bin" --port=4444 >.chromedriver/chromedriver.log 2>&1 &
       echo "Waiting for chromedriver to be ready..."
       for i in $(seq 1 30); do curl -s http://localhost:4444/status | grep -qE '"ready": ?true' && break; sleep 1; done
