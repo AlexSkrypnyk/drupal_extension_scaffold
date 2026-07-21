@@ -10,7 +10,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -185,35 +180,3 @@
+@@ -185,36 +180,3 @@
          run: npm test
          continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  
@@ -28,6 +28,7 @@
 -        with:
 -          name: Artifacts (${{ matrix.name }})
 -          path: .logs/browser_output
+-          include-hidden-files: true
 -
 -      - name: Upload coverage report as an artifact
 -        uses: actions/upload-artifact@__HASH__ # __VERSION__

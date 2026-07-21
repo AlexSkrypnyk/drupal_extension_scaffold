@@ -199,6 +199,7 @@ jobs:
         with:
           name: Artifacts (${{ matrix.name }})
           path: .logs/browser_output
+          include-hidden-files: true
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
