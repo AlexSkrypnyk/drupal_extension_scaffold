@@ -190,7 +190,7 @@ jobs:
         run: php -d pcov.directory=.. vendor/bin/phpunit
         continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
         env:
-          BROWSERTEST_OUTPUT_DIRECTORY: /tmp
+          BROWSERTEST_OUTPUT_DIRECTORY: ../.logs/browser_output
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
 
       - name: Upload test results as an artifact
@@ -198,7 +198,7 @@ jobs:
         if: always()
         with:
           name: Artifacts (${{ matrix.name }})
-          path: build/web/sites/simpletest/browser_output
+          path: .logs/browser_output
 
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
