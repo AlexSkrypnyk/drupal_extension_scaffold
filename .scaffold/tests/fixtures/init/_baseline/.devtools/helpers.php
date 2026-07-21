@@ -487,6 +487,8 @@ function command_must_exist(string $command): void {
  * @param int|null &$exit_code
  *   Populated with the command's exit code.
  *
+ * @param-out int $exit_code
+ *
  * @return string
  *   The captured combined output.
  */
@@ -562,7 +564,13 @@ function run_custom_scripts(string $dir, string $prefix): void {
       continue;
     }
     TASK("Running custom script '%s'.", $file);
-    passthru_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
+    // Stream the hook's output live rather than suppressing it like the tool
+    // commands - these scripts are the project's own and their output is
+    // intentional.
+    passthru(escapeshellarg($file), $exit_code);
+    if ($exit_code !== 0) {
+      FAIL("Custom script '%s' failed.", $file);
+    }
     PASS("Completed custom script '%s'.", $file);
   }
 }
