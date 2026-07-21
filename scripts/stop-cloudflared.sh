@@ -4,9 +4,8 @@
 #
 # Kills the `cloudflared` process started by `scripts/start-cloudflared.sh` and
 # removes the TUNNEL_URL entry from `.env` so a dead public URL is not reported
-# on the next run. Intentionally ungated so cleanup runs even when
-# CLOUDFLARE_TUNNEL is no longer set; a no-op when no tunnel is active. CWD is
-# the project root.
+# on the next run. Runs even when CLOUDFLARE_TUNNEL is no longer set, so cleanup
+# always happens; a no-op when no tunnel is active. CWD is the project root.
 
 set -eu
 
