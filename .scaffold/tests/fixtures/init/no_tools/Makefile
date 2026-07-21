@@ -14,6 +14,11 @@ endif
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
+# Prefer an active tunnel URL over the local host:port so Drush generates
+# links that work from outside the dev host. TUNNEL_URL is written to .env by
+# a start hook such as scripts/start-cloudflared.sh and loaded via -include.
+DRUSH_URI := $(if $(TUNNEL_URL),$(TUNNEL_URL),http://$(WEBSERVER_HOST):$(WEBSERVER_PORT))
+
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
@@ -82,10 +87,10 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
 endif
 
 drush:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) $(DRUSH_RUN_ARGS)
+	build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS)
 
 login:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) uli
+	build/vendor/bin/drush -l $(DRUSH_URI) uli
 
 provision:
 	./.devtools/provision

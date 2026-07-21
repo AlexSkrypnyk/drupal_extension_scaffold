@@ -275,6 +275,32 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
 }
 
 /**
+ * Resolve the public site URL, preferring an active tunnel URL.
+ *
+ * Reads TUNNEL_URL straight from the dotenv file rather than the process
+ * environment. A wrapping Make or Ahoy invocation loads '.env' into the
+ * environment once at startup, so a TUNNEL_URL written to '.env' during the
+ * same run would otherwise be masked by the stale exported value. Falls back
+ * to the 'http://host:port' form when no tunnel URL is set.
+ *
+ * @param string $host
+ *   Webserver host for the fallback URL.
+ * @param string $port
+ *   Webserver port for the fallback URL.
+ * @param string $dotenv_file
+ *   Path to the dotenv file to consult for TUNNEL_URL.
+ *
+ * @return string
+ *   The TUNNEL_URL value when the dotenv file defines a non-empty one,
+ *   otherwise 'http://<host>:<port>'.
+ */
+function resolve_site_url(string $host, string $port, string $dotenv_file = '.env'): string {
+  $tunnel_url = dotenv_read($dotenv_file)['TUNNEL_URL'] ?? '';
+
+  return $tunnel_url !== '' ? $tunnel_url : sprintf('http://%s:%s', $host, $port);
+}
+
+/**
  * Detect the XDebug state of the dev server listening on the given port.
  *
  * Inspects the running PHP process's command line for the
