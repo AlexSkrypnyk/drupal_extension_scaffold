@@ -47,7 +47,7 @@ commands:
 
   drush:
     usage: Run Drush command.
-    cmd: build/vendor/bin/drush -l http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000} $*
+    cmd: build/vendor/bin/drush -l ${TUNNEL_URL:-http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000}} $*
 
   login:
     usage: Login to a website.

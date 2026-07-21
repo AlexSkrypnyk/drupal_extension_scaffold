@@ -253,18 +253,33 @@ You can browse the contents of the created SQLite database using
 
 A one-time login link will be printed to the console.
 
-### Custom assemble and provision scripts
+### Custom lifecycle scripts
 
-The `assemble` and `provision` scripts each look for project-local shell scripts in the `scripts/` directory and run them at the end of their respective phase:
+The `assemble`, `provision`, `start`, and `stop` scripts each look for project-local shell scripts in the `scripts/` directory and run them during their respective phase:
 
 - `scripts/assemble-*.sh` runs at the tail of `make assemble` / `ahoy assemble`, after dependencies are installed and the extension is symlinked into `build/`.
 - `scripts/provision-*.sh` runs at the tail of `make provision` / `ahoy provision`, after the site is installed, the extension is enabled, and caches are pre-warmed.
+- `scripts/start-*.sh` runs at the tail of `make start` / `ahoy start`, after the PHP webserver is up and serving.
+- `scripts/stop-*.sh` runs during `make stop` / `ahoy stop`, before the webserver is stopped, while it is still reachable.
 
 Matching files are executed in lexicographic order. The current working directory is the project root, and each script inherits the parent process environment. A non-zero exit from any script aborts the parent run.
 
 The directory is `export-ignore`d via `.gitattributes`, so anything under `scripts/` is excluded from distribution archives published to Drupal.org.
 
-Two example scripts ship with the scaffold (`scripts/assemble-example.sh`, `scripts/provision-example.sh`). Delete them, replace them, or use them as a starting point.
+Example scripts ship with the scaffold (`scripts/assemble-example.sh`, `scripts/provision-example.sh`, `scripts/start-example.sh`, `scripts/stop-example.sh`). Delete them, replace them, or use them as a starting point.
+
+#### Public HTTPS tunnel (Cloudflare)
+
+Remote and cloud development environments (Codespaces, DevPod, a remote Docker host, an SSH dev box) cannot reach the `localhost`-bound PHP dev server directly. The scaffold ships opt-in hook scripts that expose it through a [Cloudflare quick tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/) - a public `*.trycloudflare.com` HTTPS URL with no account, DNS, or config:
+
+```bash
+export CLOUDFLARE_TUNNEL=1
+make build
+```
+
+With `CLOUDFLARE_TUNNEL` set and the [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) binary on `PATH`, `scripts/start-cloudflared.sh` starts (or reuses a healthy) tunnel and writes its URL to `.env` as `TUNNEL_URL`. The `start`, `provision`, and `info` output, and `make`/`ahoy drush` and `login`, then use that URL. `scripts/provision-cloudflared.sh` configures Drupal's reverse-proxy and trusted-host settings so the tunnel serves correctly, and `scripts/stop-cloudflared.sh` tears the tunnel down on `make stop`. Without the env var, behaviour is unchanged; with it set but `cloudflared` absent, the hook skips with a note.
+
+Any tool that writes a `TUNNEL_URL` to `.env` (ngrok, tailscale funnel, etc.) is picked up the same way - the core scripts are tunnel-agnostic.
 
 ### Step-debugging with XDebug
 
