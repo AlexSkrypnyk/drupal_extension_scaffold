@@ -697,6 +697,50 @@ function chmod_recursive(string $path, int $mode): void {
   @chmod($path, $mode);
 }
 
+/**
+ * Redirect Drupal's browser test output directory into the logs directory.
+ *
+ * Drupal writes functional test HTML dumps - and, for JavaScript tests,
+ * screenshots - to a location hardcoded to "<webroot>/sites/simpletest/
+ * browser_output", ignoring any configured output directory
+ * (https://www.drupal.org/node/2992069). Replacing that location with a
+ * symlink into the logs directory gathers the output alongside the other
+ * test artefacts instead of leaving it in the docroot.
+ *
+ * Any existing file, directory, or symlink at the browser output location is
+ * removed first. Does nothing when the web root is absent.
+ *
+ * @param string $webroot
+ *   Absolute path to the Drupal web root: the directory that contains "sites".
+ * @param string $logs_dir
+ *   Absolute path to the directory that gathers test artefacts.
+ */
+function link_browser_output(string $webroot, string $logs_dir): void {
+  if (!is_dir($webroot)) {
+    return;
+  }
+
+  $target = $logs_dir . '/browser_output';
+  if (!is_dir($target)) {
+    mkdir($target, 0755, TRUE);
+  }
+
+  $simpletest_dir = $webroot . '/sites/simpletest';
+  if (!is_dir($simpletest_dir)) {
+    mkdir($simpletest_dir, 0755, TRUE);
+  }
+
+  $link = $simpletest_dir . '/browser_output';
+  if (is_link($link) || is_file($link)) {
+    unlink($link);
+  }
+  elseif (is_dir($link)) {
+    remove_dir($link);
+  }
+
+  symlink($target, $link);
+}
+
 // Never run the real quit() function during tests. This also avoids bleeding
 // into global namespace when running multiple tests that share the same
 // test process.

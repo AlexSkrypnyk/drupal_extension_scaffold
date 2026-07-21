@@ -136,6 +136,7 @@ final class ProvisionTest extends UnitTestCase {
     $this->assertStringContainsString('Clearing caches', $output);
     $this->assertStringContainsString('Suggested modules enabled', $output);
     $this->assertStringContainsString('Caches pre-warmed', $output);
+    $this->assertStringContainsString('Browser test output linked', $output);
     $this->assertStringContainsString('PROVISION COMPLETE', $output);
     $this->assertStringContainsString('http://' . $expected_host . ':' . $expected_port, $output);
 
