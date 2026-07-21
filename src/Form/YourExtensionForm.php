@@ -34,6 +34,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function create(ContainerInterface $container): YourExtensionForm {
     // @phpstan-ignore-next-line
     return new static(
@@ -46,6 +47,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   protected function getEditableConfigNames(): array {
     return ['your_extension.settings'];
   }
@@ -53,6 +55,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function getFormId(): string {
     return 'your_extension_settings_form';
   }
@@ -60,6 +63,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('your_extension.settings');
 
@@ -76,6 +80,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $config = $this->config('your_extension.settings');
     $config->set('text', $form_state->getValue('text'));

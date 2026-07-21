@@ -57,6 +57,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
+  #[\Override]
   public static function locationsFixturesDir(): string {
     return 'fixtures';
   }
