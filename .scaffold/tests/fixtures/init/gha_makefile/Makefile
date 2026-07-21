@@ -177,6 +177,10 @@ chromedriver-start:
 			exit 1; \
 		fi; \
 		chrome_version=$$(echo "$$chrome_version" | grep -oE '[0-9]+(\.[0-9]+){3}' | head -1); \
+		if [ -z "$$chrome_version" ]; then \
+			echo "ERROR: Could not determine the installed Chrome version."; \
+			exit 1; \
+		fi; \
 		mkdir -p .chromedriver; \
 		echo "Fetching chromedriver matching Chrome $$chrome_version..."; \
 		chromedriver_bin=$$(npx -y @puppeteer/browsers install "chromedriver@$$chrome_version" --path .chromedriver | awk 'END {print $$NF}'); \
