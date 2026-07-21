@@ -84,10 +84,12 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
+    $this->assertProcessAnyOutputContains('[example] post-start script ran.');
 
     $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
+    $this->assertProcessAnyOutputContains('[example] pre-stop script ran.');
 
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();

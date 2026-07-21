@@ -85,10 +85,12 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT READY');
+    $this->assertProcessAnyOutputContains('[example] post-start script ran.');
 
     $this->processRun('ahoy', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
+    $this->assertProcessAnyOutputContains('[example] pre-stop script ran.');
 
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
