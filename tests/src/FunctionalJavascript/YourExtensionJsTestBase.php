@@ -29,13 +29,21 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
    * {@inheritdoc}
    */
   protected function setUp(): void {
-    // Override SIMPLETEST_BASE_URL so that Chrome inside the Selenium
-    // container can reach the PHP webserver on the host machine.
-    // In CircleCI, all containers share the network namespace, so
-    // 'localhost' works without override.
+    // Point the browser at the host's PHP webserver. With the default
+    // 'chromedriver' backend the browser runs on the host, so 'localhost'
+    // is reachable as-is. With the 'selenium' backend the browser runs
+    // inside a container that cannot reach the host's 'localhost', so a
+    // host-reachable address is used instead (host.docker.internal on
+    // macOS, the docker bridge IP on Linux). WEBDRIVER_HOST overrides the
+    // resolved host. In CircleCI all containers share the network
+    // namespace, so no override is needed.
     if (!getenv('CIRCLECI')) {
       $port = getenv('WEBSERVER_PORT') ?: '8000';
-      $host = PHP_OS_FAMILY === 'Darwin' ? 'host.docker.internal' : '172.17.0.1';
+      $host = getenv('WEBDRIVER_HOST');
+      if ($host === FALSE || $host === '') {
+        $backend = getenv('WEBDRIVER_BACKEND') ?: 'chromedriver';
+        $host = $backend === 'selenium' ? (PHP_OS_FAMILY === 'Darwin' ? 'host.docker.internal' : '172.17.0.1') : 'localhost';
+      }
       putenv('SIMPLETEST_BASE_URL=http://' . $host . ':' . $port);
     }
     parent::setUp();

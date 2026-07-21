@@ -114,6 +114,7 @@ jobs:
           GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
+          WEBDRIVER_BACKEND: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && 'selenium' || '' }}
           SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT: ${{ runner.os == 'macOS' && '1' || '0' }}
 
       # p5 runs without coverage because the runner is configured with xdebug

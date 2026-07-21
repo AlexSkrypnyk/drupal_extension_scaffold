@@ -355,13 +355,26 @@ ahoy test-js                      # Run JavaScript unit tests (Jest)
 
 ### Running FunctionalJavascript tests
 
-FunctionalJavascript tests require a browser controlled via WebDriver.
+FunctionalJavascript tests need a real browser driven via WebDriver. By
+default they use the Google Chrome already installed on your machine - a
+matching `chromedriver` is downloaded automatically on first run, so no
+Docker is required:
 
 ```bash
-ahoy selenium-start
-WEBSERVER_HOST=0.0.0.0 ahoy start
+ahoy start
 ahoy provision
 ahoy test-functional-javascript
+ahoy chromedriver-stop
+```
+
+To run the browser in a Docker Selenium container instead, set
+`WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's
+`localhost`, so start the webserver on all interfaces:
+
+```bash
+WEBSERVER_HOST=0.0.0.0 ahoy start
+ahoy provision
+WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
 ahoy selenium-stop
 ```
 
