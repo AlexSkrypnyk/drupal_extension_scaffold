@@ -20,7 +20,6 @@
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 <!-- #;> DEV_RENOVATE -->
 
-![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
 ![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)
 ![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)

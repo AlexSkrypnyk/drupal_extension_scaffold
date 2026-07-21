@@ -13,7 +13,7 @@ aliases:
   - &container_config
     working_directory: ~/project
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: cimg/php:8.3-browsers
 
   #;< DEV_FUNCTIONAL_JAVASCRIPT
   - &selenium_image
@@ -157,7 +157,7 @@ jobs:
   test-php-min-d10-stable:
     <<: *container_config
     docker:
-      - image: cimg/php:8.2-browsers
+      - image: cimg/php:8.3-browsers
       #;< DEV_FUNCTIONAL_JAVASCRIPT
       - *selenium_image
       #;> DEV_FUNCTIONAL_JAVASCRIPT

@@ -42,7 +42,7 @@ return RectorConfig::configure()
     __DIR__ . '/../../.devtools/stop',
     __DIR__ . '/../../init.php',
   ])
-  ->withPhpSets(php82: TRUE)
+  ->withPhpSets(php83: TRUE)
   ->withPreparedSets(
     deadCode: TRUE,
     codeQuality: TRUE,
