@@ -531,6 +531,26 @@ function passthru_or_fail(string $cmd, string $format = '', string|int|float ...
 }
 
 /**
+ * Run a command via passthru, always showing output, failing on non-zero exit.
+ *
+ * The counterpart to passthru_or_fail(): here the command's output is always
+ * streamed to the terminal rather than suppressed, for commands whose output
+ * is meaningful in its own right rather than dependency-tool noise.
+ */
+function passthru_verbose_or_fail(string $cmd, string $format = '', string|int|float ...$args): void {
+  $exit_code = 0;
+  passthru($cmd, $exit_code);
+
+  if ($exit_code !== 0) {
+    if ($format !== '') {
+      FAIL($format, ...$args);
+    }
+
+    quit($exit_code);
+  }
+}
+
+/**
  * Run custom shell scripts from a directory matching a filename prefix.
  *
  * Scripts are matched as "<dir>/<prefix>*.sh", sorted lexicographically,
@@ -564,13 +584,9 @@ function run_custom_scripts(string $dir, string $prefix): void {
       continue;
     }
     TASK("Running custom script '%s'.", $file);
-    // Stream the hook's output live rather than suppressing it like the tool
-    // commands - these scripts are the project's own and their output is
-    // intentional.
-    passthru(escapeshellarg($file), $exit_code);
-    if ($exit_code !== 0) {
-      FAIL("Custom script '%s' failed.", $file);
-    }
+    // Show the hook's output - these scripts are the project's own and their
+    // output is intentional, unlike the suppressed dependency-tool commands.
+    passthru_verbose_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
     PASS("Completed custom script '%s'.", $file);
   }
 }

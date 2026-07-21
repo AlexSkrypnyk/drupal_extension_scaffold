@@ -262,10 +262,13 @@ PASS("Extension's code symlinked.");
 if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_build')) {
   TASK('Processing front-end dependencies.');
 
-  $cmd = file_exists('.nvmrc') ? 'nvm use && ' : '';
-  $cmd .= is_dir($build_dir . '/node_modules') ? '' : 'npm --prefix ' . $build_dir . ' ci && ';
-  $cmd .= 'npm --prefix ' . $build_dir . ' run build';
-  passthru_or_fail($cmd);
+  $nvm = file_exists('.nvmrc') ? 'nvm use && ' : '';
+  // Suppress the dependency install noise, but show the build output - the
+  // build is the project's own and its output is meaningful.
+  if (!is_dir($build_dir . '/node_modules')) {
+    passthru_or_fail($nvm . 'npm --prefix ' . $build_dir . ' ci');
+  }
+  passthru_verbose_or_fail($nvm . 'npm --prefix ' . $build_dir . ' run build');
 
   PASS('Front-end dependencies processed.');
 }
