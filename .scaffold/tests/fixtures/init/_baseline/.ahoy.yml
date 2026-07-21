@@ -47,7 +47,21 @@ commands:
 
   drush:
     usage: Run Drush command.
-    cmd: build/vendor/bin/drush -l "$(./.devtools/info site-url)" $*
+    cmd: |
+      uri="$(./.devtools/info site-url)"
+      # A `uli` command yields a one-time login URL worth scanning from a
+      # phone, so capture its output, print it, then render a QR code (a no-op
+      # without `qrencode`). Every other Drush command streams through.
+      case " $* " in
+        *" uli "*)
+          url="$(build/vendor/bin/drush -l "$uri" $*)"
+          printf '%s\n' "$url"
+          ./.devtools/qrcode "$url"
+          ;;
+        *)
+          build/vendor/bin/drush -l "$uri" $*
+          ;;
+      esac
 
   login:
     usage: Login to a website.

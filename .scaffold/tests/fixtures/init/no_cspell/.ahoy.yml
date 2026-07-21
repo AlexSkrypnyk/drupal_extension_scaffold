@@ -1,4 +1,4 @@
-@@ -67,9 +67,6 @@
+@@ -81,9 +81,6 @@
        vendor/bin/twig-cs-fixer
        [ ! -d node_modules ] || (ahoy title "Running ESLint" && npm run lint)
        popd >/dev/null || exit 1
