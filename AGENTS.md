@@ -117,8 +117,8 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `make test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `make browser-start` - Start the WebDriver backend selected by `WEBDRIVER_BACKEND` (chromedriver against the locally installed Chrome by default, or the Selenium container)
-- `make browser-stop` - Stop the WebDriver backend
+- `make browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
+- `make browser-stop` - Stop the browser
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;> DEV_MAKEFILE -->
 <!-- #;< DEV_AHOY -->
@@ -135,8 +135,8 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `ahoy test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `ahoy browser-start` - Start the WebDriver backend selected by `WEBDRIVER_BACKEND` (chromedriver against the locally installed Chrome by default, or the Selenium container)
-- `ahoy browser-stop` - Stop the WebDriver backend
+- `ahoy browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
+- `ahoy browser-stop` - Stop the browser
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;> DEV_AHOY -->
 

@@ -62,8 +62,8 @@ help:
 	@echo "test-unit                  - Run unit tests."
 	@#;> DEV_PHPUNIT
 	@#;< DEV_FUNCTIONAL_JAVASCRIPT
-	@echo "browser-start              - Start the WebDriver backend for FunctionalJavascript tests."
-	@echo "browser-stop               - Stop the WebDriver backend."
+	@echo "browser-start              - Start the browser for FunctionalJavascript tests."
+	@echo "browser-stop               - Stop the browser."
 	@#;> DEV_FUNCTIONAL_JAVASCRIPT
 	@#;< DEV_JEST
 	@echo "test-js                    - Run JavaScript unit tests."
