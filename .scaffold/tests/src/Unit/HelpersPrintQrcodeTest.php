@@ -29,9 +29,13 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
+  protected function tearDown(): void {
+    self::envReset();
+    parent::tearDown();
+  }
+
   public function testEmptyUrlRendersNothing(): void {
-    // An empty URL must short-circuit before qrencode is probed or invoked,
-    // so neither exec() nor passthru() is mocked here.
+    // An empty URL short-circuits before the opt-in check or any probe.
     ob_start();
     print_qrcode('');
     $output = (string) ob_get_clean();
@@ -39,7 +43,31 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testQrencodeAbsentRendersNothing(): void {
+  public function testDisabledByDefaultRendersNothing(): void {
+    // QRCODE unset in both the environment and '.env': opt-in means nothing is
+    // drawn, and qrencode is never even probed.
+    self::envUnset('QRCODE');
+    $this->mockDotenvAbsent();
+
+    ob_start();
+    print_qrcode('https://example.com');
+    $output = (string) ob_get_clean();
+
+    $this->assertSame('', $output);
+  }
+
+  public function testExplicitlyDisabledRendersNothing(): void {
+    self::envSet('QRCODE', '0');
+
+    ob_start();
+    print_qrcode('https://example.com');
+    $output = (string) ob_get_clean();
+
+    $this->assertSame('', $output);
+  }
+
+  public function testEnabledButQrencodeAbsentRendersNothing(): void {
+    self::envSet('QRCODE', '1');
     $this->mockQrencodeAvailable(FALSE);
 
     ob_start();
@@ -49,7 +77,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testQrencodePresentRendersCode(): void {
+  public function testEnabledViaEnvRendersCode(): void {
+    self::envSet('QRCODE', '1');
     $this->mockQrencodeAvailable(TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
@@ -61,6 +90,30 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $output = (string) ob_get_clean();
 
     $this->assertStringContainsString('[QR-CODE]', $output);
+  }
+
+  public function testEnabledViaDotenvRendersCode(): void {
+    self::envUnset('QRCODE');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(string $file): string => $file === '.env' ? "QRCODE=1\n" : '');
+    $this->mockQrencodeAvailable(TRUE);
+    $this->mockPassthru([
+      'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
+      'output' => '[QR-CODE]',
+    ]);
+
+    ob_start();
+    print_qrcode('https://example.com');
+    $output = (string) ob_get_clean();
+
+    $this->assertStringContainsString('[QR-CODE]', $output);
+  }
+
+  /**
+   * Mock '.env' as not present so QRCODE resolves to its default.
+   */
+  protected function mockDotenvAbsent(): void {
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
   }
 
   /**

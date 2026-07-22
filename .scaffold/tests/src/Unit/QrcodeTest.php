@@ -22,7 +22,14 @@ final class QrcodeTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
+  protected function tearDown(): void {
+    self::envReset();
+    parent::tearDown();
+  }
+
   public function testRendersQrcodeForUrlArgument(): void {
+    // Rendering is opt-in; enable it for this run.
+    self::envSet('QRCODE', '1');
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
       $output ??= [];
       if (str_contains($cmd, 'command -v qrencode')) {
