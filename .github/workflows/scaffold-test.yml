@@ -28,6 +28,22 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         group: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
+        # Only the FunctionalJavascript groups (p3/p4) use a WebDriver backend.
+        # The excludes run every other group once and drop macOS+selenium, which
+        # is impossible because macOS runners have no Docker. The surviving JS
+        # jobs give: selenium on Linux, and chromedriver on both Linux and macOS.
+        backend: ['selenium', 'chromedriver']
+        exclude:
+          - group: 'p0'
+            backend: 'selenium'
+          - group: 'p1'
+            backend: 'selenium'
+          - group: 'p2'
+            backend: 'selenium'
+          - group: 'p5'
+            backend: 'selenium'
+          - os: 'macos-latest'
+            backend: 'selenium'
 
     steps:
       - name: Checkout code
@@ -80,12 +96,16 @@ jobs:
           sudo chown "$USER" /usr/local/bin/ahoy
           chmod +x /usr/local/bin/ahoy
 
-      - name: Start Chromium (Linux only)
-        if: runner.os == 'Linux' && (matrix.group == 'p3' || matrix.group == 'p4')
+      - name: Start Chromium (selenium backend, Linux only)
+        if: runner.os == 'Linux' && matrix.backend == 'selenium' && (matrix.group == 'p3' || matrix.group == 'p4')
         run: |
           docker run -d --name chromium -p 4444:4444 selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
           for _ in $(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done
           curl -s http://localhost:4444/status | grep -q '"ready": true' || { echo 'ERROR: Chromium failed to become ready after 30 seconds.'; exit 1; }
+
+      - name: Install Google Chrome (chromedriver backend, macOS)
+        if: runner.os == 'macOS' && matrix.backend == 'chromedriver' && (matrix.group == 'p3' || matrix.group == 'p4')
+        run: '[ -d "/Applications/Google Chrome.app" ] || brew install --cask google-chrome'
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
@@ -114,8 +134,7 @@ jobs:
           GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WEBSERVER_HOST: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && '0.0.0.0' || 'localhost' }}
-          WEBDRIVER_BACKEND: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && 'selenium' || '' }}
-          SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT: ${{ runner.os == 'macOS' && '1' || '0' }}
+          WEBDRIVER_BACKEND: ${{ (matrix.group == 'p3' || matrix.group == 'p4') && matrix.backend || '' }}
 
       # p5 runs without coverage because the runner is configured with xdebug
       # (not pcov) for the XDebug toggle behaviour test.
@@ -131,7 +150,7 @@ jobs:
         if: matrix.group != 'p5'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ${{github.job}}-code-coverage-report-${{ matrix.os }}-${{ matrix.group }}
+          name: ${{github.job}}-code-coverage-report-${{ matrix.os }}-${{ matrix.group }}-${{ matrix.backend }}
           path: .scaffold/tests/.logs
           include-hidden-files: true
           if-no-files-found: error
