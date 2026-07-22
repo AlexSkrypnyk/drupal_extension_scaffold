@@ -178,7 +178,7 @@ Docker is required:
 ahoy start
 ahoy provision
 ahoy test-functional-javascript
-ahoy chromedriver-stop
+ahoy browser-stop
 ```
 
 To run the browser in a Docker Selenium container instead, set
@@ -189,7 +189,7 @@ To run the browser in a Docker Selenium container instead, set
 WEBSERVER_HOST=0.0.0.0 ahoy start
 ahoy provision
 WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
-ahoy selenium-stop
+ahoy browser-stop
 ```
 
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->

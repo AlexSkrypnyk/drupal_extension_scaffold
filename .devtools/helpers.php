@@ -275,13 +275,13 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
 }
 
 /**
- * Resolve the WebDriver (chromedriver) endpoint port with source tracking.
+ * Resolve the WebDriver endpoint port with source tracking.
  *
  * Mirrors the port half of resolve_webserver() for 'WEBDRIVER_PORT':
  * shell env first, then a matching key in the dotenv file, then the
  * default. With auto_discover and no configured value, a free port is
  * allocated from 4444 and persisted to the dotenv file so that several
- * projects each get their own chromedriver endpoint and never contend
+ * projects each get their own WebDriver endpoint and never contend
  * for a single port.
  *
  * @param bool $auto_discover

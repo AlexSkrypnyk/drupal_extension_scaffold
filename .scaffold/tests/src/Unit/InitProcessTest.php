@@ -330,7 +330,7 @@ final class InitProcessTest extends UnitTestCase {
     // Selenium deps), per the normalisation in 'remove_tools()'.
     yield 'phpunit' => [
       ['phpunit'],
-      ['phpunit.xml', 'phpunit.d10.xml', 'tests', '.devtools/chromedriver'],
+      ['phpunit.xml', 'phpunit.d10.xml', 'tests', '.devtools/browser'],
       ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream', 'lullabot/mink-selenium2-driver', 'behat/mink'],
       [],
       ['vendor/bin/phpunit', 'selenium'],
@@ -338,7 +338,7 @@ final class InitProcessTest extends UnitTestCase {
 
     yield 'functional_javascript' => [
       ['functional_javascript'],
-      ['.devtools/chromedriver', 'tests/src/FunctionalJavascript'],
+      ['.devtools/browser', 'tests/src/FunctionalJavascript'],
       ['behat/mink', 'lullabot/mink-selenium2-driver', 'symfony/browser-kit'],
       [],
       ['selenium', 'functional-javascript'],

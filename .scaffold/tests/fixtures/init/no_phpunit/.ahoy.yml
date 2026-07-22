@@ -1,4 +1,4 @@
-@@ -91,45 +91,11 @@
+@@ -91,41 +91,11 @@
      usage: Run tests.
      cmd: |
        pushd "build" >/dev/null || exit 1
@@ -31,12 +31,8 @@
 -  test-functional-javascript:
 -    usage: Run FunctionalJavascript tests.
 -    cmd: |
--      if [ "${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then
--        ahoy selenium-start || exit 1
--      else
--        ahoy chromedriver-start || exit 1
--        export WEBDRIVER_PORT="$(./.devtools/info webdriver-port)"
--      fi
+-      ahoy browser-start || exit 1
+-      export WEBDRIVER_PORT="$(./.devtools/info webdriver-port)"
 -      pushd "build" >/dev/null || exit 1
 -      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
 -      popd >/dev/null || exit 1
@@ -44,37 +40,17 @@
    test-js:
      usage: Run JavaScript unit tests.
      cmd: |
-@@ -137,33 +103,6 @@
+@@ -133,13 +103,6 @@
        [ ! -d node_modules ] || npm test
        popd >/dev/null || exit 1
  
--  chromedriver-start:
--    usage: Start chromedriver against the locally installed Chrome if not already running.
--    cmd: ./.devtools/chromedriver start
+-  browser-start:
+-    usage: Start the browser for FunctionalJavascript tests if not already running.
+-    cmd: ./.devtools/browser start
 -
--  chromedriver-stop:
--    usage: Stop chromedriver.
--    cmd: ./.devtools/chromedriver stop
--
--  selenium-start:
--    usage: Start Selenium container if not already running.
--    cmd: |
--      if curl -s http://localhost:4444/status | grep -q '"ready": true'; then
--        echo "Selenium container is already running."
--        exit 0
--      fi
--      docker rm -f selenium 2>/dev/null || true
--      docker run -d --name selenium -p 4444:4444 selenium/standalone-chromium:latest
--      echo "Waiting for Selenium to be ready..."
--      for i in $(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done
--      if ! curl -s http://localhost:4444/status | grep -q '"ready": true'; then
--        echo "ERROR: Selenium failed to become ready after 30 seconds."
--        exit 1
--      fi
--
--  selenium-stop:
--    usage: Stop Selenium container.
--    cmd: docker rm -f selenium 2>/dev/null || true
+-  browser-stop:
+-    usage: Stop the browser used for FunctionalJavascript tests.
+-    cmd: ./.devtools/browser stop
  
    reset:
      usage: Reset project to the default state.

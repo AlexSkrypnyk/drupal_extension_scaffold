@@ -115,7 +115,7 @@ jobs:
 
       - name: Start chromedriver (chromedriver backend)
         if: matrix.backend == 'chromedriver' && (matrix.group == 'p3' || matrix.group == 'p4')
-        run: ./.devtools/chromedriver start
+        run: ./.devtools/browser start
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
