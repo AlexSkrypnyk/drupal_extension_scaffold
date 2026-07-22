@@ -22,6 +22,12 @@ jobs:
     permissions:
       contents: read # Read repository contents; coverage is uploaded to external Codecov.
 
+    env:
+      # In CI each job is a single project, so chromedriver runs on a fixed port
+      # that the pre-start step and the tests share; per-project auto-discovery
+      # is covered by the unit tests.
+      WEBDRIVER_PORT: ${{ matrix.backend == 'chromedriver' && '4444' || '' }}
+
     strategy:
       fail-fast: false
 
@@ -106,6 +112,10 @@ jobs:
       - name: Install Google Chrome (chromedriver backend, macOS)
         if: runner.os == 'macOS' && matrix.backend == 'chromedriver' && (matrix.group == 'p3' || matrix.group == 'p4')
         run: '[ -d "/Applications/Google Chrome.app" ] || brew install --cask google-chrome'
+
+      - name: Start chromedriver (chromedriver backend)
+        if: matrix.backend == 'chromedriver' && (matrix.group == 'p3' || matrix.group == 'p4')
+        run: ./.devtools/chromedriver start
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
