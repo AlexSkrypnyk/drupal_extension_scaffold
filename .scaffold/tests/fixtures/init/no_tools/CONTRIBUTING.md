@@ -18,7 +18,7 @@
 -
 -The tests are located in the `tests/src` directory. The `phpunit.xml` file
 -configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
--`core/tests/bootstrap.php` to bootstrap the Drupal environment before running
+-`web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running
 -the tests.
 -
 -The `test` command is a wrapper for multiple test commands:
