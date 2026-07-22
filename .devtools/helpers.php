@@ -288,6 +288,11 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
  *   When TRUE and the port resolves from neither env nor dotenv, discover
  *   a free port via find_free_port() and persist it via dotenv_write_var().
  *   The reported source then becomes the dotenv file path.
+ * @param bool $validate_port
+ *   When TRUE, call validate_port_or_fail() on the resolved port and abort
+ *   if it is not a valid TCP port. The info script disables this so a
+ *   malformed value can be surfaced in the output rather than crashing the
+ *   read-only summary.
  * @param string $dotenv_file
  *   Path to the dotenv file to read and (optionally) write.
  *
@@ -295,7 +300,7 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
  *   The resolved port and its source label: 'env', the dotenv file path,
  *   or 'default'.
  */
-function resolve_webdriver_port(bool $auto_discover = FALSE, string $dotenv_file = '.env'): array {
+function resolve_webdriver_port(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
   $default_port = $auto_discover ? '' : '4444';
   [$port, $port_source] = resolve_env_value('WEBDRIVER_PORT', $default_port, $dotenv_file);
 
@@ -305,7 +310,9 @@ function resolve_webdriver_port(bool $auto_discover = FALSE, string $dotenv_file
     $port_source = $dotenv_file;
   }
 
-  validate_port_or_fail($port, 'WEBDRIVER_PORT');
+  if ($validate_port) {
+    validate_port_or_fail($port, 'WEBDRIVER_PORT');
+  }
 
   return [
     'port' => $port,

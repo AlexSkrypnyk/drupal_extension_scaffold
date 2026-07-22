@@ -65,7 +65,7 @@ $fields = [
   'webserver-port' => fn(): string => $webserver_port,
   'site-url' => fn(): string => resolve_site_url($webserver_host, $webserver_port),
   'xdebug' => fn(): string => xdebug_state($webserver_port),
-  'webdriver-port' => fn(): string => resolve_webdriver_port()['port'],
+  'webdriver-port' => fn(): string => resolve_webdriver_port(validate_port: FALSE)['port'],
   'build-dir' => fn(): string => $build_dir,
   'database' => fn(): string => $db_file,
   'drupal-profile' => fn(): string => $drupal_profile,

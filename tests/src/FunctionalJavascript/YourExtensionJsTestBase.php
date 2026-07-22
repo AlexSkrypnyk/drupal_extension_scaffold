@@ -74,8 +74,14 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
     // The 'chromedriver' backend drives the host's Chrome directly, so it must
     // run headless to work on CI runners that have no display. The 'selenium'
     // container provides its own virtual display and stays headful.
-    if ($backend !== 'selenium' && isset($decoded[1]['goog:chromeOptions']['args']) && is_array($decoded[1]['goog:chromeOptions']['args']) && !in_array('--headless=new', $decoded[1]['goog:chromeOptions']['args'], TRUE)) {
-      $decoded[1]['goog:chromeOptions']['args'][] = '--headless=new';
+    if ($backend !== 'selenium') {
+      if (!isset($decoded[1]['goog:chromeOptions']['args']) || !is_array($decoded[1]['goog:chromeOptions']['args'])) {
+        $decoded[1]['goog:chromeOptions']['args'] = [];
+      }
+
+      if (!in_array('--headless=new', $decoded[1]['goog:chromeOptions']['args'], TRUE)) {
+        $decoded[1]['goog:chromeOptions']['args'][] = '--headless=new';
+      }
     }
 
     return json_encode($decoded);

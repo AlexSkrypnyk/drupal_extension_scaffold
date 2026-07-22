@@ -133,4 +133,14 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
     }
   }
 
+  public function testValidationSkippedWhenDisabled(): void {
+    self::envSet('WEBDRIVER_PORT', 'not-a-port');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $resolved = resolve_webdriver_port(validate_port: FALSE);
+
+    $this->assertSame('not-a-port', $resolved['port'], 'With validation disabled, the malformed value is surfaced verbatim.');
+    $this->assertSame('env', $resolved['port_source']);
+  }
+
 }
