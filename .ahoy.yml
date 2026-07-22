@@ -47,25 +47,14 @@ commands:
 
   drush:
     usage: Run Drush command.
-    cmd: |
-      uri="$(./.devtools/info site-url)"
-      # A `uli` command yields a one-time login URL worth scanning from a
-      # phone, so capture its output, print it, then render a QR code (a no-op
-      # without `qrencode`). Every other Drush command streams through.
-      case " $* " in
-        *" uli "*)
-          url="$(build/vendor/bin/drush -l "$uri" "$@")"
-          printf '%s\n' "$url"
-          ./.devtools/qrcode "$url"
-          ;;
-        *)
-          build/vendor/bin/drush -l "$uri" "$@"
-          ;;
-      esac
+    cmd: build/vendor/bin/drush -l "$(./.devtools/info site-url)" $*
 
   login:
     usage: Login to a website.
-    cmd: ahoy drush uli
+    cmd: |
+      url="$(build/vendor/bin/drush -l "$(./.devtools/info site-url)" uli)"
+      printf '%s\n' "$url"
+      ./.devtools/qrcode "$url"
 
   lint:
     usage: Check coding standards for violations.

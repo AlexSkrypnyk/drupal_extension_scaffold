@@ -286,7 +286,7 @@ Any tool that writes a `TUNNEL_URL` to `.env` (ngrok, tailscale funnel, etc.) is
 
 #### Scannable QR codes
 
-When [`qrencode`](https://fukuchi.org/works/qrencode/) is on `PATH`, the one-time login link in the `provision` output is also rendered as a terminal QR code, and `make login` / `ahoy login` (and `make drush uli` / `ahoy drush uli`) print one for the link they generate. Scan it to open the site - already logged in - on a phone or another device, which is most useful when the site is exposed through a public tunnel. Without `qrencode` installed the output is unchanged, so nothing breaks in CI or on hosts that lack it.
+When [`qrencode`](https://fukuchi.org/works/qrencode/) is on `PATH`, `make login` / `ahoy login` render the one-time login link as a terminal QR code below the link. Scan it to open the site - already logged in - on a phone or another device, which is most useful when the site is exposed through a public tunnel. Without `qrencode` installed the output is unchanged, so nothing breaks in CI or on hosts that lack it.
 
 ### Step-debugging with XDebug
 

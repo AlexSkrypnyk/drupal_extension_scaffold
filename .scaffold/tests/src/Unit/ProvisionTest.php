@@ -21,18 +21,6 @@ final class ProvisionTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
-
-    // The completion banner renders the login link as a QR code via
-    // print_qrcode(), which shells out to `qrencode` when it is present. Force
-    // it absent so the banner assertions stay deterministic regardless of what
-    // the host has installed; print_qrcode()'s own branches are covered by
-    // HelpersPrintQrcodeTest.
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
-      $output ??= [];
-      $code = 1;
-
-      return FALSE;
-    });
   }
 
   /**
