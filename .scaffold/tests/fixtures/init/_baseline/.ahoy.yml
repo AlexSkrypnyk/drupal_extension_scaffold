@@ -54,12 +54,12 @@ commands:
       # without `qrencode`). Every other Drush command streams through.
       case " $* " in
         *" uli "*)
-          url="$(build/vendor/bin/drush -l "$uri" $*)"
+          url="$(build/vendor/bin/drush -l "$uri" "$@")"
           printf '%s\n' "$url"
           ./.devtools/qrcode "$url"
           ;;
         *)
-          build/vendor/bin/drush -l "$uri" $*
+          build/vendor/bin/drush -l "$uri" "$@"
           ;;
       esac
 
