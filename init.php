@@ -108,6 +108,10 @@ function main(array $argv): void {
         default: array_keys($tool_options),
         description: 'All tools are included by default. Uncheck any to remove from your project.',
       ),
+      'cloudflare' => Prompty::confirm(
+        'Keep Cloudflare tunnel support',
+        description: 'Ships opt-in scripts that expose the local site through a public Cloudflare quick tunnel.',
+      ),
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
     ],
@@ -142,6 +146,9 @@ function main(array $argv): void {
   /** @var array<string> $tools_keep */
   $tools_keep = array_filter((array) $results['tools'], static fn($v): bool => $v !== '');
   $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
+  // The prompt asks whether to keep the tunnel scripts, so a 'no' answer is
+  // what triggers their removal.
+  $remove_cloudflare = empty($results['cloudflare']) ? 'y' : 'n';
   $remove_self = empty($results['remove_self']) ? 'n' : 'y';
 
   // Derive machine name from extension name if the user accepted placeholder.
@@ -149,7 +156,7 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_self);
+  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_cloudflare, $remove_self);
   // @codeCoverageIgnoreEnd
 }
 
@@ -202,6 +209,7 @@ Environment variables (to pre-fill prompts):
                          One or more of: phpcs, phpstan, rector, twigcs, eslint,
                          stylelint, cspell, jest, phpunit, functional_javascript,
                          renovate.
+  PROMPTY_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
   PROMPTY_REMOVE_SELF     Remove this script: true or false.
   PROMPTY_PROCEED         Proceed with init: true or false.
 
@@ -226,10 +234,12 @@ EOF;
  *   The selected command wrappers ('ahoy', 'makefile', or both).
  * @param array<string> $tools_remove
  *   The machine names of the development tools to remove.
+ * @param string $remove_cloudflare
+ *   Whether to remove the Cloudflare tunnel scripts ('y' or 'n').
  * @param string $remove_self
  *   Whether to remove this script ('y' or 'n').
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, string $remove_cloudflare, string $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -331,6 +341,15 @@ function process(string $extension_name, string $extension_machine_name, string 
   process_readme($extension_name);
 
   process_internal($extension_name, $extension_machine_name, $extension_type);
+
+  // Remove the opt-in Cloudflare quick-tunnel scripts when the tunnel support
+  // is declined. The tunnel-agnostic TUNNEL_URL handling in the core scripts
+  // stays regardless, so any other tunnel tool still integrates.
+  if ($remove_cloudflare !== 'n') {
+    @unlink('scripts/provision-cloudflared.sh');
+    @unlink('scripts/start-cloudflared.sh');
+    @unlink('scripts/stop-cloudflared.sh');
+  }
 
   if ($remove_self !== 'n') {
     // @codeCoverageIgnoreStart

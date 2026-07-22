@@ -62,7 +62,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcess')]
   public function testProcess(string $name, string $machine_name, string $type, string $ci_provider, array $command_wrapper, array $expected_exists, array $expected_not_exists, array $expected_claude_allow, bool $info_yml_has_base_theme): void {
-    process($name, $machine_name, $type, $ci_provider, ['10', '11'], $command_wrapper, [], 'n');
+    process($name, $machine_name, $type, $ci_provider, ['10', '11'], $command_wrapper, [], 'n', 'n');
 
     foreach ($expected_exists as $path) {
       $this->assertFileExists(self::$sut . '/' . $path, 'Expected to exist: ' . $path);
@@ -208,7 +208,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessRemovesTools')]
   public function testProcessRemovesTools(array $tools_remove, array $expected_not_exists, array $expected_composer_dev_absent, array $expected_package_json_absent, array $expected_pipeline_absent): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy', 'makefile'], $tools_remove, 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy', 'makefile'], $tools_remove, 'n', 'n');
 
     foreach ($expected_not_exists as $path) {
       $this->assertFileDoesNotExist(self::$sut . '/' . $path, 'Expected removed: ' . $path);
@@ -351,13 +351,45 @@ final class InitProcessTest extends UnitTestCase {
   }
 
   /**
+   * The Cloudflare tunnel opt-out removes only the tunnel scripts.
+   *
+   * @param string $remove_cloudflare
+   *   The 'y'/'n' flag passed to process().
+   * @param bool $expect_exists
+   *   Whether the '*-cloudflared.sh' scripts should survive.
+   */
+  #[DataProvider('dataProviderProcessCloudflare')]
+  public function testProcessCloudflare(string $remove_cloudflare, bool $expect_exists): void {
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], $remove_cloudflare, 'n');
+
+    foreach (['provision', 'start', 'stop'] as $phase) {
+      $path = self::$sut . '/scripts/' . $phase . '-cloudflared.sh';
+      if ($expect_exists) {
+        $this->assertFileExists($path, 'Expected to keep: ' . $path);
+      }
+      else {
+        $this->assertFileDoesNotExist($path, 'Expected removed: ' . $path);
+      }
+    }
+
+    // The generic example lifecycle scripts are not Cloudflare-specific and are
+    // never removed by the tunnel opt-out.
+    $this->assertFileExists(self::$sut . '/scripts/start-example.sh');
+  }
+
+  public static function dataProviderProcessCloudflare(): \Iterator {
+    yield 'keep' => ['n', TRUE];
+    yield 'remove' => ['y', FALSE];
+  }
+
+  /**
    * The 'AGENTS.md' wrapper blocks follow the command wrapper selection.
    *
    * @param array<string> $command_wrapper
    */
   #[DataProvider('dataProviderProcessRemovesWrapperDocs')]
   public function testProcessRemovesWrapperDocs(array $command_wrapper, bool $expect_make, bool $expect_ahoy): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], $command_wrapper, [], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], $command_wrapper, [], 'n', 'n');
 
     $agents = (string) file_get_contents(self::$sut . '/AGENTS.md');
 
@@ -385,7 +417,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessRemovesGitattributes')]
   public function testProcessRemovesGitattributes(array $tools_remove, array $expected_absent): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], $tools_remove, 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], $tools_remove, 'n', 'n');
 
     $gitattributes = (string) file_get_contents(self::$sut . '/.gitattributes');
     foreach ($expected_absent as $needle) {
@@ -415,7 +447,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessPrunesDrupalVersions')]
   public function testProcessPrunesDrupalVersions(string $ci_provider, array $drupal_versions, string $ci_file, array $expected_present, array $expected_absent): void {
-    process('My Extension', 'my_extension', 'module', $ci_provider, $drupal_versions, ['ahoy'], [], 'n');
+    process('My Extension', 'my_extension', 'module', $ci_provider, $drupal_versions, ['ahoy'], [], 'n', 'n');
 
     $content = (string) file_get_contents(self::$sut . '/' . $ci_file);
 
@@ -451,7 +483,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessNarrowsAssembleDefault')]
   public function testProcessNarrowsAssembleDefault(array $drupal_versions, string $expected_default): void {
-    process('My Extension', 'my_extension', 'module', 'gha', $drupal_versions, ['ahoy'], [], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', $drupal_versions, ['ahoy'], [], 'n', 'n');
 
     $assemble = (string) file_get_contents(self::$sut . '/.devtools/assemble');
     $this->assertStringContainsString("getenv_default('DRUPAL_VERSION', '" . $expected_default . "')", $assemble);
@@ -467,7 +499,7 @@ final class InitProcessTest extends UnitTestCase {
     file_put_contents(self::$sut . '/.claude/settings.json', '{invalid json');
 
     $this->expectException(\JsonException::class);
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n', 'n');
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsStructure(): void {
@@ -475,13 +507,13 @@ final class InitProcessTest extends UnitTestCase {
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid .claude/settings.json structure.');
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n', 'n');
   }
 
   public function testProcessSkipsWhenClaudeSettingsMissing(): void {
     @unlink(self::$sut . '/.claude/settings.json');
 
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n');
+    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], 'n', 'n');
 
     $this->assertFileExists(self::$sut . '/my_extension.info.yml');
     $this->assertFileDoesNotExist(self::$sut . '/.claude/settings.json');

@@ -498,7 +498,7 @@ final class InitHelpersTest extends UnitTestCase {
   public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, array $drupal_versions, array $wrapper, string $expected_message): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
-    process($extension_name, $machine_name, $type, $ci, $drupal_versions, $wrapper, [], 'n');
+    process($extension_name, $machine_name, $type, $ci, $drupal_versions, $wrapper, [], 'n', 'n');
   }
 
   public static function dataProviderProcessValidation(): \Iterator {
