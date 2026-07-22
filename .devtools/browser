@@ -156,8 +156,10 @@ function selenium_start(): void {
   TASK('Starting the Selenium container on port %s.', $port);
   @passthru(sprintf('docker rm -f %s >/dev/null 2>&1', escapeshellarg(SELENIUM_CONTAINER)));
 
+  // The default 64 MB '/dev/shm' is too small for Chromium and leads to tab
+  // crashes mid-test; the Selenium images document 2g as the required size.
   $exit_code = 0;
-  passthru(sprintf('docker run -d --name %s -p %s:4444 %s', escapeshellarg(SELENIUM_CONTAINER), escapeshellarg($port), escapeshellarg(SELENIUM_IMAGE)), $exit_code);
+  passthru(sprintf('docker run -d --name %s --shm-size=2g -p %s:4444 %s', escapeshellarg(SELENIUM_CONTAINER), escapeshellarg($port), escapeshellarg(SELENIUM_IMAGE)), $exit_code);
   if ($exit_code !== 0) {
     FAIL('Failed to start the Selenium container.');
   }

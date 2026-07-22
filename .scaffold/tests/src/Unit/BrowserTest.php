@@ -226,6 +226,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertNotEmpty($run_commands, 'The Selenium container must be started.');
     $run_command = (string) reset($run_commands);
     $this->assertStringContainsString("'4444':4444", $run_command, 'The container must publish the resolved WebDriver port.');
+    $this->assertStringContainsString('--shm-size=2g', $run_command, 'The container must get the shared memory size Chromium needs.');
     $this->assertStringContainsString('standalone-chromium', $run_command);
   }
 
