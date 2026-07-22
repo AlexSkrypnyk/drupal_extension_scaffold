@@ -131,6 +131,7 @@ final class InitProcessTest extends UnitTestCase {
       'README.dist.md',
       'CONTRIBUTING.dist.md',
       'LICENSE.txt',
+      'SECURITY.md',
       '.scaffold',
       '.claude/skills',
       'tests/scaffold',

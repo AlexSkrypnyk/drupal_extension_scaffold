@@ -44,13 +44,12 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Renovate](#renovate)
 - [Projects using this scaffold](#projects-using-this-scaffold)
 - [Contributing](#contributing)
-- [Maintenance](#maintenance)
 
 ## Features
 
 - Turnkey CI configuration:
   - PHP version matrix: `8.3`, `8.4`, `8.5`.
-  - Drupal version matrix: `stable`, `canary` and `legacy` across Drupal 10 and 11.
+  - Drupal version matrix: `stable` on Drupal 10 and 11, plus `legacy` and `canary` tiers on Drupal 11.
   - CI providers: [GitHub Actions](.github/workflows/test.yml)
     and [CircleCI](.circleci/config.yml)
   - Code coverage with https://github.com/krakjoe/pcov pushed to [codecov.io](https://codecov.io).
@@ -200,6 +199,17 @@ To apply patches to the dependencies, add a patch to the `patches` section of
 To overcome GitHub API rate limits, you may provide a `GITHUB_TOKEN` environment
 variable with a personal access token.
 
+### Debugging command output
+
+The output of the underlying commands (Composer, npm, Drush) is suppressed by
+default and shown only when a command fails. Set `DEBUG=1` to stream the full
+output of every command:
+
+```bash
+DEBUG=1 make build   # stream all command output
+DEBUG=1 ahoy build   # same, with ahoy
+```
+
 ### Optional dependencies
 
 If your extension requires additional dependencies for integration testing
@@ -336,7 +346,7 @@ The `make test` or `ahoy test` command runs the PHPUnit tests for your extension
 
 The tests are located in the `tests/src` directory. The `phpunit.xml` file
 configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
-`core/tests/bootstrap.php` to bootstrap the Drupal environment before running
+`web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running
 the tests.
 
 The `test` command is a wrapper for multiple test commands:
@@ -545,7 +555,7 @@ dependencies up-to-date.
 
 | Source                                   | Dependencies                  | Examples                                                                          |
 |------------------------------------------|-------------------------------|-----------------------------------------------------------------------------------|
-| [`composer.dev.json`](composer.dev.json) | Development Composer packages | `phpstan/phpdoc-parser`, `mglaman/phpstan-drupal`, `vincentlanglet/twig-cs-fixer` |
+| [`composer.dev.json`](composer.dev.json) | Development Composer packages | `drupal/coder`, `mglaman/phpstan-drupal`, `vincentlanglet/twig-cs-fixer`          |
 | [`package.json`](package.json)           | npm packages                  | `eslint`, `stylelint`, `prettier`                                                 |
 | `.github/workflows/*.yml`                | GitHub Actions                | `actions/checkout`, `actions/upload-artifact`, `codecov/codecov-action`           |
 
@@ -587,11 +597,3 @@ for all available options.
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
 build and test the scaffold, run its self-tests, and regenerate the snapshot
 fixtures.
-
-## Maintenance
-
-This template uses a demo extension code to test itself in a [dedicated GitHub
-Actions CI pipeline](.github/workflows/scaffold-test.yml).
-
-The tests are written in [PHPUnit](https://phpunit.de/) and
-located in the [`.scaffold/tests`](.scaffold/tests) directory.
