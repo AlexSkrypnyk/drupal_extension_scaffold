@@ -11,6 +11,6 @@
  - `ahoy test-functional` - Run functional tests only
  - `ahoy test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 -- `ahoy test-js` - Run JavaScript unit tests (Jest)
- - `ahoy chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
- - `ahoy chromedriver-stop` - Stop chromedriver
- - `ahoy selenium-start` - Start Selenium container
+ - `ahoy browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
+ - `ahoy browser-stop` - Stop the browser
+ 

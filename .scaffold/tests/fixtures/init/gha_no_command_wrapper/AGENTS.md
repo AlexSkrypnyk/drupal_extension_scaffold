@@ -1,4 +1,4 @@
-@@ -11,53 +11,22 @@
+@@ -11,51 +11,22 @@
  **HARD RULE - use the provided command wrappers, never the tool binaries directly.** When `make` or `ahoy` exposes a command for a task, use that command; do not call the underlying binary directly. Each wrapper `chdir`s into `build/` and runs the tool with the config, plugins, and environment that CI uses, so a raw invocation from the repository root silently diverges from CI - it can pass locally while CI fails (or vice versa), or crash outright when a relative path resolves against the wrong directory. If no wrapped command covers what you need, extend the `make` / `ahoy` target rather than making a one-off raw call; if that is not feasible, stop and ask.
  
  
@@ -36,10 +36,8 @@
 -- `ahoy test-functional` - Run functional tests only
 -- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 -- `ahoy test-js` - Run JavaScript unit tests (Jest)
--- `ahoy chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
--- `ahoy chromedriver-stop` - Stop chromedriver
--- `ahoy selenium-start` - Start Selenium container
--- `ahoy selenium-stop` - Stop Selenium container
+-- `ahoy browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
+-- `ahoy browser-stop` - Stop the browser
  
  ### Drupal Commands
  
