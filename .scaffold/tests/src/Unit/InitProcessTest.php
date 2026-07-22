@@ -352,11 +352,6 @@ final class InitProcessTest extends UnitTestCase {
 
   /**
    * The Cloudflare tunnel opt-out removes only the tunnel scripts.
-   *
-   * @param string $remove_cloudflare
-   *   The 'y'/'n' flag passed to process().
-   * @param bool $expect_exists
-   *   Whether the '*-cloudflared.sh' scripts should survive.
    */
   #[DataProvider('dataProviderProcessCloudflare')]
   public function testProcessCloudflare(string $remove_cloudflare, bool $expect_exists): void {
