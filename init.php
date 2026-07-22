@@ -673,7 +673,7 @@ function tool_specs(): array {
     ],
     'functional_javascript' => [
       'token' => 'DEV_FUNCTIONAL_JAVASCRIPT',
-      'files' => ['.devtools/chromedriver'],
+      'files' => ['.devtools/browser'],
       'dirs' => ['tests/src/FunctionalJavascript'],
       'composer_dev' => [
         'behat/mink',

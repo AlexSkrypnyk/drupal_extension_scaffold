@@ -117,10 +117,8 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `make test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `make chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
-- `make chromedriver-stop` - Stop chromedriver
-- `make selenium-start` - Start Selenium container
-- `make selenium-stop` - Stop Selenium container
+- `make browser-start` - Start the WebDriver backend selected by `WEBDRIVER_BACKEND` (chromedriver against the locally installed Chrome by default, or the Selenium container)
+- `make browser-stop` - Stop the WebDriver backend
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;> DEV_MAKEFILE -->
 <!-- #;< DEV_AHOY -->
@@ -137,10 +135,8 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `ahoy test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `ahoy chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
-- `ahoy chromedriver-stop` - Stop chromedriver
-- `ahoy selenium-start` - Start Selenium container
-- `ahoy selenium-stop` - Stop Selenium container
+- `ahoy browser-start` - Start the WebDriver backend selected by `WEBDRIVER_BACKEND` (chromedriver against the locally installed Chrome by default, or the Selenium container)
+- `ahoy browser-stop` - Stop the WebDriver backend
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;> DEV_AHOY -->
 
@@ -194,7 +190,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 - `WEBDRIVER_BACKEND` - FunctionalJavascript WebDriver backend: `chromedriver` (default, drives the locally installed Chrome with no Docker) or `selenium` (Docker container)
-- `WEBDRIVER_PORT` - Port for the `chromedriver` WebDriver endpoint. Auto-discovered from 4444 and written to `.env` if not already set, so several projects can run FunctionalJavascript tests simultaneously
+- `WEBDRIVER_PORT` - Port for the WebDriver endpoint (both backends). Auto-discovered from 4444 and written to `.env` if not already set, so several projects can run FunctionalJavascript tests simultaneously
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
 - `DEBUG` - Set to `1` to stream the full output of the underlying commands (Composer, npm, Drush). By default this output is suppressed and shown only when a command fails

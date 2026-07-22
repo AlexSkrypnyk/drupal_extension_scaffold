@@ -28,7 +28,7 @@
         <include>
             <file>../../.devtools/helpers.php</file>
             <file>../../.devtools/assemble</file>
-            <file>../../.devtools/chromedriver</file>
+            <file>../../.devtools/browser</file>
             <file>../../.devtools/deploy</file>
             <file>../../.devtools/provision</file>
             <file>../../.devtools/start</file>

@@ -29,7 +29,7 @@ endef
 .PHONY: test-unit test-kernel test-functional
 #;> DEV_PHPUNIT
 #;< DEV_FUNCTIONAL_JAVASCRIPT
-.PHONY: test-functional-javascript chromedriver-start chromedriver-stop selenium-start selenium-stop
+.PHONY: test-functional-javascript browser-start browser-stop
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 #;< DEV_JEST
 .PHONY: test-js
@@ -62,10 +62,8 @@ help:
 	@echo "test-unit                  - Run unit tests."
 	@#;> DEV_PHPUNIT
 	@#;< DEV_FUNCTIONAL_JAVASCRIPT
-	@echo "chromedriver-start         - Start chromedriver against the local Chrome."
-	@echo "chromedriver-stop          - Stop chromedriver."
-	@echo "selenium-start             - Start Selenium container."
-	@echo "selenium-stop              - Stop Selenium container."
+	@echo "browser-start              - Start the WebDriver backend for FunctionalJavascript tests."
+	@echo "browser-stop               - Stop the WebDriver backend."
 	@#;> DEV_FUNCTIONAL_JAVASCRIPT
 	@#;< DEV_JEST
 	@echo "test-js                    - Run JavaScript unit tests."
@@ -198,7 +196,7 @@ test-functional:
 
 #;< DEV_FUNCTIONAL_JAVASCRIPT
 test-functional-javascript:
-	@if [ "$${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then $(MAKE) selenium-start; else $(MAKE) chromedriver-start; fi
+	$(MAKE) browser-start
 	export WEBDRIVER_PORT="$$(./.devtools/info webdriver-port)" && \
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
@@ -206,28 +204,11 @@ test-functional-javascript:
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 
 #;< DEV_FUNCTIONAL_JAVASCRIPT
-chromedriver-start:
-	./.devtools/chromedriver start
+browser-start:
+	./.devtools/browser start
 
-chromedriver-stop:
-	./.devtools/chromedriver stop
-
-selenium-start:
-	@if curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
-		echo "Selenium container is already running."; \
-	else \
-		docker rm -f selenium 2>/dev/null || true; \
-		docker run -d --name selenium -p 4444:4444 selenium/standalone-chromium:latest; \
-		echo "Waiting for Selenium to be ready..."; \
-		for i in $$(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done; \
-		if ! curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
-			echo "ERROR: Selenium failed to become ready after 30 seconds."; \
-			exit 1; \
-		fi; \
-	fi
-
-selenium-stop:
-	docker rm -f selenium 2>/dev/null || true
+browser-stop:
+	./.devtools/browser stop
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 
 #;< DEV_JEST
