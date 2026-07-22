@@ -124,6 +124,7 @@ commands:
         ahoy selenium-start
       else
         ahoy chromedriver-start
+        export WEBDRIVER_PORT="$(./.devtools/info webdriver-port)"
       fi
       pushd "build" >/dev/null || exit 1
       php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
@@ -138,50 +139,11 @@ commands:
 
   chromedriver-start:
     usage: Start chromedriver against the locally installed Chrome if not already running.
-    cmd: |
-      if curl -s http://localhost:4444/status | grep -qE '"ready": ?true'; then
-        echo "WebDriver is already running on port 4444."
-        exit 0
-      fi
-      if [ -x "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
-        chrome_version=$("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --version)
-      elif command -v google-chrome >/dev/null 2>&1; then
-        chrome_version=$(google-chrome --version)
-      elif command -v chromium >/dev/null 2>&1; then
-        chrome_version=$(chromium --version)
-      elif command -v chromium-browser >/dev/null 2>&1; then
-        chrome_version=$(chromium-browser --version)
-      else
-        echo "ERROR: Google Chrome or Chromium was not found. Install Chrome, or set WEBDRIVER_BACKEND=selenium to use Docker."
-        exit 1
-      fi
-      chrome_version=$(echo "$chrome_version" | grep -oE '[0-9]+(\.[0-9]+){3}' | head -1)
-      if [ -z "$chrome_version" ]; then
-        echo "ERROR: Could not determine the installed Chrome version."
-        exit 1
-      fi
-      mkdir -p .chromedriver
-      echo "Fetching chromedriver matching Chrome $chrome_version..."
-      if ! npx -y @puppeteer/browsers install "chromedriver@$chrome_version" --path .chromedriver >.chromedriver/install.log; then
-        echo "ERROR: Failed to install chromedriver matching Chrome $chrome_version."
-        exit 1
-      fi
-      chromedriver_bin=$(sed -n '$s/^[^ ]* //p' .chromedriver/install.log)
-      if [ -z "$chromedriver_bin" ]; then
-        echo "ERROR: Could not determine the chromedriver binary path."
-        exit 1
-      fi
-      nohup "$chromedriver_bin" --port=4444 >.chromedriver/chromedriver.log 2>&1 &
-      echo "Waiting for chromedriver to be ready..."
-      for i in $(seq 1 30); do curl -s http://localhost:4444/status | grep -qE '"ready": ?true' && break; sleep 1; done
-      if ! curl -s http://localhost:4444/status | grep -qE '"ready": ?true'; then
-        echo "ERROR: chromedriver failed to become ready after 30 seconds."
-        exit 1
-      fi
+    cmd: ./.devtools/chromedriver start
 
   chromedriver-stop:
     usage: Stop chromedriver.
-    cmd: pkill -f "chromedriver --port=4444" 2>/dev/null || true
+    cmd: ./.devtools/chromedriver stop
 
   selenium-start:
     usage: Start Selenium container if not already running.

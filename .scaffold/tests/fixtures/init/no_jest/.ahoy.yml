@@ -6,7 +6,7 @@
        popd >/dev/null || exit 1
  
    test-unit:
-@@ -126,12 +125,6 @@
+@@ -127,12 +126,6 @@
        php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
        popd >/dev/null || exit 1
  
