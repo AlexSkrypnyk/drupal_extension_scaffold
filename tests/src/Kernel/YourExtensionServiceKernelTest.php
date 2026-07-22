@@ -56,7 +56,6 @@ class YourExtensionServiceKernelTest extends KernelTestBase {
    * Tests the getText method of YourExtensionService.
    */
   public function testGetText(): void {
-    // Get the text using the service.
     $text = $this->yourExtensionService->getText();
 
     // Assert that the text is sanitized and contains no HTML tags.
