@@ -71,6 +71,13 @@ abstract class ForceCrystalJsTestBase extends WebDriverTestBase {
     $port = $backend === 'selenium' ? '4444' : (getenv('WEBDRIVER_PORT') ?: '4444');
     $decoded[2] = 'http://localhost:' . $port;
 
+    // The 'chromedriver' backend drives the host's Chrome directly, so it must
+    // run headless to work on CI runners that have no display. The 'selenium'
+    // container provides its own virtual display and stays headful.
+    if ($backend !== 'selenium' && isset($decoded[1]['goog:chromeOptions']['args']) && is_array($decoded[1]['goog:chromeOptions']['args']) && !in_array('--headless=new', $decoded[1]['goog:chromeOptions']['args'], TRUE)) {
+      $decoded[1]['goog:chromeOptions']['args'][] = '--headless=new';
+    }
+
     return json_encode($decoded);
   }
 
