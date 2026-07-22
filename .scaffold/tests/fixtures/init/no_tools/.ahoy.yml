@@ -64,9 +64,9 @@
 -    usage: Run FunctionalJavascript tests.
 -    cmd: |
 -      if [ "${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then
--        ahoy selenium-start
+-        ahoy selenium-start || exit 1
 -      else
--        ahoy chromedriver-start
+-        ahoy chromedriver-start || exit 1
 -        export WEBDRIVER_PORT="$(./.devtools/info webdriver-port)"
 -      fi
 -      pushd "build" >/dev/null || exit 1
