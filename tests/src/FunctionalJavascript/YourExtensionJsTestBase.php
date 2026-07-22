@@ -50,6 +50,31 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  protected function getMinkDriverArgs() {
+    $args = parent::getMinkDriverArgs();
+    if ($args === FALSE || $args === '') {
+      return $args;
+    }
+
+    $decoded = json_decode($args, TRUE);
+    if (!is_array($decoded) || !isset($decoded[2])) {
+      return $args;
+    }
+
+    // The WebDriver endpoint is always reachable at 'localhost'; only the
+    // port varies. The 'chromedriver' backend uses a per-project port
+    // (WEBDRIVER_PORT, auto-discovered by '.devtools/chromedriver'), while
+    // the 'selenium' container is always published on 4444.
+    $backend = getenv('WEBDRIVER_BACKEND') ?: 'chromedriver';
+    $port = $backend === 'selenium' ? '4444' : (getenv('WEBDRIVER_PORT') ?: '4444');
+    $decoded[2] = 'http://localhost:' . $port;
+
+    return json_encode($decoded);
+  }
+
+  /**
    * Create a screenshot with an auto-generated filename.
    *
    * Filename format: {ms_timestamp}-{Class}-{method}-L{line}.png.
