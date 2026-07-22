@@ -359,13 +359,14 @@ function process(string $extension_name, string $extension_machine_name, string 
 }
 
 /**
- * Process README file and download placeholder logo.
+ * Process the README and CONTRIBUTING files and download placeholder logo.
  *
  * @param string $extension_name
  *   The human-readable extension name.
  */
 function process_readme(string $extension_name): void {
   @rename('README.dist.md', 'README.md');
+  @rename('CONTRIBUTING.dist.md', 'CONTRIBUTING.md');
 
   $url = 'https://placehold.jp/000000/ffffff/200x200.png?text=' . str_replace(' ', '+', $extension_name) . '&css=%7B%22border-radius%22%3A%22%20100px%22%7D';
   $logo = @file_get_contents($url);

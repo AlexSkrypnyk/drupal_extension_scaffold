@@ -118,6 +118,7 @@ final class InitProcessTest extends UnitTestCase {
       'js/my_extension.js',
       'js/my_extension.test.js',
       'README.md',
+      'CONTRIBUTING.md',
       'init.php',
     ];
 
@@ -128,6 +129,7 @@ final class InitProcessTest extends UnitTestCase {
       'src/YourExtensionService.php',
       'src/Form/YourExtensionForm.php',
       'README.dist.md',
+      'CONTRIBUTING.dist.md',
       'LICENSE.txt',
       '.scaffold',
       '.claude/skills',
@@ -148,6 +150,7 @@ final class InitProcessTest extends UnitTestCase {
         'my_theme.info.yml',
         'my_theme.libraries.yml',
         'README.md',
+        'CONTRIBUTING.md',
         '.github/workflows',
         '.ahoy.yml',
       ],

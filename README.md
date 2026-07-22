@@ -43,6 +43,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Updating your extension](#updating-your-extension)
 - [Renovate](#renovate)
 - [Projects using this scaffold](#projects-using-this-scaffold)
+- [Contributing](#contributing)
 - [Maintenance](#maintenance)
 
 ## Features
@@ -580,6 +581,12 @@ for all available options.
 - [Deploy_Steps](https://github.com/alexSkrypnyk/deploy_steps) - Runs repeatable run-on-every-deploy logic as discoverable plugins.
 
 ---
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
+build and test the scaffold, run its self-tests, and regenerate the snapshot
+fixtures.
 
 ## Maintenance
 
