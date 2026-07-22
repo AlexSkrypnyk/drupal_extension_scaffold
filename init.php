@@ -493,6 +493,7 @@ function process_internal(string $extension_name, string $extension_machine_name
 
   // Remove scaffold files.
   @unlink('LICENSE.txt');
+  @unlink('SECURITY.md');
   remove_dir('tests/scaffold');
   foreach (glob('.github/workflows/scaffold*.yml') ?: [] as $file) {
     @unlink($file);
