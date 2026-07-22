@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Render a URL as a scannable QR code in the terminal.
+ *
+ * Reads the URL from the first CLI argument and prints a QR code using
+ * `qrencode`. A no-op when no URL is given or `qrencode` is not installed,
+ * so callers can pipe an optional URL through without guarding first.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+print_qrcode($argv[1] ?? '');

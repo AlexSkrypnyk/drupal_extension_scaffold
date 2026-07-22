@@ -551,6 +551,36 @@ function passthru_verbose_or_fail(string $cmd, string $format = '', string|int|f
 }
 
 /**
+ * Render a URL as a scannable QR code in the terminal.
+ *
+ * Opt-in: draws nothing unless the QRCODE variable - read from the shell
+ * environment or '.env' - is set to a truthy value ('1', 'true', 'yes',
+ * 'on'). When enabled it uses `qrencode -t ANSIUTF8` to draw the code with
+ * Unicode block glyphs, and is still a no-op when the URL is empty or the
+ * `qrencode` binary is not installed, so callers may invoke it
+ * unconditionally.
+ *
+ * @param string $url
+ *   The URL to encode. An empty string renders nothing.
+ */
+function print_qrcode(string $url): void {
+  if ($url === '') {
+    return;
+  }
+
+  [$enabled] = resolve_env_value('QRCODE', '');
+  if (!in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], TRUE)) {
+    return;
+  }
+
+  if (!command_path('qrencode')) {
+    return;
+  }
+
+  passthru(sprintf('qrencode -t ANSIUTF8 %s', escapeshellarg($url)));
+}
+
+/**
  * Run custom shell scripts from a directory matching a filename prefix.
  *
  * Scripts are matched as "<dir>/<prefix>*.sh", sorted lexicographically,

@@ -51,7 +51,10 @@ commands:
 
   login:
     usage: Login to a website.
-    cmd: ahoy drush uli
+    cmd: |
+      url="$(build/vendor/bin/drush -l "$(./.devtools/info site-url)" uli)"
+      printf '%s\n' "$url"
+      ./.devtools/qrcode "$url"
 
   lint:
     usage: Check coding standards for violations.

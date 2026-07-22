@@ -1,4 +1,4 @@
-@@ -88,40 +88,11 @@
+@@ -91,40 +91,11 @@
      usage: Run tests.
      cmd: |
        pushd "build" >/dev/null || exit 1
@@ -39,7 +39,7 @@
    test-js:
      usage: Run JavaScript unit tests.
      cmd: |
-@@ -129,25 +100,6 @@
+@@ -132,25 +103,6 @@
        [ ! -d node_modules ] || npm test
        popd >/dev/null || exit 1
  

@@ -152,6 +152,12 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
+    yield 'no_cloudflare' => [
+      [
+        'cloudflare' => 'false',
+      ],
+    ];
+
     yield 'no_php_lint' => [
       [
         'tools' => 'eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
@@ -211,6 +217,7 @@ final class InitTest extends FunctionalTestCase {
       'drupal_version' => '10,11',
       'command_wrapper' => 'ahoy',
       'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
+      'cloudflare' => 'true',
       'remove_self' => 'true',
       'proceed' => 'true',
     ];

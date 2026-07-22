@@ -1,4 +1,4 @@
-@@ -90,7 +90,6 @@
+@@ -93,7 +93,6 @@
        pushd "build" >/dev/null || exit 1
        ahoy title "Running PHPUnit"
        php -d pcov.directory=.. vendor/bin/phpunit "$@"
@@ -6,7 +6,7 @@
        popd >/dev/null || exit 1
  
    test-unit:
-@@ -122,12 +121,6 @@
+@@ -125,12 +124,6 @@
        php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
        popd >/dev/null || exit 1
  
