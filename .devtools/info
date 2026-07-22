@@ -65,6 +65,7 @@ $fields = [
   'webserver-port' => fn(): string => $webserver_port,
   'site-url' => fn(): string => resolve_site_url($webserver_host, $webserver_port),
   'xdebug' => fn(): string => xdebug_state($webserver_port),
+  'webdriver-port' => fn(): string => resolve_webdriver_port(validate_port: FALSE)['port'],
   'build-dir' => fn(): string => $build_dir,
   'database' => fn(): string => $db_file,
   'drupal-profile' => fn(): string => $drupal_profile,
@@ -106,6 +107,7 @@ printf("Webserver host:     %s (%s)%s", $values['webserver-host'], $host_source,
 printf("Webserver port:     %s (%s)%s", $values['webserver-port'], $port_source, PHP_EOL);
 printf("Site URL:           %s%s", $values['site-url'], PHP_EOL);
 printf("XDebug:             %s%s", $values['xdebug'], PHP_EOL);
+printf("WebDriver port:     %s%s", $values['webdriver-port'], PHP_EOL);
 echo PHP_EOL;
 printf("Build dir:          %s%s", $values['build-dir'], PHP_EOL);
 printf("Database:           %s%s", $values['database'], PHP_EOL);

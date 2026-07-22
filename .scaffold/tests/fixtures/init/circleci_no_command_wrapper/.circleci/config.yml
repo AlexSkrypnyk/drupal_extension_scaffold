@@ -72,6 +72,7 @@ job-test: &job-test
         environment:
           BROWSERTEST_OUTPUT_DIRECTORY: ../.logs/browser_output
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
+          WEBDRIVER_BACKEND: selenium
 
     - store_test_results:
         path: .logs/test_results

@@ -111,12 +111,14 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `make test-functional` - Run functional tests only
 <!-- #;> DEV_PHPUNIT -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `make test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+- `make test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;< DEV_JEST -->
 - `make test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
+- `make chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
+- `make chromedriver-stop` - Stop chromedriver
 - `make selenium-start` - Start Selenium container
 - `make selenium-stop` - Stop Selenium container
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
@@ -129,12 +131,14 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `ahoy test-functional` - Run functional tests only
 <!-- #;> DEV_PHPUNIT -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
-- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (requires Selenium)
+- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;< DEV_JEST -->
 - `ahoy test-js` - Run JavaScript unit tests (Jest)
 <!-- #;> DEV_JEST -->
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
+- `ahoy chromedriver-start` - Start chromedriver against the locally installed Chrome (default backend)
+- `ahoy chromedriver-stop` - Stop chromedriver
 - `ahoy selenium-start` - Start Selenium container
 - `ahoy selenium-stop` - Stop Selenium container
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
@@ -188,6 +192,10 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`)
 - `WEBSERVER_HOST` - Development server host (default: localhost)
 - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
+<!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
+- `WEBDRIVER_BACKEND` - FunctionalJavascript WebDriver backend: `chromedriver` (default, drives the locally installed Chrome with no Docker) or `selenium` (Docker container)
+- `WEBDRIVER_PORT` - Port for the `chromedriver` WebDriver endpoint. Auto-discovered from 4444 and written to `.env` if not already set, so several projects can run FunctionalJavascript tests simultaneously
+<!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
 - `DEBUG` - Set to `1` to stream the full output of the underlying commands (Composer, npm, Drush). By default this output is suppressed and shown only when a command fails
 

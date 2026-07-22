@@ -275,6 +275,52 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
 }
 
 /**
+ * Resolve the WebDriver (chromedriver) endpoint port with source tracking.
+ *
+ * Mirrors the port half of resolve_webserver() for 'WEBDRIVER_PORT':
+ * shell env first, then a matching key in the dotenv file, then the
+ * default. With auto_discover and no configured value, a free port is
+ * allocated from 4444 and persisted to the dotenv file so that several
+ * projects each get their own chromedriver endpoint and never contend
+ * for a single port.
+ *
+ * @param bool $auto_discover
+ *   When TRUE and the port resolves from neither env nor dotenv, discover
+ *   a free port via find_free_port() and persist it via dotenv_write_var().
+ *   The reported source then becomes the dotenv file path.
+ * @param bool $validate_port
+ *   When TRUE, call validate_port_or_fail() on the resolved port and abort
+ *   if it is not a valid TCP port. The info script disables this so a
+ *   malformed value can be surfaced in the output rather than crashing the
+ *   read-only summary.
+ * @param string $dotenv_file
+ *   Path to the dotenv file to read and (optionally) write.
+ *
+ * @return array{port: string, port_source: string}
+ *   The resolved port and its source label: 'env', the dotenv file path,
+ *   or 'default'.
+ */
+function resolve_webdriver_port(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
+  $default_port = $auto_discover ? '' : '4444';
+  [$port, $port_source] = resolve_env_value('WEBDRIVER_PORT', $default_port, $dotenv_file);
+
+  if ($auto_discover && $port_source === 'default') {
+    $port = (string) find_free_port(4444);
+    dotenv_write_var('WEBDRIVER_PORT', $port, $dotenv_file);
+    $port_source = $dotenv_file;
+  }
+
+  if ($validate_port) {
+    validate_port_or_fail($port, 'WEBDRIVER_PORT');
+  }
+
+  return [
+    'port' => $port,
+    'port_source' => $port_source,
+  ];
+}
+
+/**
  * Resolve the public site URL, preferring an active tunnel URL.
  *
  * Reads TUNNEL_URL straight from the dotenv file rather than the process

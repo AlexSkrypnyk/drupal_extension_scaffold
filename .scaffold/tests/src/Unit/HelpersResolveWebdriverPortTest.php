@@ -1,0 +1,146 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
+
+use function DrupalExtensionScaffold\DevTools\resolve_webdriver_port;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+
+/**
+ * Tests for the resolve_webdriver_port() helper.
+ *
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Commenting.FunctionComment.Missing
+ * phpcs:disable Drupal.Commenting.DocComment.MissingShort
+ */
+#[CoversFunction('DrupalExtensionScaffold\DevTools\resolve_webdriver_port')]
+#[RunTestsInSeparateProcesses]
+#[Group('p0')]
+final class HelpersResolveWebdriverPortTest extends UnitTestCase {
+
+  protected function setUp(): void {
+    parent::setUp();
+    require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
+
+    // CI workflows may preload WEBDRIVER_PORT. Strip it so each test
+    // starts from a known baseline.
+    self::envUnset('WEBDRIVER_PORT');
+  }
+
+  protected function tearDown(): void {
+    self::envReset();
+    parent::tearDown();
+  }
+
+  public function testDefaultsWhenNothingProvided(): void {
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $resolved = resolve_webdriver_port();
+
+    $this->assertSame('4444', $resolved['port']);
+    $this->assertSame('default', $resolved['port_source']);
+  }
+
+  public function testEnvOverridesDotenvAndDefault(): void {
+    self::envSet('WEBDRIVER_PORT', '9515');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => TRUE);
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBDRIVER_PORT=1234\n");
+
+    $resolved = resolve_webdriver_port();
+
+    $this->assertSame('9515', $resolved['port']);
+    $this->assertSame('env', $resolved['port_source']);
+  }
+
+  public function testDotenvUsedWhenEnvUnset(): void {
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $f): bool => $f === '.env');
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBDRIVER_PORT=4500\n");
+
+    $resolved = resolve_webdriver_port();
+
+    $this->assertSame('4500', $resolved['port']);
+    $this->assertSame('.env', $resolved['port_source']);
+  }
+
+  public function testAutoDiscoveryWritesPortAndUpdatesSource(): void {
+    // No env, no dotenv - auto-discovery kicks in from port 4444.
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+    $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
+
+    $persisted = NULL;
+    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function (string $f, string $body) use (&$persisted): int {
+      if (preg_match('/WEBDRIVER_PORT=(\d+)/', $body, $m)) {
+        $persisted = $m[1];
+      }
+
+      return strlen($body);
+    });
+
+    $resolved = resolve_webdriver_port(auto_discover: TRUE);
+
+    $this->assertSame('4444', $resolved['port']);
+    $this->assertSame('.env', $resolved['port_source'], 'Auto-discovered port reports the dotenv file as its source after the write.');
+    $this->assertSame('4444', $persisted, 'find_free_port() result was persisted to .env.');
+  }
+
+  public function testAutoDiscoverySkippedWhenDotenvHasPort(): void {
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $f): bool => $f === '.env');
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBDRIVER_PORT=4500\n");
+
+    $write_called = FALSE;
+    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function () use (&$write_called): int {
+      $write_called = TRUE;
+
+      return 0;
+    });
+    $probe_called = FALSE;
+    $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', function () use (&$probe_called): false {
+      $probe_called = TRUE;
+
+      return FALSE;
+    });
+
+    $resolved = resolve_webdriver_port(auto_discover: TRUE);
+
+    $this->assertSame('4500', $resolved['port']);
+    $this->assertSame('.env', $resolved['port_source']);
+    $this->assertFalse($write_called, 'No write should occur when .env already supplies the port.');
+    $this->assertFalse($probe_called, 'find_free_port() should not run when .env already supplies the port.');
+  }
+
+  public function testValidationFailsOnMalformedPort(): void {
+    self::envSet('WEBDRIVER_PORT', 'not-a-port');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      resolve_webdriver_port();
+      $this->fail('Expected resolve_webdriver_port() to abort via FAIL().');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+      $this->assertStringContainsString('Invalid WEBDRIVER_PORT "not-a-port"', $output);
+    }
+  }
+
+  public function testValidationSkippedWhenDisabled(): void {
+    self::envSet('WEBDRIVER_PORT', 'not-a-port');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $resolved = resolve_webdriver_port(validate_port: FALSE);
+
+    $this->assertSame('not-a-port', $resolved['port'], 'With validation disabled, the malformed value is surfaced verbatim.');
+    $this->assertSame('env', $resolved['port_source']);
+  }
+
+}

@@ -29,7 +29,7 @@ endef
 .PHONY: test-unit test-kernel test-functional
 #;> DEV_PHPUNIT
 #;< DEV_FUNCTIONAL_JAVASCRIPT
-.PHONY: test-functional-javascript selenium-start selenium-stop
+.PHONY: test-functional-javascript chromedriver-start chromedriver-stop selenium-start selenium-stop
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 #;< DEV_JEST
 .PHONY: test-js
@@ -62,6 +62,8 @@ help:
 	@echo "test-unit                  - Run unit tests."
 	@#;> DEV_PHPUNIT
 	@#;< DEV_FUNCTIONAL_JAVASCRIPT
+	@echo "chromedriver-start         - Start chromedriver against the local Chrome."
+	@echo "chromedriver-stop          - Stop chromedriver."
 	@echo "selenium-start             - Start Selenium container."
 	@echo "selenium-stop              - Stop Selenium container."
 	@#;> DEV_FUNCTIONAL_JAVASCRIPT
@@ -195,13 +197,21 @@ test-functional:
 #;> DEV_PHPUNIT
 
 #;< DEV_FUNCTIONAL_JAVASCRIPT
-test-functional-javascript: selenium-start
+test-functional-javascript:
+	@if [ "$${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then $(MAKE) selenium-start; else $(MAKE) chromedriver-start; fi
+	export WEBDRIVER_PORT="$$(./.devtools/info webdriver-port)" && \
 	pushd "build" >/dev/null || exit 1 && \
 	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
 	popd >/dev/null || exit 1
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 
 #;< DEV_FUNCTIONAL_JAVASCRIPT
+chromedriver-start:
+	./.devtools/chromedriver start
+
+chromedriver-stop:
+	./.devtools/chromedriver stop
+
 selenium-start:
 	@if curl -s http://localhost:4444/status | grep -q '"ready": true'; then \
 		echo "Selenium container is already running."; \

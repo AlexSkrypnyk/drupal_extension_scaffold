@@ -1,0 +1,207 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Start or stop chromedriver against the locally installed Chrome.
+ *
+ * chromedriver is the small WebDriver server that drives the Chrome already
+ * installed on the machine, so FunctionalJavascript tests need no Docker.
+ * The endpoint port is resolved per project (env -> '.env' -> auto-discover
+ * from 4444) and persisted to '.env' like the webserver port, so several
+ * projects can run their own chromedriver simultaneously without contending
+ * for a single port.
+ *
+ * Usage:
+ * - 'chromedriver start': ensure a matching chromedriver is listening.
+ * - 'chromedriver stop': stop the chromedriver bound to this project's port.
+ */
+
+declare(strict_types=1);
+
+namespace DrupalExtensionScaffold\DevTools;
+
+require_once __DIR__ . '/helpers.php';
+
+// Directory holding the downloaded chromedriver binary and run logs. Ignored
+// by git and safe to delete.
+const CHROMEDRIVER_DIR = '.chromedriver';
+
+$command = $argv[1] ?? '';
+
+if ($command === 'start') {
+  chromedriver_start();
+  quit(0);
+}
+
+if ($command === 'stop') {
+  chromedriver_stop();
+  quit(0);
+}
+
+FAIL("Unknown command '%s'. Use 'start' or 'stop'.", $command);
+
+// -----------------------------------------------------------------------------
+// Commands.
+// -----------------------------------------------------------------------------
+
+/**
+ * Ensure a chromedriver matching the installed Chrome is listening.
+ */
+function chromedriver_start(): void {
+  $port = resolve_webdriver_port(auto_discover: TRUE)['port'];
+
+  echo '===============================' . PHP_EOL;
+  echo '     🌐 START CHROMEDRIVER     ' . PHP_EOL;
+  echo '===============================' . PHP_EOL;
+  echo PHP_EOL;
+
+  if (webdriver_ready($port)) {
+    PASS('chromedriver is already running on port %s.', $port);
+
+    return;
+  }
+
+  $chrome_version = detect_chrome_version();
+  if ($chrome_version === '') {
+    FAIL('Google Chrome or Chromium was not found. Install Chrome, or set WEBDRIVER_BACKEND=selenium to use Docker.');
+  }
+
+  $binary = resolve_chromedriver_binary($chrome_version);
+
+  @mkdir(CHROMEDRIVER_DIR, 0755, TRUE);
+
+  TASK('Starting chromedriver on port %s.', $port);
+  @passthru(sprintf('nohup %s --port=%s >%s 2>&1 &', escapeshellarg($binary), escapeshellarg($port), escapeshellarg(CHROMEDRIVER_DIR . '/chromedriver.log')));
+
+  NOTE('Waiting for chromedriver to be ready.');
+  for ($i = 0; $i < 30; $i++) {
+    if (webdriver_ready($port)) {
+      PASS('chromedriver is ready on port %s.', $port);
+
+      return;
+    }
+    sleep(1);
+  }
+
+  FAIL('chromedriver failed to become ready on port %s after 30 seconds.', $port);
+}
+
+/**
+ * Stop the chromedriver bound to this project's port, if any.
+ */
+function chromedriver_stop(): void {
+  $port = resolve_webdriver_port()['port'];
+
+  echo '===============================' . PHP_EOL;
+  echo '      🌐 STOP CHROMEDRIVER     ' . PHP_EOL;
+  echo '===============================' . PHP_EOL;
+  echo PHP_EOL;
+
+  TASK('Stopping chromedriver on port %s, if any.', $port);
+  @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($port)));
+  sleep(1);
+  PASS('chromedriver stopped on port %s.', $port);
+}
+
+// -----------------------------------------------------------------------------
+// Helpers.
+// -----------------------------------------------------------------------------
+
+/**
+ * Check whether a WebDriver server on the given port accepts sessions.
+ */
+function webdriver_ready(string $port): bool {
+  $context = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 2, 'ignore_errors' => TRUE]]);
+  $headers = @get_headers(sprintf('http://localhost:%s/status', $port), FALSE, $context);
+
+  return is_array($headers) && isset($headers[0]) && str_contains((string) $headers[0], '200');
+}
+
+/**
+ * Detect the installed Chrome/Chromium version, or '' when none is found.
+ */
+function detect_chrome_version(): string {
+  $mac_chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+
+  if (is_executable($mac_chrome)) {
+    $raw = (string) @shell_exec(escapeshellarg($mac_chrome) . ' --version 2>/dev/null');
+  }
+  else {
+    $raw = '';
+    foreach (['google-chrome', 'chromium', 'chromium-browser'] as $binary) {
+      if (command_path($binary) !== FALSE) {
+        $raw = (string) @shell_exec($binary . ' --version 2>/dev/null');
+        break;
+      }
+    }
+  }
+
+  return preg_match('/(\d+(?:\.\d+){3})/', $raw, $matches) === 1 ? $matches[1] : '';
+}
+
+/**
+ * Resolve a chromedriver binary matching the given Chrome version.
+ *
+ * Prefers a chromedriver already on PATH when its major version matches the
+ * installed Chrome; otherwise downloads a matching build via npx. Aborts when
+ * neither a matching driver nor npx is available.
+ */
+function resolve_chromedriver_binary(string $chrome_version): string {
+  $chrome_major = explode('.', $chrome_version)[0];
+
+  $path = command_path('chromedriver');
+  if ($path !== FALSE) {
+    $raw = (string) @shell_exec(escapeshellarg($path) . ' --version 2>/dev/null');
+    if (preg_match('/(\d+)\./', $raw, $matches) === 1 && $matches[1] === $chrome_major) {
+      NOTE('Using installed chromedriver at %s.', $path);
+
+      return $path;
+    }
+    NOTE('Installed chromedriver does not match Chrome %s; fetching a matching build.', $chrome_version);
+  }
+
+  if (command_path('npx') === FALSE) {
+    FAIL('No matching chromedriver found and npx is unavailable. Install a chromedriver matching Chrome %s, or set WEBDRIVER_BACKEND=selenium.', $chrome_version);
+  }
+
+  @mkdir(CHROMEDRIVER_DIR, 0755, TRUE);
+  $log = CHROMEDRIVER_DIR . '/install.log';
+
+  TASK('Fetching chromedriver matching Chrome %s.', $chrome_version);
+  $exit_code = 0;
+  passthru(sprintf('npx -y @puppeteer/browsers install %s --path %s >%s', escapeshellarg('chromedriver@' . $chrome_version), escapeshellarg(CHROMEDRIVER_DIR), escapeshellarg($log)), $exit_code);
+  if ($exit_code !== 0) {
+    FAIL('Failed to install chromedriver matching Chrome %s.', $chrome_version);
+  }
+
+  $binary = parse_installed_binary($log);
+  if ($binary === '') {
+    FAIL('Could not determine the chromedriver binary path.');
+  }
+
+  return $binary;
+}
+
+/**
+ * Extract the installed binary path from the puppeteer/browsers log.
+ *
+ * The tool prints "chromedriver@<version> <path>" as its last line; the path
+ * may contain spaces, so everything after the first field is kept verbatim.
+ */
+function parse_installed_binary(string $log): string {
+  $contents = @file_get_contents($log);
+  if ($contents === FALSE) {
+    return '';
+  }
+
+  $lines = array_values(array_filter(preg_split('/\r\n|\r|\n/', trim($contents)) ?: []));
+  if ($lines === []) {
+    return '';
+  }
+
+  $last = (string) end($lines);
+  $space = strpos($last, ' ');
+
+  return $space === FALSE ? '' : substr($last, $space + 1);
+}

@@ -52,7 +52,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -179,42 +150,4 @@
+@@ -179,43 +150,4 @@
        - name: Provision site
          run: .devtools/provision
  
@@ -69,6 +69,7 @@
 -        env:
 -          BROWSERTEST_OUTPUT_DIRECTORY: ../.logs/browser_output
 -          SIMPLETEST_DB: sqlite://tmp/db.sqlite
+-          WEBDRIVER_BACKEND: selenium
 -
 -      - name: Upload test results as an artifact
 -        uses: actions/upload-artifact@__HASH__ # __VERSION__

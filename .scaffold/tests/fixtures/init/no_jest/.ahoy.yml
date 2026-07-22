@@ -6,7 +6,7 @@
        popd >/dev/null || exit 1
  
    test-unit:
-@@ -125,12 +124,6 @@
+@@ -130,12 +129,6 @@
        php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
        popd >/dev/null || exit 1
  
@@ -17,5 +17,5 @@
 -      [ ! -d node_modules ] || npm test
 -      popd >/dev/null || exit 1
  
-   selenium-start:
-     usage: Start Selenium container if not already running.
+   chromedriver-start:
+     usage: Start chromedriver against the locally installed Chrome if not already running.

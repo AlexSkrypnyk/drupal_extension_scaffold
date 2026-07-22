@@ -120,7 +120,12 @@ commands:
   test-functional-javascript:
     usage: Run FunctionalJavascript tests.
     cmd: |
-      ahoy selenium-start
+      if [ "${WEBDRIVER_BACKEND:-chromedriver}" = "selenium" ]; then
+        ahoy selenium-start || exit 1
+      else
+        ahoy chromedriver-start || exit 1
+        export WEBDRIVER_PORT="$(./.devtools/info webdriver-port)"
+      fi
       pushd "build" >/dev/null || exit 1
       php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
       popd >/dev/null || exit 1
@@ -131,6 +136,14 @@ commands:
       pushd "build" >/dev/null || exit 1
       [ ! -d node_modules ] || npm test
       popd >/dev/null || exit 1
+
+  chromedriver-start:
+    usage: Start chromedriver against the locally installed Chrome if not already running.
+    cmd: ./.devtools/chromedriver start
+
+  chromedriver-stop:
+    usage: Stop chromedriver.
+    cmd: ./.devtools/chromedriver stop
 
   selenium-start:
     usage: Start Selenium container if not already running.
