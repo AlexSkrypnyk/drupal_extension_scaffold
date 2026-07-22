@@ -97,14 +97,8 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
   $(eval $(DRUSH_RUN_ARGS):;@:)
 endif
 
-# A `uli` command yields a one-time login URL worth scanning from a phone, so
-# capture its output, print it, then render a QR code (a no-op without
-# `qrencode`). Every other Drush command streams through untouched.
 drush:
-	@case " $(DRUSH_RUN_ARGS) " in \
-	  *" uli "*) url="$$(build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS))"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url" ;; \
-	  *) build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS) ;; \
-	esac
+	build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS)
 
 login:
 	@url="$$(build/vendor/bin/drush -l $(DRUSH_URI) uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url"

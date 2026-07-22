@@ -1,4 +1,4 @@
-@@ -71,31 +71,12 @@
+@@ -60,31 +60,12 @@
      usage: Check coding standards for violations.
      cmd: |
        pushd "build" >/dev/null || exit 1
@@ -30,7 +30,7 @@
        popd >/dev/null || exit 1
  
    test:
-@@ -102,66 +83,11 @@
+@@ -91,66 +72,11 @@
      usage: Run tests.
      cmd: |
        pushd "build" >/dev/null || exit 1

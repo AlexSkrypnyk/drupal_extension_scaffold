@@ -1,4 +1,4 @@
-@@ -128,13 +128,6 @@
+@@ -117,13 +117,6 @@
        php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional "$@"
        popd >/dev/null || exit 1
  
@@ -12,7 +12,7 @@
  
    test-js:
      usage: Run JavaScript unit tests.
-@@ -143,25 +136,6 @@
+@@ -132,25 +125,6 @@
        [ ! -d node_modules ] || npm test
        popd >/dev/null || exit 1
  
