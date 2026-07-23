@@ -131,7 +131,7 @@ function main(array $argv): void {
     env_prefix: 'PROMPTY_',
   );
 
-  if ($results === NULL || ($results['proceed'] ?? FALSE) === FALSE) {
+  if ($results === NULL || !($results['proceed'] ?? FALSE)) {
     throw new \Exception('Aborting.');
   }
 
@@ -148,8 +148,8 @@ function main(array $argv): void {
   $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
   // The prompt asks whether to keep the tunnel scripts, so a 'no' answer is
   // what triggers their removal.
-  $remove_cloudflare = empty($results['cloudflare']) ? 'y' : 'n';
-  $remove_self = empty($results['remove_self']) ? 'n' : 'y';
+  $remove_cloudflare = !($results['cloudflare'] ?? FALSE);
+  $remove_self = $results['remove_self'] ?? FALSE;
 
   // Derive machine name from extension name if the user accepted placeholder.
   if ($machine_name === 'my_extension' || $machine_name === '') {
@@ -186,7 +186,7 @@ function drupal_version_options(): array {
 function print_help(): void {
   $script_name = basename(__FILE__);
   $out = <<<EOF
-Drupal Extension Scaffold - project initialisation.
+Drupal Extension Scaffold - project initialization.
 ----------------------------------------------------
 
 Usage:
@@ -234,12 +234,12 @@ EOF;
  *   The selected command wrappers ('ahoy', 'makefile', or both).
  * @param array<string> $tools_remove
  *   The machine names of the development tools to remove.
- * @param string $remove_cloudflare
- *   Whether to remove the Cloudflare tunnel scripts ('y' or 'n').
- * @param string $remove_self
- *   Whether to remove this script ('y' or 'n').
+ * @param bool $remove_cloudflare
+ *   Whether to remove the Cloudflare tunnel scripts.
+ * @param bool $remove_self
+ *   Whether to remove this script.
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, string $remove_cloudflare, string $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -270,7 +270,7 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Prune CI matrix corners for deselected Drupal majors. Each major's corners
   // are wrapped in '#;< DRUPAL_<major>' markers across the CI files; removing a
   // major strips those blocks. Markers for kept majors are cleared later by
-  // 'remove_special_comments()'. Normalise both sides to strings: PHP casts
+  // 'remove_special_comments()'. Normalize both sides to strings: PHP casts
   // numeric-string array keys to integers, so 'array_keys()' returns ints that
   // would never strictly match the string selection.
   $supported_majors = array_map(strval(...), array_keys(drupal_version_options()));
@@ -301,40 +301,7 @@ function process(string $extension_name, string $extension_machine_name, string 
     remove_tokens_with_content('DEV_MAKEFILE');
   }
 
-  // Trim wrapper-specific permissions from Claude settings to match selection.
-  $claude_settings = '.claude/settings.json';
-  if (file_exists($claude_settings)) {
-    $raw = file_get_contents($claude_settings);
-    if ($raw === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to read .claude/settings.json.');
-      // @codeCoverageIgnoreEnd
-    }
-
-    $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($config) || !isset($config['permissions']) || !is_array($config['permissions']) || !isset($config['permissions']['allow']) || !is_array($config['permissions']['allow'])) {
-      throw new \RuntimeException('Invalid .claude/settings.json structure.');
-    }
-
-    $config['permissions']['allow'] = array_values(array_filter(
-      $config['permissions']['allow'],
-      static function ($permission) use ($command_wrapper): bool {
-        $wrapper = match ($permission) {
-          'Bash(ahoy:*)' => 'ahoy',
-          'Bash(make:*)' => 'makefile',
-          default => NULL,
-        };
-        return $wrapper === NULL || in_array($wrapper, $command_wrapper, TRUE);
-      },
-    ));
-
-    $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-    if (file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Unable to write .claude/settings.json.');
-      // @codeCoverageIgnoreEnd
-    }
-  }
+  trim_claude_settings_permissions($command_wrapper);
 
   remove_tools($tools_remove);
 
@@ -345,15 +312,63 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Remove the opt-in Cloudflare quick-tunnel scripts when the tunnel support
   // is declined. The tunnel-agnostic TUNNEL_URL handling in the core scripts
   // stays regardless, so any other tunnel tool still integrates.
-  if ($remove_cloudflare !== 'n') {
+  if ($remove_cloudflare) {
     @unlink('scripts/provision-cloudflared.sh');
     @unlink('scripts/start-cloudflared.sh');
     @unlink('scripts/stop-cloudflared.sh');
   }
 
-  if ($remove_self !== 'n') {
+  if ($remove_self) {
     // @codeCoverageIgnoreStart
     @unlink(__FILE__);
+    // @codeCoverageIgnoreEnd
+  }
+}
+
+/**
+ * Trim wrapper-specific permissions from Claude settings to match selection.
+ *
+ * A failed read (file exists but is unreadable) is treated the same as a
+ * missing file: the settings are left untouched rather than aborting the
+ * whole 'process()' pipeline over a single non-critical file.
+ *
+ * @param array<string> $command_wrapper
+ *   The selected command wrappers ('ahoy', 'makefile', or both).
+ */
+function trim_claude_settings_permissions(array $command_wrapper): void {
+  $file = '.claude/settings.json';
+  if (!file_exists($file)) {
+    return;
+  }
+
+  $raw = file_get_contents($file);
+  if ($raw === FALSE) {
+    // @codeCoverageIgnoreStart
+    return;
+    // @codeCoverageIgnoreEnd
+  }
+
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+  if (!is_array($config) || !isset($config['permissions']) || !is_array($config['permissions']) || !isset($config['permissions']['allow']) || !is_array($config['permissions']['allow'])) {
+    throw new \RuntimeException('Invalid .claude/settings.json structure.');
+  }
+
+  $config['permissions']['allow'] = array_values(array_filter(
+    $config['permissions']['allow'],
+    static function ($permission) use ($command_wrapper): bool {
+      $wrapper = match ($permission) {
+        'Bash(ahoy:*)' => 'ahoy',
+        'Bash(make:*)' => 'makefile',
+        default => NULL,
+      };
+      return $wrapper === NULL || in_array($wrapper, $command_wrapper, TRUE);
+    },
+  ));
+
+  $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+  if (file_put_contents($file, $encoded . PHP_EOL) === FALSE) {
+    // @codeCoverageIgnoreStart
+    throw new \RuntimeException('Unable to write .claude/settings.json.');
     // @codeCoverageIgnoreEnd
   }
 }
@@ -507,7 +522,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   remove_tokens_with_content('META');
   remove_special_comments();
 
-  normalise_cspell_words();
+  normalize_cspell_words();
 
   if ($extension_type === 'theme') {
     @unlink($extension_machine_name . '.install');
@@ -1147,7 +1162,7 @@ function remove_special_comments(): void {
  * rewrites them all to the extension machine name, producing duplicate
  * entries. Read, deduplicate, sort, and write back.
  */
-function normalise_cspell_words(): void {
+function normalize_cspell_words(): void {
   if (!file_exists('.cspell.json')) {
     return;
   }
@@ -1159,7 +1174,7 @@ function normalise_cspell_words(): void {
     // @codeCoverageIgnoreEnd
   }
 
-  $config = json_decode($raw, TRUE);
+  $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
   if (!is_array($config)) {
     return;
   }
