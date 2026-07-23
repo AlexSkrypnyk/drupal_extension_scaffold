@@ -42,15 +42,15 @@ final class HelpersFormatterTest extends UnitTestCase {
   }
 
   public static function dataProviderOutputFormatters(): \Iterator {
-    yield 'note' => ['note', NULL, "       Test message arg\n"];
-    yield 'task, no color' => ['task', FALSE, "[TASK] Test message arg\n"];
-    yield 'task, with color' => ['task', TRUE, "\033[34m[TASK] Test message arg\033[0m\n"];
-    yield 'info, no color' => ['info', FALSE, "[INFO] Test message arg\n"];
-    yield 'info, with color' => ['info', TRUE, "\033[36m[INFO] Test message arg\033[0m\n"];
-    yield 'pass, no color' => ['pass', FALSE, "[ OK ] Test message arg\n"];
-    yield 'pass, with color' => ['pass', TRUE, "\033[32m[ OK ] Test message arg\033[0m\n"];
-    yield 'fail_no_exit, no color' => ['fail_no_exit', FALSE, "[FAIL] Test message arg\n"];
-    yield 'fail_no_exit, with color' => ['fail_no_exit', TRUE, "\033[31m[FAIL] Test message arg\033[0m\n"];
+    yield 'note' => ['function' => 'note', 'is_tty' => NULL, 'expected_output' => "       Test message arg\n"];
+    yield 'task, no color' => ['function' => 'task', 'is_tty' => FALSE, 'expected_output' => "[TASK] Test message arg\n"];
+    yield 'task, with color' => ['function' => 'task', 'is_tty' => TRUE, 'expected_output' => "\033[34m[TASK] Test message arg\033[0m\n"];
+    yield 'info, no color' => ['function' => 'info', 'is_tty' => FALSE, 'expected_output' => "[INFO] Test message arg\n"];
+    yield 'info, with color' => ['function' => 'info', 'is_tty' => TRUE, 'expected_output' => "\033[36m[INFO] Test message arg\033[0m\n"];
+    yield 'pass, no color' => ['function' => 'pass', 'is_tty' => FALSE, 'expected_output' => "[ OK ] Test message arg\n"];
+    yield 'pass, with color' => ['function' => 'pass', 'is_tty' => TRUE, 'expected_output' => "\033[32m[ OK ] Test message arg\033[0m\n"];
+    yield 'fail_no_exit, no color' => ['function' => 'fail_no_exit', 'is_tty' => FALSE, 'expected_output' => "[FAIL] Test message arg\n"];
+    yield 'fail_no_exit, with color' => ['function' => 'fail_no_exit', 'is_tty' => TRUE, 'expected_output' => "\033[31m[FAIL] Test message arg\033[0m\n"];
   }
 
   #[DataProvider('dataProviderFail')]
@@ -72,8 +72,8 @@ final class HelpersFormatterTest extends UnitTestCase {
   }
 
   public static function dataProviderFail(): \Iterator {
-    yield 'no color' => [FALSE, "[FAIL] Test failure message\n"];
-    yield 'with color' => [TRUE, "\033[31m[FAIL] Test failure message\033[0m\n"];
+    yield 'no color' => ['is_tty' => FALSE, 'expected_output' => "[FAIL] Test failure message\n"];
+    yield 'with color' => ['is_tty' => TRUE, 'expected_output' => "\033[31m[FAIL] Test failure message\033[0m\n"];
   }
 
   #[DataProvider('dataProviderTermSupportsColor')]

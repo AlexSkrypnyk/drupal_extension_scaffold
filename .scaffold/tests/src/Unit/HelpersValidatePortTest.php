@@ -35,10 +35,10 @@ final class HelpersValidatePortTest extends UnitTestCase {
   }
 
   public static function dataProviderValidPortDoesNotFail(): \Iterator {
-    yield 'lowest valid' => ['1'];
-    yield 'common default' => ['8000'];
-    yield 'highest valid' => ['65535'];
-    yield 'mid range' => ['12345'];
+    yield 'lowest valid' => ['value' => '1'];
+    yield 'common default' => ['value' => '8000'];
+    yield 'highest valid' => ['value' => '65535'];
+    yield 'mid range' => ['value' => '12345'];
   }
 
   #[DataProvider('dataProviderInvalidPortFails')]
@@ -59,15 +59,15 @@ final class HelpersValidatePortTest extends UnitTestCase {
   }
 
   public static function dataProviderInvalidPortFails(): \Iterator {
-    yield 'empty string' => [''];
-    yield 'zero' => ['0'];
-    yield 'too high' => ['65536'];
-    yield 'negative' => ['-1'];
-    yield 'non-numeric' => ['abc'];
-    yield 'mixed alphanumeric' => ['80a0'];
-    yield 'with shell metacharacter' => ['8000; rm -rf /'];
-    yield 'with whitespace' => ['8000 '];
-    yield 'decimal' => ['80.0'];
+    yield 'empty string' => ['value' => ''];
+    yield 'zero' => ['value' => '0'];
+    yield 'too high' => ['value' => '65536'];
+    yield 'negative' => ['value' => '-1'];
+    yield 'non-numeric' => ['value' => 'abc'];
+    yield 'mixed alphanumeric' => ['value' => '80a0'];
+    yield 'with shell metacharacter' => ['value' => '8000; rm -rf /'];
+    yield 'with whitespace' => ['value' => '8000 '];
+    yield 'decimal' => ['value' => '80.0'];
   }
 
   public function testUsesProvidedSourceNameInErrorMessage(): void {
