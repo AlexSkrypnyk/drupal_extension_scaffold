@@ -34,6 +34,7 @@ class ForceCrystalForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
+    // @phpstan-ignore-next-line
     return new static(
       $container->get('config.factory'),
       $container->get('config.typed'),
