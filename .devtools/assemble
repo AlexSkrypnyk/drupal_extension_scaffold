@@ -143,8 +143,8 @@ if (is_dir('patches')) {
   PASS('Patches copied.');
 }
 
-$github_token = getenv('GITHUB_TOKEN');
-if ($github_token !== FALSE && $github_token !== '') {
+$github_token = getenv_default('GITHUB_TOKEN', '');
+if ($github_token !== '') {
   TASK('Adding GitHub authentication token if provided.');
   passthru_or_fail(sprintf('composer config --global github-oauth.github.com %s', escapeshellarg($github_token)));
   PASS('GitHub token added.');
