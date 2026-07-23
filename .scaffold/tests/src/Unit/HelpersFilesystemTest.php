@@ -28,7 +28,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
   #[DataProvider('dataProviderRemoveDir')]
   public function testRemoveDir(array $structure, bool $has_symlink): void {
     $dir = self::$tmp . '/remove_' . uniqid();
-    $this->createStructure($dir, $structure);
+    $this->createDirectoryStructure($dir, $structure);
     if ($has_symlink) {
       file_put_contents($dir . '/target.txt', 'target content');
       symlink($dir . '/target.txt', $dir . '/subdir/link.txt');
@@ -71,7 +71,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
   #[DataProvider('dataProviderChmodRecursive')]
   public function testChmodRecursive(array $structure, int $mode, array $expected_perms): void {
     $dir = self::$tmp . '/chmod_' . uniqid();
-    $this->createStructure($dir, $structure);
+    $this->createDirectoryStructure($dir, $structure);
     chmod_recursive($dir, $mode);
     foreach ($expected_perms as $relative_path => $expected_mode) {
       $path = $relative_path === '.' ? $dir : $dir . '/' . $relative_path;
@@ -120,7 +120,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
     $this->assertSame(0644, fileperms($target_dir . '/target.txt') & 0777);
   }
 
-  protected function createStructure(string $base_path, array $structure): void {
+  protected function createDirectoryStructure(string $base_path, array $structure): void {
     if (!is_dir($base_path)) {
       mkdir($base_path, 0755, TRUE);
     }
@@ -128,7 +128,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
       $path = $base_path . '/' . $name;
       if (is_array($content)) {
         mkdir($path, 0755, TRUE);
-        $this->createStructure($path, $content);
+        $this->createDirectoryStructure($path, $content);
       }
       else {
         file_put_contents($path, $content);
