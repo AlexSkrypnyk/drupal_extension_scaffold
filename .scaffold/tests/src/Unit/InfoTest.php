@@ -56,7 +56,7 @@ final class InfoTest extends UnitTestCase {
    * @param string|false $command_php_path
    *   Path returned by command_path('php'); FALSE means not found.
    */
-  protected function configureInfoMocks(
+  protected function setupInfoMocks(
     array $shell_exec_map,
     array $files = [],
     array $info_files = [],
@@ -96,7 +96,7 @@ final class InfoTest extends UnitTestCase {
     });
   }
 
-  public function testFullyPopulatedEnvironment(): void {
+  public function testInfoFullyPopulatedEnvironment(): void {
     $this->envSet('WEBSERVER_HOST', 'example.com');
     $this->envSet('WEBSERVER_PORT', '9001');
     $this->envSet('DRUPAL_PROFILE', 'minimal');
@@ -104,7 +104,7 @@ final class InfoTest extends UnitTestCase {
     $cwd = '/test/project';
     $drush_bin = 'build/vendor/bin/drush';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: [
         'php -v' => "PHP 8.3.14 (cli) (built: ...)\n",
         'composer --version' => "Composer version 2.7.7 2024-06-10 22:11:12\n",
@@ -139,10 +139,10 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('ENVIRONMENT INFO', $output);
   }
 
-  public function testReadsPortFromDotenvWithFileSource(): void {
+  public function testInfoReadsPortFromDotenvWithFileSource(): void {
     $cwd = '/test/project';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: [
         'php -v' => "PHP 8.3.14\n",
         'composer --version' => '',
@@ -163,11 +163,11 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Site URL:           http://localhost:8123', $output);
   }
 
-  public function testSiteUrlPrefersTunnelUrl(): void {
+  public function testInfoSiteUrlPrefersTunnelUrl(): void {
     $cwd = '/test/project';
     $tunnel_url = 'https://random-words.trycloudflare.com';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: ['.env' => TRUE],
       info_files: [],
@@ -183,10 +183,10 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Site URL:           ' . $tunnel_url, $output);
   }
 
-  public function testSiteUrlFieldPrefersTunnelUrl(): void {
+  public function testInfoSiteUrlFieldPrefersTunnelUrl(): void {
     $tunnel_url = 'https://random-words.trycloudflare.com';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: ['.env' => TRUE],
       info_files: [],
@@ -199,10 +199,10 @@ final class InfoTest extends UnitTestCase {
     $this->assertSame($tunnel_url . PHP_EOL, $output);
   }
 
-  public function testFallsBackToDefaultsWhenNothingResolves(): void {
+  public function testInfoFallsBackToDefaultsWhenNothingResolves(): void {
     $cwd = '/test/project';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: [],
       info_files: [],
@@ -226,12 +226,12 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Drupal profile:     standard', $output);
   }
 
-  public function testDrushAbsentSuppressesPhpPathSuffixOnlyWhenPhpAlsoMissing(): void {
+  public function testInfoDrushMissingSuppressesPhpPathSuffixOnlyWhenPhpAlsoMissing(): void {
     // PHP is detectable but command_path('php') returns FALSE - the path
     // suffix is omitted.
     $cwd = '/test/project';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: [
         'php -v' => "PHP 8.3.14\n",
         '*' => '',
@@ -248,11 +248,11 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringNotContainsString('PHP version:        8.3.14 (', $output);
   }
 
-  #[DataProvider('dataProviderXdebugStateDetection')]
-  public function testXdebugStateDetection(string $ps_output, string $expected_state): void {
+  #[DataProvider('dataProviderInfoXdebugStateDetection')]
+  public function testInfoXdebugStateDetection(string $ps_output, string $expected_state): void {
     $cwd = '/test/project';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: [
         'lsof -ti' => $ps_output,
         '*' => '',
@@ -267,7 +267,7 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('XDebug:             ' . $expected_state, $output);
   }
 
-  public static function dataProviderXdebugStateDetection(): \Iterator {
+  public static function dataProviderInfoXdebugStateDetection(): \Iterator {
     yield 'no server listening' => ['ps_output' => '', 'expected_state' => '-'];
     yield 'server running without xdebug' => [
       'ps_output' => "php -S localhost:8000\n",
@@ -279,13 +279,13 @@ final class InfoTest extends UnitTestCase {
     ];
   }
 
-  public function testDrushDrupalVersionFallbackWhenStatusReturnsNothing(): void {
+  public function testInfoDrushDrupalVersionFallbackWhenStatusReturnsNothing(): void {
     // Drush binary exists but `drush status --field=drupal-version` returns
     // empty (e.g. before site install). Drush version is still reported.
     $cwd = '/test/project';
     $drush_bin = 'build/vendor/bin/drush';
 
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: [
         '--version' => "Drush Commandline Tool 13.3.0\n",
         'status --field=drupal-version' => '',
@@ -304,9 +304,9 @@ final class InfoTest extends UnitTestCase {
     $this->assertStringContainsString('Drupal version:     -', $output);
   }
 
-  #[DataProvider('dataProviderFieldModeKnownFields')]
-  public function testFieldModeKnownFields(string $field, array $shell_exec_map, array $files, string $expected): void {
-    $this->configureInfoMocks(
+  #[DataProvider('dataProviderInfoFieldModeKnownFields')]
+  public function testInfoFieldModeKnownFields(string $field, array $shell_exec_map, array $files, string $expected): void {
+    $this->setupInfoMocks(
       shell_exec_map: $shell_exec_map,
       files: $files,
       info_files: ['your_extension.info.yml'],
@@ -318,7 +318,7 @@ final class InfoTest extends UnitTestCase {
     $this->assertSame($expected . PHP_EOL, $output);
   }
 
-  public static function dataProviderFieldModeKnownFields(): \Iterator {
+  public static function dataProviderInfoFieldModeKnownFields(): \Iterator {
     yield 'xdebug enabled' => [
       'field' => 'xdebug',
       'shell_exec_map' => ['lsof -ti' => "php -d xdebug.mode=debug -S localhost:8000\n", '*' => ''],
@@ -429,8 +429,8 @@ final class InfoTest extends UnitTestCase {
     ];
   }
 
-  public function testFieldModeUnknownFieldPrintsDashAndExits1(): void {
-    $this->configureInfoMocks(
+  public function testInfoFieldModeUnknownFieldPrintsDashAndExits1(): void {
+    $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: [],
       info_files: [],
@@ -442,10 +442,10 @@ final class InfoTest extends UnitTestCase {
     $this->assertSame('-' . PHP_EOL, $output);
   }
 
-  public function testFieldModeBypassedForFlagLikeArg(): void {
+  public function testInfoFieldModeBypassedForFlagLikeArg(): void {
     // phpunit may pass its own argv (e.g. '--no-coverage') through to the
     // included script. Args starting with '-' must NOT trigger field mode.
-    $this->configureInfoMocks(
+    $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: [],
       info_files: [],

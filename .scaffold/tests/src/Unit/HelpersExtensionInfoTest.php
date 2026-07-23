@@ -52,7 +52,7 @@ final class HelpersExtensionInfoTest extends UnitTestCase {
     ];
   }
 
-  public function testExtensionInfoNoFile(): void {
+  public function testExtensionInfoMissingFile(): void {
     $dir = self::$tmp . '/ext_empty_' . uniqid();
     mkdir($dir, 0755, TRUE);
     $original = (string) getcwd();

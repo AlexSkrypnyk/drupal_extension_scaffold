@@ -92,7 +92,7 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'php content' => ['<?php echo "hello"; ?>', FALSE];
   }
 
-  public function testIsBinaryFileNonExistent(): void {
+  public function testIsBinaryFileMissing(): void {
     // The defensive 'fopen() === FALSE' branch is unreachable from production
     // code (callers always pass paths returned by 'get_files()'), so 'fopen()'
     // is allowed to warn. Suppress 'E_WARNING' so PHPUnit's
@@ -161,7 +161,7 @@ final class InitHelpersTest extends UnitTestCase {
     ];
   }
 
-  public function testRemoveDirNonExistent(): void {
+  public function testRemoveDirMissing(): void {
     remove_dir(self::$sut . '/nonexistent');
     $this->addToAssertionCount(1);
   }
@@ -400,7 +400,7 @@ final class InitHelpersTest extends UnitTestCase {
     ];
   }
 
-  public function testUncommentLineNonExistentFile(): void {
+  public function testUncommentLineMissingFile(): void {
     uncomment_line(self::$sut . '/nonexistent', 'test');
     $this->addToAssertionCount(1);
   }

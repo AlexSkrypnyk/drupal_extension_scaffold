@@ -17,7 +17,7 @@ final class HelpersLinkBrowserOutputTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  public function testMissingWebrootIsNoop(): void {
+  public function testMissingWebrootDoesNothing(): void {
     $webroot = self::$tmp . '/web_' . uniqid();
     $logs = self::$tmp . '/logs_' . uniqid();
 

@@ -18,18 +18,18 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  public function testMissingDirectoryIsSilent(): void {
+  public function testMissingDirectoryDoesNothing(): void {
     run_custom_scripts(self::$tmp . '/nonexistent_' . uniqid(), 'assemble-');
     $this->expectNotToPerformAssertions();
   }
 
-  public function testEmptyDirectoryIsSilent(): void {
+  public function testEmptyDirectoryDoesNothing(): void {
     $dir = $this->createScriptsDir();
     run_custom_scripts($dir, 'assemble-');
     $this->expectNotToPerformAssertions();
   }
 
-  public function testDirectoryWithNoPrefixMatchesIsSilent(): void {
+  public function testDirectoryWithNoPrefixMatchesDoesNothing(): void {
     $dir = $this->createScriptsDir(['unrelated.sh' => 'echo nope', 'README.md' => '']);
     run_custom_scripts($dir, 'assemble-');
     $this->expectNotToPerformAssertions();
