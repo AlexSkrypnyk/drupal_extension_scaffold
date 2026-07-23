@@ -46,7 +46,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   public function testDisabledByDefaultRendersNothing(): void {
     // QRCODE unset in both the environment and '.env': opt-in means nothing is
     // drawn, and qrencode is never even probed.
-    self::envUnset('QRCODE');
+    $this->envUnset('QRCODE');
     $this->mockDotenvAbsent();
 
     ob_start();
@@ -57,7 +57,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testExplicitlyDisabledRendersNothing(): void {
-    self::envSet('QRCODE', '0');
+    $this->envSet('QRCODE', '0');
 
     ob_start();
     print_qrcode('https://example.com');
@@ -67,7 +67,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testEnabledButQrencodeAbsentRendersNothing(): void {
-    self::envSet('QRCODE', '1');
+    $this->envSet('QRCODE', '1');
     $this->mockQrencodeAvailable(FALSE);
 
     ob_start();
@@ -78,7 +78,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testEnabledViaEnvRendersCode(): void {
-    self::envSet('QRCODE', '1');
+    $this->envSet('QRCODE', '1');
     $this->mockQrencodeAvailable(TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
@@ -93,7 +93,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testEnabledViaDotenvRendersCode(): void {
-    self::envUnset('QRCODE');
+    $this->envUnset('QRCODE');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(string $file): string => $file === '.env' ? "QRCODE=1\n" : '');
     $this->mockQrencodeAvailable(TRUE);

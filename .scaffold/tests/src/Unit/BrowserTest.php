@@ -33,8 +33,8 @@ final class BrowserTest extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
-    self::envUnset('WEBDRIVER_PORT');
-    self::envUnset('WEBDRIVER_BACKEND');
+    $this->envUnset('WEBDRIVER_PORT');
+    $this->envUnset('WEBDRIVER_BACKEND');
 
     // The '.env' file exists and supplies port 4444, so the port resolves
     // without touching the free-port probe. Readiness probes against the
@@ -76,7 +76,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testUnknownBackend(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'firefox');
+    $this->envSet('WEBDRIVER_BACKEND', 'firefox');
 
     $output = $this->runBrowser('start', 1);
 
@@ -203,7 +203,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testSeleniumStartAlreadyRunning(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockReady([TRUE]);
 
     $output = $this->runBrowser('start', 0);
@@ -212,7 +212,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testSeleniumStartStartsContainer(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE, TRUE]);
     $commands = [];
@@ -231,7 +231,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testSeleniumStartFailsWithoutDocker(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands([]);
     $this->mockReady([FALSE]);
 
@@ -241,7 +241,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testSeleniumStartFailsWhenDockerRunFails(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE]);
     $commands = [];
@@ -253,7 +253,7 @@ final class BrowserTest extends UnitTestCase {
   }
 
   public function testSeleniumStartFailsWhenNeverReady(): void {
-    self::envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE]);
     $commands = [];

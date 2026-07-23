@@ -28,8 +28,8 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
 
     // CI workflows preload WEBSERVER_HOST. Strip it so each test
     // starts from a known baseline.
-    self::envUnset('WEBSERVER_HOST');
-    self::envUnset('WEBSERVER_PORT');
+    $this->envUnset('WEBSERVER_HOST');
+    $this->envUnset('WEBSERVER_PORT');
   }
 
   protected function tearDown(): void {
@@ -49,8 +49,8 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
   }
 
   public function testEnvOverridesDotenvAndDefault(): void {
-    self::envSet('WEBSERVER_HOST', '0.0.0.0');
-    self::envSet('WEBSERVER_PORT', '9001');
+    $this->envSet('WEBSERVER_HOST', '0.0.0.0');
+    $this->envSet('WEBSERVER_PORT', '9001');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => TRUE);
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBSERVER_HOST=ignored\nWEBSERVER_PORT=1234\n");
 
@@ -123,7 +123,7 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
   }
 
   public function testValidationFailsOnMalformedPort(): void {
-    self::envSet('WEBSERVER_PORT', 'not-a-port');
+    $this->envSet('WEBSERVER_PORT', 'not-a-port');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     $this->mockQuit(1);
@@ -144,7 +144,7 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
   }
 
   public function testValidationSkippedWhenDisabled(): void {
-    self::envSet('WEBSERVER_PORT', 'not-a-port');
+    $this->envSet('WEBSERVER_PORT', 'not-a-port');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     $resolved = resolve_webserver(validate_port: FALSE);

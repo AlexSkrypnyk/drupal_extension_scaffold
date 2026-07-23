@@ -613,8 +613,8 @@ final class AssembleTest extends UnitTestCase {
   }
 
   public function testAssembleMissingComposerJson(): void {
-    putenv('GITHUB_TOKEN');
-    putenv('SYMFONY_DEPRECATIONS_HELPER');
+    $this->envUnset('GITHUB_TOKEN');
+    $this->envUnset('SYMFONY_DEPRECATIONS_HELPER');
 
     // Override file_exists to return false for composer.json.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): false => FALSE);
