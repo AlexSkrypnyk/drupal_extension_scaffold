@@ -57,7 +57,7 @@ final class HelpersCommandExistsTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertEquals(1, $e->getCode());
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
