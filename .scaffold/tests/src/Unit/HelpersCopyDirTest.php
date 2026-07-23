@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests for copy_dir() function.
  *
- * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
 #[CoversFunction('DrupalExtensionScaffold\DevTools\copy_dir')]
 #[Group('p0')]
@@ -46,7 +46,7 @@ final class HelpersCopyDirTest extends UnitTestCase {
       }
       else {
         $this->assertFileExists($full_path, sprintf('File %s should exist', $relative_path));
-        $this->assertEquals($expected_content, file_get_contents($full_path), sprintf('File %s should have correct content', $relative_path));
+        $this->assertSame($expected_content, file_get_contents($full_path), sprintf('File %s should have correct content', $relative_path));
       }
     }
   }

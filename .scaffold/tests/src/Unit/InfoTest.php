@@ -27,9 +27,9 @@ final class InfoTest extends UnitTestCase {
     // CI workflows pre-populate WEBSERVER_HOST and friends in the job
     // environment. Strip them so each test starts from a known state and
     // sees only the values it sets explicitly via envSet().
-    self::envUnset('WEBSERVER_HOST');
-    self::envUnset('WEBSERVER_PORT');
-    self::envUnset('DRUPAL_PROFILE');
+    $this->envUnset('WEBSERVER_HOST');
+    $this->envUnset('WEBSERVER_PORT');
+    $this->envUnset('DRUPAL_PROFILE');
   }
 
   protected function tearDown(): void {
@@ -455,7 +455,8 @@ final class InfoTest extends UnitTestCase {
     $argv = ['info', '--no-coverage'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/info';
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('ENVIRONMENT INFO', $output);
   }
@@ -489,7 +490,8 @@ final class InfoTest extends UnitTestCase {
       $this->assertSame($expected_exit_code, $e->getCode());
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
     }
 
     return $output;

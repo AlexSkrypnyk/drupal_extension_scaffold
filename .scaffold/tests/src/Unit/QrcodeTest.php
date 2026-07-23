@@ -29,7 +29,7 @@ final class QrcodeTest extends UnitTestCase {
 
   public function testRendersQrcodeForUrlArgument(): void {
     // Rendering is opt-in; enable it for this run.
-    self::envSet('QRCODE', '1');
+    $this->envSet('QRCODE', '1');
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
       $output ??= [];
       if (str_contains($cmd, 'command -v qrencode')) {
@@ -50,7 +50,8 @@ final class QrcodeTest extends UnitTestCase {
     $argv = ['qrcode', 'https://example.com'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
@@ -59,7 +60,8 @@ final class QrcodeTest extends UnitTestCase {
     $argv = ['qrcode'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }

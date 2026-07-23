@@ -90,7 +90,7 @@ if ($deploy_ssh_key_fingerprint !== '') {
     FAIL('Unable to find SSH key file %s.', $key_file);
   }
 
-  if (getenv('SSH_AGENT_PID') === FALSE || getenv('SSH_AGENT_PID') === '') {
+  if (getenv_default('SSH_AGENT_PID', '') === '') {
     passthru('eval "$(ssh-agent)"');
   }
 
@@ -106,7 +106,7 @@ echo PHP_EOL;
 
 if ($deploy_proceed !== '1') {
   PASS('Skip deployment because DEPLOY_PROCEED is not set to 1.');
-  quit();
+  quit(0);
 }
 
 $git_user_name = trim((string) shell_exec('git config --global user.name'));

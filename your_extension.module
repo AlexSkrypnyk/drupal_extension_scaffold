@@ -22,7 +22,7 @@ function your_extension_page_attachments(array &$attachments): void {
  */
 function your_extension_page_bottom(array &$page_bottom): void {
   /** @var \Drupal\your_extension\YourExtensionService $your_extension_service */
-  $your_extension_service = \Drupal::getContainer()->get('your_extension.service');
+  $your_extension_service = \Drupal::service('your_extension.service');
 
   $text = $your_extension_service->getText();
 

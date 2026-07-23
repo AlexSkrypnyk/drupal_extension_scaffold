@@ -22,7 +22,8 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
     $this->mockPassthru(['cmd' => 'echo hello', 'output' => 'BUILD_OUTPUT', 'result_code' => 0]);
     ob_start();
     passthru_verbose_or_fail('echo hello');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
     $this->assertStringContainsString('BUILD_OUTPUT', $output);
   }
 
@@ -43,10 +44,11 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertEquals(1, $e->getCode());
+      $this->assertSame(1, $e->getCode());
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
       $this->assertStringContainsString('Command failed.', $output);
     }
   }
@@ -60,10 +62,11 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertEquals(1, $e->getCode());
+      $this->assertSame(1, $e->getCode());
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
       $this->assertStringContainsString('Failed to download from http://example.com.', $output);
     }
   }

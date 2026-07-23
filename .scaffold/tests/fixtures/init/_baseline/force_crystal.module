@@ -22,7 +22,7 @@ function force_crystal_page_attachments(array &$attachments): void {
  */
 function force_crystal_page_bottom(array &$page_bottom): void {
   /** @var \Drupal\force_crystal\ForceCrystalService $force_crystal_service */
-  $force_crystal_service = \Drupal::getContainer()->get('force_crystal.service');
+  $force_crystal_service = \Drupal::service('force_crystal.service');
 
   $text = $force_crystal_service->getText();
 

@@ -1,5 +1,5 @@
 @@ -91,41 +91,11 @@
-     usage: Run tests.
+     usage: Run all tests.
      cmd: |
        pushd "build" >/dev/null || exit 1
 -      ahoy title "Running PHPUnit"
@@ -45,11 +45,11 @@
        popd >/dev/null || exit 1
  
 -  browser-start:
--    usage: Start the browser for FunctionalJavascript tests if not already running.
+-    usage: Start the browser for FunctionalJavascript tests.
 -    cmd: ./.devtools/browser start
 -
 -  browser-stop:
--    usage: Stop the browser used for FunctionalJavascript tests.
+-    usage: Stop the browser.
 -    cmd: ./.devtools/browser stop
  
    reset:

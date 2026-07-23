@@ -28,7 +28,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
 
     // CI workflows may preload WEBDRIVER_PORT. Strip it so each test
     // starts from a known baseline.
-    self::envUnset('WEBDRIVER_PORT');
+    $this->envUnset('WEBDRIVER_PORT');
   }
 
   protected function tearDown(): void {
@@ -46,7 +46,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
   }
 
   public function testEnvOverridesDotenvAndDefault(): void {
-    self::envSet('WEBDRIVER_PORT', '9515');
+    $this->envSet('WEBDRIVER_PORT', '9515');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => TRUE);
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBDRIVER_PORT=1234\n");
 
@@ -113,7 +113,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
   }
 
   public function testValidationFailsOnMalformedPort(): void {
-    self::envSet('WEBDRIVER_PORT', 'not-a-port');
+    $this->envSet('WEBDRIVER_PORT', 'not-a-port');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     $this->mockQuit(1);
@@ -134,7 +134,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
   }
 
   public function testValidationSkippedWhenDisabled(): void {
-    self::envSet('WEBDRIVER_PORT', 'not-a-port');
+    $this->envSet('WEBDRIVER_PORT', 'not-a-port');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
     $resolved = resolve_webdriver_port(validate_port: FALSE);

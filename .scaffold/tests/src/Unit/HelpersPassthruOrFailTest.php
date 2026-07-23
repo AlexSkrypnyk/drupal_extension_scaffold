@@ -46,7 +46,7 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertEquals(1, $e->getCode());
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -64,7 +64,7 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertEquals(1, $e->getCode());
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -97,7 +97,8 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $quit_thrown = TRUE;
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
     }
 
     $this->assertSame($result_code !== 0, $quit_thrown);

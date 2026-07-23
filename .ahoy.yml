@@ -108,7 +108,7 @@ commands:
       popd >/dev/null || exit 1
 
   test:
-    usage: Run tests.
+    usage: Run all tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
       #;< DEV_PHPUNIT
@@ -165,11 +165,11 @@ commands:
 
   #;< DEV_FUNCTIONAL_JAVASCRIPT
   browser-start:
-    usage: Start the browser for FunctionalJavascript tests if not already running.
+    usage: Start the browser for FunctionalJavascript tests.
     cmd: ./.devtools/browser start
 
   browser-stop:
-    usage: Stop the browser used for FunctionalJavascript tests.
+    usage: Stop the browser.
     cmd: ./.devtools/browser stop
   #;> DEV_FUNCTIONAL_JAVASCRIPT
 

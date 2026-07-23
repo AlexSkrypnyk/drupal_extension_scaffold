@@ -12,7 +12,7 @@ declare(strict_types=1);
  */
 function force_crystal_install(): void {
   // Set default configuration values.
-  $config = \Drupal::service('config.factory')->getEditable('force_crystal.settings');
+  $config = \Drupal::configFactory()->getEditable('force_crystal.settings');
   $config->set('text', 'Default content to be displayed if JS is disabled.')->save();
 
   \Drupal::service('router.builder')->rebuild();

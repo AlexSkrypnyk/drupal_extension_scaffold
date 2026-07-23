@@ -50,7 +50,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
 
     ob_start();
     run_custom_scripts($dir, 'assemble-');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('assemble-alpha.sh', $output);
     $this->assertStringContainsString('assemble-beta.sh', $output);
@@ -67,7 +68,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
 
     ob_start();
     run_custom_scripts($dir, 'assemble-');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('assemble-run.sh', $output);
     $this->assertStringNotContainsString('provision-skip.sh', $output);
@@ -85,7 +87,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
 
     ob_start();
     run_custom_scripts($dir, 'assemble-');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('assemble-real.sh', $output);
     $this->assertStringNotContainsString('assemble-rogue.sh', $output);
@@ -102,7 +105,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
 
     ob_start();
     run_custom_scripts($dir, 'assemble-');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('assemble-real.sh', $output);
     $this->assertStringNotContainsString('assemble-readme.md', $output);
@@ -127,7 +131,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
       $this->assertSame(1, $e->getCode());
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
       $this->assertStringContainsString('provision-first.sh', $output);
       $this->assertStringContainsString('Custom script', $output);
       $this->assertStringContainsString('failed', $output);
