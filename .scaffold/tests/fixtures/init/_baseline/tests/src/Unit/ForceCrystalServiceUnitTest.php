@@ -21,7 +21,6 @@ class ForceCrystalServiceUnitTest extends UnitTestCase {
    * Tests the sanitize method of ForceCrystalService.
    *
    * @covers \Drupal\force_crystal\ForceCrystalService::sanitize
-   * @dataProvider dataProviderSanitize
    */
   #[DataProvider('dataProviderSanitize')]
   public function testSanitize(string $input, string $expected): void {

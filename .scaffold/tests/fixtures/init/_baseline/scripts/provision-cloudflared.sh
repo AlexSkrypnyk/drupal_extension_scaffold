@@ -10,7 +10,8 @@
 #
 # This lives in a provision hook rather than the start hook because
 # `drush site-install` rewrites settings.php during provision, which runs after
-# start. Pairs with `scripts/start-cloudflared.sh`. CWD is the project root.
+# start. Pairs with `scripts/start-cloudflared.sh`. The current working
+# directory is the project root.
 
 set -eu
 

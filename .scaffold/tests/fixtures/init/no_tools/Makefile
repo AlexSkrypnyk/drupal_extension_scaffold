@@ -20,11 +20,20 @@ WEBSERVER_PORT ?= 8000
 # are invoked.
 DRUSH_URI = $(shell ./.devtools/info site-url)
 
+# Test environment exported to every recipe (see the blanket `export` above),
+# matching what the ahoy entrypoint exports for every command, so `make
+# test*` runs against the same base URL, database, and browser-output
+# directory as `ahoy test*`.
+EXTENSION_NAME = $(shell basename -s .info.yml -- ./*.info.yml)
+SIMPLETEST_BASE_URL = http://$(WEBSERVER_HOST):$(WEBSERVER_PORT)
+SIMPLETEST_DB = sqlite://localhost/drupal_test_$(EXTENSION_NAME).sqlite
+BROWSERTEST_OUTPUT_DIRECTORY = $(CURDIR)/.logs/browser_output
+
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy drush help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
 
 help:
 	@echo "COMMANDS"
@@ -43,7 +52,11 @@ help:
 	@echo "stop            - Stop development environment."
 	@echo "test                       - Run all tests."
 
-build: stop assemble start provision
+build:
+	@$(MAKE) stop >/dev/null 2>&1 || true
+	$(MAKE) assemble
+	$(MAKE) start
+	$(MAKE) provision
 
 assemble:
 	./.devtools/assemble
@@ -99,6 +112,15 @@ provision:
 lint:
 
 lint-fix:
+
+# Allow passing extra args to phpunit test targets, mirroring the `drush`
+# arg-capture above. The target list is split across the same DEV_* markers
+# as the `.PHONY` declarations so a stripped feature leaves no dangling entry.
+TEST_TARGETS := test
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),$(TEST_TARGETS)))
+  TEST_RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(TEST_RUN_ARGS):;@:)
+endif
 
 test:
 

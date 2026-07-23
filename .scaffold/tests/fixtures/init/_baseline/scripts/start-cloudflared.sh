@@ -10,7 +10,8 @@
 #
 # No Cloudflare account, DNS, or config is needed - quick tunnels mint an
 # ephemeral `*.trycloudflare.com` hostname. Install `cloudflared` via mise,
-# brew, or apt. Remove or rename this file to disable. CWD is the project root.
+# brew, or apt. Remove or rename this file to disable. The current working
+# directory is the project root.
 
 set -eu
 
@@ -47,12 +48,12 @@ tunnel_pid() {
 # removes it so a dead URL is never left behind.
 set_tunnel_url() {
   touch .env
-  _tmp=".env.cloudflared.$$"
-  grep -v '^TUNNEL_URL=' .env >"$_tmp" 2>/dev/null || true
+  env_tmp=".env.cloudflared.$$"
+  grep -v '^TUNNEL_URL=' .env >"$env_tmp" 2>/dev/null || true
   if [ -n "${1:-}" ]; then
-    printf 'TUNNEL_URL=%s\n' "$1" >>"$_tmp"
+    printf 'TUNNEL_URL=%s\n' "$1" >>"$env_tmp"
   fi
-  mv "$_tmp" .env
+  mv "$env_tmp" .env
 }
 
 # Reuse an existing tunnel only when its process is alive AND its public URL
