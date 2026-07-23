@@ -21,7 +21,6 @@ class YourExtensionServiceUnitTest extends UnitTestCase {
    * Tests the sanitize method of YourExtensionService.
    *
    * @covers \Drupal\your_extension\YourExtensionService::sanitize
-   * @dataProvider dataProviderSanitize
    */
   #[DataProvider('dataProviderSanitize')]
   public function testSanitize(string $input, string $expected): void {

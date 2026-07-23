@@ -12,20 +12,14 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 class YourExtensionService {
 
   /**
-   * The extension configuration.
-   *
-   * @var \Drupal\Core\Config\ImmutableConfig
-   */
-  protected $yourExtensionConfig;
-
-  /**
    * Constructs a new YourExtensionService instance.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
-    $this->yourExtensionConfig = $config_factory->get('your_extension.settings');
+  public function __construct(
+    /**
+     * The config factory.
+     */
+    protected ConfigFactoryInterface $configFactory,
+  ) {
   }
 
   /**
@@ -35,7 +29,7 @@ class YourExtensionService {
    *   The text to be inserted.
    */
   public function getText(): string {
-    $text = $this->yourExtensionConfig->get('text');
+    $text = $this->configFactory->get('your_extension.settings')->get('text');
 
     return static::sanitize($text);
   }

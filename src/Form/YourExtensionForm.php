@@ -27,15 +27,13 @@ class YourExtensionForm extends ConfigFormBase {
      */
     protected YourExtensionService $yourExtensionService,
   ) {
-    // @phpstan-ignore-next-line
     parent::__construct($config_factory, $typedConfigManager);
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container): YourExtensionForm {
-    // @phpstan-ignore-next-line
+  public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('config.factory'),
       $container->get('config.typed'),
@@ -60,7 +58,7 @@ class YourExtensionForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $config = $this->config('your_extension.settings');
 
     $form['text'] = [

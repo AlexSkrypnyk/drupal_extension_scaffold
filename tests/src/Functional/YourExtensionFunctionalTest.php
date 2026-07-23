@@ -33,8 +33,9 @@ class YourExtensionFunctionalTest extends BrowserTestBase {
    * Tests the functionality of the getText method.
    */
   public function testGetText(): void {
-    $user = $this->createUser(['administer site configuration']);
-    $this->drupalLogin($user);
+    $account = $this->drupalCreateUser(['administer site configuration']);
+    $this->assertNotEmpty($account);
+    $this->drupalLogin($account);
 
     $this->drupalGet('admin/config/development/your-extension');
 

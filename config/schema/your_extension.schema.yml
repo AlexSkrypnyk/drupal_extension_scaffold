@@ -1,6 +1,6 @@
 your_extension.settings:
   type: config_object
-  label: 'Your Extension settings'
+  label: 'Your Extension Settings'
   mapping:
     text:
       type: string

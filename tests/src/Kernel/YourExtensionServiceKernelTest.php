@@ -6,11 +6,7 @@ namespace Drupal\Tests\your_extension\Kernel;
 
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\your_extension\YourExtensionService;
-use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Tests the YourExtensionService class.
@@ -20,8 +16,6 @@ use Prophecy\PhpUnit\ProphecyTrait;
 #[Group('your_extension')]
 #[RunTestsInSeparateProcesses]
 class YourExtensionServiceKernelTest extends KernelTestBase {
-
-  use ProphecyTrait;
 
   /**
    * {@inheritdoc}
@@ -41,15 +35,13 @@ class YourExtensionServiceKernelTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $your_config_config = $this->prophesize(ImmutableConfig::class);
-    $your_config_config->get('text')
-      ->willReturn('<p>This is <strong>bold</strong> text.</p>');
+    $this->installConfig(['your_extension']);
 
-    $config_factory = $this->prophesize(ConfigFactoryInterface::class);
-    $config_factory->get('your_extension.settings')
-      ->willReturn($your_config_config->reveal());
+    $this->config('your_extension.settings')
+      ->set('text', '<p>This is <strong>bold</strong> text.</p>')
+      ->save();
 
-    $this->yourExtensionService = new YourExtensionService($config_factory->reveal());
+    $this->yourExtensionService = $this->container->get('your_extension.service');
   }
 
   /**
