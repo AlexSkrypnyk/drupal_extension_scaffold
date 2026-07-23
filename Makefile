@@ -20,11 +20,20 @@ WEBSERVER_PORT ?= 8000
 # are invoked.
 DRUSH_URI = $(shell ./.devtools/info site-url)
 
+# Test environment exported to every recipe (see the blanket `export` above),
+# matching what the ahoy entrypoint exports for every command, so `make
+# test*` runs against the same base URL, database, and browser-output
+# directory as `ahoy test*`.
+EXTENSION_NAME = $(shell basename -s .info.yml -- ./*.info.yml)
+SIMPLETEST_BASE_URL = http://$(WEBSERVER_HOST):$(WEBSERVER_PORT)
+SIMPLETEST_DB = sqlite://localhost/drupal_test_$(EXTENSION_NAME).sqlite
+BROWSERTEST_OUTPUT_DIRECTORY = $(CURDIR)/.logs/browser_output
+
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy drush help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
 #;< DEV_PHPUNIT
 .PHONY: test-unit test-kernel test-functional
 #;> DEV_PHPUNIT
@@ -69,7 +78,11 @@ help:
 	@echo "test-js                    - Run JavaScript unit tests."
 	@#;> DEV_JEST
 
-build: stop assemble start provision
+build:
+	@$(MAKE) stop >/dev/null 2>&1 || true
+	$(MAKE) assemble
+	$(MAKE) start
+	$(MAKE) provision
 
 assemble:
 	./.devtools/assemble
@@ -167,10 +180,25 @@ lint-fix:
 	pushd "build" >/dev/null || exit 1 && ([ ! -d node_modules ] || npm run lint-fix) && popd >/dev/null || exit 1
 	@#;> DEV_NODEJS_LINT
 
+# Allow passing extra args to phpunit test targets, mirroring the `drush`
+# arg-capture above. The target list is split across the same DEV_* markers
+# as the `.PHONY` declarations so a stripped feature leaves no dangling entry.
+TEST_TARGETS := test
+#;< DEV_PHPUNIT
+TEST_TARGETS += test-unit test-kernel test-functional
+#;> DEV_PHPUNIT
+#;< DEV_FUNCTIONAL_JAVASCRIPT
+TEST_TARGETS += test-functional-javascript
+#;> DEV_FUNCTIONAL_JAVASCRIPT
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),$(TEST_TARGETS)))
+  TEST_RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(TEST_RUN_ARGS):;@:)
+endif
+
 test:
 	@#;< DEV_PHPUNIT
 	$(call title,Running PHPUnit)
-	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && php -d pcov.directory=.. vendor/bin/phpunit $(TEST_RUN_ARGS) && popd >/dev/null || exit 1
 	@#;> DEV_PHPUNIT
 	@#;< DEV_JEST
 	$(call title,Running Jest)
@@ -180,17 +208,17 @@ test:
 #;< DEV_PHPUNIT
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 
 test-kernel:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 
 test-functional:
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 #;> DEV_PHPUNIT
 
@@ -199,7 +227,7 @@ test-functional-javascript:
 	$(MAKE) browser-start
 	export WEBDRIVER_PORT="$$(./.devtools/info webdriver-port)" && \
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=$(CURDIR)/.logs/browser_output php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 
