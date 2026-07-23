@@ -50,7 +50,8 @@ final class QrcodeTest extends UnitTestCase {
     $argv = ['qrcode', 'https://example.com'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
@@ -59,7 +60,8 @@ final class QrcodeTest extends UnitTestCase {
     $argv = ['qrcode'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }

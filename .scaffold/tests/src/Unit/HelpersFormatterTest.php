@@ -67,6 +67,7 @@ final class HelpersFormatterTest extends UnitTestCase {
     }
     finally {
       $output = ob_get_clean();
+      $this->assertIsString($output);
       $this->assertSame($expected_output, $output);
     }
   }

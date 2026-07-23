@@ -97,7 +97,8 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
       $quit_thrown = TRUE;
     }
     finally {
-      $output = (string) ob_get_clean();
+      $output = ob_get_clean();
+      $this->assertIsString($output);
     }
 
     $this->assertSame($result_code !== 0, $quit_thrown);

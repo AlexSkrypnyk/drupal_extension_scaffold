@@ -38,7 +38,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     // An empty URL short-circuits before the opt-in check or any probe.
     ob_start();
     print_qrcode('');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }
@@ -51,7 +52,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
     ob_start();
     print_qrcode('https://example.com');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }
@@ -61,7 +63,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
     ob_start();
     print_qrcode('https://example.com');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }
@@ -72,7 +75,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
     ob_start();
     print_qrcode('https://example.com');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertSame('', $output);
   }
@@ -87,7 +91,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
     ob_start();
     print_qrcode('https://example.com');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
@@ -104,7 +109,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
     ob_start();
     print_qrcode('https://example.com');
-    $output = (string) ob_get_clean();
+    $output = ob_get_clean();
+    $this->assertIsString($output);
 
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
