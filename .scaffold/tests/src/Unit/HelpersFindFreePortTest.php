@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
  * so the test mocks stream_socket_client to simulate listeners being
  * present or absent on each candidate port.
  *
- * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */

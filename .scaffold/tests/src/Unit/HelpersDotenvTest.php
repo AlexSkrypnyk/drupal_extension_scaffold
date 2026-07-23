@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests for dotenv_read() and dotenv_write_var() helpers.
  *
- * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */

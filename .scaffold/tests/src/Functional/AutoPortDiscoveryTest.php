@@ -17,7 +17,7 @@ use PHPUnit\Framework\Attributes\Group;
  * file. This verifies the end-to-end resolution + persistence behavior, not
  * just the unit-level helpers.
  *
- * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
  */

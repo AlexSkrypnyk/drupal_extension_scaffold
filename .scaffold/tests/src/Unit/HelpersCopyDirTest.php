@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests for copy_dir() function.
  *
- * @phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
+ * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  */
 #[CoversFunction('DrupalExtensionScaffold\DevTools\copy_dir')]
 #[Group('p0')]
