@@ -304,20 +304,20 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Trim wrapper-specific permissions from Claude settings to match selection.
   $claude_settings = '.claude/settings.json';
   if (file_exists($claude_settings)) {
-    $settings_content = file_get_contents($claude_settings);
-    if ($settings_content === FALSE) {
+    $raw = file_get_contents($claude_settings);
+    if ($raw === FALSE) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to read .claude/settings.json.');
       // @codeCoverageIgnoreEnd
     }
 
-    $settings = json_decode($settings_content, TRUE, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($settings) || !isset($settings['permissions']) || !is_array($settings['permissions']) || !isset($settings['permissions']['allow']) || !is_array($settings['permissions']['allow'])) {
+    $config = json_decode($raw, TRUE, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($config) || !isset($config['permissions']) || !is_array($config['permissions']) || !isset($config['permissions']['allow']) || !is_array($config['permissions']['allow'])) {
       throw new \RuntimeException('Invalid .claude/settings.json structure.');
     }
 
-    $settings['permissions']['allow'] = array_values(array_filter(
-      $settings['permissions']['allow'],
+    $config['permissions']['allow'] = array_values(array_filter(
+      $config['permissions']['allow'],
       static function ($permission) use ($command_wrapper): bool {
         $wrapper = match ($permission) {
           'Bash(ahoy:*)' => 'ahoy',
@@ -328,7 +328,7 @@ function process(string $extension_name, string $extension_machine_name, string 
       },
     ));
 
-    $encoded = json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    $encoded = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     if (file_put_contents($claude_settings, $encoded . PHP_EOL) === FALSE) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Unable to write .claude/settings.json.');
@@ -1093,16 +1093,16 @@ function remove_tokens_with_content(string $token): void {
 /**
  * Uncomment a line in a file by removing the "# " prefix.
  *
- * @param string $filename
+ * @param string $file
  *   The file to modify.
  * @param string $start_string
  *   The string that follows "# " at the start of the line.
  */
-function uncomment_line(string $filename, string $start_string): void {
-  if (!file_exists($filename)) {
+function uncomment_line(string $file, string $start_string): void {
+  if (!file_exists($file)) {
     return;
   }
-  $content = file_get_contents($filename);
+  $content = file_get_contents($file);
   if ($content === FALSE) {
     // @codeCoverageIgnoreStart
     return;
@@ -1116,7 +1116,7 @@ function uncomment_line(string $filename, string $start_string): void {
     }
   }
   unset($line);
-  file_put_contents($filename, implode("\n", $lines));
+  file_put_contents($file, implode("\n", $lines));
 }
 
 /**
@@ -1216,14 +1216,14 @@ function get_files(): array {
 /**
  * Check if a file is binary by looking for null bytes.
  *
- * @param string $path
+ * @param string $file
  *   The file path to check.
  *
  * @return bool
  *   TRUE if the file is binary, FALSE otherwise.
  */
-function is_binary_file(string $path): bool {
-  $handle = fopen($path, 'rb');
+function is_binary_file(string $file): bool {
+  $handle = fopen($file, 'rb');
   if ($handle === FALSE) {
     return TRUE;
   }
@@ -1241,22 +1241,22 @@ function is_binary_file(string $path): bool {
 /**
  * Remove directory recursively with all files.
  *
- * @param string $directory
+ * @param string $dir
  *   Path to the directory to remove.
  */
-function remove_dir(string $directory): void {
-  if (!is_dir($directory)) {
+function remove_dir(string $dir): void {
+  if (!is_dir($dir)) {
     return;
   }
 
-  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+  $items = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
 
   /** @var \SplFileInfo $item */
   foreach ($items as $item) {
     $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
   }
 
-  rmdir($directory);
+  rmdir($dir);
 }
 
 // Entrypoint.
