@@ -4,15 +4,17 @@
  * @file
  * Helper functions for DevTools tooling scripts.
  *
- * This file provides reusable PHP helper functions for Vortex notification
- * and utility scripts, enabling consistent behavior across all tooling.
+ * This file provides reusable PHP helper functions shared by the
+ * '.devtools/*' command scripts, enabling consistent behavior across all
+ * tooling.
  *
  * ## Why We Use These Helpers
  *
  * These helper functions serve several critical purposes:
  *
  * 1. **Consistency**: Standardized output formatting (info, task, pass, fail)
- *    ensures all Vortex scripts produce uniform, recognizable messages.
+ *    ensures all '.devtools/*' scripts produce uniform, recognizable
+ *    messages.
  *
  * 2. **Reusability**: Common operations (files operations, command execution,
  *    etc.) are centralized to avoid code duplication.

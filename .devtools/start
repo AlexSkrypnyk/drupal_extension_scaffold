@@ -27,7 +27,7 @@ $webserver_port = $webserver['port'];
 // Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
 
-// Enable Xdebug when XdEBUG env var is set. Xdebug extension must be installed
+// Enable XDebug when XDebug env var is set. XDebug extension must be installed
 // and configured on host environment (php -v should show `with Xdebug`).
 // Coverage stays on pcov in test commands because xdebug.mode=debug does
 // not include "coverage", so pcov remains the active coverage driver.
@@ -42,12 +42,12 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
 if ($xdebug_enabled) {
-  TASK('Verifying that the Xdebug PHP extension is installed.');
+  TASK('Verifying that the XDebug PHP extension is installed.');
   $php_v = (string) shell_exec('php -v 2>/dev/null');
   if (stripos($php_v, 'xdebug') === FALSE) {
-    FAIL('XDEBUG=1 is set but the Xdebug PHP extension is not installed on the host. Install it (see https://xdebug.org/docs/install) and try again.');
+    FAIL('XDEBUG=1 is set but the XDebug PHP extension is not installed on the host. Install it (see https://xdebug.org/docs/install) and try again.');
   }
-  PASS('Xdebug extension is loaded.');
+  PASS('XDebug extension is loaded.');
 }
 
 TASK('Stopping previously started services, if any.');
