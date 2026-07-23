@@ -37,10 +37,10 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 
 $ext_info = extension_info();
-$extension = $ext_info['name'];
+$extension_name = $ext_info['name'];
 $extension_type = $ext_info['type'];
 
-$db_file = '/tmp/site_' . $extension . '.sqlite';
+$db_file = '/tmp/site_' . $extension_name . '.sqlite';
 
 TASK('Installing Drupal into SQLite database %s.', $db_file);
 
@@ -56,21 +56,21 @@ PASS('Drupal installed.');
 
 drush('status');
 
-TASK('Enabling extension %s.', $extension);
+TASK('Enabling extension %s.', $extension_name);
 if ($extension_type === 'theme') {
-  drush('theme:enable %s', [$extension]);
+  drush('theme:enable %s', [$extension_name]);
 }
 else {
-  drush('pm:enable %s', [$extension]);
+  drush('pm:enable %s', [$extension_name]);
 }
 
 TASK('Clearing caches.');
 drush('cr');
 
 TASK('Enabling suggested modules, if any.');
-$composer_json = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
-if (isset($composer_json['suggest']) && is_array($composer_json['suggest'])) {
-  foreach (array_keys($composer_json['suggest']) as $suggest) {
+$ext_json = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
+if (isset($ext_json['suggest']) && is_array($ext_json['suggest'])) {
+  foreach (array_keys($ext_json['suggest']) as $suggest) {
     if (!str_starts_with((string) $suggest, 'drupal/')) {
       continue;
     }

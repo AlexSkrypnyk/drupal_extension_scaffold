@@ -39,7 +39,7 @@ help:
 	@echo "info            - Print a read-only summary of the current environment (alias: describe)."
 	@echo "lint            - Check coding standards for violations."
 	@echo "lint-fix        - Fix violations in coding standards."
-	@echo "login           - Run Drush login command."
+	@echo "login           - Login to a website."
 	@echo "provision       - Provision application within assembled codebase."
 	@echo "reset           - Reset project to the default state (aliases: delete, destroy)."
 	@echo "start           - Start development environment."

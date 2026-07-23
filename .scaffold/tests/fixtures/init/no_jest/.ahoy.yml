@@ -18,4 +18,4 @@
 -      popd >/dev/null || exit 1
  
    browser-start:
-     usage: Start the browser for FunctionalJavascript tests if not already running.
+     usage: Start the browser for FunctionalJavascript tests.

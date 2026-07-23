@@ -57,19 +57,19 @@ function getenv_default(mixed ...$vars): string {
  * '#' (after optional whitespace) are ignored. Surrounding single or double
  * quotes around the value are stripped. Keys and values are trimmed.
  *
- * @param string $file
+ * @param string $dotenv_file
  *   Path to the dotenv file.
  *
  * @return array<string, string>
  *   Associative array of key-value pairs. Empty if the file does not exist
  *   or contains no parseable lines.
  */
-function dotenv_read(string $file = '.env'): array {
-  if (!file_exists($file)) {
+function dotenv_read(string $dotenv_file = '.env'): array {
+  if (!file_exists($dotenv_file)) {
     return [];
   }
 
-  $contents = file_get_contents($file);
+  $contents = file_get_contents($dotenv_file);
   if ($contents === FALSE) {
     return [];
   }
@@ -122,23 +122,23 @@ function dotenv_read(string $file = '.env'): array {
  *   Variable name to write.
  * @param string $value
  *   Variable value to write. Not quoted.
- * @param string $file
+ * @param string $dotenv_file
  *   Path to the dotenv file.
  */
-function dotenv_write_var(string $key, string $value, string $file = '.env'): void {
+function dotenv_write_var(string $key, string $value, string $dotenv_file = '.env'): void {
   $assignment = sprintf('%s=%s', $key, $value);
 
-  if (!file_exists($file)) {
-    if (file_put_contents($file, $assignment . PHP_EOL) === FALSE) {
-      FAIL('Unable to write %s', $file);
+  if (!file_exists($dotenv_file)) {
+    if (file_put_contents($dotenv_file, $assignment . PHP_EOL) === FALSE) {
+      FAIL('Unable to write %s', $dotenv_file);
     }
 
     return;
   }
 
-  $contents = file_get_contents($file);
+  $contents = file_get_contents($dotenv_file);
   if ($contents === FALSE) {
-    FAIL('Unable to read %s', $file);
+    FAIL('Unable to read %s', $dotenv_file);
 
     // @codeCoverageIgnoreStart
     return;
@@ -179,8 +179,8 @@ function dotenv_write_var(string $key, string $value, string $file = '.env'): vo
     $lines[$replace_index] = $assignment;
   }
 
-  if (file_put_contents($file, implode(PHP_EOL, $lines) . PHP_EOL) === FALSE) {
-    FAIL('Unable to write %s', $file);
+  if (file_put_contents($dotenv_file, implode(PHP_EOL, $lines) . PHP_EOL) === FALSE) {
+    FAIL('Unable to write %s', $dotenv_file);
   }
 }
 
@@ -354,8 +354,8 @@ function resolve_site_url(string $host, string $port, string $dotenv_file = '.en
  * server is listening, and '-' when no server is bound to the port.
  */
 function xdebug_state(string $port): string {
-  $cmd = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
-  $out = trim((string) @shell_exec($cmd));
+  $command = sprintf('ps -o command= -p "$(lsof -ti:%s 2>/dev/null | head -1)" 2>/dev/null', escapeshellarg($port));
+  $out = trim((string) @shell_exec($command));
   if ($out === '') {
     return '-';
   }
@@ -528,7 +528,7 @@ function command_must_exist(string $command): void {
  * The command is wrapped in a brace group so both streams are captured
  * together and the exit status is preserved, even for compound commands.
  *
- * @param string $cmd
+ * @param string $command
  *   The command to run.
  * @param int|null &$exit_code
  *   Populated with the command's exit code.
@@ -538,9 +538,9 @@ function command_must_exist(string $command): void {
  * @return string
  *   The captured combined output.
  */
-function passthru_capture(string $cmd, ?int &$exit_code = NULL): string {
+function passthru_capture(string $command, ?int &$exit_code = NULL): string {
   ob_start();
-  passthru('{ ' . $cmd . '; } 2>&1', $exit_code);
+  passthru('{ ' . $command . '; } 2>&1', $exit_code);
 
   return ob_get_clean() ?: '';
 }
@@ -551,14 +551,14 @@ function passthru_capture(string $cmd, ?int &$exit_code = NULL): string {
  * Command output is suppressed during a normal run and surfaced only when the
  * command fails; set DEBUG=1 to stream it live instead.
  */
-function passthru_or_fail(string $cmd, string $format = '', string|int|float ...$args): void {
+function passthru_or_fail(string $command, string $format = '', string|int|float ...$args): void {
   $exit_code = 0;
 
   if (is_debug()) {
-    passthru($cmd, $exit_code);
+    passthru($command, $exit_code);
   }
   else {
-    $output = passthru_capture($cmd, $exit_code);
+    $output = passthru_capture($command, $exit_code);
 
     // Surface the captured output only on failure so the error stays
     // diagnosable while a successful run remains quiet.
@@ -583,9 +583,9 @@ function passthru_or_fail(string $cmd, string $format = '', string|int|float ...
  * streamed to the terminal rather than suppressed, for commands whose output
  * is meaningful in its own right rather than dependency-tool noise.
  */
-function passthru_verbose_or_fail(string $cmd, string $format = '', string|int|float ...$args): void {
+function passthru_verbose_or_fail(string $command, string $format = '', string|int|float ...$args): void {
   $exit_code = 0;
-  passthru($cmd, $exit_code);
+  passthru($command, $exit_code);
 
   if ($exit_code !== 0) {
     if ($format !== '') {
@@ -783,12 +783,12 @@ function replace_in_file(string $file, string $pattern, string $replacement): st
 /**
  * Recursively remove a directory.
  */
-function remove_dir(string $directory): void {
-  if (!is_dir($directory)) {
+function remove_dir(string $dir): void {
+  if (!is_dir($dir)) {
     return;
   }
   $items = new \RecursiveIteratorIterator(
-    new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS),
+    new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS),
     \RecursiveIteratorIterator::CHILD_FIRST
   );
   /** @var \SplFileInfo $item */
@@ -804,7 +804,7 @@ function remove_dir(string $directory): void {
       @unlink($path);
     }
   }
-  @rmdir($directory);
+  @rmdir($dir);
 }
 
 /**
@@ -835,12 +835,12 @@ function copy_dir(string $src, string $dst): void {
 /**
  * Recursively chmod a directory.
  */
-function chmod_recursive(string $path, int $mode): void {
-  if (!is_dir($path)) {
+function chmod_recursive(string $dir, int $mode): void {
+  if (!is_dir($dir)) {
     return;
   }
   $iterator = new \RecursiveIteratorIterator(
-    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS),
+    new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS),
     \RecursiveIteratorIterator::SELF_FIRST
   );
   /** @var \SplFileInfo $item */
@@ -849,7 +849,7 @@ function chmod_recursive(string $path, int $mode): void {
       @chmod($item->getPathname(), $mode);
     }
   }
-  @chmod($path, $mode);
+  @chmod($dir, $mode);
 }
 
 /**
