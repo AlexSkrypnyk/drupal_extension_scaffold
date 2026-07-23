@@ -120,7 +120,7 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru(['cmd' => escapeshellarg($dir . '/provision-first.sh'), 'result_code' => 7]);
-    $this->mockQuit(1);
+    $this->mockQuit(7);
 
     ob_start();
     try {
@@ -128,7 +128,7 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
-      $this->assertSame(1, $e->getCode());
+      $this->assertSame(7, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

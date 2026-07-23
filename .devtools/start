@@ -51,7 +51,7 @@ if ($xdebug_enabled) {
 }
 
 TASK('Stopping previously started services, if any.');
-@passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($webserver_port)));
+kill_port($webserver_port);
 
 TASK('Starting the PHP webserver.');
 $cwd = (string) getcwd();

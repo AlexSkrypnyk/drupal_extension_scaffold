@@ -205,23 +205,66 @@ function dotenv_write_var(string $key, string $value, string $dotenv_file = '.en
  * @param string $dotenv_file
  *   Path to the dotenv file to consult.
  *
- * @return array{0: string, 1: string}
- *   Tuple of [value, source] where source is 'env' when the value came
- *   from the shell environment, the dotenv file path when the value
+ * @return array{value: string, source: string}
+ *   Resolved value together with a source label: 'env' when the value
+ *   came from the shell environment, the dotenv file path when the value
  *   came from that file, or 'default' when neither produced a value.
  */
 function resolve_env_value(string $name, string $default, string $dotenv_file = '.env'): array {
   $env = getenv($name);
   if ($env !== FALSE && $env !== '') {
-    return [$env, 'env'];
+    return ['value' => $env, 'source' => 'env'];
   }
 
   $dotenv = dotenv_read($dotenv_file);
   if (isset($dotenv[$name]) && $dotenv[$name] !== '') {
-    return [$dotenv[$name], $dotenv_file];
+    return ['value' => $dotenv[$name], 'source' => $dotenv_file];
   }
 
-  return [$default, 'default'];
+  return ['value' => $default, 'source' => 'default'];
+}
+
+/**
+ * Resolve a port variable, auto-discovering and persisting one when unset.
+ *
+ * Shared by resolve_webserver() and resolve_webdriver_port(): both resolve
+ * a named port variable via the env -> dotenv -> default chain, and, when
+ * auto-discovery is requested and neither source supplies a value,
+ * allocate a free port starting from $scan_start and persist it back to
+ * the dotenv file so repeat runs reuse the same port.
+ *
+ * @param string $name
+ *   Variable name to resolve (e.g. 'WEBSERVER_PORT').
+ * @param string $default
+ *   Value to use when auto-discovery is disabled and neither env nor the
+ *   dotenv file supplies one.
+ * @param bool $auto_discover
+ *   When TRUE and the port resolves from neither env nor dotenv, discover
+ *   a free port via find_free_port() and persist it via
+ *   dotenv_write_var(). The reported source then becomes the dotenv file
+ *   path because that is where the value now lives.
+ * @param int $scan_start
+ *   Port number to start the free-port scan from when auto-discovery
+ *   kicks in.
+ * @param string $dotenv_file
+ *   Path to the dotenv file to read and (optionally) write.
+ *
+ * @return array{value: string, source: string}
+ *   Resolved port and source, in the same shape as resolve_env_value(),
+ *   with source updated to the dotenv file path when auto-discovery
+ *   persisted a value.
+ */
+function resolve_port_value(string $name, string $default, bool $auto_discover, int $scan_start, string $dotenv_file = '.env'): array {
+  $default_port = $auto_discover ? '' : $default;
+  ['value' => $port, 'source' => $port_source] = resolve_env_value($name, $default_port, $dotenv_file);
+
+  if ($auto_discover && $port_source === 'default') {
+    $port = (string) find_free_port($scan_start);
+    dotenv_write_var($name, $port, $dotenv_file);
+    $port_source = $dotenv_file;
+  }
+
+  return ['value' => $port, 'source' => $port_source];
 }
 
 /**
@@ -253,16 +296,8 @@ function resolve_env_value(string $name, string $default, string $dotenv_file = 
  *   the supplied default was used.
  */
 function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
-  [$host, $host_source] = resolve_env_value('WEBSERVER_HOST', 'localhost', $dotenv_file);
-
-  $default_port = $auto_discover ? '' : '8000';
-  [$port, $port_source] = resolve_env_value('WEBSERVER_PORT', $default_port, $dotenv_file);
-
-  if ($auto_discover && $port_source === 'default') {
-    $port = (string) find_free_port();
-    dotenv_write_var('WEBSERVER_PORT', $port, $dotenv_file);
-    $port_source = $dotenv_file;
-  }
+  ['value' => $host, 'source' => $host_source] = resolve_env_value('WEBSERVER_HOST', 'localhost', $dotenv_file);
+  ['value' => $port, 'source' => $port_source] = resolve_port_value('WEBSERVER_PORT', '8000', $auto_discover, 8000, $dotenv_file);
 
   if ($validate_port) {
     validate_port_or_fail($port, 'WEBSERVER_PORT');
@@ -303,14 +338,7 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
  *   or 'default'.
  */
 function resolve_webdriver_port(bool $auto_discover = FALSE, bool $validate_port = TRUE, string $dotenv_file = '.env'): array {
-  $default_port = $auto_discover ? '' : '4444';
-  [$port, $port_source] = resolve_env_value('WEBDRIVER_PORT', $default_port, $dotenv_file);
-
-  if ($auto_discover && $port_source === 'default') {
-    $port = (string) find_free_port(4444);
-    dotenv_write_var('WEBDRIVER_PORT', $port, $dotenv_file);
-    $port_source = $dotenv_file;
-  }
+  ['value' => $port, 'source' => $port_source] = resolve_port_value('WEBDRIVER_PORT', '4444', $auto_discover, 4444, $dotenv_file);
 
   if ($validate_port) {
     validate_port_or_fail($port, 'WEBDRIVER_PORT');
@@ -421,6 +449,20 @@ function find_free_port(int $start = 8000, int $max_attempts = 100): int {
   // @codeCoverageIgnoreStart
   return $start;
   // @codeCoverageIgnoreEnd
+}
+
+/**
+ * Kill whatever process is listening on a TCP port, if any.
+ *
+ * A best-effort operation: a missing listener or a missing 'lsof' binary
+ * are silenced so callers may invoke it unconditionally before (re)binding
+ * the same port.
+ *
+ * @param int|string $port
+ *   The TCP port to free.
+ */
+function kill_port(int|string $port): void {
+  @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg((string) $port)));
 }
 
 /**
@@ -570,8 +612,11 @@ function passthru_or_fail(string $command, string $format = '', string|int|float
   }
 
   if ($exit_code !== 0) {
+    // Surface the failure message without exiting here so the quit() below
+    // always preserves the command's real exit code, whether or not a
+    // message was supplied.
     if ($format !== '') {
-      FAIL($format, ...$args);
+      FAIL_NO_EXIT($format, ...$args);
     }
 
     quit($exit_code);
@@ -590,8 +635,11 @@ function passthru_verbose_or_fail(string $command, string $format = '', string|i
   passthru($command, $exit_code);
 
   if ($exit_code !== 0) {
+    // Surface the failure message without exiting here so the quit() below
+    // always preserves the command's real exit code, whether or not a
+    // message was supplied.
     if ($format !== '') {
-      FAIL($format, ...$args);
+      FAIL_NO_EXIT($format, ...$args);
     }
 
     quit($exit_code);
@@ -616,7 +664,7 @@ function print_qrcode(string $url): void {
     return;
   }
 
-  [$enabled] = resolve_env_value('QRCODE', '');
+  $enabled = resolve_env_value('QRCODE', '')['value'];
   if (!in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], TRUE)) {
     return;
   }
@@ -743,6 +791,20 @@ function extension_info(): array {
   $type = str_contains((string) file_get_contents($info_files[0]), 'type: theme') ? 'theme' : 'module';
 
   return ['name' => $name, 'type' => $type];
+}
+
+/**
+ * Build the path to the extension's SQLite database file.
+ *
+ * @param string $extension_name
+ *   Machine name of the extension, as returned by extension_info().
+ *
+ * @return string
+ *   Absolute path to the SQLite database file used by the site-install
+ *   and status commands.
+ */
+function site_db_file(string $extension_name): string {
+  return '/tmp/site_' . $extension_name . '.sqlite';
 }
 
 /**

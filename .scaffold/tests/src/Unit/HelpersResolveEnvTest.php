@@ -35,7 +35,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     file_put_contents($file, "FOO=from_dotenv\n");
     $this->envSet('FOO', 'from_env');
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('from_env', $value);
     $this->assertSame('env', $source);
@@ -45,7 +45,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     $file = self::$tmp . '/resolve_env_' . uniqid();
     file_put_contents($file, "FOO=from_dotenv\n");
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('from_dotenv', $value);
     $this->assertSame($file, $source);
@@ -55,7 +55,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     $file = self::$tmp . '/resolve_env_' . uniqid();
     file_put_contents($file, "FOO=\n");
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('fallback', $value);
     $this->assertSame('default', $source);
@@ -66,7 +66,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     file_put_contents($file, "FOO=from_dotenv\n");
     $this->envSet('FOO', '');
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('from_dotenv', $value);
     $this->assertSame($file, $source);
@@ -75,7 +75,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
   public function testDefaultReturnedWhenNeitherSourceHasValue(): void {
     $file = self::$tmp . '/resolve_env_' . uniqid();
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('fallback', $value);
     $this->assertSame('default', $source);
@@ -84,7 +84,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
   public function testDefaultMayBeEmptyString(): void {
     $file = self::$tmp . '/resolve_env_' . uniqid();
 
-    [$value, $source] = resolve_env_value('FOO', '', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', '', $file);
 
     $this->assertSame('', $value);
     $this->assertSame('default', $source);
@@ -95,7 +95,7 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     $file = self::$tmp . '/' . $relative_name;
     file_put_contents($file, "FOO=value\n");
 
-    [$value, $source] = resolve_env_value('FOO', 'fallback', $file);
+    ['value' => $value, 'source' => $source] = resolve_env_value('FOO', 'fallback', $file);
 
     $this->assertSame('value', $value);
     $this->assertSame($file, $source);
