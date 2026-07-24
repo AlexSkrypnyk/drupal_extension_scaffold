@@ -36,15 +36,15 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
   }
 
   public function testFailureWithMessage(): void {
-    $this->mockPassthru(['cmd' => 'false', 'result_code' => 1]);
-    $this->mockQuit(1);
+    $this->mockPassthru(['cmd' => 'false', 'result_code' => 42]);
+    $this->mockQuit(42);
     ob_start();
     try {
       passthru_verbose_or_fail('false', 'Command failed.');
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertSame(1, $e->getCode());
+      $this->assertSame(42, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -54,15 +54,15 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
   }
 
   public function testFailureWithFormatArgs(): void {
-    $this->mockPassthru(['cmd' => 'curl http://example.com', 'result_code' => 1]);
-    $this->mockQuit(1);
+    $this->mockPassthru(['cmd' => 'curl http://example.com', 'result_code' => 7]);
+    $this->mockQuit(7);
     ob_start();
     try {
       passthru_verbose_or_fail('curl http://example.com', 'Failed to download from %s.', 'http://example.com');
       $this->fail('Expected QuitErrorException to be thrown');
     }
     catch (QuitErrorException $e) {
-      $this->assertSame(1, $e->getCode());
+      $this->assertSame(7, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

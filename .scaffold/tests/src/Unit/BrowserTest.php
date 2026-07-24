@@ -69,13 +69,13 @@ final class BrowserTest extends UnitTestCase {
     parent::tearDown();
   }
 
-  public function testUnknownCommand(): void {
+  public function testBrowserUnknownCommand(): void {
     $output = $this->runBrowser('bogus', 1);
 
     $this->assertStringContainsString("Unknown command 'bogus'", $output);
   }
 
-  public function testUnknownBackend(): void {
+  public function testBrowserUnknownBackend(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'firefox');
 
     $output = $this->runBrowser('start', 1);
@@ -83,7 +83,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString("Unknown WEBDRIVER_BACKEND 'firefox'", $output);
   }
 
-  public function testStartAlreadyRunning(): void {
+  public function testBrowserStartAlreadyRunning(): void {
     $this->mockReady([TRUE]);
 
     $output = $this->runBrowser('start', 0);
@@ -91,7 +91,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('already running on port 4444', $output);
   }
 
-  public function testStartUsesMatchingInstalledDriver(): void {
+  public function testBrowserStartUsesMatchingInstalledDriver(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'chromedriver' => '/usr/local/bin/chromedriver']);
     $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 150.0.7871.129 (abc)');
@@ -111,7 +111,7 @@ final class BrowserTest extends UnitTestCase {
     }
   }
 
-  public function testStartFallsBackToNpxOnVersionMismatch(): void {
+  public function testBrowserStartFallsBackToNpxOnVersionMismatch(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'chromedriver' => '/usr/local/bin/chromedriver', 'npx' => '/usr/bin/npx']);
     $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 151.0.7922.34 (abc)');
@@ -127,7 +127,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, 'nohup') && str_contains($c, '/cache/chromedriver')), 'The freshly fetched binary must be launched.');
   }
 
-  public function testStartUsesMacChromeWhenPresent(): void {
+  public function testBrowserStartUsesMacChromeWhenPresent(): void {
     $this->mockChrome(TRUE);
     $this->mockCommands(['chromedriver' => '/usr/local/bin/chromedriver']);
     $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 150.0.7871.129 (abc)');
@@ -140,7 +140,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('chromedriver is ready on port 4444', $output);
   }
 
-  public function testStartFailsWhenChromeMissing(): void {
+  public function testBrowserStartFailsWhenChromeMissing(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands([]);
     $this->mockVersions('', '');
@@ -151,7 +151,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Google Chrome or Chromium was not found', $output);
   }
 
-  public function testStartFailsWhenMismatchAndNoNpx(): void {
+  public function testBrowserStartFailsWhenMismatchAndNoNpx(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'chromedriver' => '/usr/local/bin/chromedriver']);
     $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 151.0.7922.34 (abc)');
@@ -162,7 +162,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('npx is unavailable', $output);
   }
 
-  public function testStartFailsWhenNpxInstallFails(): void {
+  public function testBrowserStartFailsWhenNpxInstallFails(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'npx' => '/usr/bin/npx']);
     $this->mockVersions('Google Chrome 150.0.7871.129', '');
@@ -175,7 +175,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Failed to install chromedriver', $output);
   }
 
-  public function testStartFailsWhenBinaryPathUnresolved(): void {
+  public function testBrowserStartFailsWhenBinaryPathUnresolved(): void {
     $this->installLogContent = '';
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'npx' => '/usr/bin/npx']);
@@ -189,7 +189,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Could not determine the chromedriver binary path', $output);
   }
 
-  public function testStartFailsWhenNeverReady(): void {
+  public function testBrowserStartFailsWhenNeverReady(): void {
     $this->mockChrome(FALSE);
     $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'chromedriver' => '/usr/local/bin/chromedriver']);
     $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 150.0.7871.129 (abc)');
@@ -202,7 +202,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('failed to become ready on port 4444', $output);
   }
 
-  public function testSeleniumStartAlreadyRunning(): void {
+  public function testBrowserSeleniumStartAlreadyRunning(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockReady([TRUE]);
 
@@ -211,7 +211,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Selenium is already running on port 4444', $output);
   }
 
-  public function testSeleniumStartStartsContainer(): void {
+  public function testBrowserSeleniumStartStartsContainer(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE, TRUE]);
@@ -230,7 +230,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('standalone-chromium', $run_command);
   }
 
-  public function testSeleniumStartFailsWithoutDocker(): void {
+  public function testBrowserSeleniumStartFailsWithoutDocker(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands([]);
     $this->mockReady([FALSE]);
@@ -240,7 +240,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('docker was not found', $output);
   }
 
-  public function testSeleniumStartFailsWhenDockerRunFails(): void {
+  public function testBrowserSeleniumStartFailsWhenDockerRunFails(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE]);
@@ -252,7 +252,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Failed to start the Selenium container', $output);
   }
 
-  public function testSeleniumStartFailsWhenNeverReady(): void {
+  public function testBrowserSeleniumStartFailsWhenNeverReady(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $this->mockReady([FALSE]);
@@ -264,7 +264,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('Selenium failed to become ready on port 4444', $output);
   }
 
-  public function testStopWithDocker(): void {
+  public function testBrowserStopWithDocker(): void {
     $this->mockCommands(['docker' => '/usr/bin/docker']);
     $commands = [];
     $this->recordPassthru($commands);
@@ -276,7 +276,7 @@ final class BrowserTest extends UnitTestCase {
     $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, "lsof -ti:'4444'")), 'The WebDriver process on the resolved port must be terminated.');
   }
 
-  public function testStopWithoutDocker(): void {
+  public function testBrowserStopWithoutDocker(): void {
     $this->mockCommands([]);
     $commands = [];
     $this->recordPassthru($commands);

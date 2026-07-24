@@ -34,7 +34,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     parent::tearDown();
   }
 
-  public function testEmptyUrlRendersNothing(): void {
+  public function testEmptyUrlDoesNothing(): void {
     // An empty URL short-circuits before the opt-in check or any probe.
     ob_start();
     print_qrcode('');
@@ -44,7 +44,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testDisabledByDefaultRendersNothing(): void {
+  public function testDisabledByDefaultDoesNothing(): void {
     // QRCODE unset in both the environment and '.env': opt-in means nothing is
     // drawn, and qrencode is never even probed.
     $this->envUnset('QRCODE');
@@ -58,7 +58,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testExplicitlyDisabledRendersNothing(): void {
+  public function testExplicitlyDisabledDoesNothing(): void {
     $this->envSet('QRCODE', '0');
 
     ob_start();
@@ -69,7 +69,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testEnabledButQrencodeAbsentRendersNothing(): void {
+  public function testEnabledButQrencodeMissingDoesNothing(): void {
     $this->envSet('QRCODE', '1');
     $this->mockQrencodeAvailable(FALSE);
 

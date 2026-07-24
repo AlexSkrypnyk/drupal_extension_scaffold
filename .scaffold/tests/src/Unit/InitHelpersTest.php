@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Group;
 use function convert_string;
 use function get_files;
 use function is_binary_file;
-use function normalise_cspell_words;
+use function normalize_cspell_words;
 use function print_help;
 use function process;
 use function remove_dir;
@@ -92,7 +92,7 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'php content' => ['<?php echo "hello"; ?>', FALSE];
   }
 
-  public function testIsBinaryFileNonExistent(): void {
+  public function testIsBinaryFileMissing(): void {
     // The defensive 'fopen() === FALSE' branch is unreachable from production
     // code (callers always pass paths returned by 'get_files()'), so 'fopen()'
     // is allowed to warn. Suppress 'E_WARNING' so PHPUnit's
@@ -161,7 +161,7 @@ final class InitHelpersTest extends UnitTestCase {
     ];
   }
 
-  public function testRemoveDirNonExistent(): void {
+  public function testRemoveDirMissing(): void {
     remove_dir(self::$sut . '/nonexistent');
     $this->addToAssertionCount(1);
   }
@@ -400,7 +400,7 @@ final class InitHelpersTest extends UnitTestCase {
     ];
   }
 
-  public function testUncommentLineNonExistentFile(): void {
+  public function testUncommentLineMissingFile(): void {
     uncomment_line(self::$sut . '/nonexistent', 'test');
     $this->addToAssertionCount(1);
   }
@@ -451,7 +451,7 @@ final class InitHelpersTest extends UnitTestCase {
     ];
     file_put_contents(self::$sut . '/.cspell.json', json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-    normalise_cspell_words();
+    normalize_cspell_words();
 
     $result = json_decode((string) file_get_contents(self::$sut . '/.cspell.json'), TRUE);
     $this->assertIsArray($result);
@@ -466,7 +466,7 @@ final class InitHelpersTest extends UnitTestCase {
   public function testNormaliseCspellWordsMissingFile(): void {
     chdir(self::$sut);
 
-    normalise_cspell_words();
+    normalize_cspell_words();
 
     $this->assertFileDoesNotExist(self::$sut . '/.cspell.json');
   }
@@ -475,9 +475,8 @@ final class InitHelpersTest extends UnitTestCase {
     chdir(self::$sut);
     file_put_contents(self::$sut . '/.cspell.json', '{not valid json');
 
-    normalise_cspell_words();
-
-    $this->assertSame('{not valid json', file_get_contents(self::$sut . '/.cspell.json'));
+    $this->expectException(\JsonException::class);
+    normalize_cspell_words();
   }
 
   public function testNormaliseCspellWordsMissingWordsKey(): void {
@@ -485,7 +484,7 @@ final class InitHelpersTest extends UnitTestCase {
     $input = ['dictionaries' => ['php']];
     file_put_contents(self::$sut . '/.cspell.json', json_encode($input));
 
-    normalise_cspell_words();
+    normalize_cspell_words();
 
     $this->assertSame(json_encode($input), file_get_contents(self::$sut . '/.cspell.json'));
   }
@@ -498,7 +497,7 @@ final class InitHelpersTest extends UnitTestCase {
   public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, array $drupal_versions, array $wrapper, string $expected_message): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
-    process($extension_name, $machine_name, $type, $ci, $drupal_versions, $wrapper, [], 'n', 'n');
+    process($extension_name, $machine_name, $type, $ci, $drupal_versions, $wrapper, [], FALSE, FALSE);
   }
 
   public static function dataProviderProcessValidation(): \Iterator {

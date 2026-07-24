@@ -22,6 +22,8 @@ PHPUnit tests are tagged with `#[Group('p0'..'p5')]` so CI can shard them across
 - `p4` - `MakeTest` (Makefile command wrapper).
 - `p5` - `XdebugTest` (XDebug step-debugging toggle). This is the only group whose CI runner installs the xdebug PHP extension via `coverage: xdebug` instead of pcov - the test exercises the real extension end to end, so coverage is not collected for this group.
 
+**Do not DRY the per-wrapper tests.** `AhoyTest` (p3) and `MakeTest` (p4) are intentionally kept as separate, near-parallel test classes - one per command wrapper. Never merge or parameterize them into a single shared class: each wrapper (`ahoy`, `make`) must be exercised by its own independent test so a regression in one runner can never be masked by the other. `XdebugTest`'s single parameterized `assertToggle()` is a deliberate exception for one feature toggled through both wrappers, not a pattern to extend across the whole command surface.
+
 ## Running the tests
 
 All commands run from `.scaffold/tests/`. Install dependencies once with `composer --working-dir=.scaffold/tests install`.

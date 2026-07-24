@@ -9,9 +9,9 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait;
 
 /**
- * Class UnitTestCase.
+ * Class FunctionalTestCase.
  *
- * UnitTestCase fixture class.
+ * FunctionalTestCase fixture class.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

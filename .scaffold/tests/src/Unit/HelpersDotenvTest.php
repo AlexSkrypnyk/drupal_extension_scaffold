@@ -105,7 +105,7 @@ final class HelpersDotenvTest extends UnitTestCase {
     ];
   }
 
-  public function testDotenvWriteVarCreatesFileWhenAbsent(): void {
+  public function testDotenvWriteVarCreatesFileWhenMissing(): void {
     $file = self::$tmp . '/dotenv_write_' . uniqid();
     $this->assertFileDoesNotExist($file);
 

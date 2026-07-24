@@ -27,7 +27,7 @@ final class QrcodeTest extends UnitTestCase {
     parent::tearDown();
   }
 
-  public function testRendersQrcodeForUrlArgument(): void {
+  public function testQrcodeRendersQrcodeForUrlArgument(): void {
     // Rendering is opt-in; enable it for this run.
     $this->envSet('QRCODE', '1');
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
@@ -56,7 +56,7 @@ final class QrcodeTest extends UnitTestCase {
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
 
-  public function testRendersNothingWithoutUrlArgument(): void {
+  public function testQrcodeDoesNothingWithoutUrlArgument(): void {
     $argv = ['qrcode'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';

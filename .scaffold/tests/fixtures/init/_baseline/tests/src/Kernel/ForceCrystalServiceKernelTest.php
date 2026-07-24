@@ -6,11 +6,7 @@ namespace Drupal\Tests\force_crystal\Kernel;
 
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\Group;
-use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\force_crystal\ForceCrystalService;
-use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Tests the ForceCrystalService class.
@@ -20,8 +16,6 @@ use Prophecy\PhpUnit\ProphecyTrait;
 #[Group('force_crystal')]
 #[RunTestsInSeparateProcesses]
 class ForceCrystalServiceKernelTest extends KernelTestBase {
-
-  use ProphecyTrait;
 
   /**
    * {@inheritdoc}
@@ -41,15 +35,13 @@ class ForceCrystalServiceKernelTest extends KernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    $your_config_config = $this->prophesize(ImmutableConfig::class);
-    $your_config_config->get('text')
-      ->willReturn('<p>This is <strong>bold</strong> text.</p>');
+    $this->installConfig(['force_crystal']);
 
-    $config_factory = $this->prophesize(ConfigFactoryInterface::class);
-    $config_factory->get('force_crystal.settings')
-      ->willReturn($your_config_config->reveal());
+    $this->config('force_crystal.settings')
+      ->set('text', '<p>This is <strong>bold</strong> text.</p>')
+      ->save();
 
-    $this->yourExtensionService = new ForceCrystalService($config_factory->reveal());
+    $this->yourExtensionService = $this->container->get('force_crystal.service');
   }
 
   /**

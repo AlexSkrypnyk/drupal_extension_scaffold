@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
+use function DrupalExtensionScaffold\DevTools\site_db_file;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -92,8 +93,8 @@ final class ProvisionTest extends UnitTestCase {
     }
 
     // 3. Site install.
-    $db_file = '/tmp/site_' . $extension_name . '.sqlite';
-    $passthru_responses[] = ['cmd' => $prefix . sprintf('site-install %s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg($drupal_profile), $db_file)];
+    $db_file = site_db_file($extension_name);
+    $passthru_responses[] = ['cmd' => $prefix . sprintf('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg($drupal_profile), escapeshellarg('sqlite://localhost/' . $db_file))];
 
     // 4. drush status.
     $passthru_responses[] = ['cmd' => $prefix . 'status'];
@@ -121,7 +122,8 @@ final class ProvisionTest extends UnitTestCase {
     }
 
     // 8. drush uli.
-    $passthru_responses[] = ['cmd' => $prefix . sprintf('uli -l http://%s:%s --no-browser', $expected_host, $expected_port), 'output' => 'http://' . $expected_host . ':' . $expected_port . '/user/reset/1/abc/login'];
+    $site_url = sprintf('http://%s:%s', $expected_host, $expected_port);
+    $passthru_responses[] = ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($site_url)), 'output' => $site_url . '/user/reset/1/abc/login'];
 
     $this->mockPassthruMultiple($passthru_responses);
 
@@ -241,14 +243,15 @@ final class ProvisionTest extends UnitTestCase {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
 
     $prefix = self::drushPrefix($cwd);
-    $db_file = '/tmp/site_' . $extension_name . '.sqlite';
+    $db_file = site_db_file($extension_name);
+    $site_url = sprintf('http://%s:%s', $expected_host, $expected_port);
     $this->mockPassthruMultiple([
       ['cmd' => $prefix . 'status --field=db-status', 'output' => ''],
-      ['cmd' => $prefix . sprintf('site-install %s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), $db_file)],
+      ['cmd' => $prefix . sprintf('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), escapeshellarg('sqlite://localhost/' . $db_file))],
       ['cmd' => $prefix . 'status'],
       ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
       ['cmd' => $prefix . 'cr'],
-      ['cmd' => $prefix . sprintf('uli -l http://%s:%s --no-browser', $expected_host, $expected_port), 'output' => 'http://' . $expected_host . ':' . $expected_port . '/user/reset/1/abc/login'],
+      ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($site_url)), 'output' => $site_url . '/user/reset/1/abc/login'],
     ]);
 
     ob_start();
@@ -288,16 +291,16 @@ final class ProvisionTest extends UnitTestCase {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
 
     $prefix = self::drushPrefix($cwd);
-    $db_file = '/tmp/site_' . $extension_name . '.sqlite';
+    $db_file = site_db_file($extension_name);
     // The pre-warm still hits the local host:port, but the login link and the
     // completion banner report the public tunnel URL.
     $this->mockPassthruMultiple([
       ['cmd' => $prefix . 'status --field=db-status', 'output' => ''],
-      ['cmd' => $prefix . sprintf('site-install %s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), $db_file)],
+      ['cmd' => $prefix . sprintf('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), escapeshellarg('sqlite://localhost/' . $db_file))],
       ['cmd' => $prefix . 'status'],
       ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
       ['cmd' => $prefix . 'cr'],
-      ['cmd' => $prefix . sprintf('uli -l %s --no-browser', $tunnel_url), 'output' => $tunnel_url . '/user/reset/1/abc/login'],
+      ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($tunnel_url)), 'output' => $tunnel_url . '/user/reset/1/abc/login'],
     ]);
 
     ob_start();

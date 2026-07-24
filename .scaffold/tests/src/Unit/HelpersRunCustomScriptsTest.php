@@ -18,18 +18,18 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  public function testMissingDirectoryIsSilent(): void {
+  public function testMissingDirectoryDoesNothing(): void {
     run_custom_scripts(self::$tmp . '/nonexistent_' . uniqid(), 'assemble-');
     $this->expectNotToPerformAssertions();
   }
 
-  public function testEmptyDirectoryIsSilent(): void {
+  public function testEmptyDirectoryDoesNothing(): void {
     $dir = $this->createScriptsDir();
     run_custom_scripts($dir, 'assemble-');
     $this->expectNotToPerformAssertions();
   }
 
-  public function testDirectoryWithNoPrefixMatchesIsSilent(): void {
+  public function testDirectoryWithNoPrefixMatchesDoesNothing(): void {
     $dir = $this->createScriptsDir(['unrelated.sh' => 'echo nope', 'README.md' => '']);
     run_custom_scripts($dir, 'assemble-');
     $this->expectNotToPerformAssertions();
@@ -120,7 +120,7 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru(['cmd' => escapeshellarg($dir . '/provision-first.sh'), 'result_code' => 7]);
-    $this->mockQuit(1);
+    $this->mockQuit(7);
 
     ob_start();
     try {
@@ -128,7 +128,7 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
       $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
-      $this->assertSame(1, $e->getCode());
+      $this->assertSame(7, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

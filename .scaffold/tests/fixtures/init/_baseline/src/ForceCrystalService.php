@@ -12,20 +12,14 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 class ForceCrystalService {
 
   /**
-   * The extension configuration.
-   *
-   * @var \Drupal\Core\Config\ImmutableConfig
-   */
-  protected $yourExtensionConfig;
-
-  /**
    * Constructs a new ForceCrystalService instance.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
-    $this->yourExtensionConfig = $config_factory->get('force_crystal.settings');
+  public function __construct(
+    /**
+     * The config factory.
+     */
+    protected ConfigFactoryInterface $configFactory,
+  ) {
   }
 
   /**
@@ -35,7 +29,7 @@ class ForceCrystalService {
    *   The text to be inserted.
    */
   public function getText(): string {
-    $text = $this->yourExtensionConfig->get('text');
+    $text = $this->configFactory->get('force_crystal.settings')->get('text');
 
     return static::sanitize($text);
   }

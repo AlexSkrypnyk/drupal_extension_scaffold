@@ -111,20 +111,20 @@ if ($deploy_proceed !== '1') {
 
 $git_user_name = trim((string) shell_exec('git config --global user.name'));
 if ($git_user_name === '') {
-  NOTE('Configuring global git user name %s.', $deploy_user_name);
+  TASK('Configuring global git user name %s.', $deploy_user_name);
   passthru_or_fail(sprintf('git config --global user.name %s', escapeshellarg($deploy_user_name)));
 }
 
 $git_user_email = trim((string) shell_exec('git config --global user.email'));
 if ($git_user_email === '') {
-  NOTE('Configuring global git user email %s.', $deploy_user_email);
+  TASK('Configuring global git user email %s.', $deploy_user_email);
   passthru_or_fail(sprintf('git config --global user.email %s', escapeshellarg($deploy_user_email)));
 }
 
-NOTE('Setting git to push to a matching remote branch.');
+TASK('Setting git to push to a matching remote branch.');
 passthru_or_fail('git config --global push.default matching');
 
-NOTE('Adding remote %s.', $deploy_remote);
+TASK('Adding remote %s.', $deploy_remote);
 passthru_or_fail(sprintf('git remote add deployremote %s', escapeshellarg($deploy_remote)));
 
 if ($deploy_branch === '') {

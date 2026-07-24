@@ -55,7 +55,7 @@ final class HelpersReplaceInFileTest extends UnitTestCase {
     ];
   }
 
-  public function testReplaceInFileNonExistentFile(): void {
+  public function testReplaceInFileMissingFile(): void {
     $file = self::$tmp . '/nonexistent_' . uniqid() . '.txt';
     $this->mockQuit(1);
     $this->expectException(QuitErrorException::class);

@@ -40,7 +40,7 @@ $ext_info = extension_info();
 $extension_name = $ext_info['name'];
 $extension_type = $ext_info['type'];
 
-$db_file = '/tmp/site_' . $extension_name . '.sqlite';
+$db_file = site_db_file($extension_name);
 
 TASK('Installing Drupal into SQLite database %s.', $db_file);
 
@@ -50,7 +50,7 @@ if ($db_status === 'Connected') {
   drush('sql:drop -y', NULL, $exit_code);
 }
 
-drush(sprintf('site-install %%s -y --db-url="sqlite://localhost/%s" --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', $db_file), [$drupal_profile]);
+drush('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', [$drupal_profile, 'sqlite://localhost/' . $db_file]);
 
 PASS('Drupal installed.');
 
@@ -102,7 +102,7 @@ echo '===============================' . PHP_EOL;
 echo PHP_EOL;
 echo 'Site URL:            ' . $site_url . PHP_EOL;
 echo 'One-time login link: ';
-echo drush(sprintf('uli -l %s --no-browser', $site_url));
+echo drush('uli -l %s --no-browser', [$site_url]);
 echo PHP_EOL;
 if (file_exists('.ahoy.yml')) {
   echo 'Run `ahoy` to see available commands.' . PHP_EOL;

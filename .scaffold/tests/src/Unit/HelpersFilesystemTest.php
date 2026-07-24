@@ -20,7 +20,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  public function testRemoveDirNonExistent(): void {
+  public function testRemoveDirMissing(): void {
     remove_dir(self::$tmp . '/nonexistent_' . uniqid());
     $this->expectNotToPerformAssertions();
   }
@@ -63,7 +63,7 @@ final class HelpersFilesystemTest extends UnitTestCase {
     ];
   }
 
-  public function testChmodRecursiveNonExistent(): void {
+  public function testChmodRecursiveMissing(): void {
     chmod_recursive(self::$tmp . '/nonexistent_' . uniqid(), 0755);
     $this->expectNotToPerformAssertions();
   }

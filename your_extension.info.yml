@@ -1,4 +1,4 @@
-name: Drupal extension scaffold
+name: Your Extension
 type: module
 description: Drupal extension scaffold example.
 package: Testing
