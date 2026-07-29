@@ -11,6 +11,12 @@ parameters:
 
   level: 7
 
+  # PHPStan caches reflection data that embeds absolute paths into its own
+  # PHAR. The default cache directory is shared by every project on the machine,
+  # so entries left by a build that no longer exists break the next run. Keeping
+  # the cache beside this config scopes it to a single codebase.
+  tmpDir: .phpstan
+
   paths:
     - web/modules/custom
     - web/themes/custom
