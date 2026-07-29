@@ -43,6 +43,16 @@ use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
 use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
+// Rector and its embedded PHPStan cache reflection data that records
+// absolute paths into the PHPStan PHAR. The default cache directories are
+// shared by every project on the machine, so entries left by a build that no
+// longer exists break the next run. A cache inside the build is scoped to a
+// single codebase. PHPStan requires the directory to exist before it boots.
+$cache_dir = __DIR__ . '/.rector';
+if (!is_dir($cache_dir)) {
+  mkdir($cache_dir, 0755, TRUE);
+}
+
 return RectorConfig::configure()
   ->withSkip([
     // Specific rules to skip based on project coding standards.
@@ -127,5 +137,7 @@ return RectorConfig::configure()
     'inc',
     'engine',
   ])
+  // Cache configuration.
+  ->withCache(cacheDirectory: $cache_dir, containerCacheDirectory: $cache_dir)
   // Import configuration.
   ->withImportNames(importNames: TRUE, importDocBlockNames: FALSE, importShortClasses: FALSE);
