@@ -38,9 +38,10 @@ final class WorkflowsEnvContextTest extends UnitTestCase {
   }
 
   public static function dataProviderEnvReferencesAreDefined(): \Iterator {
-    $paths = glob(dirname(__DIR__, 4) . '/.github/workflows/*.yml');
+    $directory = dirname(__DIR__, 4) . '/.github/workflows/';
+    $paths = array_merge(glob($directory . '*.yml') ?: [], glob($directory . '*.yaml') ?: []);
 
-    foreach ($paths ?: [] as $path) {
+    foreach ($paths as $path) {
       yield basename($path) => ['path' => $path];
     }
   }
