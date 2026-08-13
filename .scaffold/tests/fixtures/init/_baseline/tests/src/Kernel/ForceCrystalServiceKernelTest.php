@@ -50,7 +50,6 @@ class ForceCrystalServiceKernelTest extends KernelTestBase {
   public function testGetText(): void {
     $text = $this->yourExtensionService->getText();
 
-    // Assert that the text is sanitized and contains no HTML tags.
     $this->assertEquals('This is bold text.', $text);
   }
 

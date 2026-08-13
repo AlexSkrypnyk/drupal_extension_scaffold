@@ -27,8 +27,7 @@ namespace DrupalExtensionScaffold\DevTools;
 
 require_once __DIR__ . '/helpers.php';
 
-// Directory holding the downloaded chromedriver binary and run logs. Ignored
-// by git and safe to delete.
+// Directory holding the downloaded chromedriver binary and run logs.
 const CHROMEDRIVER_DIR = '.chromedriver';
 
 const SELENIUM_CONTAINER = 'selenium';
@@ -73,12 +72,14 @@ function browser_start(): void {
 /**
  * Stop whichever WebDriver backend is running.
  *
- * Backend-agnostic on purpose: the Selenium container publishes the same
- * port the chromedriver process would bind, so dispatching on the selected
- * backend could kill the container's docker proxy instead of the container
- * when WEBDRIVER_BACKEND is not set for the stop invocation. The container
- * is removed first, freeing the port, and any remaining process on the
- * port is then terminated.
+ * The Selenium container publishes the same port the chromedriver process
+ * would bind. Dispatching on the selected backend risks killing the
+ * container's docker proxy instead of the container when WEBDRIVER_BACKEND
+ * is unset at stop time.
+ *
+ * Both backends are handled unconditionally: the container is removed
+ * first, freeing the port, then any remaining process on the port is
+ * terminated.
  */
 function browser_stop(): void {
   $port = resolve_webdriver_port()['port'];

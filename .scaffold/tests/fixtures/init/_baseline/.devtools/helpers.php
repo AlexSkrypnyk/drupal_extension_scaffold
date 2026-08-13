@@ -4,27 +4,6 @@
  * @file
  * Helper functions for DevTools tooling scripts.
  *
- * This file provides reusable PHP helper functions shared by the
- * '.devtools/*' command scripts, enabling consistent behavior across all
- * tooling.
- *
- * ## Why We Use These Helpers
- *
- * These helper functions serve several critical purposes:
- *
- * 1. **Consistency**: Standardized output formatting (info, task, pass, fail)
- *    ensures all '.devtools/*' scripts produce uniform, recognizable
- *    messages.
- *
- * 2. **Reusability**: Common operations (files operations, command execution,
- *    etc.) are centralized to avoid code duplication.
- *
- * 3. **Testability**: All functions are designed to be mockable and testable,
- *    with comprehensive unit tests ensuring reliability.
- *
- * 4. **Maintainability**: Changes to core functionality (e.g., output
- *    formatting) only need to be made in one place.
- *
  * @phpcs:disable Drupal.NamingConventions.ValidFunctionName.InvalidName
  */
 
@@ -189,19 +168,17 @@ function dotenv_write_var(string $key, string $value, string $dotenv_file = '.en
 /**
  * Resolve an environment value from env, then dotenv, then default.
  *
- * Mirrors the precedence chain used by the start, stop, provision, and
- * info scripts: shell environment first, then a matching key in the
- * dotenv file, then the supplied default. Returns the resolved value
- * together with a source label identifying which leg of the chain
- * produced it.
+ * The precedence chain is the shell environment first, then a matching key
+ * in the dotenv file, then the supplied default. Returns the resolved value
+ * together with a source label identifying which leg of the chain produced
+ * it.
  *
  * @param string $name
  *   Variable name to resolve.
  * @param string $default
  *   Value to return when neither env nor the dotenv file provides a
- *   non-empty value. May be an empty string when callers want to
- *   detect that case and apply their own fallback (for example,
- *   start's auto-discovery branch).
+ *   non-empty value. May be an empty string when the caller detects that
+ *   case and applies its own fallback.
  * @param string $dotenv_file
  *   Path to the dotenv file to consult.
  *
@@ -227,11 +204,9 @@ function resolve_env_value(string $name, string $default, string $dotenv_file = 
 /**
  * Resolve a port variable, auto-discovering and persisting one when unset.
  *
- * Shared by resolve_webserver() and resolve_webdriver_port(): both resolve
- * a named port variable via the env -> dotenv -> default chain, and, when
- * auto-discovery is requested and neither source supplies a value,
- * allocate a free port starting from $scan_start and persist it back to
- * the dotenv file so repeat runs reuse the same port.
+ * The variable resolves via the env -> dotenv -> default chain. A port
+ * allocated by auto-discovery is persisted back to the dotenv file so
+ * repeat runs reuse the same port.
  *
  * @param string $name
  *   Variable name to resolve (e.g. 'WEBSERVER_PORT').
@@ -283,9 +258,7 @@ function resolve_port_value(string $name, string $default, bool $auto_discover, 
  *   dotenv file path because that is where the value now lives.
  * @param bool $validate_port
  *   When TRUE, call validate_port_or_fail() on the resolved port and
- *   abort if it is not a valid TCP port. The info script disables
- *   this so a malformed value can be surfaced in the output rather
- *   than crashing the read-only summary.
+ *   abort if it is not a valid TCP port.
  * @param string $dotenv_file
  *   Path to the dotenv file to read and (optionally) write.
  *
@@ -316,10 +289,11 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
  *
  * Mirrors the port half of resolve_webserver() for 'WEBDRIVER_PORT':
  * shell env first, then a matching key in the dotenv file, then the
- * default. With auto_discover and no configured value, a free port is
- * allocated from 4444 and persisted to the dotenv file so that several
- * projects each get their own WebDriver endpoint and never contend
- * for a single port.
+ * default.
+ *
+ * With auto_discover and no configured value, a free port is allocated
+ * from 4444 and persisted to the dotenv file. Several projects therefore
+ * each get their own WebDriver endpoint.
  *
  * @param bool $auto_discover
  *   When TRUE and the port resolves from neither env nor dotenv, discover
@@ -327,9 +301,7 @@ function resolve_webserver(bool $auto_discover = FALSE, bool $validate_port = TR
  *   The reported source then becomes the dotenv file path.
  * @param bool $validate_port
  *   When TRUE, call validate_port_or_fail() on the resolved port and abort
- *   if it is not a valid TCP port. The info script disables this so a
- *   malformed value can be surfaced in the output rather than crashing the
- *   read-only summary.
+ *   if it is not a valid TCP port.
  * @param string $dotenv_file
  *   Path to the dotenv file to read and (optionally) write.
  *
@@ -353,11 +325,11 @@ function resolve_webdriver_port(bool $auto_discover = FALSE, bool $validate_port
 /**
  * Resolve the public site URL, preferring an active tunnel URL.
  *
- * Reads TUNNEL_URL straight from the dotenv file rather than the process
- * environment. A wrapping Make or Ahoy invocation loads '.env' into the
- * environment once at startup, so a TUNNEL_URL written to '.env' during the
- * same run would otherwise be masked by the stale exported value. Falls back
- * to the 'http://host:port' form when no tunnel URL is set.
+ * Reads TUNNEL_URL from the dotenv file rather than the process environment.
+ * A wrapping Make or Ahoy invocation exports '.env' once at startup, so the
+ * environment would otherwise mask a TUNNEL_URL written during the same run.
+ *
+ * Falls back to the 'http://host:port' form when no tunnel URL is set.
  *
  * @param string $host
  *   Webserver host for the fallback URL.
@@ -604,8 +576,6 @@ function passthru_or_fail(string $command, string $format = '', string|int|float
   else {
     $output = passthru_capture($command, $exit_code);
 
-    // Surface the captured output only on failure so the error stays
-    // diagnosable while a successful run remains quiet.
     if ($exit_code !== 0) {
       echo $output;
     }
@@ -626,9 +596,9 @@ function passthru_or_fail(string $command, string $format = '', string|int|float
 /**
  * Run a command via passthru, always showing output, failing on non-zero exit.
  *
- * The counterpart to passthru_or_fail(): here the command's output is always
- * streamed to the terminal rather than suppressed, for commands whose output
- * is meaningful in its own right rather than dependency-tool noise.
+ * The counterpart to passthru_or_fail(): the command's output is always
+ * streamed to the terminal rather than suppressed. Intended for commands
+ * whose own output is meaningful rather than dependency-tool noise.
  */
 function passthru_verbose_or_fail(string $command, string $format = '', string|int|float ...$args): void {
   $exit_code = 0;
@@ -651,10 +621,11 @@ function passthru_verbose_or_fail(string $command, string $format = '', string|i
  *
  * Opt-in: draws nothing unless the QRCODE variable - read from the shell
  * environment or '.env' - is set to a truthy value ('1', 'true', 'yes',
- * 'on'). When enabled it uses `qrencode -t ANSIUTF8` to draw the code with
- * Unicode block glyphs, and is still a no-op when the URL is empty or the
- * `qrencode` binary is not installed, so callers may invoke it
- * unconditionally.
+ * 'on').
+ *
+ * When enabled, the code is drawn with Unicode block glyphs via
+ * `qrencode -t ANSIUTF8`. An empty URL or a missing `qrencode` binary is
+ * also a no-op, so callers may invoke it unconditionally.
  *
  * @param string $url
  *   The URL to encode. An empty string renders nothing.
@@ -685,8 +656,7 @@ function print_qrcode(string $url): void {
  * environment. A non-zero exit from any script aborts the parent.
  *
  * The directory and any matching scripts are optional: a missing
- * directory or an empty match set returns silently. This is the
- * post-assemble / post-provision extension point.
+ * directory or an empty match set returns silently.
  *
  * @param string $dir
  *   Directory to scan, relative to the current working directory.
@@ -710,8 +680,6 @@ function run_custom_scripts(string $dir, string $prefix): void {
       continue;
     }
     TASK("Running custom script '%s'.", $file);
-    // Show the hook's output - these scripts are the project's own and their
-    // output is intentional, unlike the suppressed dependency-tool commands.
     passthru_verbose_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
     PASS("Completed custom script '%s'.", $file);
   }
@@ -754,8 +722,7 @@ function drush(string $command, mixed $args = NULL, ?int &$exit_code = NULL): st
   }
   else {
     // Fold stderr into the captured output so drush's progress notices stay
-    // hidden during a normal run; the return value is still available to
-    // callers that read it.
+    // hidden during a normal run.
     $output = passthru_capture($command, $exit_code);
   }
 
@@ -800,8 +767,7 @@ function extension_info(): array {
  *   Machine name of the extension, as returned by extension_info().
  *
  * @return string
- *   Absolute path to the SQLite database file used by the site-install
- *   and status commands.
+ *   Absolute path to the SQLite database file.
  */
 function site_db_file(string $extension_name): string {
   return '/tmp/site_' . $extension_name . '.sqlite';
@@ -960,13 +926,13 @@ function link_browser_output(string $webroot, string $logs_dir): void {
   symlink($target, $link);
 }
 
-// Never run the real quit() function during tests. This also avoids bleeding
-// into global namespace when running multiple tests that share the same
+// Never run the real quit() function during tests. The guard also keeps the
+// definition out of the global namespace when multiple tests share the same
 // test process.
-// Note that this replicates the behaviour of global built-in functions
-// like passthru() and exec() which are *not defined in this namespace*. We only
-// defined quit() in a namespace because mocking of global functions can only
-// be done if they are defined in a namespace.
+//
+// This replicates the behaviour of global built-ins like passthru() and
+// exec(), which are not defined in this namespace. quit() is defined in a
+// namespace because global functions can only be mocked when namespaced.
 // @codeCoverageIgnoreStart
 if (!function_exists('DrupalExtensionScaffold\DevTools\quit') && !class_exists('PHPUnit\\Framework\\TestCase')) {
 

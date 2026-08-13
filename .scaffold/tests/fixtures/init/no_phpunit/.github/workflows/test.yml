@@ -10,7 +10,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -185,37 +180,3 @@
+@@ -183,37 +178,3 @@
          run: npm test
          continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  
