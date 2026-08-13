@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-24.04, macos-latest]
         group: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
         # Only the FunctionalJavascript groups (p3/p4) use a WebDriver
         # backend, so the excludes run every other group once. macOS runners
@@ -174,7 +174,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   scaffold-test-actions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: read # Read workflows for the GitHub Actions linters.
