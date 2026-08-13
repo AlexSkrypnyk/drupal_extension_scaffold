@@ -87,7 +87,7 @@ jobs:
       #;> DEV_TWIGCS
 
       #;< DEV_NODEJS_LINT
-      - name: Lint module code with NodeJS linters
+      - name: Lint code with NodeJS linters
         if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
         working-directory: build
         run: npm run lint
@@ -217,7 +217,7 @@ jobs:
           WEBDRIVER_BACKEND: selenium
           #;> DEV_FUNCTIONAL_JAVASCRIPT
 
-      - name: Upload test results as an artifact
+      - name: Upload browser output as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
@@ -228,7 +228,7 @@ jobs:
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+          name: ${{ github.job }}-code-coverage-report-${{ matrix.name }}
           path: ./.logs/coverage
           include-hidden-files: true
           if-no-files-found: error
