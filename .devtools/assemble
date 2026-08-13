@@ -163,6 +163,7 @@ if (!is_dir($build_dir . '/web/themes/custom')) {
 }
 PASS('Custom directories created.');
 
+// Lift the memory limit so Composer can resolve large dependency trees.
 putenv('COMPOSER_MEMORY_LIMIT=-1');
 
 TASK('Installing dependencies.');
@@ -257,7 +258,11 @@ foreach (glob($cwd . '/*') ?: [] as $item) {
 }
 PASS("Extension's code symlinked.");
 
-// The extension's source files are available via symlink at this point.
+// Install front-end dependencies and run the build in the build directory.
+// The extension's source files are available via symlink at this point. Add a
+// '.skip_npm_build' file to the project root to skip this step; without
+// 'node_modules' the JS and CSS linters (ESLint, Stylelint, Prettier) are
+// skipped as well.
 if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_build')) {
   TASK('Processing front-end dependencies.');
 
@@ -272,6 +277,7 @@ if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_bu
   PASS('Front-end dependencies processed.');
 }
 
+// Run custom post-assemble scripts from "scripts/assemble-*.sh", if any.
 run_custom_scripts('scripts', 'assemble-');
 
 echo PHP_EOL;

@@ -28,11 +28,24 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
+// Name of the user committing to the remote repository.
 $deploy_user_name = getenv_required('DEPLOY_USER_NAME');
+
+// Email address of the user committing to the remote repository.
 $deploy_user_email = getenv_required('DEPLOY_USER_EMAIL');
+
+// Remote repository to push the code to.
 $deploy_remote = getenv_required('DEPLOY_REMOTE');
+
+// Branch to deploy. Defaults to the current branch when unset.
 $deploy_branch = getenv_default('DEPLOY_BRANCH', '');
+
+// Set to 1 to perform the deployment. Any other value stops the script before
+// the remote is contacted, which validates CI configuration without pushing
+// code.
 $deploy_proceed = getenv_default('DEPLOY_PROCEED', '0');
+
+// Fingerprint of the SSH key to deploy with, in either MD5 or SHA256 form.
 $deploy_ssh_key_fingerprint = getenv_default('DEPLOY_SSH_KEY_FINGERPRINT', '');
 
 // -----------------------------------------------------------------------------
@@ -49,6 +62,8 @@ if ($deploy_ssh_key_fingerprint !== '') {
   }
   file_put_contents($ssh_dir . '/config', "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n");
 
+  // The key file is named after the MD5 fingerprint, so a SHA256 fingerprint
+  // is matched against each key and resolved to its MD5 form first.
   if (str_starts_with($deploy_ssh_key_fingerprint, 'SHA256:')) {
     foreach (glob($home . '/.ssh/id_rsa*') ?: [] as $key_file) {
       $sha256_output = [];
