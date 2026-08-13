@@ -55,16 +55,32 @@ final class DocumentationTest extends UnitTestCase {
     // These configs run from the build root rather than from the Drupal root,
     // so the docroot prefix carried by `bootstrap` applies to every other
     // core-relative path in the file, comments included.
-    $this->assertSame(1, preg_match('/bootstrap="([^"]+)"/', $contents, $bootstrap), sprintf('%s declares no bootstrap attribute.', basename($path)));
+    preg_match('/bootstrap="([^"]+)"/', $contents, $bootstrap);
+    $bootstrap_path = $bootstrap[1] ?? '';
 
-    $position = strpos($bootstrap[1], 'core/');
-    $this->assertIsInt($position, sprintf('%s bootstraps outside core: %s', basename($path), $bootstrap[1]));
+    $this->assertNotSame('', $bootstrap_path, sprintf('%s declares no bootstrap attribute.', basename($path)));
 
-    $prefix = substr($bootstrap[1], 0, $position);
+    $position = strpos($bootstrap_path, 'core/');
+    $this->assertIsInt($position, sprintf('%s bootstraps outside core: %s', basename($path), $bootstrap_path));
 
-    preg_match_all('/^.*(?<!' . preg_quote($prefix, '/') . ')\bcore\/.*$/m', $contents, $unprefixed);
+    $prefix = substr($bootstrap_path, 0, $position);
 
-    $this->assertSame([], $unprefixed[0], sprintf('%s references core paths without the `%s` docroot prefix.', basename($path), $prefix));
+    $unprefixed = [];
+
+    foreach (explode("\n", $contents) as $index => $line) {
+      // Match each reference together with the path segments leading into it,
+      // so the prefix can be compared by value. A lookbehind cannot serve
+      // here: PCRE requires a fixed-length one, and the prefix is derived.
+      preg_match_all('/[A-Za-z0-9_.\/-]*\bcore\//', $line, $references);
+
+      $offenders = array_filter($references[0], static fn(string $reference): bool => !str_starts_with($reference, $prefix));
+
+      foreach ($offenders as $offender) {
+        $unprefixed[] = sprintf('line %d: %s', $index + 1, $offender);
+      }
+    }
+
+    $this->assertSame([], $unprefixed, sprintf('%s references core paths without the `%s` docroot prefix.', basename($path), $prefix));
   }
 
   public static function dataProviderPhpunitCorePathsUseDocrootPrefix(): \Iterator {
