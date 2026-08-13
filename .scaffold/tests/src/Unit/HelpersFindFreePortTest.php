@@ -65,10 +65,13 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   public function testInvalidStartPortBelowRangeFails(): void {
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       find_free_port(0, 100);
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -80,10 +83,13 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   public function testInvalidStartPortAboveRangeFails(): void {
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       find_free_port(70000, 100);
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -95,10 +101,13 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   public function testInvalidMaxAttemptsFails(): void {
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       find_free_port(8000, 0);
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -115,10 +124,13 @@ final class HelpersFindFreePortTest extends UnitTestCase {
     $this->mockStreamSocketClient($responses);
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       find_free_port(8000, 5);
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

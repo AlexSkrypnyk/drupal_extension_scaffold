@@ -45,10 +45,13 @@ final class HelpersValidatePortTest extends UnitTestCase {
   public function testInvalidPortFails(string $value): void {
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       validate_port_or_fail($value, 'WEBSERVER_PORT');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
@@ -73,10 +76,13 @@ final class HelpersValidatePortTest extends UnitTestCase {
   public function testUsesProvidedSourceNameInErrorMessage(): void {
     $this->mockQuit(1);
 
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       validate_port_or_fail('bogus', 'CUSTOM_PORT_VAR');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

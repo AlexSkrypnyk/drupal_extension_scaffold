@@ -58,10 +58,13 @@ final class HelpersExtensionInfoTest extends UnitTestCase {
     $original = (string) getcwd();
     chdir($dir);
     $this->mockQuit(1);
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       extension_info();
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       chdir($original);

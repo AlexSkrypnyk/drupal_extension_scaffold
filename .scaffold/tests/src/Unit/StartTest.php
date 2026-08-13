@@ -144,7 +144,7 @@ final class StartTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/start';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());
@@ -180,7 +180,7 @@ final class StartTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/start';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());
@@ -220,7 +220,7 @@ final class StartTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/start';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());
@@ -263,7 +263,7 @@ final class StartTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/start';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());
@@ -454,7 +454,7 @@ final class StartTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/start';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());

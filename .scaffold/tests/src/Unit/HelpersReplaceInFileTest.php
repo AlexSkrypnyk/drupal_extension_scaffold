@@ -58,11 +58,14 @@ final class HelpersReplaceInFileTest extends UnitTestCase {
   public function testReplaceInFileMissingFile(): void {
     $file = self::$tmp . '/nonexistent_' . uniqid() . '.txt';
     $this->mockQuit(1);
-    $this->expectException(QuitErrorException::class);
     set_error_handler(static fn(): bool => TRUE);
     ob_start();
     try {
       replace_in_file($file, '/foo/', 'bar');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       restore_error_handler();
@@ -76,11 +79,14 @@ final class HelpersReplaceInFileTest extends UnitTestCase {
     $file = self::$tmp . '/invalid_regex_' . uniqid() . '.txt';
     file_put_contents($file, 'test content');
     $this->mockQuit(1);
-    $this->expectException(QuitErrorException::class);
     set_error_handler(static fn(): bool => TRUE);
     ob_start();
     try {
       replace_in_file($file, '/(?invalid/', 'bar');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       restore_error_handler();

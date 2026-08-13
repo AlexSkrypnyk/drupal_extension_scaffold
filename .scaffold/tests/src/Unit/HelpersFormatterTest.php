@@ -59,11 +59,13 @@ final class HelpersFormatterTest extends UnitTestCase {
     $this->mockPosixIsatty($is_tty);
     $this->mockQuit(1);
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
-    $this->expectException(QuitErrorException::class);
-    $this->expectExceptionCode(1);
+    ob_start();
     try {
-      ob_start();
       FAIL('Test failure %s', 'message');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();
