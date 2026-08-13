@@ -10,7 +10,7 @@
         {
             "customType": "regex",
             "description": "Pinned container images the 'github-actions' manager cannot read: it covers 'uses:', 'container.image' and 'services.<id>.image' only, so a digest inside a 'run:' script, a CircleCI anchor or a PHP constant is invisible to it.",
-            "managerFilePatterns": [".circleci/config.yml", ".devtools/browser", ".github/workflows/scaffold-test.yml"],
+            "managerFilePatterns": [".circleci/config.yml", ".github/workflows/scaffold-test.yml"],
             "matchStrings": ["(?<depName>selenium/standalone-chromium):(?<currentValue>[\\w][\\w.\\-]*)@(?<currentDigest>sha256:[a-f0-9]{64})"],
             "datasourceTemplate": "docker"
         }
