@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
 use function DrupalExtensionScaffold\DevTools\copy_dir;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Traits\DirectoryFixtureTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -17,6 +18,8 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction('DrupalExtensionScaffold\DevTools\copy_dir')]
 #[Group('p0')]
 final class HelpersCopyDirTest extends UnitTestCase {
+
+  use DirectoryFixtureTrait;
 
   protected function setUp(): void {
     parent::setUp();
@@ -167,23 +170,6 @@ final class HelpersCopyDirTest extends UnitTestCase {
     copy_dir($src, $dst);
 
     $this->assertSame('new content', file_get_contents($dst . '/file.txt'));
-  }
-
-  protected function createDirectoryStructure(string $base_path, array $structure): void {
-    if (!is_dir($base_path)) {
-      mkdir($base_path, 0755, TRUE);
-    }
-
-    foreach ($structure as $name => $content) {
-      $path = $base_path . '/' . $name;
-      if (is_array($content)) {
-        mkdir($path, 0755, TRUE);
-        $this->createDirectoryStructure($path, $content);
-      }
-      else {
-        file_put_contents($path, $content);
-      }
-    }
   }
 
 }
