@@ -6,6 +6,7 @@ namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
 use function DrupalExtensionScaffold\DevTools\chmod_recursive;
 use function DrupalExtensionScaffold\DevTools\remove_dir;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Traits\DirectoryFixtureTrait;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -14,6 +15,8 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction('DrupalExtensionScaffold\DevTools\chmod_recursive')]
 #[Group('p0')]
 final class HelpersFilesystemTest extends UnitTestCase {
+
+  use DirectoryFixtureTrait;
 
   protected function setUp(): void {
     parent::setUp();
@@ -118,22 +121,6 @@ final class HelpersFilesystemTest extends UnitTestCase {
     chmod_recursive($dir, 0755);
     $this->assertTrue(is_link($dir . '/link.txt'));
     $this->assertSame(0644, fileperms($target_dir . '/target.txt') & 0777);
-  }
-
-  protected function createDirectoryStructure(string $base_path, array $structure): void {
-    if (!is_dir($base_path)) {
-      mkdir($base_path, 0755, TRUE);
-    }
-    foreach ($structure as $name => $content) {
-      $path = $base_path . '/' . $name;
-      if (is_array($content)) {
-        mkdir($path, 0755, TRUE);
-        $this->createDirectoryStructure($path, $content);
-      }
-      else {
-        file_put_contents($path, $content);
-      }
-    }
   }
 
 }
