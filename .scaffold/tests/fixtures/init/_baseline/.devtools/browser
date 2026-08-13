@@ -27,7 +27,8 @@ namespace DrupalExtensionScaffold\DevTools;
 
 require_once __DIR__ . '/helpers.php';
 
-// Directory holding the downloaded chromedriver binary and run logs.
+// Directory holding the downloaded chromedriver binary and run logs. Ignored
+// by git and safe to delete.
 const CHROMEDRIVER_DIR = '.chromedriver';
 
 const SELENIUM_CONTAINER = 'selenium';
