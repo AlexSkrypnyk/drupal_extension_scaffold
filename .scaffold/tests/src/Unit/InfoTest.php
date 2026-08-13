@@ -191,7 +191,7 @@ final class InfoTest extends UnitTestCase {
       files: ['.env' => TRUE],
       info_files: [],
       cwd: '/test/project',
-      file_contents: ['.env' => "TUNNEL_URL=" . $tunnel_url . "\n"],
+      file_contents: ['.env' => 'TUNNEL_URL=' . $tunnel_url . "\n"],
     );
 
     $output = $this->runInfoField('site-url', 0);

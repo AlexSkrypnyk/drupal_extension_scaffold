@@ -60,7 +60,7 @@ final class BrowserTest extends UnitTestCase {
 
       return FALSE;
     });
-    $this->registerMock('mkdir', 'DrupalExtensionScaffold\\DevTools', fn(): bool => TRUE);
+    $this->registerMock('mkdir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
     $this->mockSleep();
   }
 

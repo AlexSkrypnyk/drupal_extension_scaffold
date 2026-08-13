@@ -24,7 +24,7 @@ final class StopTest extends UnitTestCase {
 
   public function testStopDefaultPortWhenNoEnvAndNoDotenv(): void {
     // .env file does not exist - fall back to '8000'.
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockPassthru([
       'cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null",

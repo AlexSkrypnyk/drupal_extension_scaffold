@@ -37,7 +37,7 @@ final class StartTest extends UnitTestCase {
 
     // Mock passthru: 1) kill existing, 2) start server.
     $this->mockPassthruMultiple([
-      ['cmd' => sprintf("lsof -ti:%s | xargs kill -9 2>/dev/null", escapeshellarg($expected_port))],
+      ['cmd' => sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($expected_port))],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($expected_host), escapeshellarg($expected_port), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -349,7 +349,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
     // .env file does not exist.
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     // First port (8000) busy, second port (8001) free.
     // find_free_port uses stream_socket_client probe. Connect to 8000

@@ -294,7 +294,7 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'remove multiple matching lines' => [
       "# Remove\nkeep\n# Remove again",
       '# Remove',
-      "keep",
+      'keep',
     ];
 
     yield 'no match leaves content unchanged' => [
@@ -348,13 +348,13 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'block at start of file' => [
       "#;< META\nremoved\n#;> META\nkept",
       'META',
-      "kept",
+      'kept',
     ];
 
     yield 'block at end of file' => [
       "kept\n#;< META\nremoved\n#;> META",
       'META',
-      "kept",
+      'kept',
     ];
   }
 
@@ -423,7 +423,7 @@ final class InitHelpersTest extends UnitTestCase {
 
     yield 'remove multiple special comments' => [
       "#; first\nnormal\n#; second\n#; third",
-      "normal",
+      'normal',
     ];
 
     yield 'no special comments unchanged' => [
