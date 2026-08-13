@@ -56,7 +56,7 @@ $has_drush = is_file($drush_bin);
 
 $fields = [
   'drupal-version' => fn(): string => $has_drush ? info_drupal_version($drush_bin) : '-',
-  'php-version' => fn(): string => info_php_version(),
+  'php-version' => info_php_version(...),
   'composer' => fn(): string => info_tool_version('composer --version 2>/dev/null', '/Composer(?:\s+version)?\s+(\S+)/i'),
   'drush' => fn(): string => $has_drush ? info_tool_version(escapeshellarg($drush_bin) . ' --version 2>/dev/null', '/(\d+\.\d+\.\d+)/') : '-',
   'node' => fn(): string => info_tool_version('node --version 2>/dev/null', '/v?(.+)/'),
@@ -75,7 +75,7 @@ $fields = [
 // Field-mode dispatch.
 // -----------------------------------------------------------------------------
 
-$field = isset($argv[1]) && !str_starts_with((string) $argv[1], '-') ? (string) $argv[1] : NULL;
+$field = isset($argv[1]) && !str_starts_with($argv[1], '-') ? $argv[1] : NULL;
 if ($field !== NULL) {
   if (isset($fields[$field])) {
     echo $fields[$field]() . PHP_EOL;
@@ -96,21 +96,21 @@ echo '===============================' . PHP_EOL;
 echo '      ℹ️ ENVIRONMENT INFO      ' . PHP_EOL;
 echo '===============================' . PHP_EOL;
 echo PHP_EOL;
-printf("Drupal version:     %s%s", $values['drupal-version'], PHP_EOL);
-printf("PHP version:        %s%s%s", $values['php-version'], $php_path !== FALSE && $values['php-version'] !== '-' ? ' (' . $php_path . ')' : '', PHP_EOL);
-printf("Composer:           %s%s", $values['composer'], PHP_EOL);
-printf("Drush:              %s%s", $values['drush'], PHP_EOL);
-printf("Node / npm:         %s / %s%s", $values['node'], $values['npm'], PHP_EOL);
+printf('Drupal version:     %s%s', $values['drupal-version'], PHP_EOL);
+printf('PHP version:        %s%s%s', $values['php-version'], $php_path !== FALSE && $values['php-version'] !== '-' ? ' (' . $php_path . ')' : '', PHP_EOL);
+printf('Composer:           %s%s', $values['composer'], PHP_EOL);
+printf('Drush:              %s%s', $values['drush'], PHP_EOL);
+printf('Node / npm:         %s / %s%s', $values['node'], $values['npm'], PHP_EOL);
 echo PHP_EOL;
-printf("Webserver host:     %s (%s)%s", $values['webserver-host'], $host_source, PHP_EOL);
-printf("Webserver port:     %s (%s)%s", $values['webserver-port'], $port_source, PHP_EOL);
-printf("Site URL:           %s%s", $values['site-url'], PHP_EOL);
-printf("XDebug:             %s%s", $values['xdebug'], PHP_EOL);
-printf("WebDriver port:     %s%s", $values['webdriver-port'], PHP_EOL);
+printf('Webserver host:     %s (%s)%s', $values['webserver-host'], $host_source, PHP_EOL);
+printf('Webserver port:     %s (%s)%s', $values['webserver-port'], $port_source, PHP_EOL);
+printf('Site URL:           %s%s', $values['site-url'], PHP_EOL);
+printf('XDebug:             %s%s', $values['xdebug'], PHP_EOL);
+printf('WebDriver port:     %s%s', $values['webdriver-port'], PHP_EOL);
 echo PHP_EOL;
-printf("Build dir:          %s%s", $values['build-dir'], PHP_EOL);
-printf("Database:           %s%s", $values['database'], PHP_EOL);
-printf("Drupal profile:     %s%s", $values['drupal-profile'], PHP_EOL);
+printf('Build dir:          %s%s', $values['build-dir'], PHP_EOL);
+printf('Database:           %s%s', $values['database'], PHP_EOL);
+printf('Drupal profile:     %s%s', $values['drupal-profile'], PHP_EOL);
 echo PHP_EOL;
 
 // -----------------------------------------------------------------------------
