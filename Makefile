@@ -41,7 +41,7 @@ endef
 .PHONY: test-functional-javascript browser-start browser-stop
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 #;< DEV_JEST
-.PHONY: test-js
+.PHONY: test-javascript
 #;> DEV_JEST
 
 help:
@@ -75,7 +75,7 @@ help:
 	@echo "browser-stop               - Stop the browser."
 	@#;> DEV_FUNCTIONAL_JAVASCRIPT
 	@#;< DEV_JEST
-	@echo "test-js                    - Run JavaScript unit tests."
+	@echo "test-javascript            - Run JavaScript unit tests."
 	@#;> DEV_JEST
 
 build:
@@ -240,7 +240,7 @@ browser-stop:
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 
 #;< DEV_JEST
-test-js:
+test-javascript:
 	pushd "build" >/dev/null || exit 1 && \
 	([ ! -d node_modules ] || npm test) && \
 	popd >/dev/null || exit 1

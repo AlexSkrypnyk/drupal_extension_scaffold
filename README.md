@@ -355,13 +355,13 @@ make test-unit                    # Run Unit tests
 make test-kernel                  # Run Kernel tests
 make test-functional              # Run Functional tests
 make test-functional-javascript   # Run FunctionalJavascript tests
-make test-js                      # Run JavaScript unit tests (Jest)
+make test-javascript              # Run JavaScript unit tests (Jest)
 
 ahoy test-unit                    # Run Unit tests
 ahoy test-kernel                  # Run Kernel tests
 ahoy test-functional              # Run Functional tests
 ahoy test-functional-javascript   # Run FunctionalJavascript tests
-ahoy test-js                      # Run JavaScript unit tests (Jest)
+ahoy test-javascript              # Run JavaScript unit tests (Jest)
 ```
 
 ### Running FunctionalJavascript tests

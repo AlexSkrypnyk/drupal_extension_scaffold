@@ -155,7 +155,7 @@ commands:
   #;> DEV_FUNCTIONAL_JAVASCRIPT
 
   #;< DEV_JEST
-  test-js:
+  test-javascript:
     usage: Run JavaScript unit tests.
     cmd: |
       pushd "build" >/dev/null || exit 1

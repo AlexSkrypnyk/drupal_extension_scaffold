@@ -198,7 +198,7 @@ jobs:
         run: .devtools/provision
 
       #;< DEV_JEST
-      - name: Run JS tests
+      - name: Run JavaScript tests
         if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
         working-directory: build
         run: npm test
