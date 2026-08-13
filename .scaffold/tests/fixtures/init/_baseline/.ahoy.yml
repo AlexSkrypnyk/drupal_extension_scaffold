@@ -155,13 +155,14 @@ commands:
     cmd: echo -e "\n\033[36m$@\033[0m"
     hide: true
 
+# Override entrypoint to alter default behaviour of Ahoy.
 entrypoint:
   - bash
   - -c
   - -e
   - |
-    # Resolve a relative TMPDIR to an absolute path so tools that chdir into
-    # build still find it. No-op when unset or already absolute.
+    # Resolve a relative TMPDIR to an absolute path so tools that chdir (pushd
+    # build) still find it. No-op when unset or already absolute.
     if [ -n "${TMPDIR:-}" ]; then case "$TMPDIR" in /*) ;; *) TMPDIR="$PWD/$TMPDIR" ;; esac; mkdir -p "$TMPDIR"; export TMPDIR; fi
     extension="$(basename -s .info.yml -- ./*.info.yml)"
     export BROWSERTEST_OUTPUT_DIRECTORY="$PWD/.logs/browser_output"

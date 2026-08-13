@@ -20,16 +20,20 @@ class ForceCrystalSmokeJsTest extends ForceCrystalJsTestBase {
    * Tests WebDriver connectivity and screenshot generation.
    */
   public function testSmokeWebDriver(): void {
+    // Verify unauthenticated page renders.
     $this->drupalGet('/user/login');
     $this->createAutoScreenshot();
 
+    // Create user and log in.
     $account = $this->drupalCreateUser(['administer site configuration']);
     $this->assertNotEmpty($account);
     $this->drupalLogin($account);
 
+    // Verify authenticated page renders.
     $this->drupalGet('<front>');
     $this->createAutoScreenshot();
 
+    // Verify Drupal JavaScript API is available.
     $this->assertJsCondition('typeof Drupal !== "undefined" && typeof Drupal.behaviors !== "undefined"');
   }
 

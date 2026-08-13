@@ -20,12 +20,13 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver host and port, resolved via the env -> '.env' -> default chain.
+// Webserver host and port resolved via the env -> '.env' -> default
+// chain.
 $webserver = resolve_webserver();
 $webserver_host = $webserver['host'];
 $webserver_port = $webserver['port'];
 
-// Drupal installation profile to install the site with.
+// Drupal profile to use when installing the site.
 $drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
 
 // -----------------------------------------------------------------------------
@@ -73,6 +74,7 @@ if (isset($ext_json['suggest']) && is_array($ext_json['suggest'])) {
     if (!str_starts_with((string) $suggest, 'drupal/')) {
       continue;
     }
+    // Remove "drupal/" prefix and anything after ":".
     $module_name = preg_replace('/^drupal\//', '', (string) $suggest);
     $module_name = explode(':', (string) $module_name)[0];
     drush('pm:enable %s', [$module_name]);

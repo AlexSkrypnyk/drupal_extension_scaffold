@@ -16,7 +16,7 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver port, resolved via the env -> '.env' -> default chain.
+// Webserver port resolved via the env -> '.env' -> default chain.
 $webserver_port = resolve_webserver()['port'];
 
 // -----------------------------------------------------------------------------
