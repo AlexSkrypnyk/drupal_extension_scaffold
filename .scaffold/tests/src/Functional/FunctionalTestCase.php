@@ -9,8 +9,6 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait;
 
 /**
- * Class FunctionalTestCase.
- *
  * FunctionalTestCase fixture class.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
@@ -36,7 +34,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
       'build',
     ]);
 
-    // Change the current working directory to the 'system under test'.
     chdir(static::$sut);
   }
 

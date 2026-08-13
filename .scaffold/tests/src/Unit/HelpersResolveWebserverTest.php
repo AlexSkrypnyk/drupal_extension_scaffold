@@ -26,8 +26,7 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
 
-    // CI workflows preload WEBSERVER_HOST. Strip it so each test
-    // starts from a known baseline.
+    // Each test starts from a known baseline.
     $this->envUnset('WEBSERVER_HOST');
     $this->envUnset('WEBSERVER_PORT');
   }
@@ -75,7 +74,6 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
   }
 
   public function testAutoDiscoveryWritesPortAndUpdatesSource(): void {
-    // No env, no dotenv - auto-discovery kicks in.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
     $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 

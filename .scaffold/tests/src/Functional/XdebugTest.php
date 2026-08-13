@@ -9,10 +9,10 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests for the XDebug step-debugging toggle.
  *
- * The CI job for this group installs the xdebug PHP extension via
- * `coverage: xdebug` with a baseline `xdebug.mode=off`. The `debug` command
- * overrides via the `-d xdebug.mode=debug` runtime flag, and the running
- * server is queried through a probe file dropped in the docroot.
+ * The runner PHP for this group has the xdebug extension installed with a
+ * baseline `xdebug.mode=off`. The `debug` command overrides it via the
+ * `-d xdebug.mode=debug` runtime flag, and the running server is queried
+ * through a probe file dropped in the docroot.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -41,7 +41,7 @@ final class XdebugTest extends DevtoolsTestCase {
 
     // The Drupal `.ht.router.php` serves any file that physically exists, so
     // a PHP file dropped in the docroot runs in the same webserver whose
-    // xdebug configuration we are toggling.
+    // xdebug configuration the test toggles.
     $probe = self::$sut . '/build/web/_xdebug_check.php';
     file_put_contents($probe, '<?php echo ini_get("xdebug.mode") ?: "off";');
 

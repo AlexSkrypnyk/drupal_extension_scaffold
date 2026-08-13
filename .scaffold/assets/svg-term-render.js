@@ -21,7 +21,6 @@ const {render} = require('svg-term');
 // sync with fg colours.
 const svgTermDefaultTheme = require('svg-term/lib/default-theme');
 
-// Parse command line arguments.
 const args = process.argv.slice(2);
 
 if (args.length < 2 || args.includes('--help')) {
@@ -37,7 +36,6 @@ if (args.length < 2 || args.includes('--help')) {
 const inputFile = args[0];
 const outputFile = args[1];
 
-// Parse options.
 let at = null;
 let lineHeight = 1.0;
 let fontFamily = 'Consolas, "Courier New", Courier, "Liberation Mono", monospace';
@@ -67,7 +65,6 @@ if (lines.length > 0) {
   try {
     const header = JSON.parse(lines[0]);
     if (header.version === 3) {
-      // Convert header.
       header.version = 2;
       if (header.term) {
         header.width = header.term.cols;
@@ -80,7 +77,6 @@ if (lines.length > 0) {
         }
         delete header.term;
       }
-      // Convert event lines: relative timestamps to absolute, drop non-"o" events.
       const convertedLines = [JSON.stringify(header)];
       let absoluteTime = 0;
       for (let i = 1; i < lines.length; i++) {
@@ -144,7 +140,6 @@ if (at !== null) {
   options.at = at;
 }
 
-// Render SVG.
 try {
   const svg = render(input, options);
   fs.writeFileSync(outputFile, svg, 'utf8');

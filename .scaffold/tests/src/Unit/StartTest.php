@@ -32,10 +32,8 @@ final class StartTest extends UnitTestCase {
 
     $cwd = '/test/project';
 
-    // Mock getcwd().
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // Mock passthru: 1) kill existing, 2) start server.
     $this->mockPassthruMultiple([
       ['cmd' => sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($expected_port))],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($expected_host), escapeshellarg($expected_port), escapeshellarg($cwd), escapeshellarg($cwd))],
@@ -43,19 +41,15 @@ final class StartTest extends UnitTestCase {
 
     $this->mockSleep();
 
-    // Mock fsockopen() - success.
     $fp = fopen('php://memory', 'r');
     $this->assertNotFalse($fp);
     $this->registerMock('fsockopen', 'DrupalExtensionScaffold\\DevTools', fn() => $fp);
 
-    // Mock fclose().
     $this->registerMock('fclose', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Mock stream_context_create().
     $context = stream_context_create();
     $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
 
-    // Mock get_headers() - success with 200.
     $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['HTTP/1.1 200 OK']);
 
     ob_start();
@@ -115,7 +109,6 @@ final class StartTest extends UnitTestCase {
     $context = stream_context_create();
     $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
 
-    // Return 302 redirect - should still pass.
     $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['HTTP/1.1 302 Found']);
 
     ob_start();
@@ -142,10 +135,8 @@ final class StartTest extends UnitTestCase {
 
     $this->mockSleep();
 
-    // Mock fsockopen() - failure.
     $this->registerMock('fsockopen', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
-    // Mock file_get_contents for the error log.
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => 'PHP Fatal error: some error');
 
     $this->mockQuit(1);
@@ -182,7 +173,6 @@ final class StartTest extends UnitTestCase {
 
     $this->registerMock('fsockopen', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
-    // No log file content.
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockQuit(1);
@@ -223,7 +213,6 @@ final class StartTest extends UnitTestCase {
     $context = stream_context_create();
     $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
 
-    // get_headers returns FALSE.
     $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockQuit(1);
@@ -267,7 +256,6 @@ final class StartTest extends UnitTestCase {
     $context = stream_context_create();
     $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
 
-    // Return 500 - should fail.
     $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['HTTP/1.1 500 Internal Server Error']);
 
     $this->mockQuit(1);
@@ -294,11 +282,9 @@ final class StartTest extends UnitTestCase {
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // .env file exists with WEBSERVER_PORT=8123.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBSERVER_PORT=8123\n");
 
-    // file_put_contents must not be called - we read from .env, do not rewrite.
     $put_called = FALSE;
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function () use (&$put_called): false {
       $put_called = TRUE;
@@ -306,8 +292,6 @@ final class StartTest extends UnitTestCase {
       return FALSE;
     });
 
-    // stream_socket_server must not be called - we read from .env, do not
-    // discover.
     $stream_called = FALSE;
     $this->registerMock('stream_socket_server', 'DrupalExtensionScaffold\\DevTools', function () use (&$stream_called): false {
       $stream_called = TRUE;
@@ -348,12 +332,10 @@ final class StartTest extends UnitTestCase {
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // .env file does not exist.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
-    // First port (8000) busy, second port (8001) free.
-    // find_free_port uses stream_socket_client probe. Connect to 8000
-    // succeeds (port in use); connect to 8001 refused (port free).
+    // In find_free_port(), a successful stream_socket_client() connect means
+    // the port is in use and a refused connect means it is free.
     $port_attempts = 0;
     $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', function (string $address) use (&$port_attempts) {
       $port_attempts++;
@@ -364,7 +346,6 @@ final class StartTest extends UnitTestCase {
       return FALSE;
     });
 
-    // file_put_contents must be called to persist the discovered port.
     $persisted_port = NULL;
     $persisted_file = NULL;
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file, string $contents) use (&$persisted_port, &$persisted_file): int {
@@ -400,7 +381,8 @@ final class StartTest extends UnitTestCase {
     $this->assertStringContainsString('http://localhost:8001', $output);
     $this->assertSame('.env', $persisted_file);
     $this->assertSame('8001', $persisted_port);
-    // 2 probe calls: localhost:8000 (in use), localhost:8001 (free).
+    // The probe runs twice: localhost:8000 is in use and localhost:8001 is
+    // free.
     $this->assertSame(2, $port_attempts);
 
     fclose($fp);
@@ -412,9 +394,8 @@ final class StartTest extends UnitTestCase {
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // .env carries both the port and an active tunnel URL. The server still
-    // binds and is health-checked on the local host:port, but the READY
-    // banner reports the public tunnel URL.
+    // The server binds and is health-checked on the local host:port, but the
+    // READY banner reports the public tunnel URL.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBSERVER_PORT=8000\nTUNNEL_URL=" . $tunnel_url . "\n");
 
@@ -466,7 +447,6 @@ final class StartTest extends UnitTestCase {
     $context = stream_context_create();
     $this->registerMock('stream_context_create', 'DrupalExtensionScaffold\\DevTools', fn() => $context);
 
-    // Empty headers array - no [0] element.
     $this->registerMock('get_headers', 'DrupalExtensionScaffold\\DevTools', fn(): array => []);
 
     $this->mockQuit(1);

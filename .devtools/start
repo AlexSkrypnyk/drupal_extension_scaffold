@@ -16,21 +16,14 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver host and port. The helper resolves both via the
-// env -> '.env' -> default chain. With auto_discover: TRUE, a free
-// port is allocated and persisted to '.env' when neither env nor
-// '.env' provides one.
 $webserver = resolve_webserver(auto_discover: TRUE);
 $webserver_host = $webserver['host'];
 $webserver_port = $webserver['port'];
 
-// Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
 
-// Enable XDebug when XDebug env var is set. XDebug extension must be installed
-// and configured on host environment (php -v should show `with Xdebug`).
-// Coverage stays on pcov in test commands because xdebug.mode=debug does
-// not include "coverage", so pcov remains the active coverage driver.
+// xdebug.mode=debug does not include "coverage", so pcov remains the active
+// coverage driver.
 $xdebug_enabled = getenv_default('XDEBUG', '') !== '';
 $xdebug_flags = $xdebug_enabled ? ' -d xdebug.mode=debug -d xdebug.start_with_request=yes' : '';
 
@@ -79,7 +72,6 @@ if ($headers === FALSE || !isset($headers[0]) || !str_contains($headers[0], '200
 }
 PASS('Server can serve content.');
 
-// Run custom post-start scripts from "scripts/start-*.sh", if any.
 run_custom_scripts('scripts', 'start-');
 
 $site_url = resolve_site_url($webserver_host, $webserver_port);

@@ -1,6 +1,6 @@
 name: Test Scaffold
 
-# Workflow to **validate** the **integrity** of the scaffold template itself.
+# Validates the integrity of the scaffold template itself.
 
 on:
   push:
@@ -23,9 +23,8 @@ jobs:
       contents: read # Read repository contents; coverage is uploaded to external Codecov.
 
     env:
-      # In CI each job is a single project, so chromedriver runs on a fixed port
-      # that the pre-start step and the tests share; per-project auto-discovery
-      # is covered by the unit tests.
+      # In CI each job is a single project, so the pre-start step and the
+      # tests share a fixed chromedriver port.
       WEBDRIVER_PORT: ${{ matrix.backend == 'chromedriver' && '4444' || '' }}
 
     strategy:
@@ -34,10 +33,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         group: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
-        # Only the FunctionalJavascript groups (p3/p4) use a WebDriver backend.
-        # The excludes run every other group once and drop macOS+selenium, which
-        # is impossible because macOS runners have no Docker. The surviving JS
-        # jobs give: selenium on Linux, and chromedriver on both Linux and macOS.
+        # Only the FunctionalJavascript groups (p3/p4) use a WebDriver
+        # backend, so the excludes run every other group once. macOS runners
+        # have no Docker, so macOS with selenium is excluded as well.
         backend: ['selenium', 'chromedriver']
         exclude:
           - group: 'p0'
@@ -80,7 +78,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       # p5 swaps the coverage driver for the real xdebug extension so the
-      # XDebug toggle can be tested end-to-end. All other groups keep pcov.
+      # XDebug toggle can be tested end-to-end.
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:

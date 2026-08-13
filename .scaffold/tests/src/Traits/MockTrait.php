@@ -41,17 +41,14 @@ trait MockTrait {
   protected array $mockChecked = [];
 
   protected function mockTearDown(): void {
-    // Assert all mocks consumed using unified infrastructure.
     foreach (array_keys($this->mocks) as $function_name) {
       $this->assertMockConsumed($function_name);
     }
 
-    // Reset all mocks using unified infrastructure.
     foreach (array_keys($this->mocks) as $function_name) {
       $this->resetMock($function_name);
     }
 
-    // Clear unified registries.
     $this->mocks = [];
     $this->mockResponses = [];
     $this->mockIndices = [];
@@ -69,11 +66,9 @@ trait MockTrait {
    *   The callback to execute when the mocked function is called.
    */
   protected function registerMock(string $function_name, string $namespace, callable $callback): void {
-    // Create the mock object.
     $mock = $this->getFunctionMock($namespace, $function_name);
     $mock->expects($this->any())->willReturnCallback($callback);
 
-    // Store in registry.
     $this->mocks[$function_name] = $mock;
   }
 
@@ -86,13 +81,11 @@ trait MockTrait {
    *   Array of response configurations.
    */
   protected function addMockResponses(string $function_name, array $responses): void {
-    // Initialize if not exists.
     if (!isset($this->mockResponses[$function_name])) {
       $this->mockResponses[$function_name] = [];
       $this->mockIndices[$function_name] = 0;
     }
 
-    // Add responses to the queue.
     $this->mockResponses[$function_name] = array_merge(
       $this->mockResponses[$function_name],
       $responses
@@ -143,12 +136,10 @@ trait MockTrait {
    *   When not all responses were consumed.
    */
   protected function assertMockConsumed(string $function_name): void {
-    // Skip if no mock exists for this function.
     if (!isset($this->mocks[$function_name])) {
       return;
     }
 
-    // Skip if already checked.
     if (isset($this->mockChecked[$function_name]) && $this->mockChecked[$function_name]) {
       return;
     }
@@ -193,15 +184,12 @@ trait MockTrait {
    *   When more passthru calls are made than mocked responses available.
    */
   protected function mockPassthruMultiple(array $responses, string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
-    // Add responses to unified registry.
     $this->addMockResponses('passthru', $responses);
 
-    // If mock already exists, just add to responses and return.
     if (isset($this->mocks['passthru'])) {
       return;
     }
 
-    // Register the mock using unified infrastructure.
     $this->registerMock('passthru', $namespace, function ($command, &...$args): null|false {
       $response = $this->getNextMockResponse('passthru');
 
@@ -211,7 +199,6 @@ trait MockTrait {
         'return' => NULL,
       ];
 
-      // Validate response structure.
       // @phpstan-ignore-next-line isset.offset
       if (!isset($response['cmd'])) {
         throw new \InvalidArgumentException('Mocked passthru response must include "cmd" key to specify expected command.');
@@ -235,7 +222,6 @@ trait MockTrait {
         $matched = substr($matched, 2, -8);
       }
 
-      // Expectation error.
       if ($response['cmd'] !== $matched) {
         throw new \RuntimeException(sprintf('passthru() called with unexpected command. Expected "%s", got "%s".', $response['cmd'], $command));
       }
@@ -243,7 +229,7 @@ trait MockTrait {
       echo $response['output'];
 
       // Set exit code only if it was passed by reference.
-      // Using spread operator to distinguish between no argument and NULL.
+      // The spread operator distinguishes between no argument and NULL.
       if (count($args) > 0) {
         $args[0] = $response['result_code'];
       }
@@ -287,11 +273,9 @@ trait MockTrait {
     $quit
       ->expects($this->any())
       ->willReturnCallback(function (int $exit_code = 0) use ($code): void {
-        // Expectation error.
         if ($code !== $exit_code) {
           throw new \RuntimeException(sprintf('quit() called with unexpected exit code. Expected %d, got %d.', $code, $exit_code));
         }
-        // Non-zero exit code throws QuitErrorException to simulate exit.
         if ($code !== 0) {
           throw new QuitErrorException($code);
         }
@@ -299,7 +283,6 @@ trait MockTrait {
         throw new QuitSuccessException($code);
       });
 
-    // Store in unified registry.
     $this->mocks['quit'] = $quit;
   }
 
@@ -312,10 +295,8 @@ trait MockTrait {
    *   Namespace to mock the function in.
    */
   protected function mockPosixIsatty(bool $return_value, string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
-    // Add single response to unified registry.
     $this->addMockResponses('posix_isatty', [['value' => $return_value]]);
 
-    // Register mock if not already registered.
     if (!isset($this->mocks['posix_isatty'])) {
       $this->registerMock('posix_isatty', $namespace, function () {
         $response = $this->getNextMockResponse('posix_isatty');

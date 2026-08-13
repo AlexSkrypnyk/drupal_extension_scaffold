@@ -35,7 +35,6 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
 
-    // A freshly assembled project lints clean.
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -54,7 +53,6 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
     $this->assertProcessAnyOutputContains('your_extension.html.twig');
 
-    // lint-fix repairs the template through the symlink; lint passes again.
     $this->processRun('ahoy', ['lint-fix'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
 
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
@@ -62,12 +60,10 @@ final class AhoyTest extends DevtoolsTestCase {
   }
 
   public function testWorkflow(): void {
-    // Start without build fails.
     $this->processRun('ahoy', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
     $this->assertProcessAnyOutputNotContains('ENVIRONMENT READY');
 
-    // Stop without build succeeds.
     $this->processRun('ahoy', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
@@ -152,11 +148,10 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    // A relative TMPDIR must not break tools that run from build/. The
-    // lint and test wrappers chdir into build/ before running PHP tools,
-    // so a relative sys_get_temp_dir() resolves against build/ and
-    // tempnam() fails. The wrapper resolves TMPDIR to an absolute path
-    // first, so linting still passes when TMPDIR is relative.
+    // The lint and test wrappers chdir into build/ before running PHP tools,
+    // so a relative sys_get_temp_dir() resolves against build/ and tempnam()
+    // fails. The wrapper resolves TMPDIR to an absolute path first, so
+    // linting still passes when TMPDIR is relative.
     if (!is_dir(self::$sut . '/.logs/relative-tmp')) {
       mkdir(self::$sut . '/.logs/relative-tmp', 0777, TRUE);
     }
@@ -218,8 +213,8 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
-    // Projects without any JS tests (CSS-only modules, modules without custom
-    // JS) must still see `test-js` succeed.
+    // `test-js` must succeed in projects without any JS tests (CSS-only
+    // modules, modules without custom JS).
     unlink(self::$sut . '/js/your_extension.test.js');
 
     $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);

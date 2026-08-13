@@ -24,9 +24,6 @@ final class ProvisionTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  /**
-   * Build the drush command prefix.
-   */
   protected static function drushPrefix(string $cwd): string {
     return 'build/vendor/bin/drush -r ' . escapeshellarg($cwd . '/build/web') . ' -y ';
   }
@@ -48,10 +45,8 @@ final class ProvisionTest extends UnitTestCase {
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // Mock glob for extension_info().
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => [$extension_name . '.info.yml']);
 
-    // Track file_get_contents calls.
     $composer_json = json_encode(['suggest' => $suggested], JSON_THROW_ON_ERROR);
     $file_get_contents_calls = 0;
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use (&$file_get_contents_calls, $info_content, $composer_json) {
@@ -62,7 +57,7 @@ final class ProvisionTest extends UnitTestCase {
       if ($file === 'composer.json') {
         return $composer_json;
       }
-      // Pre-warming cache call.
+      // The cache pre-warm fetches the site over HTTP.
       if (str_starts_with($file, 'http://')) {
         return '<html></html>';
       }
@@ -80,26 +75,20 @@ final class ProvisionTest extends UnitTestCase {
       return FALSE;
     });
 
-    // Build expected passthru commands.
     $prefix = self::drushPrefix($cwd);
     $passthru_responses = [];
 
-    // 1. drush status --field=db-status.
     $passthru_responses[] = ['cmd' => $prefix . 'status --field=db-status', 'output' => $db_status];
 
-    // 2. If connected, drop DB.
     if (trim($db_status) === 'Connected') {
       $passthru_responses[] = ['cmd' => $prefix . 'sql:drop -y'];
     }
 
-    // 3. Site install.
     $db_file = site_db_file($extension_name);
     $passthru_responses[] = ['cmd' => $prefix . sprintf('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg($drupal_profile), escapeshellarg('sqlite://localhost/' . $db_file))];
 
-    // 4. drush status.
     $passthru_responses[] = ['cmd' => $prefix . 'status'];
 
-    // 5. Enable extension (theme or module).
     if ($extension_type === 'theme') {
       $passthru_responses[] = ['cmd' => $prefix . 'theme:enable ' . escapeshellarg($extension_name)];
     }
@@ -107,10 +96,8 @@ final class ProvisionTest extends UnitTestCase {
       $passthru_responses[] = ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)];
     }
 
-    // 6. Cache rebuild.
     $passthru_responses[] = ['cmd' => $prefix . 'cr'];
 
-    // 7. Enable suggested modules.
     $drupal_suggestions = [];
     foreach (array_keys($suggested) as $suggest) {
       if (str_starts_with((string) $suggest, 'drupal/')) {
@@ -121,7 +108,6 @@ final class ProvisionTest extends UnitTestCase {
       }
     }
 
-    // 8. drush uli.
     $site_url = sprintf('http://%s:%s', $expected_host, $expected_port);
     $passthru_responses[] = ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($site_url)), 'output' => $site_url . '/user/reset/1/abc/login'];
 

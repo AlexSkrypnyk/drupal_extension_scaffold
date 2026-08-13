@@ -28,20 +28,15 @@ final class HelpersCopyDirTest extends UnitTestCase {
     $src = self::$tmp . '/src_' . uniqid();
     $dst = self::$tmp . '/dst_' . uniqid();
 
-    // Create source directory structure.
     $this->createDirectoryStructure($src, $structure);
 
-    // Perform copy.
     copy_dir($src, $dst);
 
-    // Assert destination exists.
     $this->assertDirectoryExists($dst);
 
-    // Assert all expected files exist with correct content.
     foreach ($expected_files as $relative_path => $expected_content) {
       $full_path = $dst . '/' . $relative_path;
       if ($expected_content === NULL) {
-        // NULL means it's a directory.
         $this->assertDirectoryExists($full_path, sprintf('Directory %s should exist', $relative_path));
       }
       else {
@@ -143,19 +138,15 @@ final class HelpersCopyDirTest extends UnitTestCase {
     $src = self::$tmp . '/src_' . uniqid();
     $dst = self::$tmp . '/dst_' . uniqid();
 
-    // Create source with files.
     $this->createDirectoryStructure($src, [
       'new_file.txt' => 'new content',
     ]);
 
-    // Create destination with existing file.
     mkdir($dst, 0755, TRUE);
     file_put_contents($dst . '/existing.txt', 'existing content');
 
-    // Perform copy.
     copy_dir($src, $dst);
 
-    // Assert both files exist.
     $this->assertFileExists($dst . '/new_file.txt');
     $this->assertSame('new content', file_get_contents($dst . '/new_file.txt'));
     $this->assertFileExists($dst . '/existing.txt');
@@ -166,19 +157,15 @@ final class HelpersCopyDirTest extends UnitTestCase {
     $src = self::$tmp . '/src_' . uniqid();
     $dst = self::$tmp . '/dst_' . uniqid();
 
-    // Create source with file.
     $this->createDirectoryStructure($src, [
       'file.txt' => 'new content',
     ]);
 
-    // Create destination with same file but different content.
     mkdir($dst, 0755, TRUE);
     file_put_contents($dst . '/file.txt', 'old content');
 
-    // Perform copy.
     copy_dir($src, $dst);
 
-    // Assert file was overwritten.
     $this->assertSame('new content', file_get_contents($dst . '/file.txt'));
   }
 

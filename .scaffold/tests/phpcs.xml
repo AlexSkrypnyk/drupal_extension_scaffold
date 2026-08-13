@@ -2,9 +2,7 @@
 <ruleset name="custom">
     <description>Custom PHPCS standard for Scaffold tests.</description>
 
-    <!-- Using Drupal coding standard as a base-fix. -->
     <rule ref="Drupal"/>
-    <!-- Checks that the strict_types has been declared. -->
     <rule ref="Generic.PHP.RequireStrictTypes" />
     <rule ref="DrevOps"/>
 

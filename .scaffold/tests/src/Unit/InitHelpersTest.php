@@ -21,8 +21,6 @@ use function replace_string_content;
 use function uncomment_line;
 
 /**
- * Class InitHelpersTest.
- *
  * Unit tests for helper functions in init.php.
  */
 #[Group('p0')]

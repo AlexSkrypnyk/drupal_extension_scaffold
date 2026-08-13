@@ -12,8 +12,6 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 
 /**
- * Class UnitTestCase.
- *
  * UnitTestCase fixture class.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing

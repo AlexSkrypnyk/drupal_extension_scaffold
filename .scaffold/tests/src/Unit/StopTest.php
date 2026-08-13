@@ -23,7 +23,6 @@ final class StopTest extends UnitTestCase {
   }
 
   public function testStopDefaultPortWhenNoEnvAndNoDotenv(): void {
-    // .env file does not exist - fall back to '8000'.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockPassthru([
@@ -61,7 +60,6 @@ final class StopTest extends UnitTestCase {
   }
 
   public function testStopReadsPortFromDotenvWhenEnvUnset(): void {
-    // .env contains WEBSERVER_PORT=8123; env var is unset.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(): string => "WEBSERVER_PORT=8123\n");
 

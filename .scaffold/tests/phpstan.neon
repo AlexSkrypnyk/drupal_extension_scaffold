@@ -28,9 +28,8 @@ parameters:
 
   ignoreErrors:
     -
-      # Since tests and data providers do not have to have parameter docblocks,
-      # it is not possible to specify the type of the parameter, so we ignore
-      # this error.
+      # Tests and data providers do not require parameter docblocks, so the
+      # parameter type cannot be specified.
       message: '#.*no value type specified in iterable type array.#'
       reportUnmatched: false
     -
