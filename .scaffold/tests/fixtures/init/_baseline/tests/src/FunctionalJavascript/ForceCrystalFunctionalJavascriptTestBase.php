@@ -13,7 +13,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
  * @group force_crystal
  */
 #[Group('force_crystal')]
-abstract class ForceCrystalJsTestBase extends WebDriverTestBase {
+abstract class ForceCrystalFunctionalJavascriptTestBase extends WebDriverTestBase {
 
   /**
    * {@inheritdoc}

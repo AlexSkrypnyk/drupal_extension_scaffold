@@ -11,7 +11,7 @@
 +- **ESLint / Stylelint**: `make lint` / `make lint-fix` - never `npx eslint` or `npx stylelint`.
 +- **CSpell**: `make lint` - never `npx cspell`.
 +- **PHPUnit**: `make test` / `make test-unit` / `make test-kernel` / `make test-functional` - never `vendor/bin/phpunit`.
-+- **Jest**: `make test-js` - never `npx jest`.
++- **Jest**: `make test-javascript` - never `npx jest`.
 +- **Drush**: `make drush <command>` - never `build/vendor/bin/drush` directly.
 +
  Run each tool through its `ahoy` wrapper, never the binary directly:
@@ -46,7 +46,7 @@
 +- `make test-kernel` - Run kernel tests only
 +- `make test-functional` - Run functional tests only
 +- `make test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
-+- `make test-js` - Run JavaScript unit tests (Jest)
++- `make test-javascript` - Run JavaScript unit tests (Jest)
 +- `make browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 +- `make browser-stop` - Stop the browser
  - `ahoy test` - Run all tests

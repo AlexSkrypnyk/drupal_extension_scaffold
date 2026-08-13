@@ -15,7 +15,7 @@
 -- **ESLint / Stylelint**: `ahoy lint` / `ahoy lint-fix` - never `npx eslint` or `npx stylelint`.
 -- **CSpell**: `ahoy lint` - never `npx cspell`.
 -- **PHPUnit**: `ahoy test` / `ahoy test-unit` / `ahoy test-kernel` / `ahoy test-functional` - never `vendor/bin/phpunit`.
--- **Jest**: `ahoy test-js` - never `npx jest`.
+-- **Jest**: `ahoy test-javascript` - never `npx jest`.
  - **Drush**: `ahoy drush <command>` - never `build/vendor/bin/drush` directly.
  
  ### Build and Environment Management
@@ -46,7 +46,7 @@
 -- `ahoy test-kernel` - Run kernel tests only
 -- `ahoy test-functional` - Run functional tests only
 -- `ahoy test-functional-javascript` - Run FunctionalJavascript tests (uses the local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
--- `ahoy test-js` - Run JavaScript unit tests (Jest)
+-- `ahoy test-javascript` - Run JavaScript unit tests (Jest)
 -- `ahoy browser-start` - Start the browser for FunctionalJavascript tests (local Chrome by default; set `WEBDRIVER_BACKEND=selenium` for Docker)
 -- `ahoy browser-stop` - Stop the browser
  
