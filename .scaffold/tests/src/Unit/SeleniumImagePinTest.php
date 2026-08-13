@@ -9,11 +9,11 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Process\Process;
 
 /**
- * Tests that every Selenium image reference resolves to one pinned digest.
+ * Tests that every Selenium image reference in CI resolves to one digest.
  *
- * The image is a single dependency written out as a plain string in three
- * file formats that have no include mechanism, so the copies are held equal
- * by Renovate rather than by construction. A pin no manager can see falls
+ * The image is a single dependency written out as a plain string in file
+ * formats that have no include mechanism, so the copies are held equal by
+ * Renovate rather than by construction. A pin no manager can see falls
  * behind silently: nothing fails, and that job keeps pulling a browser the
  * rest of CI stopped using.
  *
@@ -29,27 +29,37 @@ final class SeleniumImagePinTest extends UnitTestCase {
   protected const string IMAGE = 'selenium/standalone-chromium';
 
   /**
-   * Files carrying a reference, relative to the repository root.
+   * Files pinning the image, relative to the repository root.
    */
   protected const array FILES = [
     '.circleci/config.yml',
-    '.devtools/browser',
     '.github/workflows/scaffold-test.yml',
     '.github/workflows/test.yml',
+  ];
+
+  /**
+   * Files referencing the image by tag alone, relative to the repository root.
+   *
+   * `.devtools/browser` starts a browser for a developer rather than for CI,
+   * and its default `chromedriver` backend already follows whatever Chrome
+   * the machine has installed. Pinning its Selenium backend would leave one
+   * file driving current Chromium one way and frozen Chromium the other.
+   */
+  protected const array UNPINNED = [
+    '.devtools/browser',
   ];
 
   /**
    * Files whose pin the Renovate `github-actions` manager cannot reach.
    *
    * That manager reads `uses:`, `container.image` and `services.<id>.image`,
-   * so a digest inside a `run:` script, a CircleCI anchor or a PHP constant
-   * needs the custom manager instead. `test.yml` is absent on purpose: its
-   * `services.image` pin is already managed, and a second manager over the
-   * same line would raise competing updates for it.
+   * so a digest inside a `run:` script or a CircleCI anchor needs the custom
+   * manager instead. `test.yml` is absent on purpose: its `services.image`
+   * pin is already managed, and a second manager over the same line would
+   * raise competing updates for it.
    */
   protected const array CUSTOM_MANAGED = [
     '.circleci/config.yml',
-    '.devtools/browser',
     '.github/workflows/scaffold-test.yml',
   ];
 
@@ -82,6 +92,23 @@ final class SeleniumImagePinTest extends UnitTestCase {
     }
   }
 
+  /**
+   * Tests that a launcher outside CI keeps following the moving tag.
+   */
+  #[DataProvider('dataProviderReferenceTracksLatest')]
+  public function testReferenceTracksLatest(string $file): void {
+    $contents = self::read($file);
+
+    $this->assertNotSame(0, preg_match_all(sprintf('#%s:#', preg_quote(self::IMAGE, '#')), $contents), sprintf('%s no longer references %s. Drop it from UNPINNED.', $file, self::IMAGE));
+    $this->assertSame(0, preg_match_all(self::pinPattern(), $contents), sprintf('%s pins a digest. It drives a browser for local development, where tracking current Chromium is preferred over reproducing CI.', $file));
+  }
+
+  public static function dataProviderReferenceTracksLatest(): \Iterator {
+    foreach (self::UNPINNED as $file) {
+      yield $file => ['file' => $file];
+    }
+  }
+
   public function testEveryReferenceSharesOneDigest(): void {
     $digests = [];
 
@@ -107,10 +134,10 @@ final class SeleniumImagePinTest extends UnitTestCase {
     $found = array_values(array_filter(explode("\n", trim($process->getOutput()))));
     sort($found);
 
-    $expected = self::FILES;
+    $expected = array_merge(self::FILES, self::UNPINNED);
     sort($expected);
 
-    $this->assertSame($expected, $found, sprintf('The set of files referencing %s has changed. Add or remove the file in %s::FILES so its digest is checked too.', self::IMAGE, self::class));
+    $this->assertSame($expected, $found, sprintf('The set of files referencing %s has changed. List the file in %s::FILES so its digest is checked, or in ::UNPINNED when it deliberately tracks the moving tag.', self::IMAGE, self::class));
   }
 
   /**
