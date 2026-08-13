@@ -133,7 +133,7 @@ final class AhoyTest extends DevtoolsTestCase {
       $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
     }
 
-    $this->runJsTests();
+    $this->runJavascriptTests();
 
     $this->runUnitTests();
 
@@ -204,20 +204,20 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
-  protected function runJsTests(): void {
-    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+  protected function runJavascriptTests(): void {
+    $this->processRun('ahoy', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
     File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
 
-    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('ahoy', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
-    // `test-js` must succeed in projects without any JS tests (CSS-only
-    // modules, modules without custom JS).
+    // `test-javascript` must succeed in projects without any JavaScript tests
+    // (CSS-only modules, modules without custom JavaScript).
     unlink(self::$sut . '/js/your_extension.test.js');
 
-    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('ahoy', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
   }
 
@@ -266,7 +266,7 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'assertNotEmpty', 'assertEmpty');
+    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeFunctionalJavascriptTest.php', 'assertNotEmpty', 'assertEmpty');
 
     $this->processRun('ahoy', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
