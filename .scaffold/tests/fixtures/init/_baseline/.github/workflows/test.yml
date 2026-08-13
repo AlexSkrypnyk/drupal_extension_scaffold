@@ -157,6 +157,8 @@ jobs:
           extensions: gd, sqlite, pdo_sqlite
           coverage: pcov
 
+      # Disable Symfony deprecations helper for PHP 8.4+ until minor
+      # versions of Drupal 10 and 11 fully support newer PHP versions.
       # @see https://www.drupal.org/project/drupal/issues/1267246
       - name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4+
         run: |

@@ -3,13 +3,13 @@
 # Opt-in post-provision hook: make Drupal serve correctly behind the tunnel.
 #
 # Activates only when CLOUDFLARE_TUNNEL is truthy. Appends reverse-proxy and
-# trusted-host settings to the freshly installed site's settings.php. Drupal
-# then trusts Cloudflare's X-Forwarded-* headers (correct HTTPS detection)
-# and accepts the `*.trycloudflare.com` hostname. Idempotent: the block is
-# written once per settings.php.
+# trusted-host settings to the freshly installed site's settings.php so Drupal
+# trusts Cloudflare's X-Forwarded-* headers (correct HTTPS detection) and
+# accepts the `*.trycloudflare.com` hostname. Idempotent: the block is written
+# once per settings.php.
 #
-# This lives in a provision hook rather than the start hook because `drush
-# site-install` rewrites settings.php during provision, which runs after
+# This lives in a provision hook rather than the start hook because
+# `drush site-install` rewrites settings.php during provision, which runs after
 # start. Pairs with `scripts/start-cloudflared.sh`. The current working
 # directory is the project root.
 

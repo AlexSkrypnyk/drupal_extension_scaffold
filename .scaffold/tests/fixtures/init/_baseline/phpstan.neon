@@ -1,8 +1,8 @@
 ##
 # Configuration file for PHPStan static code checking, see https://phpstan.org .
 #
-# Drupal-specific rules are included automatically by
-# phpstan/extension-installer.
+# Note that drupal-specific rules are automatically included by phpstan/extension-installer
+# from vendor/mglaman/phpstan-drupal/extension.neon and vendor/mglaman/phpstan-drupal/rules.neon
 # @see https://github.com/mglaman/phpstan-drupal
 #
 # Paths are declared in the `paths` key below, not passed as CLI
@@ -13,9 +13,9 @@ parameters:
   level: 7
 
   # PHPStan caches reflection data that embeds absolute paths into its own
-  # PHAR. The default cache directory is shared by every project on the
-  # machine, so entries left by a build that no longer exists break the next
-  # run.
+  # PHAR. The default cache directory is shared by every project on the machine,
+  # so entries left by a build that no longer exists break the next run. Keeping
+  # the cache beside this config scopes it to a single codebase.
   tmpDir: .phpstan
 
   paths:
