@@ -26,12 +26,12 @@ final class SeleniumImagePinTest extends UnitTestCase {
   /**
    * Image serving the WebDriver endpoint wherever the browser runs in Docker.
    */
-  protected const IMAGE = 'selenium/standalone-chromium';
+  protected const string IMAGE = 'selenium/standalone-chromium';
 
   /**
    * Files carrying a reference, relative to the repository root.
    */
-  protected const FILES = [
+  protected const array FILES = [
     '.circleci/config.yml',
     '.devtools/browser',
     '.github/workflows/scaffold-test.yml',
@@ -47,7 +47,7 @@ final class SeleniumImagePinTest extends UnitTestCase {
    * `services.image` pin is already managed, and a second manager over the
    * same line would raise competing updates for it.
    */
-  protected const CUSTOM_MANAGED = [
+  protected const array CUSTOM_MANAGED = [
     '.circleci/config.yml',
     '.devtools/browser',
     '.github/workflows/scaffold-test.yml',
@@ -61,12 +61,12 @@ final class SeleniumImagePinTest extends UnitTestCase {
    * image inside the pattern that manages these pins, so it describes a
    * reference rather than being one.
    */
-  protected const UNSCANNED = [
+  protected const array UNSCANNED = [
     ':!.scaffold/',
     ':!renovate.json',
   ];
 
-  #[DataProvider('dataProviderFiles')]
+  #[DataProvider('dataProviderReferenceIsPinned')]
   public function testReferenceIsPinned(string $file): void {
     $contents = self::read($file);
 
@@ -76,7 +76,7 @@ final class SeleniumImagePinTest extends UnitTestCase {
     $this->assertSame($tagged, $pinned, sprintf('%s references %s without a digest. Pin it to the digest the other files use.', $file, self::IMAGE));
   }
 
-  public static function dataProviderFiles(): \Iterator {
+  public static function dataProviderReferenceIsPinned(): \Iterator {
     foreach (self::FILES as $file) {
       yield $file => ['file' => $file];
     }
@@ -121,19 +121,17 @@ final class SeleniumImagePinTest extends UnitTestCase {
    * digest simply stops moving. Compiling the configured regex against the
    * real file is what turns that silence back into a failure.
    */
-  #[DataProvider('dataProviderCustomManaged')]
+  #[DataProvider('dataProviderRenovateManagesPin')]
   public function testRenovateManagesPin(string $file): void {
-    $config = json_decode(self::read('renovate.json'), TRUE, 512, JSON_THROW_ON_ERROR);
-    $this->assertIsArray($config);
-    $this->assertContains('custom.regex', $config['enabledManagers'], 'renovate.json does not enable the custom regex manager, so its customManagers entries never run.');
+    $this->assertContains('custom.regex', self::enabledManagers(), 'renovate.json does not enable the custom regex manager, so its customManagers entries never run.');
 
-    $manager = self::customManager($config, $file);
-    $this->assertNotNull($manager, sprintf('No renovate.json customManagers entry lists %s, so Renovate would never bump its digest.', $file));
+    $patterns = self::matchStrings($file);
+    $this->assertNotSame([], $patterns, sprintf('No renovate.json customManagers entry supplies a matchStrings regex for %s, so Renovate would never bump its digest.', $file));
 
     $contents = self::read($file);
     $matched = [];
 
-    foreach ($manager['matchStrings'] as $pattern) {
+    foreach ($patterns as $pattern) {
       if (preg_match(sprintf('#%s#', $pattern), $contents, $matches) === 1) {
         $matched[] = $matches['currentDigest'];
       }
@@ -143,7 +141,7 @@ final class SeleniumImagePinTest extends UnitTestCase {
     $this->assertSame(self::digests($file), array_values(array_unique($matched)), sprintf('The customManagers regex reads a different digest than %s actually pins.', $file));
   }
 
-  public static function dataProviderCustomManaged(): \Iterator {
+  public static function dataProviderRenovateManagesPin(): \Iterator {
     foreach (self::CUSTOM_MANAGED as $file) {
       yield $file => ['file' => $file];
     }
@@ -189,24 +187,75 @@ final class SeleniumImagePinTest extends UnitTestCase {
   }
 
   /**
-   * The customManagers entry covering a file, or NULL when none does.
+   * Decoded renovate.json.
    *
-   * @param array<string, mixed> $config
-   *   Decoded renovate.json.
+   * @return array<mixed, mixed>
+   *   Configuration, empty when the file does not decode to an object.
+   */
+  protected static function renovateConfig(): array {
+    $config = json_decode(self::read('renovate.json'), TRUE, 512, JSON_THROW_ON_ERROR);
+
+    return is_array($config) ? $config : [];
+  }
+
+  /**
+   * Managers renovate.json enables.
+   *
+   * @return array<int, string>
+   *   Manager names.
+   */
+  protected static function enabledManagers(): array {
+    return self::strings(self::renovateConfig()['enabledManagers'] ?? NULL);
+  }
+
+  /**
+   * Regexes the custom manager applies to a file.
+   *
    * @param string $file
    *   Path relative to the repository root.
    *
-   * @return array<string, mixed>|null
-   *   The matching entry.
+   * @return array<int, string>
+   *   The `matchStrings` of the entry listing the file, empty when none does.
    */
-  protected static function customManager(array $config, string $file): ?array {
-    foreach ($config['customManagers'] ?? [] as $manager) {
-      if (in_array($file, $manager['managerFilePatterns'] ?? [], TRUE)) {
-        return $manager;
+  protected static function matchStrings(string $file): array {
+    $entries = self::renovateConfig()['customManagers'] ?? NULL;
+
+    if (!is_array($entries)) {
+      return [];
+    }
+
+    foreach ($entries as $manager) {
+      if (is_array($manager) && in_array($file, self::strings($manager['managerFilePatterns'] ?? NULL), TRUE)) {
+        return self::strings($manager['matchStrings'] ?? NULL);
       }
     }
 
-    return NULL;
+    return [];
+  }
+
+  /**
+   * The strings held by a decoded JSON value.
+   *
+   * @param mixed $value
+   *   Decoded value of unknown shape.
+   *
+   * @return array<int, string>
+   *   Its string members, empty when it holds none.
+   */
+  protected static function strings(mixed $value): array {
+    if (!is_array($value)) {
+      return [];
+    }
+
+    $strings = [];
+
+    foreach ($value as $item) {
+      if (is_string($item)) {
+        $strings[] = $item;
+      }
+    }
+
+    return $strings;
   }
 
   /**
