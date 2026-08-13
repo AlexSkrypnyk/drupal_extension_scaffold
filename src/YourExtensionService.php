@@ -7,7 +7,7 @@ namespace Drupal\your_extension;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
- * Class to manage insertion of text into <noscript> tag.
+ * Provides the sanitized text configured for the your_extension module.
  */
 class YourExtensionService {
 
@@ -23,10 +23,10 @@ class YourExtensionService {
   }
 
   /**
-   * Inserts text into <noscript> tag.
+   * Returns the configured text with HTML tags stripped.
    *
    * @return string
-   *   The text to be inserted.
+   *   The 'text' value of 'your_extension.settings', sanitized.
    */
   public function getText(): string {
     $text = $this->configFactory->get('your_extension.settings')->get('text');

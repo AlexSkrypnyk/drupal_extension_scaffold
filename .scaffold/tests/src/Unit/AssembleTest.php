@@ -35,7 +35,8 @@ final class AssembleTest extends UnitTestCase {
    * @param array $config
    *   Configuration with keys: extension_name, extension_type, drupal_version,
    *   has_build_dir, has_patches,
-   *   github_token, has_suggestions, has_deprecations_disabled,
+   *   github_token, suggestions, extension_require, extension_require_dev,
+   *   has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
    *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap.
    */
@@ -597,7 +598,7 @@ final class AssembleTest extends UnitTestCase {
     ob_start();
     try {
       require dirname(__DIR__, 4) . '/.devtools/assemble';
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());

@@ -8,11 +8,13 @@
  * Records terminal sessions for init, build, lint, and test commands,
  * then converts the recordings to animated SVGs for use in README.md.
  *
- * Supports parallel execution: when run without arguments, launches all
- * recordings as parallel worker processes for faster generation.
+ * Supports parallel execution: when run without arguments, the lint and
+ * test recordings are launched as parallel worker processes for faster
+ * generation.
  *
- * Init runs first (it initialises the workspace), then build/lint/test
- * run in parallel on the initialised workspace.
+ * Init and build run sequentially (init initialises the workspace, build
+ * assembles the Drupal codebase), then lint and test run in parallel on
+ * the assembled workspace.
  *
  * Dependencies: asciinema, expect, node, npm
  *
@@ -82,8 +84,8 @@ function get_jobs(string $workspace_dir): array {
 /**
  * Main functionality - orchestrator mode.
  *
- * Runs init first (it modifies the workspace), then launches build/lint/test
- * as parallel worker processes.
+ * Runs init and build sequentially (they prepare the workspace), then
+ * launches lint and test as parallel worker processes.
  *
  * @param array<string> $only
  *   Optional list of asset names to regenerate (e.g. ['init']). When empty,

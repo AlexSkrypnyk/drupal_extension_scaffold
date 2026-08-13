@@ -475,7 +475,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
     - Go to your project -> **Settings** -> **SSH Permissions**
     - Put your private SSH key into the box. Leave **Hostname** empty.
     - Copy the fingerprint string from the CircleCI User Interface. Then,
-      replace the `deploy_ssh_fingerprint` value in the `.circleci/config.yml`
+      replace the `deploy_ssh_key_fingerprint` value in the `.circleci/config.yml`
       file with this copied fingerprint string.
     - Push the code to your repository.
 

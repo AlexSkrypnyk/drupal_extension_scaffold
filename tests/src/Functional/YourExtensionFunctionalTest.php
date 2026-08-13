@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Tests the functionality of YourExtensionService.
+ * Tests the functionality of YourExtensionForm.
  *
  * @coversDefaultClass \Drupal\your_extension\Form\YourExtensionForm
  *
@@ -30,7 +30,7 @@ class YourExtensionFunctionalTest extends BrowserTestBase {
   protected static $modules = ['your_extension'];
 
   /**
-   * Tests the functionality of the getText method.
+   * Tests that text saved through the settings form renders in <noscript>.
    */
   public function testGetText(): void {
     $account = $this->drupalCreateUser(['administer site configuration']);
