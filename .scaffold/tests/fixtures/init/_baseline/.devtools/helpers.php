@@ -245,11 +245,11 @@ function resolve_port_value(string $name, string $default, bool $auto_discover, 
 /**
  * Resolve the webserver host and port with source tracking.
  *
- * Wraps resolve_env_value() for both 'WEBSERVER_HOST' and
- * 'WEBSERVER_PORT'. Optionally auto-discovers a free port when neither
- * env nor the dotenv file provides one, persisting the discovered port
- * back to the dotenv file. Optionally validates that the resolved port
- * is a valid TCP port number.
+ * Resolves 'WEBSERVER_HOST' via resolve_env_value() and
+ * 'WEBSERVER_PORT' via resolve_port_value(). Optionally auto-discovers
+ * a free port when neither env nor the dotenv file provides one,
+ * persisting the discovered port back to the dotenv file. Optionally
+ * validates that the resolved port is a valid TCP port number.
  *
  * @param bool $auto_discover
  *   When TRUE and the port resolves from neither env nor dotenv,

@@ -189,7 +189,7 @@ PASS('Suggested dependencies installed.');
 // deprecation notices reach the page output and PHPUnit reads them as
 // functional test failures. The index.php and default.settings.php used by
 // the system under test get error_reporting() without deprecations. This
-// runs only when the deprecations helper is set to `disable`, which means
+// runs only when the deprecations helper is set to `disabled`, which means
 // deprecation notices are ignored.
 // @see https://www.drupal.org/project/drupal/issues/1267246
 if (getenv('SYMFONY_DEPRECATIONS_HELPER') === 'disabled') {

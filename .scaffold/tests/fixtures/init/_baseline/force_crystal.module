@@ -4,8 +4,11 @@
  * @file
  * Code for force_crystal module.
  *
- * This module adds content, set in the configuration form, to the bottom of
- * the page and shows it if JavaScript is disabled.
+ * Adds a <noscript> tag holding the text set in the configuration form,
+ * shown only when JavaScript is disabled, plus a
+ * div[data-force_crystal-time] element that js/force_crystal.js fills
+ * with the page load time. Attaches the force_crystal/global library to
+ * every page.
  */
 
 declare(strict_types=1);
