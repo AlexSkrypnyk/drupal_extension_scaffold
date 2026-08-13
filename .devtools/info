@@ -56,7 +56,7 @@ $has_drush = is_file($drush_bin);
 
 $fields = [
   'drupal-version' => fn(): string => $has_drush ? info_drupal_version($drush_bin) : '-',
-  'php-version' => fn(): string => info_php_version(),
+  'php-version' => info_php_version(...),
   'composer' => fn(): string => info_tool_version('composer --version 2>/dev/null', '/Composer(?:\s+version)?\s+(\S+)/i'),
   'drush' => fn(): string => $has_drush ? info_tool_version(escapeshellarg($drush_bin) . ' --version 2>/dev/null', '/(\d+\.\d+\.\d+)/') : '-',
   'node' => fn(): string => info_tool_version('node --version 2>/dev/null', '/v?(.+)/'),
@@ -75,7 +75,7 @@ $fields = [
 // Field-mode dispatch.
 // -----------------------------------------------------------------------------
 
-$field = isset($argv[1]) && !str_starts_with((string) $argv[1], '-') ? (string) $argv[1] : NULL;
+$field = isset($argv[1]) && !str_starts_with($argv[1], '-') ? $argv[1] : NULL;
 if ($field !== NULL) {
   if (isset($fields[$field])) {
     echo $fields[$field]() . PHP_EOL;

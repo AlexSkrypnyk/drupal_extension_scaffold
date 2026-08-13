@@ -9,9 +9,12 @@ parameters:
   paths:
     - src
     - ../../.devtools/assemble
+    - ../../.devtools/browser
     - ../../.devtools/deploy
     - ../../.devtools/helpers.php
+    - ../../.devtools/info
     - ../../.devtools/provision
+    - ../../.devtools/qrcode
     - ../../.devtools/start
     - ../../.devtools/stop
     - ../../init.php
