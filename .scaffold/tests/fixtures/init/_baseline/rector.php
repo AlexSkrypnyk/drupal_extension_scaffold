@@ -17,9 +17,7 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal11SetList;
-use DrupalRector\Set\Drupal9SetList;
+use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
@@ -39,7 +37,6 @@ use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRecto
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 // Rector and its embedded PHPStan cache reflection data that records
@@ -54,12 +51,14 @@ if (!is_dir($cache_dir)) {
 
 return RectorConfig::configure()
   ->withSkip([
-    // Specific rules to skip based on project coding standards.
+    // Specific rules to skip based on project coding standards. Rector only
+    // registers `AddOverrideAttributeToOverriddenMethodsRector` on the version
+    // resolved for Drupal 10 builds and warns that the entry is unused on
+    // newer ones, so it stays listed to cover both.
     AddOverrideAttributeToOverriddenMethodsRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CompleteDynamicPropertiesRector::class,
-    DisallowedEmptyRuleFixerRector::class,
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
@@ -89,12 +88,13 @@ return RectorConfig::configure()
     privatization: TRUE,
     naming: TRUE,
   )
-  // Drupal-specific deprecation fixes.
-  ->withSets([
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
-    Drupal11SetList::DRUPAL_11,
-  ])
+  // Drupal-specific deprecation fixes. The provider binds each set to a
+  // `drupal/core` version and only the sets the installed core satisfies are
+  // loaded, so the rules follow the version the extension is being built
+  // against. Both calls are required: the provider supplies the sets,
+  // `withComposerBased()` enables the group.
+  ->withSetProviders(DrupalSetProvider::class)
+  ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
