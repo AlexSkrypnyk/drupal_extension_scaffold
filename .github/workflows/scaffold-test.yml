@@ -31,7 +31,10 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-24.04, macos-latest]
+        # The status-check name of each job includes these matrix values, and
+        # the branch ruleset requires those names verbatim. Pinning the image
+        # here renames every check, so the required ones never report.
+        os: [ubuntu-latest, macos-latest]
         group: ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
         # Only the FunctionalJavascript groups (p3/p4) use a WebDriver
         # backend, so the excludes run every other group once. macOS runners
