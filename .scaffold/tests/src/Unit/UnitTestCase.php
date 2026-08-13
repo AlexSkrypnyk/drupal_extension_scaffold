@@ -26,6 +26,9 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   use SerializableClosureTrait;
 
   protected function tearDown(): void {
+    // Reset before the mock assertions so a failed mock expectation cannot
+    // leave environment variables set for the next test.
+    self::envReset();
     $this->mockTearDown();
     parent::tearDown();
   }

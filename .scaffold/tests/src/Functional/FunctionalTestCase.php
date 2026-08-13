@@ -45,7 +45,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
       throw new \RuntimeException('Fixtures directory is not set.');
     }
 
-    static::envReset();
     static::processTearDown();
 
     parent::tearDown();

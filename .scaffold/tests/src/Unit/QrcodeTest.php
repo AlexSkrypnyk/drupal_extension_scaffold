@@ -22,11 +22,6 @@ final class QrcodeTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   public function testQrcodeRendersQrcodeForUrlArgument(): void {
     // Rendering is opt-in.
     $this->envSet('QRCODE', '1');

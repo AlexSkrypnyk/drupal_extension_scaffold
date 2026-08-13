@@ -61,11 +61,6 @@ final class BrowserTest extends UnitTestCase {
     $this->mockSleep();
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   public function testBrowserUnknownCommand(): void {
     $output = $this->runBrowser('bogus', 1);
 

@@ -25,11 +25,6 @@ final class HelpersResolveEnvTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   public function testEnvWinsOverDotenv(): void {
     $file = self::$tmp . '/resolve_env_' . uniqid();
     file_put_contents($file, "FOO=from_dotenv\n");

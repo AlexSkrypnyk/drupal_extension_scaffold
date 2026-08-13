@@ -29,11 +29,6 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   public function testEmptyUrlDoesNothing(): void {
     // An empty URL short-circuits before the opt-in check or any probe.
     ob_start();
