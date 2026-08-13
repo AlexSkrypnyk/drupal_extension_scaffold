@@ -21,7 +21,7 @@ use Symfony\Component\Yaml\Yaml;
 #[Group('p0')]
 final class WorkflowsEnvContextTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderWorkflows')]
+  #[DataProvider('dataProviderEnvReferencesAreDefined')]
   public function testEnvReferencesAreDefined(string $path): void {
     $contents = file_get_contents($path);
     $this->assertIsString($contents);
@@ -37,7 +37,7 @@ final class WorkflowsEnvContextTest extends UnitTestCase {
     $this->assertSame([], $undefined, sprintf('%s reads environment variables that it never defines: %s', basename($path), implode(', ', $undefined)));
   }
 
-  public static function dataProviderWorkflows(): \Iterator {
+  public static function dataProviderEnvReferencesAreDefined(): \Iterator {
     $paths = glob(dirname(__DIR__, 4) . '/.github/workflows/*.yml');
 
     foreach ($paths ?: [] as $path) {
@@ -93,7 +93,7 @@ final class WorkflowsEnvContextTest extends UnitTestCase {
     preg_match_all('/\$\{\{(.*?)\}\}/s', $contents, $expressions);
 
     foreach ($expressions[1] as $expression) {
-      preg_match_all('/\benv\.([A-Za-z_][A-Za-z0-9_]*)/', $expression, $matches);
+      preg_match_all('/\benv\.([A-Za-z_]\w*)/', $expression, $matches);
       $referenced = array_merge($referenced, $matches[1]);
     }
 
