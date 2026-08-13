@@ -16,20 +16,21 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Webserver host and port, resolved via the env -> '.env' -> default chain.
-// With auto_discover: TRUE a free port is allocated and persisted to '.env'
-// when neither the environment nor '.env' provides one.
+// Webserver host and port. The helper resolves both via the
+// env -> '.env' -> default chain. With auto_discover: TRUE, a free
+// port is allocated and persisted to '.env' when neither env nor
+// '.env' provides one.
 $webserver = resolve_webserver(auto_discover: TRUE);
 $webserver_host = $webserver['host'];
 $webserver_port = $webserver['port'];
 
-// Seconds to wait for the webserver to start accepting connections.
+// Webserver wait timeout.
 $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
 
-// Set XDEBUG to any non-empty value to enable step debugging. The XDebug
-// extension must be installed and configured on the host ('php -v' shows
-// 'with Xdebug'). Coverage stays on pcov in the test commands, because
-// xdebug.mode=debug does not include "coverage".
+// Enable XDebug when XDebug env var is set. XDebug extension must be installed
+// and configured on host environment (php -v should show `with Xdebug`).
+// Coverage stays on pcov in test commands because xdebug.mode=debug does
+// not include "coverage", so pcov remains the active coverage driver.
 $xdebug_enabled = getenv_default('XDEBUG', '') !== '';
 $xdebug_flags = $xdebug_enabled ? ' -d xdebug.mode=debug -d xdebug.start_with_request=yes' : '';
 

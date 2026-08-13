@@ -28,24 +28,23 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
-// Name of the user committing to the remote repository.
+// Name of the user who will be committing to a remote repository.
 $deploy_user_name = getenv_required('DEPLOY_USER_NAME');
 
-// Email address of the user committing to the remote repository.
+// Email address of the user who will be committing to a remote repository.
 $deploy_user_email = getenv_required('DEPLOY_USER_EMAIL');
 
-// Remote repository to push the code to.
+// Remote repository to push code to.
 $deploy_remote = getenv_required('DEPLOY_REMOTE');
 
-// Branch to deploy. Defaults to the current branch when unset.
+// Git branch to deploy. If not provided - current branch will be used.
 $deploy_branch = getenv_default('DEPLOY_BRANCH', '');
 
-// Set to 1 to perform the deployment. Any other value stops the script before
-// the remote is contacted, which validates CI configuration without pushing
-// code.
+// Set to 1 if the deployment should proceed. Useful for testing CI
+// configuration before an actual code push.
 $deploy_proceed = getenv_default('DEPLOY_PROCEED', '0');
 
-// Fingerprint of the SSH key to deploy with, in either MD5 or SHA256 form.
+// The fingerprint of the SSH key.
 $deploy_ssh_key_fingerprint = getenv_default('DEPLOY_SSH_KEY_FINGERPRINT', '');
 
 // -----------------------------------------------------------------------------
@@ -62,8 +61,7 @@ if ($deploy_ssh_key_fingerprint !== '') {
   }
   file_put_contents($ssh_dir . '/config', "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n");
 
-  // The key file is named after the MD5 fingerprint, so a SHA256 fingerprint
-  // is matched against each key and resolved to its MD5 form first.
+  // Find the MD5 hash if the DEPLOY_SSH_KEY_FINGERPRINT starts with SHA256.
   if (str_starts_with($deploy_ssh_key_fingerprint, 'SHA256:')) {
     foreach (glob($home . '/.ssh/id_rsa*') ?: [] as $key_file) {
       $sha256_output = [];
