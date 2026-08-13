@@ -106,7 +106,7 @@ jobs:
       - name: Start Chromium (selenium backend, Linux only)
         if: runner.os == 'Linux' && matrix.backend == 'selenium' && (matrix.group == 'p3' || matrix.group == 'p4')
         run: |
-          docker run -d --name chromium -p 4444:4444 selenium/standalone-chromium:latest@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
+          docker run -d --name chromium -p 4444:4444 selenium/standalone-chromium:latest@sha256:1d3d834a2ce93f26cc0d0ae3c61abd189755b32649f5c356c6c5cf9502aa397e
           for _ in $(seq 1 30); do curl -s http://localhost:4444/status | grep -q '"ready": true' && break; sleep 1; done
           curl -s http://localhost:4444/status | grep -q '"ready": true' || { echo 'ERROR: Chromium failed to become ready after 30 seconds.'; exit 1; }
 
