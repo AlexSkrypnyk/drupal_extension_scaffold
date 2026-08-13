@@ -124,7 +124,7 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
 
     // Pre-populate .env with a specific free port choice.
     $preset_port = $this->pickFreePortForTest();
-    file_put_contents($sut . '/.env', "WEBSERVER_PORT=" . $preset_port . "\n# user comment\n");
+    file_put_contents($sut . '/.env', 'WEBSERVER_PORT=' . $preset_port . "\n# user comment\n");
     $original_env = file_get_contents($sut . '/.env');
 
     $this->processCwd = $sut;
