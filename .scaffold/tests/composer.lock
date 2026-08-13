@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "277e197e6baa9647d6b461fb81025cff",
+    "content-hash": "a4262eef8fee98cd3a7a152a359aa0b5",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -3821,16 +3821,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.4.13",
+            "version": "v7.4.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "a7ec3b1156faf8815db7683ec7c1e7338e6f977c"
+                "reference": "e101850ded5d2c0d44bf32abb8996404afec2dec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/a7ec3b1156faf8815db7683ec7c1e7338e6f977c",
-                "reference": "a7ec3b1156faf8815db7683ec7c1e7338e6f977c",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/e101850ded5d2c0d44bf32abb8996404afec2dec",
+                "reference": "e101850ded5d2c0d44bf32abb8996404afec2dec",
                 "shasum": ""
             },
             "require": {
@@ -3873,7 +3873,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.4.13"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.15"
             },
             "funding": [
                 {
@@ -3893,7 +3893,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-25T06:06:12+00:00"
+            "time": "2026-07-21T15:13:06+00:00"
         },
         {
             "name": "theseer/tokenizer",
