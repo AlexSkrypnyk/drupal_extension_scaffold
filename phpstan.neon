@@ -5,7 +5,8 @@
 # phpstan/extension-installer.
 # @see https://github.com/mglaman/phpstan-drupal
 #
-# Paths are passed as CLI arguments.
+# Paths are declared in the `paths` key below, not passed as CLI
+# arguments.
 
 parameters:
 

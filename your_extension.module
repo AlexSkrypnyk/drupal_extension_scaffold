@@ -4,8 +4,11 @@
  * @file
  * Code for your_extension module.
  *
- * This module adds content, set in the configuration form, to the bottom of
- * the page and shows it if JavaScript is disabled.
+ * Adds a <noscript> tag holding the text set in the configuration form,
+ * shown only when JavaScript is disabled, plus a
+ * div[data-your-extension-time] element that js/your_extension.js fills
+ * with the page load time. Attaches the your_extension/global library to
+ * every page.
  */
 
 declare(strict_types=1);

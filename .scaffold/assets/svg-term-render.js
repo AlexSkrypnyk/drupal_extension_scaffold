@@ -11,7 +11,8 @@
  * Options:
  *   --at <ms>          Timestamp of frame to render
  *   --line-height <n>  Line height multiplier (default: 1.0)
- *   --font-family <s>  Font family (default: Consolas, monospace)
+ *   --font-family <s>  Font family (default: Consolas, "Courier New",
+ *                      Courier, "Liberation Mono", monospace)
  */
 
 const fs = require('fs');
@@ -29,7 +30,7 @@ if (args.length < 2 || args.includes('--help')) {
   console.log('Options:');
   console.log('  --at <ms>          Timestamp of frame to render');
   console.log('  --line-height <n>  Line height multiplier (default: 1.0)');
-  console.log('  --font-family <s>  Font family (default: Consolas, monospace)');
+  console.log('  --font-family <s>  Font family (default: Consolas, "Courier New", Courier, "Liberation Mono", monospace)');
   process.exit(args.includes('--help') ? 0 : 1);
 }
 

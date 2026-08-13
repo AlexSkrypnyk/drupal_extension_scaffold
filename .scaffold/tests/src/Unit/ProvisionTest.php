@@ -64,7 +64,6 @@ final class ProvisionTest extends UnitTestCase {
       return '';
     });
 
-    // Track file_exists calls.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($has_ahoy, $has_makefile): bool {
       if ($file === '.ahoy.yml') {
         return $has_ahoy;

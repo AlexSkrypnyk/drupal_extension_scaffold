@@ -150,7 +150,8 @@ function main(array $argv): void {
   $remove_cloudflare = !($results['cloudflare'] ?? FALSE);
   $remove_self = $results['remove_self'] ?? FALSE;
 
-  // Derive machine name from extension name if the user accepted placeholder.
+  // Derive machine name from extension name when the placeholder was kept
+  // or the machine name was left empty.
   if ($machine_name === 'my_extension' || $machine_name === '') {
     $machine_name = convert_string($name, 'file_name');
   }
@@ -1152,9 +1153,9 @@ function remove_special_comments(): void {
  * Deduplicate the CSpell `words` allowlist after bulk replacements.
  *
  * Scaffold placeholders (alexskrypnyk, yournamespace, yourproject) are also
- * present in the CSpell `words` array. The global rename inside `process()`
- * rewrites them all to the extension machine name, producing duplicate
- * entries.
+ * present in the CSpell `words` array. The global rename inside
+ * `process_internal()` rewrites them all to the extension machine name,
+ * producing duplicate entries.
  */
 function normalize_cspell_words(): void {
   if (!file_exists('.cspell.json')) {
