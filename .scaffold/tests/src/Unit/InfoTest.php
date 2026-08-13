@@ -24,8 +24,8 @@ final class InfoTest extends UnitTestCase {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
 
-    // CI workflows pre-populate WEBSERVER_HOST and friends in the job
-    // environment. Strip them so each test starts from a known state and
+    // CI workflows pre-populate WEBSERVER_HOST and related variables in the
+    // job environment. Strip them so each test starts from a known state and
     // sees only the values it sets explicitly via envSet().
     $this->envUnset('WEBSERVER_HOST');
     $this->envUnset('WEBSERVER_PORT');
@@ -280,8 +280,8 @@ final class InfoTest extends UnitTestCase {
   }
 
   public function testInfoDrushDrupalVersionFallbackWhenStatusReturnsNothing(): void {
-    // Drush binary exists but `drush status --field=drupal-version` returns
-    // empty (e.g. before site install). Drush version is still reported.
+    // The drush binary exists but `drush status --field=drupal-version`
+    // returns empty, for example before the site is installed.
     $cwd = '/test/project';
     $drush_bin = 'build/vendor/bin/drush';
 
@@ -444,7 +444,7 @@ final class InfoTest extends UnitTestCase {
 
   public function testInfoFieldModeBypassedForFlagLikeArg(): void {
     // phpunit may pass its own argv (e.g. '--no-coverage') through to the
-    // included script. Args starting with '-' must NOT trigger field mode.
+    // included script. Args starting with '-' must not trigger field mode.
     $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: [],

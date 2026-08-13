@@ -12,9 +12,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Tests for the print_qrcode() helper.
  *
- * Runs in isolated processes so the exec() mock that stands in for the
- * `qrencode` probe is not polluted by sibling tests that invoke the real
- * command_path() in the shared process.
+ * Runs in isolated processes so the exec() mock for the `qrencode` probe is
+ * not polluted by sibling tests. Those tests invoke the real command_path()
+ * in the shared process.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -45,8 +45,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testDisabledByDefaultDoesNothing(): void {
-    // QRCODE unset in both the environment and '.env': opt-in means nothing is
-    // drawn, and qrencode is never even probed.
+    // QRCODE is unset in both the environment and '.env'. The feature is
+    // opt-in, so nothing is drawn and qrencode is not probed.
     $this->envUnset('QRCODE');
     $this->mockDotenvAbsent();
 

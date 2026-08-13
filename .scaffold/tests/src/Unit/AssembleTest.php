@@ -63,7 +63,6 @@ final class AssembleTest extends UnitTestCase {
     $cwd = '/test/project';
     $drupal_version_major = explode('.', explode('@', (string) $config['drupal_version'])[0])[0];
 
-    // Build composer.json content.
     $composer_json = ['name' => 'drupal/' . $config['extension_name']];
     if ($config['extension_require'] !== []) {
       $composer_json['require'] = $config['extension_require'];
@@ -76,8 +75,8 @@ final class AssembleTest extends UnitTestCase {
     }
     $composer_json_str = json_encode($composer_json, JSON_THROW_ON_ERROR);
 
-    // Build/composer.json content (scaffold, with extension require/require-dev
-    // merged in to mirror the real assemble flow).
+    // The scaffold's build/composer.json merges the extension's require and
+    // require-dev, mirroring the real assemble flow.
     $build_composer_json = json_encode([
       'repositories' => [
         ['type' => 'composer', 'url' => 'https://packages.drupal.org/8'],
@@ -90,10 +89,8 @@ final class AssembleTest extends UnitTestCase {
 
     $dev_composer_json = json_encode(['require-dev' => ['drupal/coder' => '^8']], JSON_THROW_ON_ERROR);
 
-    // Mock getcwd().
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    // Mock exec for command_must_exist.
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): string {
       $output ??= [];
       $code = 0;
@@ -103,7 +100,6 @@ final class AssembleTest extends UnitTestCase {
       return '';
     });
 
-    // Mock glob - for extension_info and symlink section.
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', function (string $pattern) use ($config, $cwd): array {
       if ($pattern === '*.info.yml') {
         return [$config['extension_name'] . '.info.yml'];
@@ -114,7 +110,6 @@ final class AssembleTest extends UnitTestCase {
       return [];
     });
 
-    // Mock file_exists - multiple contexts.
     $all_tool_files = ['.eslintignore', '.eslintrc.json', '.prettierignore', '.prettierrc.json', '.stylelintrc.js', '.twig-cs-fixer.php', 'package-lock.json', 'package.json', 'phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'phpunit.xml', 'rector.php'];
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($config, $all_tool_files, $drupal_version_major) {
       if ($file === 'composer.json') {
@@ -145,10 +140,9 @@ final class AssembleTest extends UnitTestCase {
       return FALSE;
     });
 
-    // Mock is_dir - multiple contexts.
-    // Track 'build' dir calls: first call from assemble returns config value,
-    // subsequent calls from chmod_recursive/remove_dir return false to avoid
-    // real filesystem iteration.
+    // The first 'build' check comes from assemble and returns the config
+    // value. Later checks come from chmod_recursive and remove_dir and return
+    // FALSE to avoid real filesystem iteration.
     $build_dir_checked = FALSE;
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', function (string $path) use ($config, &$build_dir_checked) {
       if ($path === 'build') {
@@ -168,7 +162,7 @@ final class AssembleTest extends UnitTestCase {
         return FALSE;
       }
       if (str_contains($path, '/custom')) {
-        // For the symlink section remove_dir check.
+        // The symlink section calls remove_dir() on the custom directory.
         return TRUE;
       }
       if ($path === 'build/node_modules') {
@@ -177,10 +171,8 @@ final class AssembleTest extends UnitTestCase {
       return FALSE;
     });
 
-    // Mock mkdir.
     $this->registerMock('mkdir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Mock file_get_contents - different files.
     $info_content = $config['extension_type'] === 'theme' ? "name: Test\ntype: theme\n" : "name: Test\ntype: module\n";
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content, $composer_json_str, $build_composer_json, $dev_composer_json) {
       if (str_ends_with($file, '.info.yml')) {
@@ -201,7 +193,6 @@ final class AssembleTest extends UnitTestCase {
       return '';
     });
 
-    // Mock file_put_contents - capture writes to build/composer.json.
     $this->capturedBuildComposerJson = [];
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file, string $content): int {
       if ($file === 'build/composer.json') {
@@ -210,44 +201,34 @@ final class AssembleTest extends UnitTestCase {
       return 100;
     });
 
-    // Mock copy.
     $this->registerMock('copy', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Mock symlink.
     $this->registerMock('symlink', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Mock putenv.
     $this->registerMock('putenv', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Mock unlink (for removing composer.lock after create-project).
     $this->registerMock('unlink', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
-    // Build passthru sequence.
     $passthru_responses = [];
 
-    // 1. composer validate.
     $passthru_responses[] = ['cmd' => 'composer validate --ansi --strict'];
 
-    // 2. composer create-project.
     $drupal_version = $config['drupal_version'] ?? '11';
     $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version))];
 
-    // 3. Patches copy (if applicable).
     if ($config['has_patches']) {
-      // copy_dir is called but it's a real function that uses PHP iterators,
-      // so we don't need to mock it separately - tested in HelpersCopyDirTest.
+      // copy_dir() is a real function using PHP iterators and needs no mock.
+      // HelpersCopyDirTest covers it.
     }
 
-    // 5. GitHub token (if applicable).
     if ($config['github_token'] !== '') {
       $passthru_responses[] = ['cmd' => sprintf('composer config --global github-oauth.github.com %s', escapeshellarg((string) $config['github_token']))];
     }
 
-    // 6. composer install.
     $passthru_responses[] = ['cmd' => 'composer --working-dir=build install'];
 
-    // 7. Suggested dependencies. Entries already present in the extension's
-    // require / require-dev are skipped (no composer require call).
+    // Entries already present in the extension's require or require-dev are
+    // skipped, so no composer require call is expected for them.
     foreach (array_keys($config['suggestions']) as $suggest) {
       if (isset($config['extension_require'][$suggest])) {
         continue;
@@ -260,7 +241,6 @@ final class AssembleTest extends UnitTestCase {
       $passthru_responses[] = ['cmd' => sprintf('composer --working-dir=build require %s', escapeshellarg((string) $suggest))];
     }
 
-    // 8. NPM install (suppressed) and build (shown), if applicable.
     if ($config['has_package_lock'] && !$config['has_skip_npm_build']) {
       $nvm = $config['has_nvmrc'] ? 'nvm use && ' : '';
       if (!$config['has_node_modules']) {
@@ -278,11 +258,10 @@ final class AssembleTest extends UnitTestCase {
       $this->envSet($name, $value);
     }
 
-    // Ensure GITHUB_TOKEN is controlled - use envSet with empty string
-    // to ensure it overrides any inherited env vars.
+    // An explicit empty value overrides GITHUB_TOKEN inherited from the
+    // environment.
     $this->envSet('GITHUB_TOKEN', $config['github_token'] ?? '');
 
-    // Ensure SYMFONY_DEPRECATIONS_HELPER is controlled.
     if ($config['has_deprecations_disabled'] ?? FALSE) {
       $this->envSet('SYMFONY_DEPRECATIONS_HELPER', 'disabled');
     }
@@ -321,10 +300,8 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString("Extension's code symlinked", $output);
     $this->assertStringContainsString('ASSEMBLE COMPLETE', $output);
 
-    // Verify test dependencies were configured.
     $this->assertStringContainsString('Test dependencies configured', $output);
     $this->assertNotEmpty($this->capturedBuildComposerJson, 'Expected at least one write to build/composer.json');
-    // Check that symfony/phpunit-bridge was added in one of the writes.
     $all_writes = implode("\n", $this->capturedBuildComposerJson);
     $this->assertStringContainsString('symfony/phpunit-bridge', $all_writes);
 
@@ -419,9 +396,6 @@ final class AssembleTest extends UnitTestCase {
         'tool_files' => ['phpcs.xml', 'phpunit.xml'],
       ],
     ];
-    // 'drupal/token' is BOTH a dev dependency AND a suggestion. Without the
-    // skip, composer require would prompt to move it from require-dev to
-    // require and hang the build.
     yield 'suggested dependency overlaps with require-dev' => [
       'env' => [],
       'config' => [
@@ -616,7 +590,6 @@ final class AssembleTest extends UnitTestCase {
     $this->envUnset('GITHUB_TOKEN');
     $this->envUnset('SYMFONY_DEPRECATIONS_HELPER');
 
-    // Override file_exists to return false for composer.json.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): false => FALSE);
 
     $this->mockQuit(1);

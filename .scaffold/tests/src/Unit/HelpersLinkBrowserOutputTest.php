@@ -39,7 +39,6 @@ final class HelpersLinkBrowserOutputTest extends UnitTestCase {
     $this->assertTrue(is_link($link));
     $this->assertSame($target, readlink($link));
 
-    // Output written through the link lands in the logs directory.
     file_put_contents($link . '/page.html', 'dump');
     $this->assertFileExists($target . '/page.html');
   }
@@ -54,7 +53,6 @@ final class HelpersLinkBrowserOutputTest extends UnitTestCase {
 
     $link = $webroot . '/sites/simpletest/browser_output';
     $this->assertTrue(is_link($link));
-    // The pre-existing target directory and its contents are preserved.
     $this->assertFileExists($logs . '/browser_output/existing.html');
   }
 

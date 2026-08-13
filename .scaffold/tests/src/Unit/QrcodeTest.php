@@ -28,7 +28,7 @@ final class QrcodeTest extends UnitTestCase {
   }
 
   public function testQrcodeRendersQrcodeForUrlArgument(): void {
-    // Rendering is opt-in; enable it for this run.
+    // Rendering is opt-in.
     $this->envSet('QRCODE', '1');
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
       $output ??= [];

@@ -87,7 +87,7 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
   }
 
   /**
-   * Create a screenshot with an auto-generated filename.
+   * Creates a screenshot with an auto-generated filename.
    *
    * Filename format: {ms_timestamp}-{Class}-{method}-L{line}.png.
    *

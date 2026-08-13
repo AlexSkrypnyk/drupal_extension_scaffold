@@ -26,8 +26,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
 
-    // CI workflows may preload WEBDRIVER_PORT. Strip it so each test
-    // starts from a known baseline.
+    // Each test starts from a known baseline.
     $this->envUnset('WEBDRIVER_PORT');
   }
 
@@ -67,7 +66,6 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
   }
 
   public function testAutoDiscoveryWritesPortAndUpdatesSource(): void {
-    // No env, no dotenv - auto-discovery kicks in from port 4444.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
     $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 

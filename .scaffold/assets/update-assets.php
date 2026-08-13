@@ -32,7 +32,6 @@
 
 declare(strict_types=1);
 
-// Terminal dimensions for recordings.
 define('TERMINAL_COLS', 80);
 define('TERMINAL_ROWS', 24);
 
@@ -122,7 +121,6 @@ function main(array $only = []): void {
     mkdir($tmp_dir, 0755, TRUE);
   }
 
-  // Create all expect scripts upfront.
   foreach ($jobs as $name => $job) {
     $expect_script = $tmp_dir . '/' . $name . '.exp';
     $create_fn = $job['expect_fn'];
@@ -152,7 +150,6 @@ function main(array $only = []): void {
     info('');
   }
 
-  // Lint and test run in parallel on the built workspace.
   $parallel_jobs = array_values(array_filter(['lint', 'test'], static fn(string $name): bool => isset($jobs[$name])));
   $processes = [];
   $pipes_list = [];
@@ -191,7 +188,6 @@ function main(array $only = []): void {
 
   info('');
 
-  // Wait for all parallel workers to complete.
   foreach ($processes as $name => $process) {
     $stdout = stream_get_contents($pipes_list[$name][1]);
     $stderr = stream_get_contents($pipes_list[$name][2]);
@@ -212,7 +208,6 @@ function main(array $only = []): void {
   // Reset terminal - workers may leave it in raw mode.
   shell_exec('stty sane 2>/dev/null');
 
-  // Cleanup.
   info('');
   info('Cleaning up workspace: ' . $workspace_dir);
   remove_dir($workspace_dir);
@@ -404,18 +399,6 @@ function record_session(string $cast_file, string $expect_script, int $rows = TE
 
 /**
  * Create an expect script to automate init.php prompts.
- *
- * Interaction sequence:
- * 1. Text "Extension name" - type "Your Extension", press enter.
- * 2. Text "Machine name" - accept placeholder default, press enter.
- * 3. Select "Extension type" - press enter (Module, first option).
- * 4. Select "CI provider" - press enter (GitHub Actions, first option).
- * 5. Multi-select "Target Drupal versions" - all pre-checked; press enter to
- *    keep all majors.
- * 6. Multi-select "Command wrapper" - press space to select Ahoy, press enter.
- * 7. Multi-select "Tools" - all pre-checked; press enter to keep all tools.
- * 8. Confirm "Remove this script" - type "y", press enter.
- * 9. Confirm "Proceed" - type "y", press enter.
  *
  * @param string $script_path
  *   Path to write the expect script.
@@ -611,7 +594,6 @@ function post_process_cast(string $cast_file, string $workspace_dir, float $spee
     return;
   }
 
-  // Remove the spawn command line from the recording.
   $lines = explode("\n", $content);
   $filtered = [$lines[0]];
   for ($i = 1; $i < count($lines); $i++) {
@@ -621,7 +603,6 @@ function post_process_cast(string $cast_file, string $workspace_dir, float $spee
     $filtered[] = $lines[$i];
   }
 
-  // Speed up event timestamps if requested.
   if ($speed > 1.0) {
     foreach ($filtered as $idx => &$line) {
       if ($idx === 0) {
@@ -641,10 +622,8 @@ function post_process_cast(string $cast_file, string $workspace_dir, float $spee
 
   $content = implode("\n", $filtered);
 
-  // Sanitize workspace paths.
   $content = str_replace($workspace_dir, '/home/user/project', $content);
 
-  // Sanitize home directory paths.
   $home = getenv('HOME');
   if ($home !== FALSE && $home !== '') {
     $content = str_replace($home, '/home/user', $content);
@@ -708,7 +687,6 @@ function info(string $message): void {
   print $message . PHP_EOL;
 }
 
-// Entrypoint.
 ini_set('display_errors', '1');
 
 if (PHP_SAPI !== 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
@@ -723,7 +701,6 @@ set_error_handler(function (int $severity, string $message, string $file, int $l
 });
 
 try {
-  // Worker mode: process a single recording.
   $record_index = array_search('--record', $argv);
   $workspace_index = array_search('--workspace', $argv);
   if ($record_index !== FALSE && isset($argv[$record_index + 1]) && $workspace_index !== FALSE && isset($argv[$workspace_index + 1])) {

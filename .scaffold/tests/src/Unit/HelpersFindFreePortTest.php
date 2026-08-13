@@ -13,9 +13,9 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Tests for find_free_port() helper.
  *
- * The helper uses a client connect probe (rather than a server bind probe)
- * so the test mocks stream_socket_client to simulate listeners being
- * present or absent on each candidate port.
+ * The helper uses a client connect probe rather than a server bind probe,
+ * so the test mocks stream_socket_client. Each mocked call reports a
+ * listener as present or absent on one candidate port.
  *
  * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
@@ -32,7 +32,6 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   }
 
   public function testFirstPortIsFree(): void {
-    // Connect refused on port 8000 = port is free.
     $this->mockStreamSocketClient([
       ['port' => 8000, 'listening' => FALSE],
     ]);
@@ -42,7 +41,6 @@ final class HelpersFindFreePortTest extends UnitTestCase {
   }
 
   public function testFirstFewPortsBusy(): void {
-    // 8000-8002 listening (in use), 8003 refused (free).
     $this->mockStreamSocketClient([
       ['port' => 8000, 'listening' => TRUE],
       ['port' => 8001, 'listening' => TRUE],

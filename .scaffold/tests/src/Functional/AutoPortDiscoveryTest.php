@@ -78,7 +78,7 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $this->assertPortInRange($port1);
     $this->assertProcessAnyOutputContains('http://localhost:' . $port1);
 
-    // Give the backgrounded server a moment to settle before probing.
+    // Wait for the backgrounded server to become ready before probing.
     sleep(1);
 
     // Start project 2; port from project 1 is in use, so a different free
@@ -106,7 +106,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $this->assertProcessAnyOutputContains('http://localhost:' . $port2);
     $this->assertSame($port2, $this->readEnvPort($this->sut2), '.env port must be reused after stop/restart.');
 
-    // Stop both servers and verify .env survives stop.
     $this->processCwd = $this->sut1;
     $this->processRun('php', ['./.devtools/stop'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -122,7 +121,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $sut = self::$tmp . '/proj_preset_' . uniqid();
     $this->buildMinimalSut($sut);
 
-    // Pre-populate .env with a specific free port choice.
     $preset_port = $this->pickFreePortForTest();
     file_put_contents($sut . '/.env', 'WEBSERVER_PORT=' . $preset_port . "\n# user comment\n");
     $original_env = file_get_contents($sut . '/.env');

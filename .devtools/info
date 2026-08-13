@@ -148,10 +148,10 @@ function info_tool_version(string $cmd, string $pattern): string {
  * Get the installed Drupal version via drush, or '-' if unavailable.
  */
 function info_drupal_version(string $drush_bin): string {
-  // Intentionally bypasses drush(): that helper merges stderr into its
-  // return value so build-time failures stay diagnosable, which would leak
-  // any stray notice into the version string returned here. This probe
-  // instead discards stderr so it always yields either a clean value or '-'.
+  // drush() merges stderr into its return value, which keeps build-time
+  // failures diagnosable but leaks stray notices into the version string.
+  // This probe discards stderr instead, so it always yields either a clean
+  // value or '-'.
   $cmd = escapeshellarg($drush_bin) . ' -r ' . escapeshellarg(getcwd() . '/build/web') . ' status --field=drupal-version 2>/dev/null';
   $out = trim((string) @shell_exec($cmd));
 

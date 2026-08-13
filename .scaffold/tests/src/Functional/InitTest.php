@@ -10,8 +10,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * Class InitTest.
- *
  * Functional tests for init.php script.
  */
 #[Group('p1')]
@@ -27,7 +25,6 @@ final class InitTest extends FunctionalTestCase {
       throw new \RuntimeException('Fixtures directory is not set.');
     }
 
-    // Use SnapshotTrait's snapshotUpdateOnFailure() for automatic updates.
     if (str_contains(self::$fixtures, DIRECTORY_SEPARATOR . 'init' . DIRECTORY_SEPARATOR)) {
       $this->snapshotUpdateOnFailure(self::$fixtures, self::$sut, self::$tmp);
     }

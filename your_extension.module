@@ -4,7 +4,7 @@
  * @file
  * Code for your_extension module.
  *
- * This module adds a content, set in the configuration form, to the bottom of
+ * This module adds content, set in the configuration form, to the bottom of
  * the page and shows it if JavaScript is disabled.
  */
 

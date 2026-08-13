@@ -35,7 +35,6 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ASSEMBLE COMPLETE');
 
-    // A freshly assembled project lints clean.
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
@@ -54,7 +53,6 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessFailed();
     $this->assertProcessAnyOutputContains('your_extension.html.twig');
 
-    // lint-fix repairs the template through the symlink; lint passes again.
     $this->processRun('make', ['lint-fix'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
 
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
@@ -62,11 +60,9 @@ final class MakeTest extends DevtoolsTestCase {
   }
 
   public function testWorkflow(): void {
-    // Start without build fails.
     $this->processRun('make', ['start'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
-    // Stop without build succeeds.
     $this->processRun('make', ['stop'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
     $this->assertProcessAnyOutputContains('ENVIRONMENT STOPPED');
@@ -151,11 +147,10 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    // A relative TMPDIR must not break tools that run from build/. The
-    // lint and test wrappers chdir into build/ before running PHP tools,
-    // so a relative sys_get_temp_dir() resolves against build/ and
-    // tempnam() fails. The wrapper resolves TMPDIR to an absolute path
-    // first, so linting still passes when TMPDIR is relative.
+    // The lint and test wrappers chdir into build/ before running PHP tools,
+    // so a relative sys_get_temp_dir() resolves against build/ and tempnam()
+    // fails. The wrapper resolves TMPDIR to an absolute path first, so
+    // linting still passes when TMPDIR is relative.
     if (!is_dir(self::$sut . '/.logs/relative-tmp')) {
       mkdir(self::$sut . '/.logs/relative-tmp', 0777, TRUE);
     }
@@ -217,8 +212,8 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
-    // Projects without any JS tests (CSS-only modules, modules without custom
-    // JS) must still see `test-js` succeed.
+    // `test-js` must succeed in projects without any JS tests (CSS-only
+    // modules, modules without custom JS).
     unlink(self::$sut . '/js/your_extension.test.js');
 
     $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);

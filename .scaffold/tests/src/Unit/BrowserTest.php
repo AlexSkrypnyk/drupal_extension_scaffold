@@ -36,11 +36,8 @@ final class BrowserTest extends UnitTestCase {
     $this->envUnset('WEBDRIVER_PORT');
     $this->envUnset('WEBDRIVER_BACKEND');
 
-    // The '.env' file exists and supplies port 4444, so the port resolves
-    // without touching the free-port probe. Readiness probes against the
-    // WebDriver '/status' endpoint are answered from $readySequence, with
-    // the last value repeating for further calls. Directory creation and
-    // sleeps are no-ops.
+    // The mocked '.env' supplies port 4444, so the port resolves without the
+    // free-port probe.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $f): bool => $f === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $f): string|false {
       if ($f === '.env') {

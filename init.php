@@ -60,12 +60,11 @@ function main(array $argv): void {
     return;
   }
 
-  // The interactive flow uses Prompty, which manipulates terminal state
-  // (stty, ANSI escapes, shutdown handlers) when attached to a TTY and is
-  // not suited to in-process unit testing. The functional 'InitTest'
-  // exercises this path end-to-end via a subprocess.
+  // Prompty manipulates terminal state (stty, ANSI escapes, shutdown
+  // handlers) on a TTY, so the interactive flow is not suited to in-process
+  // unit testing. The functional 'InitTest' exercises this path end-to-end
+  // via a subprocess.
   // @codeCoverageIgnoreStart
-  // The selectable development tools, all enabled by default.
   $tool_options = [
     'phpcs' => 'PHPCS',
     'phpstan' => 'PHPStan',
@@ -146,8 +145,8 @@ function main(array $argv): void {
   /** @var array<string> $tools_keep */
   $tools_keep = array_filter((array) $results['tools'], static fn($v): bool => $v !== '');
   $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
-  // The prompt asks whether to keep the tunnel scripts, so a 'no' answer is
-  // what triggers their removal.
+  // The prompt asks whether to keep the tunnel scripts, so a 'no' answer
+  // removes them.
   $remove_cloudflare = !($results['cloudflare'] ?? FALSE);
   $remove_self = $results['remove_self'] ?? FALSE;
 
@@ -240,7 +239,6 @@ EOF;
  *   Whether to remove this script.
  */
 function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_self): void {
-  // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
   }
@@ -259,7 +257,7 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($drupal_versions === []) {
     throw new \Exception('At least one Drupal version is required.');
   }
-  // Remove unwanted CI provider.
+
   if ($ci_provider === 'circleci') {
     remove_dir('.github/workflows');
   }
@@ -329,7 +327,7 @@ function process(string $extension_name, string $extension_machine_name, string 
  * Trim wrapper-specific permissions from Claude settings to match selection.
  *
  * A failed read (file exists but is unreadable) is treated the same as a
- * missing file: the settings are left untouched rather than aborting the
+ * missing file. The settings are left untouched rather than aborting the
  * whole 'process()' pipeline over a single non-critical file.
  *
  * @param array<string> $command_wrapper
@@ -440,13 +438,10 @@ function process_internal(string $extension_name, string $extension_machine_name
   replace_string_content('type: module', 'type: ' . $extension_type);
   replace_string_content('[EXTENSION_NAME]', $extension_machine_name);
 
-  // Restore the scaffold attribution link.
   replace_string_content($scaffold_link_token, $scaffold_link);
 
-  // Restore the plain scaffold repository URL.
   replace_string_content($scaffold_url_token, $scaffold_url);
 
-  // Restore the update skill URL.
   replace_string_content($update_skill_url_token, $update_skill_url);
 
   remove_string_content('# Uncomment the lines below in your project.');
@@ -486,7 +481,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   remove_string_content('.github/FUNDING.yml export-ignore');
   remove_string_content('LICENSE.txt         export-ignore');
 
-  // Rename extension files.
   @rename('your_extension.info.yml', $extension_machine_name . '.info.yml');
   @rename('your_extension.install', $extension_machine_name . '.install');
   @rename('your_extension.links.menu.yml', $extension_machine_name . '.links.menu.yml');
@@ -717,8 +711,8 @@ function tool_specs(): array {
  * Write 'composer.dev.json', keeping its empty 'patches' map a JSON object.
  *
  * 'json_decode()' turns the template's empty '"patches": {}' into an array,
- * which would re-encode as '[]'; restore it to an object so the manifest keeps
- * its original shape.
+ * which would re-encode as '[]'. Restore it to an object so the manifest
+ * keeps its original shape.
  *
  * @param array<int|string, mixed> $config
  *   The decoded and modified configuration.
@@ -1158,9 +1152,9 @@ function remove_special_comments(): void {
  * Deduplicate the CSpell `words` allowlist after bulk replacements.
  *
  * Scaffold placeholders (alexskrypnyk, yournamespace, yourproject) are also
- * present in the CSpell `words` array; the global rename inside `process()`
+ * present in the CSpell `words` array. The global rename inside `process()`
  * rewrites them all to the extension machine name, producing duplicate
- * entries. Read, deduplicate, sort, and write back.
+ * entries.
  */
 function normalize_cspell_words(): void {
   if (!file_exists('.cspell.json')) {
@@ -1274,8 +1268,6 @@ function remove_dir(string $dir): void {
   rmdir($dir);
 }
 
-// Entrypoint.
-//
 // @codeCoverageIgnoreStart
 ini_set('display_errors', 1);
 
@@ -1283,7 +1275,6 @@ if (PHP_SAPI !== 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
   die('This script can be only ran from the command line.');
 }
 
-// Allow to skip the script run.
 if (getenv('SCRIPT_RUN_SKIP') != 1) {
   set_error_handler(function (int $severity, string $message, string $file, int $line): bool {
     if ((error_reporting() & $severity) === 0) {
@@ -1296,7 +1287,6 @@ if (getenv('SCRIPT_RUN_SKIP') != 1) {
 
   try {
     $argv = is_array($_SERVER['argv'] ?? NULL) ? array_filter($_SERVER['argv'], is_string(...)) : [];
-    // The function should not provide an exit code but rather throw exceptions.
     main($argv);
   }
   catch (\ErrorException $exception) {

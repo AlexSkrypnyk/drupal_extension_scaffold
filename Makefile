@@ -1,12 +1,11 @@
 SHELL=/bin/bash
 
-# Load variables from .env if present and export them to recipe shells. The
-# leading '-' on -include suppresses errors when the file does not exist.
+# Load variables from .env if present and export them to recipe shells.
 -include .env
 export
 
-# Resolve a relative TMPDIR to an absolute path so build/-dir tools (which
-# chdir into build) can still find it. No-op when unset or already absolute.
+# Resolve a relative TMPDIR to an absolute path so tools that chdir into
+# build still find it. No-op when unset or already absolute.
 ifdef TMPDIR
 export TMPDIR := $(abspath $(TMPDIR))
 endif
@@ -14,16 +13,13 @@ endif
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
-# Resolve the site URL through the shared `.devtools/info` resolver so `drush`
-# and `login` report the same tunnel-aware URL as start, provision, and info
-# (see resolve_site_url()). Lazy `=` so the probe runs only when drush/login
-# are invoked.
+# `.devtools/info site-url` (see resolve_site_url()) returns the same
+# tunnel-aware URL that start, provision, and info report. Lazy `=` so the
+# probe runs only when `drush` or `login` is invoked.
 DRUSH_URI = $(shell ./.devtools/info site-url)
 
-# Test environment exported to every recipe (see the blanket `export` above),
-# matching what the ahoy entrypoint exports for every command, so `make
-# test*` runs against the same base URL, database, and browser-output
-# directory as `ahoy test*`.
+# Test environment for `make test*`, reaching recipes through the blanket
+# `export` above.
 EXTENSION_NAME = $(shell basename -s .info.yml -- ./*.info.yml)
 SIMPLETEST_BASE_URL = http://$(WEBSERVER_HOST):$(WEBSERVER_PORT)
 SIMPLETEST_DB = sqlite://localhost/drupal_test_$(EXTENSION_NAME).sqlite
@@ -96,25 +92,16 @@ stop:
 info:
 	@./.devtools/info
 
-# Enable PHP XDebug step-debugging by restarting the PHP server with
-# `-d xdebug.mode=debug -d xdebug.start_with_request=yes`. State is
-# probed by `info xdebug`, which inspects the running server's command
-# line. Run `make start` to disable.
 debug:
 	@[ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "XDebug is already enabled. Run 'make start' to disable." || \
 		(XDEBUG=1 ./.devtools/start && sleep 1 && [ "$$(./.devtools/info xdebug)" = "enabled" ] && echo "Enabled XDebug. Run 'make start' to disable." || (echo "Failed to enable XDebug." && exit 1))
 
-# Make has no native command aliases - the alias targets declare `debug` as
-# their sole prerequisite, so running e.g. `make xdebug` executes the `debug`
-# recipe via the prerequisite chain.
 debug-on xdebug xdebug-on: debug
 
-# Mirror the ahoy `start` aliases. `make debug-off` runs the `start` recipe
-# via the prerequisite chain, which restarts without XDebug.
+# `make debug-off` runs the `start` recipe, which restarts without XDebug.
 debug-off xdebug-off: start
 
-# DDEV uses `describe` for the equivalent of our `info`. Add the alias so
-# developers coming from DDEV find a familiar verb.
+# DDEV uses `describe` for the equivalent of our `info`.
 describe: info
 
 # Lando uses `destroy` and DDEV uses `delete` for what our `reset` does.

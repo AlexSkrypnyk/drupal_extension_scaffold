@@ -16,14 +16,13 @@ use function process;
  * In-process tests for the high-level orchestration functions in init.php:
  * 'process()', 'process_readme()' and 'process_internal()'.
  *
- * The existing functional 'InitTest' exercises these paths end-to-end via
- * a subprocess and PCOV cannot capture coverage from there. The tests in
+ * The functional 'InitTest' exercises these paths end-to-end via a
+ * subprocess and PCOV cannot capture coverage from there. The tests in
  * this class run the same logic in-process so PCOV records it.
  *
- * 'remove_self' is always passed as FALSE because '__FILE__' inside
- * 'init.php' resolves to the loaded path of the script (the project root
- * copy), not the copy inside SUT - passing TRUE would delete the source
- * 'init.php'.
+ * 'remove_self' is always passed as FALSE: '__FILE__' inside 'init.php'
+ * resolves to the loaded path of the script (the project root copy), not
+ * the copy inside SUT. Passing TRUE would delete the source 'init.php'.
  */
 #[Group('p0')]
 final class InitProcessTest extends UnitTestCase {
@@ -86,9 +85,6 @@ final class InitProcessTest extends UnitTestCase {
       $this->assertStringEndsWith('base theme: false' . PHP_EOL, $info);
     }
 
-    // Verify the bulk replacements ran: the info.yml should no longer carry
-    // the placeholder machine name and the scaffold attribution link must
-    // survive the global replacement.
     $info_path = self::$sut . '/' . $machine_name . '.info.yml';
     $info = (string) file_get_contents($info_path);
     $this->assertStringNotContainsString('your_extension', $info);
@@ -459,8 +455,6 @@ final class InitProcessTest extends UnitTestCase {
       $this->assertStringNotContainsString($needle, $content, $ci_file . ' should not contain corner: ' . $needle);
     }
 
-    // The version markers (and all other special comments) must be stripped
-    // from the generated output.
     $this->assertStringNotContainsString('#;', $content, $ci_file . ' should not retain special-comment markers.');
   }
 

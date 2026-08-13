@@ -101,27 +101,21 @@ final class DeployTest extends UnitTestCase {
 
     $passthru_responses = [];
 
-    // Configure git user name if not set.
     if (trim($git_user_name) === '') {
       $passthru_responses[] = ['cmd' => sprintf('git config --global user.name %s', escapeshellarg('Deploy Bot'))];
     }
 
-    // Configure git user email if not set.
     if (trim($git_user_email) === '') {
       $passthru_responses[] = ['cmd' => sprintf('git config --global user.email %s', escapeshellarg('deploy@example.com'))];
     }
 
-    // Push default matching.
     $passthru_responses[] = ['cmd' => 'git config --global push.default matching'];
 
-    // Add remote.
     $passthru_responses[] = ['cmd' => sprintf('git remote add deployremote %s', escapeshellarg($deploy_remote))];
 
-    // Push code.
     $effective_branch = $deploy_branch !== '' ? $deploy_branch : 'main';
     $passthru_responses[] = ['cmd' => sprintf('git push --force deployremote HEAD:%s', escapeshellarg($effective_branch))];
 
-    // Push tags.
     $passthru_responses[] = ['cmd' => 'git push --force --tags deployremote 2>/dev/null || true'];
 
     $this->mockPassthruMultiple($passthru_responses);
@@ -164,7 +158,6 @@ final class DeployTest extends UnitTestCase {
   }
 
   public function testDeployMissingRequiredVars(): void {
-    // DEPLOY_USER_NAME is not set - should fail.
     $this->mockQuit(1);
 
     ob_start();
@@ -189,19 +182,15 @@ final class DeployTest extends UnitTestCase {
     $this->envSet('DEPLOY_SSH_KEY_FINGERPRINT', 'aa:bb:cc:dd:ee:ff');
     $this->envSet('HOME', '/home/testuser');
 
-    // Mock is_dir for SSH directory.
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(string $path): bool => str_contains($path, '.ssh'));
 
-    // Mock file_put_contents for SSH config.
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
 
-    // After cleaning fingerprint: aabbccddeeff.
+    // The fingerprint is cleaned to 'aabbccddeeff'.
     $key_file = '/home/testuser/.ssh/id_rsa_aabbccddeeff';
 
-    // Mock file_exists for key file.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === $key_file);
 
-    // SSH_AGENT_PID is set.
     $this->envSet('SSH_AGENT_PID', '12345');
 
     $this->mockPassthruMultiple([
@@ -236,16 +225,12 @@ final class DeployTest extends UnitTestCase {
     $this->envSet('DEPLOY_SSH_KEY_FINGERPRINT', 'SHA256:abcdef123456');
     $this->envSet('HOME', '/home/testuser');
 
-    // Mock is_dir - SSH dir exists.
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(string $path): bool => str_contains($path, '.ssh'));
 
-    // Mock file_put_contents.
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
 
-    // Mock glob for SSH key discovery.
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['/home/testuser/.ssh/id_rsa_test']);
 
-    // Mock exec for ssh-keygen calls.
     $exec_calls = 0;
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL) use (&$exec_calls): int {
       $exec_calls++;
@@ -259,7 +244,7 @@ final class DeployTest extends UnitTestCase {
       return 0;
     });
 
-    // After MD5 extraction and cleaning: aabbccdd.
+    // The MD5 fingerprint is extracted and cleaned to 'aabbccdd'.
     $key_file = '/home/testuser/.ssh/id_rsa_aabbccdd';
 
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === $key_file);
@@ -299,7 +284,6 @@ final class DeployTest extends UnitTestCase {
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
 
-    // Key file does not exist.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockQuit(1);
@@ -326,7 +310,6 @@ final class DeployTest extends UnitTestCase {
     $this->envSet('DEPLOY_SSH_KEY_FINGERPRINT', 'aa:bb:cc:dd');
     $this->envSet('HOME', '/home/testuser');
 
-    // SSH dir does not exist.
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $mkdir_calls = [];
@@ -372,7 +355,6 @@ final class DeployTest extends UnitTestCase {
     $this->envSet('DEPLOY_REMOTE', 'git@git.drupal.org:project/test.git');
     $this->envSet('DEPLOY_SSH_KEY_FINGERPRINT', 'aa:bb:cc:dd');
     $this->envSet('HOME', '/home/testuser');
-    // SSH_AGENT_PID is not set.
 
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
@@ -380,7 +362,6 @@ final class DeployTest extends UnitTestCase {
     $key_file = '/home/testuser/.ssh/id_rsa_aabbccdd';
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === $key_file);
 
-    // SSH_AGENT_PID not set → starts ssh-agent first.
     $this->mockPassthruMultiple([
       ['cmd' => 'eval "$(ssh-agent)"'],
       ['cmd' => 'ssh-add -D'],
@@ -415,7 +396,6 @@ final class DeployTest extends UnitTestCase {
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
 
-    // Keys exist but none match SHA256.
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['/home/testuser/.ssh/id_rsa_test']);
 
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL): int {
@@ -426,8 +406,7 @@ final class DeployTest extends UnitTestCase {
       return 0;
     });
 
-    // SHA256 fingerprint didn't get converted. Cleaned: SHA256nomatch.
-    // Key file not found.
+    // The unconverted fingerprint cleans to 'SHA256nomatch'.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockQuit(1);
@@ -457,10 +436,9 @@ final class DeployTest extends UnitTestCase {
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
     $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', fn(): int => 100);
 
-    // No key files found.
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
-    // Key file not found (SHA256 was not converted).
+    // The SHA256 fingerprint is not converted, so no key file matches.
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): false => FALSE);
 
     $this->mockQuit(1);
@@ -492,10 +470,8 @@ final class DeployTest extends UnitTestCase {
 
     $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => ['/home/testuser/.ssh/id_rsa_test']);
 
-    // exec returns empty output.
     $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL): int {
       $output ??= [];
-      // Empty output - no fingerprint information.
       return 0;
     });
 
@@ -524,7 +500,6 @@ final class DeployTest extends UnitTestCase {
     $this->envSet('DEPLOY_REMOTE', 'git@git.drupal.org:project/test.git');
     $this->envSet('DEPLOY_SSH_KEY_FINGERPRINT', 'aa:bb:cc:dd');
     $this->envSet('HOME', '/home/testuser');
-    // Set SSH_AGENT_PID to empty string - should still start agent.
     $this->envSet('SSH_AGENT_PID', '');
 
     $this->registerMock('is_dir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
@@ -533,7 +508,6 @@ final class DeployTest extends UnitTestCase {
     $key_file = '/home/testuser/.ssh/id_rsa_aabbccdd';
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === $key_file);
 
-    // Empty SSH_AGENT_PID → starts ssh-agent.
     $this->mockPassthruMultiple([
       ['cmd' => 'eval "$(ssh-agent)"'],
       ['cmd' => 'ssh-add -D'],

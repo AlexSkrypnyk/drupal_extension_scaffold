@@ -3,9 +3,6 @@
 /**
  * @file
  * Rector configuration.
- *
- * Usage:
- * ./vendor/bin/rector process .
  */
 
 declare(strict_types=1);
@@ -63,7 +60,6 @@ return RectorConfig::configure()
     DeclareStrictTypesRector::class,
   ])
   ->withSkip([
-    // Rules added by Rector's rule sets.
     AddOverrideAttributeToOverriddenMethodsRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
@@ -81,7 +77,6 @@ return RectorConfig::configure()
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class,
-    // Dependencies.
     '*/vendor/*',
     '*/node_modules/*',
   ])
