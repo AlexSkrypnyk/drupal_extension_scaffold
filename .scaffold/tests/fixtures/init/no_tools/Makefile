@@ -38,18 +38,18 @@ endef
 help:
 	@echo "COMMANDS"
 	@echo "========"
-	@echo "build           - Build or rebuild the project."
-	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
-	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
-	@echo "drush           - Run Drush command."
-	@echo "info            - Print a read-only summary of the current environment (alias: describe)."
-	@echo "lint            - Check coding standards for violations."
-	@echo "lint-fix        - Fix violations in coding standards."
-	@echo "login           - Login to a website."
-	@echo "provision       - Provision application within assembled codebase."
-	@echo "reset           - Reset project to the default state (aliases: delete, destroy)."
-	@echo "start           - Start development environment."
-	@echo "stop            - Stop development environment."
+	@echo "build                      - Build or rebuild the project."
+	@echo "assemble                   - Assemble a codebase using project code and all required dependencies."
+	@echo "debug                      - Enable PHP XDebug step-debugging for the development server (aliases: debug-on, xdebug, xdebug-on)."
+	@echo "drush                      - Run Drush command."
+	@echo "info                       - Print a read-only summary of the current environment (alias: describe)."
+	@echo "lint                       - Check coding standards for violations."
+	@echo "lint-fix                   - Fix violations in coding standards."
+	@echo "login                      - Login to a website."
+	@echo "provision                  - Provision application within assembled codebase."
+	@echo "reset                      - Reset project to the default state (aliases: delete, destroy)."
+	@echo "start                      - Start development environment (aliases: debug-off, xdebug-off)."
+	@echo "stop                       - Stop development environment."
 	@echo "test                       - Run all tests."
 
 build:
@@ -101,10 +101,10 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
 endif
 
 drush:
-	build/vendor/bin/drush -l $(DRUSH_URI) $(DRUSH_RUN_ARGS)
+	build/vendor/bin/drush -l "$(DRUSH_URI)" $(DRUSH_RUN_ARGS)
 
 login:
-	@url="$$(build/vendor/bin/drush -l $(DRUSH_URI) uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url"
+	@url="$$(build/vendor/bin/drush -l "$(DRUSH_URI)" uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url"
 
 provision:
 	./.devtools/provision

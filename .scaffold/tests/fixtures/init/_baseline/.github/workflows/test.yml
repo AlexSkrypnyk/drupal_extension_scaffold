@@ -76,7 +76,7 @@ jobs:
         run: vendor/bin/twig-cs-fixer
         continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
 
-      - name: Lint module code with NodeJS linters
+      - name: Lint code with NodeJS linters
         if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
         working-directory: build
         run: npm run lint
@@ -194,7 +194,7 @@ jobs:
           SIMPLETEST_DB: sqlite://tmp/db.sqlite
           WEBDRIVER_BACKEND: selenium
 
-      - name: Upload test results as an artifact
+      - name: Upload browser output as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
         if: always()
         with:
@@ -205,7 +205,7 @@ jobs:
       - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@__HASH__ # __VERSION__
         with:
-          name: ${{github.job}}-code-coverage-report-${{ matrix.name }}
+          name: ${{ github.job }}-code-coverage-report-${{ matrix.name }}
           path: ./.logs/coverage
           include-hidden-files: true
           if-no-files-found: error

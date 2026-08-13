@@ -22,5 +22,5 @@
 -        run: vendor/bin/twig-cs-fixer
 -        continue-on-error: ${{ vars.CI_TWIGCSFIXER_IGNORE_FAILURE == '1' }}
  
-       - name: Lint module code with NodeJS linters
+       - name: Lint code with NodeJS linters
          if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
