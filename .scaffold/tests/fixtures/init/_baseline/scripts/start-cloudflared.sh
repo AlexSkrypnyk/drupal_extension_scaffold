@@ -4,18 +4,17 @@
 #
 # Activates only when CLOUDFLARE_TUNNEL is truthy and the `cloudflared` binary
 # is on PATH. Starts (or reuses a healthy) quick tunnel pointing at the local
-# PHP webserver and writes the public HTTPS URL to `.env` as TUNNEL_URL, which
-# `.devtools/start`, `provision`, and `info` then display and which
-# `make`/`ahoy drush` and `login` pass to Drush.
+# PHP webserver and writes the public HTTPS URL to `.env` as TUNNEL_URL. The
+# rest of the tooling reads TUNNEL_URL to report the public URL and to pass it
+# to Drush.
 #
-# No Cloudflare account, DNS, or config is needed - quick tunnels mint an
-# ephemeral `*.trycloudflare.com` hostname. Install `cloudflared` via mise,
+# No Cloudflare account, DNS, or config is needed - quick tunnels are assigned
+# an ephemeral `*.trycloudflare.com` hostname. Install `cloudflared` via mise,
 # brew, or apt. Remove or rename this file to disable. The current working
 # directory is the project root.
 
 set -eu
 
-# Skip unless CLOUDFLARE_TUNNEL opts in.
 case "${CLOUDFLARE_TUNNEL:-}" in
   "" | 0 | false | no | off) exit 0 ;;
 esac
@@ -57,7 +56,7 @@ set_tunnel_url() {
 }
 
 # Reuse an existing tunnel only when its process is alive AND its public URL
-# answers - a live process is not proof of a reachable tunnel, as quick tunnels
+# answers. A live process is not proof of a reachable tunnel: quick tunnels
 # can drop their edge connection while cloudflared keeps running.
 existing_pid="$(tunnel_pid)"
 if [ -n "$existing_pid" ]; then
@@ -84,9 +83,7 @@ for _ in $(seq 1 30); do
 done
 
 if [ -z "$url" ]; then
-  # The tunnel never published a URL: tear the process down and clear any stale
-  # TUNNEL_URL rather than leaving a half-started tunnel behind. Kept non-fatal
-  # so an opt-in tunnel failure does not abort `start`.
+  # Non-fatal so an opt-in tunnel failure does not abort `start`.
   kill "$new_pid" 2>/dev/null || true
   rm -f "$pid_file"
   set_tunnel_url ""

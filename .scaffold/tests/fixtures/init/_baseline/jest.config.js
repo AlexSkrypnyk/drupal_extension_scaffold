@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Discover js/ directories in custom modules and themes, resolving symlinks
-// to real paths. Jest resolves symlinks internally, so roots must use real
-// paths for test files to be matched.
+// Jest resolves symlinks internally, so roots must use real paths for test
+// files to be matched.
 const dirs = ['web/modules/custom', 'web/themes/custom'];
 const roots = [];
 

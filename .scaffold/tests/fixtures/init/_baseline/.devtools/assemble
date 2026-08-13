@@ -58,7 +58,6 @@ TASK('Validating Composer configuration.');
 passthru_or_fail('composer validate --ansi --strict');
 PASS('Composer configuration is valid.');
 
-// Reset the environment.
 if (is_dir($build_dir)) {
   TASK('Removing existing build directory.');
   @chmod_recursive($build_dir, 0777);
@@ -85,7 +84,6 @@ PASS('Insecure package blocking disabled.');
 
 TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
 $composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
-// Print the pinned versions for verification.
 foreach (explode("\n", $composer_json_content) as $line) {
   if (preg_match('/"drupal\/core-.*":\s*"/', $line)) {
     NOTE(trim($line));
@@ -115,11 +113,11 @@ TASK('Configuring test dependencies.');
 /** @var array<string, mixed> $build_json */
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
 unset($build_json['require-dev']['drupal/core-dev']);
-// Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
+// The version constraint matches the Symfony version in Drupal core.
 $build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
 // The Drupal 10 configs in palantirnet/drupal-rector reference set constants
-// removed in rector/rector __VERSION__. Constrained per-build so the extension's own
-// dependencies carry no upper bound.
+// that rector/rector __VERSION__ does not define. Constrained per-build so the
+// extension's own dependencies carry no upper bound.
 if ((int) $drupal_version_major < 11) {
   $build_json['require-dev']['rector/rector'] = '^2 <__VERSION__';
 }
@@ -165,15 +163,14 @@ if (!is_dir($build_dir . '/web/themes/custom')) {
 }
 PASS('Custom directories created.');
 
-// Make sure Composer doesn't run out of memory.
 putenv('COMPOSER_MEMORY_LIMIT=-1');
 
 TASK('Installing dependencies.');
 passthru_or_fail('composer --working-dir=build install');
 PASS('Dependencies installed.');
 
-// Suggested dependencies allow to install them for testing without requiring
-// them in extension's composer.json.
+// Suggested dependencies are available for testing without being required in
+// the extension's composer.json.
 TASK("Installing suggested dependencies from extension's composer.json.");
 $ext_json = (array) json_decode((string) file_get_contents('composer.json'), TRUE);
 $build_json = (array) json_decode((string) file_get_contents($build_composer_json), TRUE);
@@ -188,13 +185,12 @@ if (isset($ext_json['suggest']) && is_array($ext_json['suggest'])) {
 }
 PASS('Suggested dependencies installed.');
 
-// Some versions of Drupal enforce maximum verbosity for errors by default. This
-// leads to functional tests failing due to deprecation notices showing up in
-// the page output, which is then interpreted as a test failure by PHPUnit.
-// To address this, we inject the error_reporting() without deprecations into
-// the index.php and default.settings.php file used by the system under test.
-// But we do this only if the deprecations helper is set to `disable` which means
-// to ignore deprecation notices.
+// Some Drupal versions enforce maximum error verbosity by default, so
+// deprecation notices reach the page output and PHPUnit reads them as
+// functional test failures. The index.php and default.settings.php used by
+// the system under test get error_reporting() without deprecations. This
+// runs only when the deprecations helper is set to `disable`, which means
+// deprecation notices are ignored.
 // @see https://www.drupal.org/project/drupal/issues/1267246
 if (getenv('SYMFONY_DEPRECATIONS_HELPER') === 'disabled') {
   TASK('Disabling deprecation notices in functional tests.');
@@ -212,8 +208,8 @@ if (getenv('SYMFONY_DEPRECATIONS_HELPER') === 'disabled') {
 }
 
 TASK('Copying tools configuration files.');
-// Not every tool correctly resolves the path to the configuration file if it is
-// symlinked, so we copy them instead.
+// Not every tool correctly resolves the path to a symlinked configuration
+// file, so the files are copied instead.
 $tool_files = [
   '.eslintignore',
   '.eslintrc.json',
@@ -261,16 +257,13 @@ foreach (glob($cwd . '/*') ?: [] as $item) {
 }
 PASS("Extension's code symlinked.");
 
-// Install front-end dependencies and run the build in the build directory.
 // The extension's source files are available via symlink at this point.
-// Add a .skip_npm_build file to the project root to skip this step, which
-// will also disable JS/CSS linting (ESLint, Stylelint, Prettier).
 if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_build')) {
   TASK('Processing front-end dependencies.');
 
   $nvm = file_exists('.nvmrc') ? 'nvm use && ' : '';
-  // Suppress the dependency install noise, but show the build output - the
-  // build is the project's own and its output is meaningful.
+  // Suppress the dependency install noise. The build is the project's own,
+  // so its output is shown.
   if (!is_dir($build_dir . '/node_modules')) {
     passthru_or_fail($nvm . 'npm --prefix ' . $build_dir . ' ci');
   }
@@ -279,7 +272,6 @@ if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_bu
   PASS('Front-end dependencies processed.');
 }
 
-// Run custom post-assemble scripts from "scripts/assemble-*.sh", if any.
 run_custom_scripts('scripts', 'assemble-');
 
 echo PHP_EOL;

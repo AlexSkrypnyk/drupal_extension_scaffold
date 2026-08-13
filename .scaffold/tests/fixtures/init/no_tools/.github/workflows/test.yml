@@ -52,7 +52,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -179,43 +150,4 @@
+@@ -177,43 +148,4 @@
        - name: Provision site
          run: .devtools/provision
  
