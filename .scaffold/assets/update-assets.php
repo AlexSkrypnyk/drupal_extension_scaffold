@@ -54,26 +54,26 @@ define('END_PAUSE', 10);
  * @return array<string, array<string, mixed>>
  *   Keyed by job name, each containing expect_fn and related config.
  */
-function getJobs(string $workspace_dir): array {
+function get_jobs(string $workspace_dir): array {
   return [
     'init' => [
-      'expect_fn' => 'createInitExpectScript',
+      'expect_fn' => 'create_init_expect_script',
       'script' => $workspace_dir . '/init.php',
     ],
     'build' => [
-      'expect_fn' => 'createCommandExpectScript',
+      'expect_fn' => 'create_command_expect_script',
       'script' => $workspace_dir,
       'command' => 'ahoy build',
       'speed' => 2.0,
       'env' => ['WEBSERVER_HOST' => '0.0.0.0'],
     ],
     'lint' => [
-      'expect_fn' => 'createCommandExpectScript',
+      'expect_fn' => 'create_command_expect_script',
       'script' => $workspace_dir,
       'command' => 'ahoy lint',
     ],
     'test' => [
-      'expect_fn' => 'createCommandExpectScript',
+      'expect_fn' => 'create_command_expect_script',
       'script' => $workspace_dir,
       'command' => 'ahoy test',
     ],
@@ -81,7 +81,7 @@ function getJobs(string $workspace_dir): array {
 }
 
 /**
- * Main functionality — orchestrator mode.
+ * Main functionality - orchestrator mode.
  *
  * Runs init first (it modifies the workspace), then launches build/lint/test
  * as parallel worker processes.
@@ -95,19 +95,19 @@ function main(array $only = []): void {
   $project_dir = dirname($script_dir, 2);
   $assets_dir = $script_dir;
 
-  info('Drupal Extension Scaffold — Asset Generator');
+  info('Drupal Extension Scaffold - Asset Generator');
   info('============================================');
   info('');
 
-  checkDependencies();
-  installNodeDependencies($assets_dir);
+  check_dependencies();
+  install_node_dependencies($assets_dir);
 
-  $workspace_dir = createWorkspace($project_dir);
+  $workspace_dir = create_workspace($project_dir);
 
   info('Workspace: ' . $workspace_dir);
   info('');
 
-  $jobs = getJobs($workspace_dir);
+  $jobs = get_jobs($workspace_dir);
 
   if ($only !== []) {
     $unknown = array_diff($only, array_keys($jobs));
@@ -126,7 +126,7 @@ function main(array $only = []): void {
   foreach ($jobs as $name => $job) {
     $expect_script = $tmp_dir . '/' . $name . '.exp';
     $create_fn = $job['expect_fn'];
-    if ($create_fn === 'createCommandExpectScript') {
+    if ($create_fn === 'create_command_expect_script') {
       $create_fn($expect_script, $job['script'], $job['command'], $job['env'] ?? []);
     }
     else {
@@ -137,11 +137,11 @@ function main(array $only = []): void {
   $script_path = __FILE__;
   $failed = [];
 
-  // Init and build run sequentially — init processes the workspace, build
+  // Init and build run sequentially - init processes the workspace, build
   // assembles the Drupal codebase that lint and test need.
   foreach (array_filter(['init', 'build'], static fn(string $name): bool => isset($jobs[$name])) as $name) {
     info('--- Recording: ' . $name . ' ---');
-    $result = runWorker($script_path, $name, $workspace_dir, $project_dir);
+    $result = run_worker($script_path, $name, $workspace_dir, $project_dir);
     if ($result['exit_code'] !== 0) {
       $failed[$name] = $result['output'];
       info('  FAILED: ' . $name);
@@ -209,13 +209,13 @@ function main(array $only = []): void {
     }
   }
 
-  // Reset terminal — workers may leave it in raw mode.
+  // Reset terminal - workers may leave it in raw mode.
   shell_exec('stty sane 2>/dev/null');
 
   // Cleanup.
   info('');
   info('Cleaning up workspace: ' . $workspace_dir);
-  removeDir($workspace_dir);
+  remove_dir($workspace_dir);
 
   if (!empty($failed)) {
     info('');
@@ -245,7 +245,7 @@ function main(array $only = []): void {
  * @return array{exit_code: int, output: string}
  *   The exit code and combined output.
  */
-function runWorker(string $script_path, string $name, string $workspace_dir, string $cwd): array {
+function run_worker(string $script_path, string $name, string $workspace_dir, string $cwd): array {
   $cmd = sprintf(
     'php %s --record %s --workspace %s 2>&1',
     escapeshellarg($script_path),
@@ -264,18 +264,18 @@ function runWorker(string $script_path, string $name, string $workspace_dir, str
 }
 
 /**
- * Worker mode — process a single recording.
+ * Worker mode - process a single recording.
  *
  * @param string $name
  *   The job name to process.
  * @param string $workspace_dir
  *   Path to the workspace directory.
  */
-function processOne(string $name, string $workspace_dir): void {
+function process_one(string $name, string $workspace_dir): void {
   $script_dir = dirname(__FILE__);
   $assets_dir = $script_dir;
 
-  $jobs = getJobs($workspace_dir);
+  $jobs = get_jobs($workspace_dir);
   if (!isset($jobs[$name])) {
     throw new \RuntimeException('Unknown job: ' . $name);
   }
@@ -288,15 +288,15 @@ function processOne(string $name, string $workspace_dir): void {
   $job = $jobs[$name];
   $speed = (float) ($job['speed'] ?? 1.0);
 
-  recordSession($cast_file, $expect_script);
-  postProcessCast($cast_file, $workspace_dir, $speed);
-  convertToSvg($cast_file, $svg_file, $assets_dir);
+  record_session($cast_file, $expect_script);
+  post_process_cast($cast_file, $workspace_dir, $speed);
+  convert_to_svg($cast_file, $svg_file, $assets_dir);
 }
 
 /**
  * Check that all required dependencies are installed.
  */
-function checkDependencies(): void {
+function check_dependencies(): void {
   $deps = ['asciinema', 'expect', 'node', 'npm'];
   $missing = [];
 
@@ -319,7 +319,7 @@ function checkDependencies(): void {
  * @param string $assets_dir
  *   Path to the assets directory containing svg-term-render.js.
  */
-function installNodeDependencies(string $assets_dir): void {
+function install_node_dependencies(string $assets_dir): void {
   info('Installing svg-term Node.js dependency...');
 
   $node_modules = $assets_dir . '/node_modules';
@@ -347,7 +347,7 @@ function installNodeDependencies(string $assets_dir): void {
  * @return string
  *   Path to the temporary workspace directory.
  */
-function createWorkspace(string $project_dir): string {
+function create_workspace(string $project_dir): string {
   $workspace_dir = sys_get_temp_dir() . '/des-assets-' . bin2hex(random_bytes(6));
   mkdir($workspace_dir, 0755, TRUE);
 
@@ -379,7 +379,7 @@ function createWorkspace(string $project_dir): string {
  * @param int $cols
  *   Number of terminal columns.
  */
-function recordSession(string $cast_file, string $expect_script, int $rows = TERMINAL_ROWS, int $cols = TERMINAL_COLS): void {
+function record_session(string $cast_file, string $expect_script, int $rows = TERMINAL_ROWS, int $cols = TERMINAL_COLS): void {
   $cmd = sprintf(
     'asciinema rec --command=%s --window-size=%dx%d --idle-time-limit=%d --overwrite %s 2>&1',
     escapeshellarg($expect_script),
@@ -406,23 +406,23 @@ function recordSession(string $cast_file, string $expect_script, int $rows = TER
  * Create an expect script to automate init.php prompts.
  *
  * Interaction sequence:
- * 1. Text "Extension name" — type "Your Extension", press enter.
- * 2. Text "Machine name" — accept placeholder default, press enter.
- * 3. Select "Extension type" — press enter (Module, first option).
- * 4. Select "CI provider" — press enter (GitHub Actions, first option).
- * 5. Multi-select "Target Drupal versions" — all pre-checked; press enter to
+ * 1. Text "Extension name" - type "Your Extension", press enter.
+ * 2. Text "Machine name" - accept placeholder default, press enter.
+ * 3. Select "Extension type" - press enter (Module, first option).
+ * 4. Select "CI provider" - press enter (GitHub Actions, first option).
+ * 5. Multi-select "Target Drupal versions" - all pre-checked; press enter to
  *    keep all majors.
- * 6. Multi-select "Command wrapper" — press space to select Ahoy, press enter.
- * 7. Multi-select "Tools" — all pre-checked; press enter to keep all tools.
- * 8. Confirm "Remove this script" — type "y", press enter.
- * 9. Confirm "Proceed" — type "y", press enter.
+ * 6. Multi-select "Command wrapper" - press space to select Ahoy, press enter.
+ * 7. Multi-select "Tools" - all pre-checked; press enter to keep all tools.
+ * 8. Confirm "Remove this script" - type "y", press enter.
+ * 9. Confirm "Proceed" - type "y", press enter.
  *
  * @param string $script_path
  *   Path to write the expect script.
  * @param string $playground_script
  *   Path to the init.php script.
  */
-function createInitExpectScript(string $script_path, string $playground_script): void {
+function create_init_expect_script(string $script_path, string $playground_script): void {
   $delay = PROMPT_DELAY;
   $content = <<<EXPECT
 #!/usr/bin/env expect
@@ -461,38 +461,38 @@ sleep {$delay}
 type_text "php init.php"
 wait_and_enter
 
-# Text: Extension name — type "Your Extension" and press enter.
+# Text: Extension name - type "Your Extension" and press enter.
 expect "Extension name" {
     sleep {$delay}
     type_text "Your Extension"
     wait_and_enter
 }
 
-# Text: Machine name — accept placeholder default.
+# Text: Machine name - accept placeholder default.
 expect "Machine name" {
     wait_and_enter
 }
 
-# Select: Extension type — first option "Module" is pre-selected.
+# Select: Extension type - first option "Module" is pre-selected.
 expect "Extension type" {
     sleep {$delay}
     wait_and_enter
 }
 
-# Select: CI provider — first option "GitHub Actions" is pre-selected.
+# Select: CI provider - first option "GitHub Actions" is pre-selected.
 expect "CI provider" {
     sleep {$delay}
     wait_and_enter
 }
 
-# Multi-select: Target Drupal versions — all pre-checked by default; confirm
+# Multi-select: Target Drupal versions - all pre-checked by default; confirm
 # with enter to keep all majors.
 expect "Target Drupal versions" {
     sleep {$delay}
     safe_send "\\r"
 }
 
-# Multi-select: Command wrapper — select "Ahoy" (first option) with space,
+# Multi-select: Command wrapper - select "Ahoy" (first option) with space,
 # then confirm with enter.
 expect "Command wrapper" {
     sleep {$delay}
@@ -501,20 +501,20 @@ expect "Command wrapper" {
     safe_send "\\r"
 }
 
-# Multi-select: Tools — all pre-checked by default; confirm with enter to keep all.
+# Multi-select: Tools - all pre-checked by default; confirm with enter to keep all.
 expect "Tools" {
     sleep {$delay}
     safe_send "\\r"
 }
 
-# Confirm: Remove this script — type "y" to confirm.
+# Confirm: Remove this script - type "y" to confirm.
 expect "Remove this script" {
     sleep {$delay}
     type_text "y"
     wait_and_enter
 }
 
-# Confirm: Proceed with project init — type "y" to confirm.
+# Confirm: Proceed with project init - type "y" to confirm.
 expect "Proceed" {
     sleep {$delay}
     type_text "y"
@@ -547,7 +547,7 @@ EXPECT;
  * @param array<string, string> $env
  *   Environment variables to set before running the command.
  */
-function createCommandExpectScript(string $script_path, string $workspace_dir, string $command, array $env = []): void {
+function create_command_expect_script(string $script_path, string $workspace_dir, string $command, array $env = []): void {
   $delay = PROMPT_DELAY;
   $env_lines = '';
   foreach ($env as $key => $value) {
@@ -605,7 +605,7 @@ EXPECT;
  * @param float $speed
  *   Speed multiplier for event timestamps (e.g. 2.0 = twice as fast).
  */
-function postProcessCast(string $cast_file, string $workspace_dir, float $speed = 1.0): void {
+function post_process_cast(string $cast_file, string $workspace_dir, float $speed = 1.0): void {
   $content = file_get_contents($cast_file);
   if ($content === FALSE) {
     return;
@@ -663,7 +663,7 @@ function postProcessCast(string $cast_file, string $workspace_dir, float $speed 
  * @param string $assets_dir
  *   Path to the assets directory containing svg-term-render.js.
  */
-function convertToSvg(string $cast_file, string $svg_file, string $assets_dir): void {
+function convert_to_svg(string $cast_file, string $svg_file, string $assets_dir): void {
   $renderer = $assets_dir . '/svg-term-render.js';
 
   $cmd = sprintf(
@@ -686,7 +686,7 @@ function convertToSvg(string $cast_file, string $svg_file, string $assets_dir): 
  * @param string $directory
  *   Path to the directory to remove.
  */
-function removeDir(string $directory): void {
+function remove_dir(string $directory): void {
   if (!is_dir($directory)) {
     return;
   }
@@ -727,10 +727,10 @@ try {
   $record_index = array_search('--record', $argv);
   $workspace_index = array_search('--workspace', $argv);
   if ($record_index !== FALSE && isset($argv[$record_index + 1]) && $workspace_index !== FALSE && isset($argv[$workspace_index + 1])) {
-    processOne($argv[$record_index + 1], $argv[$workspace_index + 1]);
+    process_one($argv[$record_index + 1], $argv[$workspace_index + 1]);
   }
   else {
-    // Orchestrator mode — optional positional asset names limit the run to a
+    // Orchestrator mode - optional positional asset names limit the run to a
     // subset (e.g. "init"); with none, every asset is regenerated.
     $only = array_values(array_filter(array_slice($argv, 1), static fn(string $arg): bool => !str_starts_with($arg, '-')));
     main($only);
