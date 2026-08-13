@@ -11,8 +11,9 @@ use PHPUnit\Framework\Attributes\Group;
  * Tests that documentation stays consistent with the files it describes.
  *
  * A script can be added to `.devtools/` without ever reaching its README
- * table: the directory and the table are edited independently, and neither
- * file becomes invalid when they disagree, so no linter reports the drift.
+ * table, and a path can be copied into a PHPUnit config without being rebased
+ * onto the build root. Neither drift is reported by a linter, because each
+ * file stays individually valid while the two disagree.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -43,6 +44,36 @@ final class DocumentationTest extends UnitTestCase {
       }
 
       yield $name => ['name' => $name];
+    }
+  }
+
+  #[DataProvider('dataProviderPhpunitCorePathsUseDocrootPrefix')]
+  public function testPhpunitCorePathsUseDocrootPrefix(string $path): void {
+    $contents = file_get_contents($path);
+    $this->assertIsString($contents);
+
+    // These configs run from the build root rather than from the Drupal root,
+    // so the docroot prefix carried by `bootstrap` applies to every other
+    // core-relative path in the file, comments included.
+    $this->assertSame(1, preg_match('/bootstrap="([^"]+)"/', $contents, $bootstrap), sprintf('%s declares no bootstrap attribute.', basename($path)));
+
+    $position = strpos($bootstrap[1], 'core/');
+    $this->assertIsInt($position, sprintf('%s bootstraps outside core: %s', basename($path), $bootstrap[1]));
+
+    $prefix = substr($bootstrap[1], 0, $position);
+
+    preg_match_all('/^.*(?<!' . preg_quote($prefix, '/') . ')\bcore\/.*$/m', $contents, $unprefixed);
+
+    $this->assertSame([], $unprefixed[0], sprintf('%s references core paths without the `%s` docroot prefix.', basename($path), $prefix));
+  }
+
+  public static function dataProviderPhpunitCorePathsUseDocrootPrefix(): \Iterator {
+    $paths = glob(self::rootDir() . '/phpunit*.xml') ?: [];
+
+    self::assertNotSame([], $paths, 'No PHPUnit configuration files found in the project root.');
+
+    foreach ($paths as $path) {
+      yield basename($path) => ['path' => $path];
     }
   }
 
