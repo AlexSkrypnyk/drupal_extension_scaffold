@@ -161,10 +161,13 @@ final class HelpersGetenvTest extends UnitTestCase {
       $this->envSet($name, $value);
     }
     $this->mockQuit(1);
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       getenv_required(...$args);
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

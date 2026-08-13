@@ -30,9 +30,13 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
   public function testFailureNoMessage(): void {
     $this->mockPassthru(['cmd' => 'false', 'result_code' => 42]);
     $this->mockQuit(42);
-    $this->expectException(QuitErrorException::class);
-    $this->expectExceptionCode(42);
-    passthru_verbose_or_fail('false');
+    try {
+      passthru_verbose_or_fail('false');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(42, $e->getCode());
+    }
   }
 
   public function testFailureWithMessage(): void {
@@ -41,7 +45,7 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
     ob_start();
     try {
       passthru_verbose_or_fail('false', 'Command failed.');
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(42, $e->getCode());
@@ -59,7 +63,7 @@ final class HelpersPassthruVerboseOrFailTest extends UnitTestCase {
     ob_start();
     try {
       passthru_verbose_or_fail('curl http://example.com', 'Failed to download from %s.', 'http://example.com');
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(7, $e->getCode());

@@ -124,7 +124,7 @@ final class HelpersResolveWebserverTest extends UnitTestCase {
     ob_start();
     try {
       resolve_webserver();
-      $this->fail('Expected resolve_webserver() to abort via FAIL().');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());

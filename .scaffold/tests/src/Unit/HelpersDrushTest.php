@@ -66,10 +66,13 @@ final class HelpersDrushTest extends UnitTestCase {
     $expected_cmd = 'build/vendor/bin/drush -r ' . escapeshellarg($cwd . '/build/web') . ' -y bad-command';
     $this->mockPassthru(['cmd' => $expected_cmd, 'output' => '', 'result_code' => 1]);
     $this->mockQuit(1);
-    $this->expectException(QuitErrorException::class);
     ob_start();
     try {
       drush('bad-command');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
     }
     finally {
       $output = ob_get_clean();

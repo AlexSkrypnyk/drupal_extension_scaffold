@@ -114,7 +114,7 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
     ob_start();
     try {
       resolve_webdriver_port();
-      $this->fail('Expected resolve_webdriver_port() to abort via FAIL().');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());

@@ -54,7 +54,7 @@ final class HelpersCommandExistsTest extends UnitTestCase {
     ob_start();
     try {
       command_must_exist('nonexistent_command_12345');
-      $this->fail('Expected QuitErrorException to be thrown');
+      $this->fail('Expected QuitErrorException to be thrown.');
     }
     catch (QuitErrorException $e) {
       $this->assertSame(1, $e->getCode());
