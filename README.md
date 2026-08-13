@@ -491,6 +491,8 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
   deploy. Without this variable, the deployment job will run but will not
   push the code. This is useful for testing the deployment job.
 
+5. Optionally, set `DEPLOY_BRANCH` to the branch to push to in the destination repository. It is not a secret: add it as a repository variable in GitHub Actions (**Settings** -> **Secrets and variables** -> **Actions** -> **Variables**) and as a project environment variable in CircleCI. Without it, the code is pushed to the branch that triggered the build, and a tagged release is pushed to the default branch - the repository default branch in GitHub Actions, and the `default_branch` alias in `.circleci/config.yml` in CircleCI.
+
 ### Drupal.org CI (DrupalCI)
 
 Once your extension is mirrored to Drupal.org, its GitLab CI ("DrupalCI") runs
