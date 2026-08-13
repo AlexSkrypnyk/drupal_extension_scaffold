@@ -1,2 +1,6 @@
-node_modules/**/*
+node_modules/
+vendor/
+build/
+*.min.js
+*.min.css
 *.yml
