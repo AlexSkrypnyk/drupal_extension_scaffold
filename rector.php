@@ -4,6 +4,11 @@
  * @file
  * Rector configuration.
  *
+ * Rector automatically refactors PHP code to:
+ * - Upgrade deprecated Drupal APIs.
+ * - Modernize PHP syntax to leverage new language features.
+ * - Improve code quality and maintainability.
+ *
  * @see https://github.com/palantirnet/drupal-rector
  * @see https://getrector.com/documentation
  * @see https://getrector.com/documentation/set-lists
@@ -37,19 +42,19 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 // Rector and its embedded PHPStan cache reflection data that records
 // absolute paths into the PHPStan PHAR. The default cache directories are
 // shared by every project on the machine, so entries left by a build that no
-// longer exists break the next run.
+// longer exists break the next run. A cache inside the build is scoped to a
+// single codebase. PHPStan requires the directory to exist before it boots.
 $cache_dir = __DIR__ . '/.rector';
-
-// PHPStan requires the cache directory to exist before it boots.
 if (!is_dir($cache_dir)) {
   mkdir($cache_dir, 0755, TRUE);
 }
 
 return RectorConfig::configure()
   ->withSkip([
-    // Rector registers `AddOverrideAttributeToOverriddenMethodsRector` only
-    // on the version resolved for Drupal 10 builds and warns that the entry
-    // is unused on newer ones, so it stays listed to cover both.
+    // Specific rules to skip based on project coding standards. Rector only
+    // registers `AddOverrideAttributeToOverriddenMethodsRector` on the version
+    // resolved for Drupal 10 builds and warns that the entry is unused on
+    // newer ones, so it stays listed to cover both.
     AddOverrideAttributeToOverriddenMethodsRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
@@ -68,14 +73,19 @@ return RectorConfig::configure()
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class,
+    // Directories to skip.
     '*/node_modules/*',
     // #;< META
     // The initialisation script carries a minified copy of a third-party
-    // library that must stay byte-identical to its upstream source.
+    // library that must stay byte-identical to its upstream source, so it is
+    // excluded from static analysis the same way as in PHPCS and PHPStan.
     __DIR__ . '/../init.php',
     // #;> META
   ])
+  // PHP version upgrade sets - modernizes syntax to PHP 8.3.
+  // Includes all rules from PHP 5.3 through 8.3.
   ->withPhpSets(php83: TRUE)
+  // Code quality improvement sets.
   ->withPreparedSets(
     deadCode: TRUE,
     codeQuality: TRUE,
@@ -84,23 +94,26 @@ return RectorConfig::configure()
     privatization: TRUE,
     naming: TRUE,
   )
-  // The provider binds each set to a `drupal/core` version and loads only
-  // the sets the installed core satisfies, so the rules follow the version
-  // the extension is built against. Both calls are required: the provider
-  // supplies the sets, `withComposerBased()` enables the group.
+  // Drupal-specific deprecation fixes. The provider binds each set to a
+  // `drupal/core` version and only the sets the installed core satisfies are
+  // loaded, so the rules follow the version the extension is being built
+  // against. Both calls are required: the provider supplies the sets,
+  // `withComposerBased()` enables the group.
   ->withSetProviders(DrupalSetProvider::class)
   ->withComposerBased(drupal: TRUE)
+  // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
   ])
-  // Each top-level item of the extension is symlinked individually into the
-  // build and Rector's finder does not follow symlinked directories, so the
-  // module children are matched directly: each child is passed to the finder
-  // as its own root, which a symlinked root resolves.
+  // Paths to the extension's source. Each top-level item of the extension is
+  // symlinked individually into the build and Rector's finder does not follow
+  // symlinked directories, so the module children are matched directly (each is
+  // passed to the finder as its own root, which a symlinked root resolves).
   ->withPaths([
     __DIR__ . '/web/modules/custom/*/*',
     __DIR__ . '/web/themes/custom/*/*',
   ])
+  // Configure Drupal autoloading.
   ->withAutoloadPaths((function (): array {
     $drupal_finder = new DrupalFinderComposerRuntime();
     $drupal_root = $drupal_finder->getDrupalRoot();
@@ -112,6 +125,7 @@ return RectorConfig::configure()
       $drupal_root . '/profiles',
     ];
   })())
+  // Drupal file extensions.
   ->withFileExtensions([
     'php',
     'module',
@@ -121,5 +135,7 @@ return RectorConfig::configure()
     'inc',
     'engine',
   ])
+  // Cache configuration.
   ->withCache(cacheDirectory: $cache_dir, containerCacheDirectory: $cache_dir)
+  // Import configuration.
   ->withImportNames(importNames: TRUE, importDocBlockNames: FALSE, importShortClasses: FALSE);
