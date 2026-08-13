@@ -151,7 +151,7 @@ jobs:
 
       #;< DEV_NODEJS_LINT
       - run:
-          name: Lint module code with NodeJS linters
+          name: Lint code with NodeJS linters
           command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
           working_directory: build
       #;> DEV_NODEJS_LINT
