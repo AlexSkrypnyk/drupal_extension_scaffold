@@ -32,11 +32,6 @@ final class InfoTest extends UnitTestCase {
     $this->envUnset('DRUPAL_PROFILE');
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   /**
    * Set up the standard mocks for an info run.
    *

@@ -54,7 +54,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     }
     sleep(1);
 
-    self::envReset();
     $this->processTearDown();
 
     parent::tearDown();

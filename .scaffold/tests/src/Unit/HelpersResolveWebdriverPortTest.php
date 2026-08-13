@@ -30,11 +30,6 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
     $this->envUnset('WEBDRIVER_PORT');
   }
 
-  protected function tearDown(): void {
-    self::envReset();
-    parent::tearDown();
-  }
-
   public function testDefaultsWhenNothingProvided(): void {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
 
