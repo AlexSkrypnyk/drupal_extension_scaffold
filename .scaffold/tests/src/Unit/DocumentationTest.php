@@ -26,7 +26,9 @@ final class DocumentationTest extends UnitTestCase {
     $readme = file_get_contents(self::rootDir() . '/.devtools/README.md');
     $this->assertIsString($readme);
 
-    $documented = preg_match('/^\|.*`' . preg_quote($name, '/') . '`.*\|/m', $readme) === 1;
+    // Anchored to the entry column: a name mentioned in another row's
+    // description is a cross-reference, not an entry of its own.
+    $documented = preg_match('/^\|\s*`' . preg_quote($name, '/') . '`\s*\|/m', $readme) === 1;
 
     $this->assertTrue($documented, sprintf('.devtools/README.md has no table row for `%s`.', $name));
   }
