@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Drupal\Tests\BrowserTestBase;
 
 /**
- * Tests the functionality of ForceCrystalService.
+ * Tests the functionality of ForceCrystalForm.
  *
  * @coversDefaultClass \Drupal\force_crystal\Form\ForceCrystalForm
  *
@@ -30,7 +30,7 @@ class ForceCrystalFunctionalTest extends BrowserTestBase {
   protected static $modules = ['force_crystal'];
 
   /**
-   * Tests the functionality of the getText method.
+   * Tests that text saved through the settings form renders in <noscript>.
    */
   public function testGetText(): void {
     $account = $this->drupalCreateUser(['administer site configuration']);
