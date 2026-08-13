@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[Group('your_extension')]
 #[RunTestsInSeparateProcesses]
-class YourExtensionSmokeJsTest extends YourExtensionJsTestBase {
+class YourExtensionSmokeFunctionalJavascriptTest extends YourExtensionFunctionalJavascriptTestBase {
 
   /**
    * Tests WebDriver connectivity and screenshot generation.

@@ -13,7 +13,7 @@ use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
  * @group your_extension
  */
 #[Group('your_extension')]
-abstract class YourExtensionJsTestBase extends WebDriverTestBase {
+abstract class YourExtensionFunctionalJavascriptTestBase extends WebDriverTestBase {
 
   /**
    * {@inheritdoc}
