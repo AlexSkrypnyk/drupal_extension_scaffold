@@ -196,6 +196,8 @@ function webdriver_backend(): string {
  * Both backends report '"ready": true' in the '/status' response body.
  * Selenium serves HTTP 200 before it can accept sessions, so the body is
  * inspected rather than the response status.
+ *
+ * @phpstan-impure
  */
 function webdriver_ready(string $port): bool {
   $context = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 2, 'ignore_errors' => TRUE]]);
@@ -282,7 +284,7 @@ function parse_installed_binary(string $log): string {
     return '';
   }
 
-  $last = (string) end($lines);
+  $last = end($lines);
   $space = strpos($last, ' ');
 
   return $space === FALSE ? '' : substr($last, $space + 1);

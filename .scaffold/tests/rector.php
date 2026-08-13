@@ -35,10 +35,12 @@ return RectorConfig::configure()
   ->withPaths([
     __DIR__ . '/src/**',
     __DIR__ . '/../../.devtools/assemble',
+    __DIR__ . '/../../.devtools/browser',
     __DIR__ . '/../../.devtools/deploy',
     __DIR__ . '/../../.devtools/helpers.php',
+    __DIR__ . '/../../.devtools/info',
     __DIR__ . '/../../.devtools/provision',
-    __DIR__ . '/../../.devtools/README.md',
+    __DIR__ . '/../../.devtools/qrcode',
     __DIR__ . '/../../.devtools/start',
     __DIR__ . '/../../.devtools/stop',
     __DIR__ . '/../../init.php',
