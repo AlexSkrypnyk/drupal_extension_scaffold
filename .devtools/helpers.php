@@ -4,6 +4,11 @@
  * @file
  * Helper functions for DevTools tooling scripts.
  *
+ * These functions are shared by the '.devtools/*' command scripts so that
+ * output formatting, command execution and file operations behave the same way
+ * in every script. Centralising them keeps the scripts free of duplicated
+ * logic, and keeps each helper mockable so the test suite can cover it.
+ *
  * @phpcs:disable Drupal.NamingConventions.ValidFunctionName.InvalidName
  */
 
@@ -576,6 +581,8 @@ function passthru_or_fail(string $command, string $format = '', string|int|float
   else {
     $output = passthru_capture($command, $exit_code);
 
+    // Surface the captured output only on failure so the error stays
+    // diagnosable while a successful run remains quiet.
     if ($exit_code !== 0) {
       echo $output;
     }
@@ -656,7 +663,8 @@ function print_qrcode(string $url): void {
  * environment. A non-zero exit from any script aborts the parent.
  *
  * The directory and any matching scripts are optional: a missing
- * directory or an empty match set returns silently.
+ * directory or an empty match set returns silently. This is the extension
+ * point behind the assemble, provision, start and stop hooks.
  *
  * @param string $dir
  *   Directory to scan, relative to the current working directory.
@@ -680,6 +688,8 @@ function run_custom_scripts(string $dir, string $prefix): void {
       continue;
     }
     TASK("Running custom script '%s'.", $file);
+    // Show the hook's output - these scripts are the project's own and their
+    // output is intentional, unlike the suppressed dependency-tool commands.
     passthru_verbose_or_fail(escapeshellarg($file), "Custom script '%s' failed.", $file);
     PASS("Completed custom script '%s'.", $file);
   }

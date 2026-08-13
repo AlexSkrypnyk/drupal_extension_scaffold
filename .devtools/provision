@@ -20,10 +20,12 @@ require_once __DIR__ . '/helpers.php';
 // Variables.
 // -----------------------------------------------------------------------------
 
+// Webserver host and port, resolved via the env -> '.env' -> default chain.
 $webserver = resolve_webserver();
 $webserver_host = $webserver['host'];
 $webserver_port = $webserver['port'];
 
+// Drupal installation profile to install the site with.
 $drupal_profile = getenv_default('DRUPAL_PROFILE', 'standard');
 
 // -----------------------------------------------------------------------------
@@ -86,6 +88,7 @@ TASK('Linking browser test output into %s.', '.logs/browser_output');
 link_browser_output(getcwd() . '/build/web', getcwd() . '/.logs');
 PASS('Browser test output linked.');
 
+// Run custom post-provision scripts from "scripts/provision-*.sh", if any.
 run_custom_scripts('scripts', 'provision-');
 
 $site_url = resolve_site_url($webserver_host, $webserver_port);
