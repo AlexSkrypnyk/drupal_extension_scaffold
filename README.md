@@ -446,6 +446,10 @@ The `deploy` job runs when commits are pushed to main branches
 that out-of-the-box, the deployment job will not run for other branches or
 pull requests, but you can adjust the CI configuration to suit your needs.
 
+The code pushed to the destination repository is the commit that CI tested,
+so a release tag deploys the tagged commit rather than the tip of the branch
+it was cut from.
+
 See these examples of the deployment destination repository:
 [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github) and
 [CircleCI](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_circleci)

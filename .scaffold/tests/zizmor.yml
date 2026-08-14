@@ -12,8 +12,10 @@ rules:
     # These triggers are required and do not execute attacker-supplied code:
     # - assign-author: assigns the PR author via 'toshimaru/auto-author-assign';
     #   needs a write token on fork PRs and never checks out PR code.
-    # - deploy: a chained run after the 'Test' workflow completes; it deploys
-    #   the already-tested branch over an SSH key and never checks out PR code.
+    # - deploy: a chained run after the 'Test' workflow completes; it checks
+    #   out the commit that run tested and deploys it over an SSH key. The job
+    #   is gated on a push from this repository, so fork-controlled code never
+    #   reaches the deployment key.
     ignore:
       - assign-author.yml
       - deploy.yml
