@@ -20,6 +20,28 @@ jobs:
     permissions:
       contents: read
 
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          #;< DRUPAL_10
+          - name: lint-d10
+            php-version: 8.4
+            drupal-version: 10
+
+          #;> DRUPAL_10
+          #;< DRUPAL_11
+          - name: lint-d11
+            php-version: 8.5
+            drupal-version: 11
+
+          #;> DRUPAL_11
+    name: ${{ matrix.name }}
+
+    env:
+      DRUPAL_VERSION: ${{ matrix.drupal-version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -50,7 +72,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
-          php-version: 8.5
+          php-version: ${{ matrix.php-version }}
           extensions: gd, sqlite, pdo_sqlite
 
       - name: Assemble the codebase

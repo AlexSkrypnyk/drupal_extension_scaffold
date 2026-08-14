@@ -20,6 +20,59 @@ aliases:
     image: selenium/standalone-chromium:latest
   #;> DEV_FUNCTIONAL_JAVASCRIPT
 
+job-lint: &job-lint
+  steps:
+    - checkout
+
+    - run:
+        name: Install Node.js dependencies
+        command: npm ci --ignore-scripts
+
+    #;< DEV_CSPELL
+    - run:
+        name: Lint code with CSpell
+        command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
+    #;> DEV_CSPELL
+
+    - run:
+        name: Assemble the codebase
+        command: .devtools/assemble
+
+    #;< DEV_PHPCS
+    - run:
+        name: Lint code with PHPCS
+        command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+    #;> DEV_PHPCS
+
+    #;< DEV_PHPSTAN
+    - run:
+        name: Lint code with PHPStan
+        command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+    #;> DEV_PHPSTAN
+
+    #;< DEV_RECTOR
+    - run:
+        name: Lint code with Rector
+        command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+    #;> DEV_RECTOR
+
+    #;< DEV_TWIGCS
+    - run:
+        name: Lint code with Twig CS Fixer
+        command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+        working_directory: build
+    #;> DEV_TWIGCS
+
+    #;< DEV_NODEJS_LINT
+    - run:
+        name: Lint code with NodeJS linters
+        command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
+        working_directory: build
+    #;> DEV_NODEJS_LINT
+
 job-test: &job-test
   steps:
     - checkout
@@ -100,63 +153,15 @@ job-test: &job-test
     #;> DEV_PHPUNIT
 
 jobs:
-  lint:
+  #;< DRUPAL_10
+  lint-d10:
     <<: *container_config
     docker:
-      - image: cimg/php:8.5-browsers
-    steps:
-      - checkout
+      - image: cimg/php:8.4-browsers
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-lint
 
-      - run:
-          name: Install Node.js dependencies
-          command: npm ci --ignore-scripts
-
-      #;< DEV_CSPELL
-      - run:
-          name: Lint code with CSpell
-          command: npm run lint-spell || [ "${CI_CSPELL_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> DEV_CSPELL
-
-      - run:
-          name: Assemble the codebase
-          command: .devtools/assemble
-
-      #;< DEV_PHPCS
-      - run:
-          name: Lint code with PHPCS
-          command: vendor/bin/phpcs || [ "${CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
-          working_directory: build
-      #;> DEV_PHPCS
-
-      #;< DEV_PHPSTAN
-      - run:
-          name: Lint code with PHPStan
-          command: vendor/bin/phpstan || [ "${CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
-          working_directory: build
-      #;> DEV_PHPSTAN
-
-      #;< DEV_RECTOR
-      - run:
-          name: Lint code with Rector
-          command: vendor/bin/rector --clear-cache --dry-run || [ "${CI_RECTOR_IGNORE_FAILURE:-0}" -eq 1 ]
-          working_directory: build
-      #;> DEV_RECTOR
-
-      #;< DEV_TWIGCS
-      - run:
-          name: Lint code with Twig CS Fixer
-          command: vendor/bin/twig-cs-fixer || [ "${CI_TWIGCSFIXER_IGNORE_FAILURE:-0}" -eq 1 ]
-          working_directory: build
-      #;> DEV_TWIGCS
-
-      #;< DEV_NODEJS_LINT
-      - run:
-          name: Lint code with NodeJS linters
-          command: '[ ! -d node_modules ] || npm run lint || [ "${CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]'
-          working_directory: build
-      #;> DEV_NODEJS_LINT
-
-  #;< DRUPAL_10
   test-php-min-d10-stable:
     <<: *container_config
     docker:
@@ -181,6 +186,14 @@ jobs:
 
   #;> DRUPAL_10
   #;< DRUPAL_11
+  lint-d11:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.5-browsers
+    environment:
+      DRUPAL_VERSION: 11
+    <<: *job-lint
+
   test-php-min-d11-stable:
     <<: *container_config
     docker:
@@ -248,11 +261,11 @@ workflows:
   version: 2
   commit:
     jobs:
-      - lint:
+      #;< DRUPAL_10
+      - lint-d10:
           filters:
             tags:
               only: /.*/
-      #;< DRUPAL_10
       - test-php-min-d10-stable:
           filters:
             tags:
@@ -263,6 +276,10 @@ workflows:
               only: /.*/
       #;> DRUPAL_10
       #;< DRUPAL_11
+      - lint-d11:
+          filters:
+            tags:
+              only: /.*/
       - test-php-min-d11-stable:
           filters:
             tags:
@@ -282,12 +299,13 @@ workflows:
       #;> DRUPAL_11
       - deploy:
           requires:
-            - lint
             #;< DRUPAL_10
+            - lint-d10
             - test-php-min-d10-stable
             - test-php-max-d10-stable
             #;> DRUPAL_10
             #;< DRUPAL_11
+            - lint-d11
             - test-php-min-d11-stable
             - test-php-max-d11-stable
             - test-php-min-d11-legacy
