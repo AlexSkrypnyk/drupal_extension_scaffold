@@ -208,6 +208,10 @@ final class AhoyTest extends DevtoolsTestCase {
     $this->processRun('ahoy', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    // The 'test-js' alias resolves to the same command.
+    $this->processRun('ahoy', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
     File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
 
     $this->processRun('ahoy', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);

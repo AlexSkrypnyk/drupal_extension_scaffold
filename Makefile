@@ -41,7 +41,7 @@ endef
 .PHONY: test-functional-javascript browser-start browser-stop
 #;> DEV_FUNCTIONAL_JAVASCRIPT
 #;< DEV_JEST
-.PHONY: test-javascript
+.PHONY: test-javascript test-js
 #;> DEV_JEST
 
 help:
@@ -75,7 +75,7 @@ help:
 	@echo "browser-stop               - Stop the browser."
 	@#;> DEV_FUNCTIONAL_JAVASCRIPT
 	@#;< DEV_JEST
-	@echo "test-javascript            - Run JavaScript unit tests."
+	@echo "test-javascript            - Run JavaScript unit tests (alias: test-js)."
 	@#;> DEV_JEST
 
 build:
@@ -244,6 +244,9 @@ test-javascript:
 	pushd "build" >/dev/null || exit 1 && \
 	([ ! -d node_modules ] || npm test) && \
 	popd >/dev/null || exit 1
+
+# Keep `make test-js` working for projects that already script that name.
+test-js: test-javascript
 #;> DEV_JEST
 
 reset:

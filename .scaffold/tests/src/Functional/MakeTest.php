@@ -207,6 +207,10 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
+    // The 'test-js' alias resolves to the same target.
+    $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
     File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
 
     $this->processRun('make', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
