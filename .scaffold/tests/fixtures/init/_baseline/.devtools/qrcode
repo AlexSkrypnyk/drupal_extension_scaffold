@@ -5,9 +5,20 @@
  * @file
  * Render a URL as a scannable QR code in the terminal.
  *
- * Reads the URL from the first CLI argument and prints a QR code using
- * `qrencode`. A no-op when no URL is given or `qrencode` is not installed,
- * so callers can pipe an optional URL through without guarding first.
+ * Reads the URL from the first non-flag CLI argument and prints a QR code
+ * using `qrencode`.
+ *
+ * Two modes:
+ * - 'qrcode <url>': render whenever `qrencode` is installed. Running the
+ *   command is itself the expression of intent.
+ * - 'qrcode --if-enabled <url>': render only when the QRCODE variable -
+ *   read from the shell environment or '.env' - is truthy. The login
+ *   wrappers call the script for every login, so they opt in this way to
+ *   leave their default output unchanged.
+ *
+ * Both modes are a no-op when no URL is given or `qrencode` is not
+ * installed, so callers can pipe an optional URL through without guarding
+ * first.
  */
 
 declare(strict_types=1);
@@ -16,4 +27,8 @@ namespace DrupalExtensionScaffold\DevTools;
 
 require_once __DIR__ . '/helpers.php';
 
-print_qrcode($argv[1] ?? '');
+$args = array_slice($argv, 1);
+$if_enabled = in_array('--if-enabled', $args, TRUE);
+$positional = array_values(array_filter($args, fn(string $arg): bool => !str_starts_with($arg, '-')));
+
+print_qrcode($positional[0] ?? '', force: !$if_enabled);
