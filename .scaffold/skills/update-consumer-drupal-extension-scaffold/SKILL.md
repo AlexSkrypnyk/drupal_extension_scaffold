@@ -63,14 +63,22 @@ git symbolic-ref --short refs/remotes/origin/HEAD
 
 Strip the `origin/` prefix from the result. If `origin/HEAD` is not set, fall back to the branch configured in `.github/workflows/test.yml`.
 
-## Step 2: Get the latest scaffold version
+## Step 2: Get the latest published scaffold version
 
 ```bash
-gh release list --repo AlexSkrypnyk/drupal_extension_scaffold --limit 5
+gh release list --repo AlexSkrypnyk/drupal_extension_scaffold --exclude-drafts --limit 5
 ```
 
-Pick the latest non-draft release. Confirm the version with the user before
-proceeding.
+`--exclude-drafts` is mandatory. Draft releases are unpublished work in
+progress and must never be selected, even when they carry the highest version
+number.
+
+Take the topmost (newest) release from that list and use its tag **verbatim** -
+exactly as printed, including any prefix - for the branch name, the download
+and the commit message. Never reformat, shorten or normalise it.
+
+Do not ask the user to confirm the version. If the user named a version when
+invoking the skill, use that version verbatim and skip the lookup.
 
 ## Step 3: Prepare the feature branch
 
@@ -89,8 +97,8 @@ git checkout <main_branch>
 git pull
 ```
 
-3. Create and switch to a new feature branch. Use the short version without the
-   `v` prefix (e.g., `4.12`):
+3. Create and switch to a new feature branch. Use the release tag verbatim, as
+   printed in Step 2 (e.g., `4.18.0`):
 
 ```bash
 git checkout -b feature/update-drupal-extension-scaffold-<version>
@@ -161,6 +169,7 @@ git checkout HEAD -- \
   src/ \
   tests/ \
   config/ \
+  scripts/ \
   composer.json \
   LICENSE \
   *.module \
@@ -176,7 +185,57 @@ git checkout HEAD -- \
 Only restore paths that actually exist in the project - skip any that produce
 errors.
 
-## Step 8: Review changes
+## Step 8: Remove the scaffold examples
+
+The scaffold ships a complete example extension - sample service, form, tests,
+assets, config schema and shell scripts - so that the template runs standalone.
+None of it belongs in a real project. Remove it on every update, without asking
+the user.
+
+1. List what the extraction left behind:
+
+```bash
+git status --porcelain --untracked-files=all
+```
+
+2. Delete every file that is **both** untracked (`??` in that listing) **and**
+   one of the example paths below. `init.php` renames the example to the
+   project's machine name, so match by shape rather than by literal name
+   (`<machine_name>` in file names, `<MachineName>` in class names):
+
+- `src/<MachineName>Service.php`
+- `src/Form/<MachineName>Form.php`
+- `tests/src/Functional/<MachineName>FunctionalTest.php`
+- `tests/src/FunctionalJavascript/<MachineName>FunctionalJavascriptTestBase.php`
+- `tests/src/FunctionalJavascript/<MachineName>SmokeFunctionalJavascriptTest.php`
+- `tests/src/Kernel/<MachineName>ServiceKernelTest.php`
+- `tests/src/Unit/<MachineName>ServiceUnitTest.php`
+- `config/schema/<machine_name>.schema.yml`
+- `css/<machine_name>.css`
+- `js/<machine_name>.js` and `js/<machine_name>.test.js`
+- `<machine_name>.module`, `<machine_name>.install`,
+  `<machine_name>.libraries.yml`, `<machine_name>.links.menu.yml`,
+  `<machine_name>.routing.yml`, `<machine_name>.services.yml`
+- `scripts/assemble-example.sh`, `scripts/provision-example.sh`,
+  `scripts/start-example.sh`, `scripts/stop-example.sh`
+
+**Both conditions are required at every deletion, with no exceptions.** A file
+at one of these paths that git already tracks is the project's own code
+restored in Step 7 - it may be a service grown out of the example, or a
+lifecycle hook adapted from one - so leave it alone. A path outside this list
+is never deleted here, however example-like it looks.
+
+3. Remove directories left empty by the deletions (e.g. `css/`, `js/`,
+   `src/Form/`). Never leave an empty directory in the tree.
+
+4. Grep `package.json`, `jest.config.js` and the stylelint config for every
+   path deleted above, and remove or repoint each reference you find. Do this
+   unconditionally - a project with JavaScript and CSS of its own can still
+   carry a script or a glob aimed at a deleted example asset, and an empty
+   glob is not an error for most of these tools, so Step 11 will not reliably
+   surface it.
+
+## Step 9: Review changes
 
 Use `git diff` and `git status` to review all changes. Pay attention to:
 
@@ -187,8 +246,10 @@ Use `git diff` and `git status` to review all changes. Pay attention to:
   infrastructure (e.g., `phpmd.xml`), confirm they are intentionally removed in
   the new scaffold version.
 - **New files**: Review any new files from the scaffold to ensure they are
-  infrastructure, not placeholder stubs (generic service classes, form classes,
-  or test stubs should be removed).
+  infrastructure, not placeholder stubs. Anything the example extension missed
+  in Step 8 - a generic service class, form class or test stub - is removed
+  here, under the same guard: untracked only, and only when the file is
+  demonstrably scaffold boilerplate rather than project code.
 
 ### README.md handling
 
@@ -211,7 +272,7 @@ simply patch path references - instead, rebuild it from the scaffold's
 7. Fix the scaffold link at the bottom to point to the scaffold repo, not the
    project repo.
 
-## Step 9: Commit
+## Step 10: Commit
 
 Stage all changes and commit:
 
@@ -219,7 +280,7 @@ Stage all changes and commit:
 Updated scaffold to <version>.
 ```
 
-## Step 10: Build, lint, and test
+## Step 11: Build, lint, and test
 
 Run the full build pipeline to verify nothing is broken:
 
@@ -265,14 +326,18 @@ not exist" errors. Keep using doc-comment annotations (`@covers`, `@group`)
 for cross-version compatibility. The PHPUnit deprecation warnings are
 acceptable.
 
-## Step 11: Open PR
+## Step 12: Open PR
 
 Push the branch and open a pull request. Use the `/open-pr` skill or create
 the PR manually with a summary of all changes.
 
 ## Important notes
 
-- Always confirm the scaffold version with the user before starting.
+- When the user names a version, use that tag verbatim. Otherwise take the
+  newest published release - never a draft. Either way, use the tag verbatim
+  and start without asking the user to confirm it.
+- Always remove the scaffold's example extension and example scripts - a real
+  project never ships them.
 - Never overwrite project-specific code (src/, tests/, config/, *.module, etc.).
 - After copying workflow files, always verify branch references match the project.
 - If the devtools scripts changed format (e.g., Bash to PHP), remove the old
