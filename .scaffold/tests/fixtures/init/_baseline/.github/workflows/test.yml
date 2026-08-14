@@ -20,6 +20,24 @@ jobs:
     permissions:
       contents: read
 
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - name: lint-d10
+            php-version: 8.4
+            drupal-version: 10
+
+          - name: lint-d11
+            php-version: 8.5
+            drupal-version: 11
+
+    name: ${{ matrix.name }}
+
+    env:
+      DRUPAL_VERSION: ${{ matrix.drupal-version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@__HASH__ # __VERSION__
@@ -48,7 +66,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@__HASH__ # __VERSION__
         with:
-          php-version: 8.5
+          php-version: ${{ matrix.php-version }}
           extensions: gd, sqlite, pdo_sqlite
 
       - name: Assemble the codebase
