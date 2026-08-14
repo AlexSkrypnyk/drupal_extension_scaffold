@@ -39,10 +39,15 @@ final class ReleaseDrafterConfigTest extends UnitTestCase {
       // A category with no `when` condition matches every change, so it holds
       // the increment that applies when no other category does. Release
       // Drafter assumes `patch` for a category that names no increment.
-      if (!is_array($category) || array_key_exists('when', $category) || ($category['type'] ?? NULL) !== 'version-resolver') {
+      if (!is_array($category)) {
         continue;
       }
-
+      if (array_key_exists('when', $category)) {
+        continue;
+      }
+      if (($category['type'] ?? NULL) !== 'version-resolver') {
+        continue;
+      }
       $increments[] = $category['semver-increment'] ?? 'patch';
     }
 
