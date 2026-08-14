@@ -27,15 +27,15 @@ use Symfony\Component\Yaml\Yaml;
 #[Group('p0')]
 final class DeployWorkflowBranchTest extends UnitTestCase {
 
-  protected const STEP = 'Deploy to Remote';
+  protected const string STEP = 'Deploy to Remote';
 
-  protected const DEFAULT_BRANCH = 'main';
+  protected const string DEFAULT_BRANCH = 'main';
 
-  protected const FEATURE_BRANCH = 'feature/x';
+  protected const string FEATURE_BRANCH = 'feature/x';
 
-  protected const LIGHTWEIGHT_TAG = '1.0.0';
+  protected const string LIGHTWEIGHT_TAG = '1.0.0';
 
-  protected const ANNOTATED_TAG = '2.0.0';
+  protected const string ANNOTATED_TAG = '2.0.0';
 
   #[DataProvider('dataProviderResolvedBranch')]
   public function testResolvedBranch(string $deploy_branch, string $head_branch, string $head_commit, string $expected): void {
