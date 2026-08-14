@@ -66,7 +66,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
   public function testEnabledButQrencodeMissingDoesNothing(): void {
     $this->envSet('QRCODE', '1');
-    $this->mockQrencodeAvailable(FALSE);
+    $this->mockCommandAvailable('qrencode', FALSE);
 
     ob_start();
     print_qrcode('https://example.com');
@@ -78,7 +78,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
 
   public function testEnabledViaEnvRendersCode(): void {
     $this->envSet('QRCODE', '1');
-    $this->mockQrencodeAvailable(TRUE);
+    $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
       'output' => '[QR-CODE]',
@@ -92,11 +92,48 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
 
+  public function testForcedRendersWhileExplicitlyDisabled(): void {
+    $this->envSet('QRCODE', '0');
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthru([
+      'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
+      'output' => '[QR-CODE]',
+    ]);
+
+    ob_start();
+    print_qrcode('https://example.com', force: TRUE);
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+
+    $this->assertStringContainsString('[QR-CODE]', $output);
+  }
+
+  public function testForcedWithEmptyUrlDoesNothing(): void {
+    ob_start();
+    print_qrcode('', force: TRUE);
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+
+    $this->assertSame('', $output);
+  }
+
+  public function testForcedButQrencodeMissingDoesNothing(): void {
+    $this->envSet('QRCODE', '0');
+    $this->mockCommandAvailable('qrencode', FALSE);
+
+    ob_start();
+    print_qrcode('https://example.com', force: TRUE);
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+
+    $this->assertSame('', $output);
+  }
+
   public function testEnabledViaDotenvRendersCode(): void {
     $this->envUnset('QRCODE');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
     $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(string $file): string => $file === '.env' ? "QRCODE=1\n" : '');
-    $this->mockQrencodeAvailable(TRUE);
+    $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
       'output' => '[QR-CODE]',
@@ -115,24 +152,6 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
    */
   protected function mockDotenvAbsent(): void {
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
-  }
-
-  /**
-   * Mock command_path('qrencode') resolution via the underlying exec().
-   */
-  protected function mockQrencodeAvailable(bool $available): void {
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($available): bool {
-      $output ??= [];
-      if ($available && str_contains($cmd, 'command -v qrencode')) {
-        $output[] = '/usr/bin/qrencode';
-        $code = 0;
-
-        return TRUE;
-      }
-      $code = 1;
-
-      return FALSE;
-    });
   }
 
 }

@@ -316,6 +316,37 @@ trait MockTrait {
   }
 
   /**
+   * Mock command_path() resolution through the exec() probe behind it.
+   *
+   * Any command other than the named one always resolves as missing, so a
+   * test that expects one probe cannot be satisfied by another.
+   *
+   * @param string $command
+   *   Command name to resolve.
+   * @param bool $available
+   *   TRUE to resolve the command to a stub path, FALSE to report it as
+   *   not installed.
+   * @param string $namespace
+   *   Namespace to mock the function in.
+   */
+  protected function mockCommandAvailable(string $command, bool $available, string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
+    $this->registerMock('exec', $namespace, function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($command, $available): bool {
+      $output ??= [];
+
+      if ($available && str_contains($cmd, 'command -v ' . $command)) {
+        $output[] = '/usr/bin/' . $command;
+        $code = 0;
+
+        return TRUE;
+      }
+
+      $code = 1;
+
+      return FALSE;
+    });
+  }
+
+  /**
    * Mock sleep() function as a no-op.
    *
    * @param string $namespace

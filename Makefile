@@ -130,7 +130,7 @@ drush:
 	build/vendor/bin/drush -l "$(DRUSH_URI)" $(DRUSH_RUN_ARGS)
 
 login:
-	@url="$$(build/vendor/bin/drush -l "$(DRUSH_URI)" uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url"
+	@url="$$(build/vendor/bin/drush -l "$(DRUSH_URI)" uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode --if-enabled "$$url"
 
 provision:
 	./.devtools/provision

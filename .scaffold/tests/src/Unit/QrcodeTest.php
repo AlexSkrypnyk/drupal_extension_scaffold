@@ -23,20 +23,9 @@ final class QrcodeTest extends UnitTestCase {
   }
 
   public function testQrcodeRendersQrcodeForUrlArgument(): void {
-    // Rendering is opt-in.
-    $this->envSet('QRCODE', '1');
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): bool {
-      $output ??= [];
-      if (str_contains($cmd, 'command -v qrencode')) {
-        $output[] = '/usr/bin/qrencode';
-        $code = 0;
-
-        return TRUE;
-      }
-      $code = 1;
-
-      return FALSE;
-    });
+    // Invoking the command is the opt-in, so the QRCODE gate does not apply.
+    $this->envSet('QRCODE', '0');
+    $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
       'output' => '[QR-CODE]',
@@ -59,6 +48,37 @@ final class QrcodeTest extends UnitTestCase {
     $this->assertIsString($output);
 
     $this->assertSame('', $output);
+  }
+
+  public function testQrcodeIfEnabledDoesNothingWhenOptInUnset(): void {
+    // QRCODE is unset in both the environment and '.env'.
+    $this->envUnset('QRCODE');
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $argv = ['qrcode', '--if-enabled', 'https://example.com'];
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/qrcode';
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+
+    $this->assertSame('', $output);
+  }
+
+  public function testQrcodeIfEnabledRendersWhenOptInSet(): void {
+    $this->envSet('QRCODE', '1');
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthru([
+      'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
+      'output' => '[QR-CODE]',
+    ]);
+
+    $argv = ['qrcode', '--if-enabled', 'https://example.com'];
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/qrcode';
+    $output = ob_get_clean();
+    $this->assertIsString($output);
+
+    $this->assertStringContainsString('[QR-CODE]', $output);
   }
 
 }

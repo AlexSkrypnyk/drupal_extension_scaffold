@@ -649,24 +649,29 @@ function passthru_verbose_or_fail(string $command, string $format = '', string|i
 /**
  * Render a URL as a scannable QR code in the terminal.
  *
- * Opt-in: draws nothing unless the QRCODE variable - read from the shell
- * environment or '.env' - is set to a truthy value ('1', 'true', 'yes',
- * 'on'). When enabled it uses `qrencode -t ANSIUTF8` to draw the code with
- * Unicode block glyphs, and is still a no-op when the URL is empty or the
- * `qrencode` binary is not installed, so callers may invoke it
- * unconditionally.
+ * Opt-in by default: draws nothing unless the QRCODE variable - read from
+ * the shell environment or '.env' - is set to a truthy value ('1', 'true',
+ * 'yes', 'on'), or $force skips that check. When it draws, it uses
+ * `qrencode -t ANSIUTF8` to render the code with Unicode block glyphs, and
+ * is still a no-op when the URL is empty or the `qrencode` binary is not
+ * installed, so callers may invoke it unconditionally.
  *
  * @param string $url
  *   The URL to encode. An empty string renders nothing.
+ * @param bool $force
+ *   Skip the QRCODE opt-in check, for callers whose invocation already
+ *   expresses the intent to draw a code.
  */
-function print_qrcode(string $url): void {
+function print_qrcode(string $url, bool $force = FALSE): void {
   if ($url === '') {
     return;
   }
 
-  $enabled = resolve_env_value('QRCODE', '')['value'];
-  if (!in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], TRUE)) {
-    return;
+  if (!$force) {
+    $enabled = resolve_env_value('QRCODE', '')['value'];
+    if (!in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], TRUE)) {
+      return;
+    }
   }
 
   if (!command_path('qrencode')) {
