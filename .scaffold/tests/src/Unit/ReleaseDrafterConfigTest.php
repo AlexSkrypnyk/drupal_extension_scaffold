@@ -44,9 +44,11 @@ final class ReleaseDrafterConfigTest extends UnitTestCase {
         continue;
       }
 
-      // A category with no `when` condition matches every change, so it holds
-      // the increment that applies when no other category does.
-      if (array_key_exists('when', $category)) {
+      // A category that carries no condition matches every change, so it holds
+      // the increment that applies when no other category does. An empty
+      // `when` list expresses the same thing: Release Drafter matches every
+      // change once the parsed condition list is empty.
+      if (($category['when'] ?? []) !== []) {
         continue;
       }
 
