@@ -169,6 +169,7 @@ git checkout HEAD -- \
   src/ \
   tests/ \
   config/ \
+  scripts/ \
   composer.json \
   LICENSE \
   *.module \
@@ -191,23 +192,16 @@ assets, config schema and shell scripts - so that the template runs standalone.
 None of it belongs in a real project. Remove it on every update, without asking
 the user.
 
-1. Delete the example shell scripts. `scripts/` is not restored in Step 7, so
-   everything in it came from the extraction:
-
-```bash
-rm -f scripts/assemble-example.sh scripts/provision-example.sh scripts/start-example.sh scripts/stop-example.sh
-```
-
-2. List what the extraction left behind:
+1. List what the extraction left behind:
 
 ```bash
 git status --porcelain --untracked-files=all
 ```
 
-3. Delete every **untracked** file that belongs to the example extension.
-   `init.php` renames these to the project's machine name, so match them by
-   shape rather than by literal name (`<machine_name>` in file names,
-   `<MachineName>` in class names):
+2. Delete every file that is **both** untracked (`??` in that listing) **and**
+   one of the example paths below. `init.php` renames the example to the
+   project's machine name, so match by shape rather than by literal name
+   (`<machine_name>` in file names, `<MachineName>` in class names):
 
 - `src/<MachineName>Service.php`
 - `src/Form/<MachineName>Form.php`
@@ -222,17 +216,24 @@ git status --porcelain --untracked-files=all
 - `<machine_name>.module`, `<machine_name>.install`,
   `<machine_name>.libraries.yml`, `<machine_name>.links.menu.yml`,
   `<machine_name>.routing.yml`, `<machine_name>.services.yml`
+- `scripts/assemble-example.sh`, `scripts/provision-example.sh`,
+  `scripts/start-example.sh`, `scripts/stop-example.sh`
 
-**Delete only paths that git reports as untracked (`??`).** A file at one of
-these paths that git already tracks is the project's own code restored in
-Step 7 - leave it alone.
+**Both conditions are required at every deletion, with no exceptions.** A file
+at one of these paths that git already tracks is the project's own code
+restored in Step 7 - it may be a service grown out of the example, or a
+lifecycle hook adapted from one - so leave it alone. A path outside this list
+is never deleted here, however example-like it looks.
 
-4. Remove directories left empty by the deletions (e.g. `css/`, `js/`,
+3. Remove directories left empty by the deletions (e.g. `css/`, `js/`,
    `src/Form/`). Never leave an empty directory in the tree.
 
-5. If the project has no JavaScript or CSS of its own once the examples are
-   gone, check that `package.json`, `jest.config.js` and the stylelint config
-   no longer point at removed assets. Step 11 will surface any that do.
+4. Grep `package.json`, `jest.config.js` and the stylelint config for every
+   path deleted above, and remove or repoint each reference you find. Do this
+   unconditionally - a project with JavaScript and CSS of its own can still
+   carry a script or a glob aimed at a deleted example asset, and an empty
+   glob is not an error for most of these tools, so Step 11 will not reliably
+   surface it.
 
 ## Step 9: Review changes
 
@@ -247,7 +248,8 @@ Use `git diff` and `git status` to review all changes. Pay attention to:
 - **New files**: Review any new files from the scaffold to ensure they are
   infrastructure, not placeholder stubs. Anything the example extension missed
   in Step 8 - a generic service class, form class or test stub - is removed
-  here.
+  here, under the same guard: untracked only, and only when the file is
+  demonstrably scaffold boilerplate rather than project code.
 
 ### README.md handling
 
@@ -331,8 +333,9 @@ the PR manually with a summary of all changes.
 
 ## Important notes
 
-- Never pick a draft release. Always take the newest published one, use its tag
-  verbatim, and start without asking the user to confirm it.
+- When the user names a version, use that tag verbatim. Otherwise take the
+  newest published release - never a draft. Either way, use the tag verbatim
+  and start without asking the user to confirm it.
 - Always remove the scaffold's example extension and example scripts - a real
   project never ships them.
 - Never overwrite project-specific code (src/, tests/, config/, *.module, etc.).
