@@ -500,8 +500,8 @@ function process_internal(string $extension_name, string $extension_machine_name
   @rename('tests/src/Unit/YourExtensionServiceUnitTest.php', 'tests/src/Unit/' . $extension_machine_name_class . 'ServiceUnitTest.php');
   @rename('tests/src/Kernel/YourExtensionServiceKernelTest.php', 'tests/src/Kernel/' . $extension_machine_name_class . 'ServiceKernelTest.php');
   @rename('tests/src/Functional/YourExtensionFunctionalTest.php', 'tests/src/Functional/' . $extension_machine_name_class . 'FunctionalTest.php');
-  @rename('tests/src/FunctionalJavascript/YourExtensionJsTestBase.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'JsTestBase.php');
-  @rename('tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'SmokeJsTest.php');
+  @rename('tests/src/FunctionalJavascript/YourExtensionFunctionalJavascriptTestBase.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'FunctionalJavascriptTestBase.php');
+  @rename('tests/src/FunctionalJavascript/YourExtensionSmokeFunctionalJavascriptTest.php', 'tests/src/FunctionalJavascript/' . $extension_machine_name_class . 'SmokeFunctionalJavascriptTest.php');
   @rename('css/your_extension.css', 'css/' . $extension_machine_name . '.css');
   @rename('js/your_extension.js', 'js/' . $extension_machine_name . '.js');
   @rename('js/your_extension.test.js', 'js/' . $extension_machine_name . '.test.js');

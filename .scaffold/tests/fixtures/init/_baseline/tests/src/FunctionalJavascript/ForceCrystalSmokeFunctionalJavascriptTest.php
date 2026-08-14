@@ -14,7 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[Group('force_crystal')]
 #[RunTestsInSeparateProcesses]
-class ForceCrystalSmokeJsTest extends ForceCrystalJsTestBase {
+class ForceCrystalSmokeFunctionalJavascriptTest extends ForceCrystalFunctionalJavascriptTestBase {
 
   /**
    * Tests WebDriver connectivity and screenshot generation.

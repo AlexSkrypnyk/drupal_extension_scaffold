@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\your_extension\FunctionalJavascript;
+namespace Drupal\Tests\force_crystal\FunctionalJavascript;
 
 use PHPUnit\Framework\Attributes\Group;
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 
 /**
- * Base class for YourExtension JavaScript functional tests.
+ * Base class for ForceCrystal JavaScript functional tests.
  *
- * @group your_extension
+ * @group force_crystal
  */
-#[Group('your_extension')]
-abstract class YourExtensionJsTestBase extends WebDriverTestBase {
+#[Group('force_crystal')]
+abstract class ForceCrystalFunctionalJavascriptTestBase extends WebDriverTestBase {
 
   /**
    * {@inheritdoc}
@@ -23,7 +23,7 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
   /**
    * {@inheritdoc}
    */
-  protected static $modules = ['your_extension'];
+  protected static $modules = ['force_crystal'];
 
   /**
    * {@inheritdoc}
@@ -42,7 +42,7 @@ abstract class YourExtensionJsTestBase extends WebDriverTestBase {
       $host = getenv('WEBDRIVER_HOST');
       if ($host === FALSE || $host === '') {
         $backend = getenv('WEBDRIVER_BACKEND') ?: 'chromedriver';
-        $host = $backend === 'selenium' ? (PHP_OS_FAMILY === 'Darwin' ? 'host.docker.internal' : '172.17.0.1') : 'localhost';
+        $host = $backend === 'selenium' ? (PHP_OS_FAMILY === 'Darwin' ? 'host.docker.internal' : '__VERSION__.1') : 'localhost';
       }
       putenv('SIMPLETEST_BASE_URL=http://' . $host . ':' . $port);
     }

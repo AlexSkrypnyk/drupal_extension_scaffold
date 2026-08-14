@@ -30,7 +30,7 @@
        popd >/dev/null || exit 1
  
    test:
-@@ -91,55 +72,11 @@
+@@ -91,56 +72,11 @@
      usage: Run all tests.
      cmd: |
        pushd "build" >/dev/null || exit 1
@@ -69,8 +69,9 @@
 -      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
 -      popd >/dev/null || exit 1
 -
--  test-js:
+-  test-javascript:
 -    usage: Run JavaScript unit tests.
+-    aliases: [test-js]
 -    cmd: |
 -      pushd "build" >/dev/null || exit 1
 -      [ ! -d node_modules ] || npm test

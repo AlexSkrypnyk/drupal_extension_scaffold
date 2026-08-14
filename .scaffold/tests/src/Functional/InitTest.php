@@ -161,7 +161,7 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'no_js_lint' => [
+    yield 'no_javascript_lint' => [
       [
         'tools' => 'phpcs,phpstan,rector,twigcs,cspell,jest,phpunit,functional_javascript,renovate',
       ],
@@ -179,7 +179,7 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'no_funcjs' => [
+    yield 'no_functional_javascript' => [
       [
         'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,renovate',
       ],

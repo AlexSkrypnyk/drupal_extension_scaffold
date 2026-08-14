@@ -64,7 +64,7 @@ job-test: &job-test
 
     #;< DEV_JEST
     - run:
-        name: Run JS tests
+        name: Run JavaScript tests
         command: '[ ! -d node_modules ] || npm test || [ "${CI_NODEJS_TEST_IGNORE_FAILURE:-0}" -eq 1 ]'
         working_directory: build
     #;> DEV_JEST

@@ -99,7 +99,7 @@ jobs:
             aarch64|arm64|armv8) architecture=arm64 ;;
             *) architecture=amd64 ;;
           esac
-          sudo wget -q "https://github.com/ahoy-cli/ahoy/releases/download/v2.1.1/ahoy-bin-${os}-${architecture}" -O /usr/local/bin/ahoy
+          sudo wget -q "https://github.com/ahoy-cli/ahoy/releases/download/v2.5.0/ahoy-bin-${os}-${architecture}" -O /usr/local/bin/ahoy
           sudo chown "$USER" /usr/local/bin/ahoy
           chmod +x /usr/local/bin/ahoy
 

@@ -37,10 +37,10 @@
 -      php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
 -      popd >/dev/null || exit 1
 -
-   test-js:
+   test-javascript:
      usage: Run JavaScript unit tests.
-     cmd: |
-@@ -133,13 +103,6 @@
+     aliases: [test-js]
+@@ -134,13 +104,6 @@
        [ ! -d node_modules ] || npm test
        popd >/dev/null || exit 1
  

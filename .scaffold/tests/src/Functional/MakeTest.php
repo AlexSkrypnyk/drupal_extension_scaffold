@@ -132,7 +132,7 @@ final class MakeTest extends DevtoolsTestCase {
       $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
     }
 
-    $this->runJsTests();
+    $this->runJavascriptTests();
 
     $this->runUnitTests();
 
@@ -203,20 +203,24 @@ final class MakeTest extends DevtoolsTestCase {
     $this->assertProcessSuccessful();
   }
 
-  protected function runJsTests(): void {
+  protected function runJavascriptTests(): void {
+    $this->processRun('make', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+
+    // The 'test-js' alias resolves to the same target.
     $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
     File::replaceContentInFile(self::$sut . '/js/your_extension.test.js', 'toMatch', 'not.toMatch');
 
-    $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('make', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
 
-    // `test-js` must succeed in projects without any JS tests (CSS-only
-    // modules, modules without custom JS).
+    // `test-javascript` must succeed in projects without any JavaScript tests
+    // (CSS-only modules, modules without custom JavaScript).
     unlink(self::$sut . '/js/your_extension.test.js');
 
-    $this->processRun('make', ['test-js'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
+    $this->processRun('make', ['test-javascript'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
   }
 
@@ -265,7 +269,7 @@ final class MakeTest extends DevtoolsTestCase {
     $this->processRun('make', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
-    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeJsTest.php', 'assertNotEmpty', 'assertEmpty');
+    File::replaceContentInFile(self::$sut . '/tests/src/FunctionalJavascript/YourExtensionSmokeFunctionalJavascriptTest.php', 'assertNotEmpty', 'assertEmpty');
 
     $this->processRun('make', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
