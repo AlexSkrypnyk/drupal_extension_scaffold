@@ -13,7 +13,7 @@
  
    test-javascript:
      usage: Run JavaScript unit tests.
-@@ -133,13 +125,6 @@
+@@ -134,13 +126,6 @@
        [ ! -d node_modules ] || npm test
        popd >/dev/null || exit 1
  

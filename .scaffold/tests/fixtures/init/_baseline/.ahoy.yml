@@ -128,6 +128,7 @@ commands:
 
   test-javascript:
     usage: Run JavaScript unit tests.
+    aliases: [test-js]
     cmd: |
       pushd "build" >/dev/null || exit 1
       [ ! -d node_modules ] || npm test

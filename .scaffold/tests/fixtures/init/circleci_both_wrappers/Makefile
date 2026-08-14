@@ -36,7 +36,7 @@ endef
 .PHONY: assemble build debug debug-off debug-on delete describe destroy drush help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
 .PHONY: test-unit test-kernel test-functional
 .PHONY: test-functional-javascript browser-start browser-stop
-.PHONY: test-javascript
+.PHONY: test-javascript test-js
 
 help:
 	@echo "COMMANDS"
@@ -60,7 +60,7 @@ help:
 	@echo "test-unit                  - Run unit tests."
 	@echo "browser-start              - Start the browser for FunctionalJavascript tests."
 	@echo "browser-stop               - Stop the browser."
-	@echo "test-javascript            - Run JavaScript unit tests."
+	@echo "test-javascript            - Run JavaScript unit tests (alias: test-js)."
 
 build:
 	@$(MAKE) stop >/dev/null 2>&1 || true
@@ -193,6 +193,9 @@ test-javascript:
 	pushd "build" >/dev/null || exit 1 && \
 	([ ! -d node_modules ] || npm test) && \
 	popd >/dev/null || exit 1
+
+# Keep `make test-js` working for projects that already script that name.
+test-js: test-javascript
 
 reset:
 	killall -9 php >/dev/null 2>&1 || true
