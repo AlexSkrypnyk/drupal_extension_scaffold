@@ -13,9 +13,9 @@
  
    test-javascript:
      usage: Run JavaScript unit tests.
-@@ -134,13 +126,6 @@
-       [ ! -d node_modules ] || npm test
-       popd >/dev/null || exit 1
+@@ -139,13 +131,6 @@
+     usage: Run JavaScript unit tests (alias of test-javascript).
+     cmd: ahoy test-javascript
  
 -  browser-start:
 -    usage: Start the browser for FunctionalJavascript tests.
