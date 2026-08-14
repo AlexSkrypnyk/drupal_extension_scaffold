@@ -30,7 +30,7 @@
        popd >/dev/null || exit 1
  
    test:
-@@ -91,61 +72,11 @@
+@@ -91,56 +72,11 @@
      usage: Run all tests.
      cmd: |
        pushd "build" >/dev/null || exit 1
@@ -71,16 +71,11 @@
 -
 -  test-javascript:
 -    usage: Run JavaScript unit tests.
+-    aliases: [test-js]
 -    cmd: |
 -      pushd "build" >/dev/null || exit 1
 -      [ ! -d node_modules ] || npm test
 -      popd >/dev/null || exit 1
--
--  # Ahoy 2.x ignores the `aliases` key, so this is a delegating command rather
--  # than an alias entry.
--  test-js:
--    usage: Run JavaScript unit tests (alias of test-javascript).
--    cmd: ahoy test-javascript
 -
 -  browser-start:
 -    usage: Start the browser for FunctionalJavascript tests.

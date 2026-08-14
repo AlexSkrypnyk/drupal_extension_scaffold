@@ -6,22 +6,17 @@
        popd >/dev/null || exit 1
  
    test-unit:
-@@ -126,18 +125,6 @@
+@@ -126,13 +125,6 @@
        php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional-javascript "$@"
        popd >/dev/null || exit 1
  
 -  test-javascript:
 -    usage: Run JavaScript unit tests.
+-    aliases: [test-js]
 -    cmd: |
 -      pushd "build" >/dev/null || exit 1
 -      [ ! -d node_modules ] || npm test
 -      popd >/dev/null || exit 1
--
--  # Ahoy 2.x ignores the `aliases` key, so this is a delegating command rather
--  # than an alias entry.
--  test-js:
--    usage: Run JavaScript unit tests (alias of test-javascript).
--    cmd: ahoy test-javascript
  
    browser-start:
      usage: Start the browser for FunctionalJavascript tests.
