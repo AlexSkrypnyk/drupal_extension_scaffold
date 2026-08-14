@@ -1,7 +1,19 @@
-@@ -101,23 +101,6 @@
+@@ -29,10 +29,6 @@
              php-version: 8.4
              drupal-version: 10
  
+-          - name: lint-d11
+-            php-version: 8.5
+-            drupal-version: 11
+-
+     name: ${{ matrix.name }}
+ 
+     env:
+@@ -118,23 +114,6 @@
+           - name: test-php-max-d10-stable
+             php-version: 8.4
+             drupal-version: 10
+-
 -          - name: test-php-min-d11-stable
 -            php-version: 8.3
 -            drupal-version: 11
@@ -18,7 +30,6 @@
 -            php-version: 8.5
 -            drupal-version: 11@beta
 -            stability: canary
--
+ 
      services:
        chrome:
-         image: selenium/standalone-chromium:latest@sha256:1d3d834a2ce93f26cc0d0ae3c61abd189755b32649f5c356c6c5cf9502aa397e

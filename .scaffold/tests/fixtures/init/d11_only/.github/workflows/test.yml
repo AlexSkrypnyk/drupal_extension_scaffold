@@ -1,4 +1,15 @@
-@@ -93,14 +93,6 @@
+@@ -25,10 +25,6 @@
+ 
+       matrix:
+         include:
+-          - name: lint-d10
+-            php-version: 8.4
+-            drupal-version: 10
+-
+           - name: lint-d11
+             php-version: 8.5
+             drupal-version: 11
+@@ -111,14 +107,6 @@
  
        matrix:
          include:

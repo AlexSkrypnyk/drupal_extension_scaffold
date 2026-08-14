@@ -1,4 +1,4 @@
-@@ -118,11 +118,6 @@
+@@ -136,11 +136,6 @@
              drupal-version: 11@beta
              stability: canary
  
@@ -10,7 +10,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -185,37 +180,3 @@
+@@ -203,37 +198,3 @@
          run: npm test
          continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  

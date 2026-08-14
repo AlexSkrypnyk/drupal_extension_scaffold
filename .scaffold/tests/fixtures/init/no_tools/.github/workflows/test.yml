@@ -1,4 +1,4 @@
-@@ -35,9 +35,6 @@
+@@ -53,9 +53,6 @@
        - name: Install Node.js dependencies
          run: npm ci --ignore-scripts
  
@@ -8,7 +8,7 @@
  
        - name: Cache Composer dependencies
          uses: actions/cache@__HASH__ # __VERSION__
-@@ -56,31 +53,10 @@
+@@ -74,31 +71,10 @@
          env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
  
@@ -40,7 +40,7 @@
  
    test:
      runs-on: ubuntu-24.04
-@@ -118,11 +94,6 @@
+@@ -136,11 +112,6 @@
              drupal-version: 11@beta
              stability: canary
  
@@ -52,7 +52,7 @@
  
      name: ${{ matrix.name }}
  
-@@ -179,43 +150,4 @@
+@@ -197,43 +168,4 @@
        - name: Provision site
          run: .devtools/provision
  

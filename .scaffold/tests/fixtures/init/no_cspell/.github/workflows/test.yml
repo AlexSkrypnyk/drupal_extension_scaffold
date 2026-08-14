@@ -1,4 +1,4 @@
-@@ -35,9 +35,6 @@
+@@ -53,9 +53,6 @@
        - name: Install Node.js dependencies
          run: npm ci --ignore-scripts
  
