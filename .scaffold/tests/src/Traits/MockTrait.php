@@ -251,6 +251,19 @@ trait MockTrait {
   }
 
   /**
+   * Mock passthru() with no allowed calls, so any call raises.
+   *
+   * Lets a test that asserts empty output prove the command was never run,
+   * rather than passing because the output happened to be empty.
+   *
+   * @param string $namespace
+   *   Namespace to mock the functions in.
+   */
+  protected function mockPassthruNever(string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
+    $this->mockPassthruMultiple([], $namespace);
+  }
+
+  /**
    * Verify all mocked passthru responses were consumed.
    *
    * @throws \PHPUnit\Framework\AssertionFailedError

@@ -51,9 +51,12 @@ final class QrcodeTest extends UnitTestCase {
   }
 
   public function testQrcodeIfEnabledDoesNothingWhenOptInUnset(): void {
-    // QRCODE is unset in both the environment and '.env'.
+    // QRCODE is unset in both the environment and '.env'. Nothing else can
+    // stop the render, so the opt-in check has to.
     $this->envUnset('QRCODE');
     $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthruNever();
 
     $argv = ['qrcode', '--if-enabled', 'https://example.com'];
     ob_start();

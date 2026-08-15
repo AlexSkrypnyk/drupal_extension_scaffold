@@ -109,6 +109,10 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testForcedWithEmptyUrlDoesNothing(): void {
+    // Nothing else can stop the render, so the empty URL has to.
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthruNever();
+
     ob_start();
     print_qrcode('', force: TRUE);
     $output = ob_get_clean();
@@ -120,6 +124,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   public function testForcedButQrencodeMissingDoesNothing(): void {
     $this->envSet('QRCODE', '0');
     $this->mockCommandAvailable('qrencode', FALSE);
+    $this->mockPassthruNever();
 
     ob_start();
     print_qrcode('https://example.com', force: TRUE);
