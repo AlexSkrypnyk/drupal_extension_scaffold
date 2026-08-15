@@ -54,7 +54,7 @@ commands:
     cmd: |
       url="$(build/vendor/bin/drush -l "$(./.devtools/info site-url)" uli)"
       printf '%s\n' "$url"
-      ./.devtools/qrcode --if-enabled "$url"
+      if [ -n "$LOGIN_QRCODE" ]; then ./.devtools/qrcode "$url"; fi
 
   lint:
     usage: Check coding standards for violations.
