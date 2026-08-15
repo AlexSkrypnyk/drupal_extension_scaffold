@@ -195,7 +195,7 @@ function webdriver_backend(): string {
  * Build the container name for the Selenium endpoint on the given port.
  *
  * The port is the per-project identity of the endpoint, so naming the
- * container after it keeps projects running side by side from removing or
+ * container after it stops projects running side by side from removing or
  * overwriting each other's container.
  */
 function selenium_container(string $port): string {
