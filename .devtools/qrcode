@@ -9,12 +9,11 @@
  * using `qrencode`.
  *
  * Two modes:
- * - 'qrcode <url>': render whenever `qrencode` is installed. Running the
- *   command is itself the expression of intent.
+ * - 'qrcode <url>': render whenever `qrencode` is installed. Invoking the
+ *   command is the opt-in.
  * - 'qrcode --if-enabled <url>': render only when the QRCODE variable -
- *   read from the shell environment or '.env' - is truthy. The login
- *   wrappers call the script for every login, so they opt in this way to
- *   leave their default output unchanged.
+ *   read from the shell environment or '.env' - is truthy, for callers
+ *   that invoke the script on every run rather than on request.
  *
  * Both modes are a no-op when no URL is given or `qrencode` is not
  * installed, so callers can pipe an optional URL through without guarding
