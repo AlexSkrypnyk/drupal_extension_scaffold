@@ -239,7 +239,10 @@ final class BrowserTest extends UnitTestCase {
     $this->assertSame('4445', $persisted, 'The discovered port must be persisted to .env.');
     $run_commands = array_filter($commands, fn(string $c): bool => str_contains($c, 'docker run'));
     $this->assertNotEmpty($run_commands, 'The Selenium container must be started.');
-    $this->assertStringContainsString("'4445':4444", (string) reset($run_commands), 'The container must publish the discovered port, not the occupied default.');
+    $run_command = (string) reset($run_commands);
+    $this->assertStringContainsString("'4445':4444", $run_command, 'The container must publish the discovered port, not the occupied default.');
+    $this->assertStringContainsString("--name 'selenium-4445'", $run_command, 'The container name must be scoped to the endpoint port, or a second project removes the first project container.');
+    $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, "docker rm -f 'selenium-4445'")), 'Only this project stale container may be removed before starting a new one.');
   }
 
   public function testBrowserChromedriverStartAutoDiscoversPort(): void {
@@ -304,7 +307,7 @@ final class BrowserTest extends UnitTestCase {
     $output = $this->runBrowser('stop', 0);
 
     $this->assertStringContainsString('Browser stopped on port 4444', $output);
-    $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, 'docker rm -f')), 'The Selenium container must be removed.');
+    $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, "docker rm -f 'selenium-4444'")), 'Stop must remove the container serving this project port, leaving other projects containers alone.');
     $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, "lsof -ti:'4444'")), 'The WebDriver process on the resolved port must be terminated.');
   }
 
