@@ -30,20 +30,36 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('p0')]
 final class PhpunitWebdriverEndpointTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderPhpunitConfig')]
+  #[DataProvider('dataProviderEndpointIsOverridableFromTheEnvironment')]
   public function testEndpointIsOverridableFromTheEnvironment(string $path): void {
     $element = self::minkDriverArgsElement($path);
 
     $this->assertFalse($element->hasAttribute('force'), sprintf('%s forces MINK_DRIVER_ARGS_WEBDRIVER, so an exported value cannot override the hardcoded endpoint.', basename($path)));
   }
 
-  #[DataProvider('dataProviderPhpunitConfig')]
+  /**
+   * @return \Iterator<string, array{path: string}>
+   *   Path of each shipped PHPUnit configuration file.
+   */
+  public static function dataProviderEndpointIsOverridableFromTheEnvironment(): \Iterator {
+    yield from self::phpunitConfigPaths();
+  }
+
+  #[DataProvider('dataProviderEndpointLiteralIsTheDefaultPort')]
   public function testEndpointLiteralIsTheDefaultPort(string $path): void {
     $args = json_decode(self::minkDriverArgsElement($path)->getAttribute('value'), TRUE);
 
     $this->assertIsArray($args, sprintf('%s does not hold a JSON array in MINK_DRIVER_ARGS_WEBDRIVER.', basename($path)));
     $this->assertArrayHasKey(2, $args, sprintf('%s omits the WebDriver endpoint from MINK_DRIVER_ARGS_WEBDRIVER.', basename($path)));
     $this->assertSame('http://localhost:4444', $args[2], sprintf('%s must carry the default WebDriver endpoint; anything else desynchronises from resolve_webdriver_port().', basename($path)));
+  }
+
+  /**
+   * @return \Iterator<string, array{path: string}>
+   *   Path of each shipped PHPUnit configuration file.
+   */
+  public static function dataProviderEndpointLiteralIsTheDefaultPort(): \Iterator {
+    yield from self::phpunitConfigPaths();
   }
 
   public function testBaseClassRewritesEndpointFromResolvedPort(): void {
@@ -56,10 +72,12 @@ final class PhpunitWebdriverEndpointTest extends UnitTestCase {
   }
 
   /**
+   * Get the path of each shipped PHPUnit configuration file.
+   *
    * @return \Iterator<string, array{path: string}>
-   *   Path of each shipped PHPUnit configuration file.
+   *   Configuration file name mapped to its absolute path.
    */
-  public static function dataProviderPhpunitConfig(): \Iterator {
+  protected static function phpunitConfigPaths(): \Iterator {
     $root = dirname(__DIR__, 4);
 
     foreach (['phpunit.xml', 'phpunit.d10.xml'] as $file) {
