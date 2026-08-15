@@ -155,6 +155,12 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
+    yield 'keep_examples' => [
+      [
+        'examples' => 'true',
+      ],
+    ];
+
     yield 'no_php_lint' => [
       [
         'tools' => 'eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
@@ -215,6 +221,7 @@ final class InitTest extends FunctionalTestCase {
       'command_wrapper' => 'ahoy',
       'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
       'cloudflare' => 'true',
+      'examples' => 'false',
       'remove_self' => 'true',
       'proceed' => 'true',
     ];

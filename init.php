@@ -112,6 +112,11 @@ function main(array $argv): void {
         'Keep Cloudflare tunnel support',
         description: 'Ships opt-in scripts that expose the local site through a public Cloudflare quick tunnel.',
       ),
+      'examples' => Prompty::confirm(
+        'Keep example lifecycle scripts',
+        default: FALSE,
+        description: 'Sample hooks that only print a marker line when each build phase runs. Keep them as a starting point for your own scripts.',
+      ),
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
     ],
@@ -146,9 +151,10 @@ function main(array $argv): void {
   /** @var array<string> $tools_keep */
   $tools_keep = array_filter((array) $results['tools'], static fn($v): bool => $v !== '');
   $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
-  // The prompt asks whether to keep the tunnel scripts, so a 'no' answer is
-  // what triggers their removal.
+  // The prompts ask whether to keep the tunnel and example scripts, so a 'no'
+  // answer is what triggers their removal.
   $remove_cloudflare = !($results['cloudflare'] ?? FALSE);
+  $remove_examples = !($results['examples'] ?? FALSE);
   $remove_self = $results['remove_self'] ?? FALSE;
 
   // Derive machine name from extension name when the placeholder was kept
@@ -157,7 +163,7 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_cloudflare, $remove_self);
+  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_cloudflare, $remove_examples, $remove_self);
   // @codeCoverageIgnoreEnd
 }
 
@@ -211,6 +217,8 @@ Environment variables (to pre-fill prompts):
                          stylelint, cspell, jest, phpunit, functional_javascript,
                          renovate.
   PROMPTY_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
+  PROMPTY_EXAMPLES        Keep example lifecycle scripts: true or false. They
+                         are removed by default.
   PROMPTY_REMOVE_SELF     Remove this script: true or false.
   PROMPTY_PROCEED         Proceed with init: true or false.
 
@@ -237,10 +245,12 @@ EOF;
  *   The machine names of the development tools to remove.
  * @param bool $remove_cloudflare
  *   Whether to remove the Cloudflare tunnel scripts.
+ * @param bool $remove_examples
+ *   Whether to remove the example lifecycle scripts.
  * @param bool $remove_self
  *   Whether to remove this script.
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_examples, bool $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -317,6 +327,16 @@ function process(string $extension_name, string $extension_machine_name, string 
     @unlink('scripts/provision-cloudflared.sh');
     @unlink('scripts/start-cloudflared.sh');
     @unlink('scripts/stop-cloudflared.sh');
+  }
+
+  // Remove the sample lifecycle hooks. They demonstrate the naming convention
+  // and print a marker line, so they carry no project behaviour. The 'scripts'
+  // directory itself stays as the home for project-local hooks.
+  if ($remove_examples) {
+    @unlink('scripts/assemble-example.sh');
+    @unlink('scripts/provision-example.sh');
+    @unlink('scripts/start-example.sh');
+    @unlink('scripts/stop-example.sh');
   }
 
   if ($remove_self) {
