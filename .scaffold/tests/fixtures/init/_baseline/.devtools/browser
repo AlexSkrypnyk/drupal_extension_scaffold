@@ -11,10 +11,11 @@
  * - 'selenium': the browser runs inside a Docker container.
  *
  * Both backends serve the WebDriver endpoint on the same per-project port
- * (env -> '.env' -> 4444). The chromedriver backend auto-discovers a free
- * port from 4444 and persists it to '.env' like the webserver port, so
- * several projects can run their own endpoint simultaneously without
- * contending for a single port.
+ * (env -> '.env' -> 4444). Starting either one auto-discovers a free port
+ * from 4444 and persists it to '.env' like the webserver port, so several
+ * projects can run their own endpoint simultaneously without contending for
+ * a single port. Stopping reads the persisted port instead of discovering,
+ * so it targets the endpoint the matching start created.
  *
  * Usage:
  * - 'browser start': ensure the selected backend is listening.
@@ -141,7 +142,7 @@ function chromedriver_start(): void {
  * Ensure a Selenium container is serving the WebDriver endpoint.
  */
 function selenium_start(): void {
-  $port = resolve_webdriver_port()['port'];
+  $port = resolve_webdriver_port(auto_discover: TRUE)['port'];
 
   if (webdriver_ready($port)) {
     PASS('Selenium is already running on port %s.', $port);
