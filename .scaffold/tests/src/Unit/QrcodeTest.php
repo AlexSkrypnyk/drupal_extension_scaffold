@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -23,8 +24,8 @@ final class QrcodeTest extends UnitTestCase {
   }
 
   public function testQrcodeRendersQrcodeForUrlArgument(): void {
-    // Invoking the command is the opt-in, so the QRCODE gate does not apply.
-    $this->envSet('QRCODE', '0');
+    // Invoking the command is the request, so no opt-in is consulted.
+    $this->envSet('LOGIN_QRCODE', '');
     $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
@@ -41,6 +42,9 @@ final class QrcodeTest extends UnitTestCase {
   }
 
   public function testQrcodeDoesNothingWithoutUrlArgument(): void {
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthruNever();
+
     $argv = ['qrcode'];
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/qrcode';
@@ -50,38 +54,26 @@ final class QrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testQrcodeIfEnabledDoesNothingWhenOptInUnset(): void {
-    // QRCODE is unset in both the environment and '.env'. Nothing else can
-    // stop the render, so the opt-in check has to.
-    $this->envUnset('QRCODE');
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
-    $this->mockCommandAvailable('qrencode', TRUE);
+  public function testQrcodeFailsWhenQrencodeMissing(): void {
+    $this->mockCommandAvailable('qrencode', FALSE);
     $this->mockPassthruNever();
+    $this->mockQuit(1);
 
-    $argv = ['qrcode', '--if-enabled', 'https://example.com'];
+    $argv = ['qrcode', 'https://example.com'];
     ob_start();
-    require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = ob_get_clean();
-    $this->assertIsString($output);
+    try {
+      require dirname(__DIR__, 4) . '/.devtools/qrcode';
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+    }
 
-    $this->assertSame('', $output);
-  }
-
-  public function testQrcodeIfEnabledRendersWhenOptInSet(): void {
-    $this->envSet('QRCODE', '1');
-    $this->mockCommandAvailable('qrencode', TRUE);
-    $this->mockPassthru([
-      'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
-      'output' => '[QR-CODE]',
-    ]);
-
-    $argv = ['qrcode', '--if-enabled', 'https://example.com'];
-    ob_start();
-    require dirname(__DIR__, 4) . '/.devtools/qrcode';
-    $output = ob_get_clean();
-    $this->assertIsString($output);
-
-    $this->assertStringContainsString('[QR-CODE]', $output);
+    $this->assertStringContainsString("Command 'qrencode' is not available", $output);
   }
 
 }

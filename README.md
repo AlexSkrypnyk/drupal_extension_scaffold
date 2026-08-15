@@ -297,9 +297,9 @@ Any tool that writes a `TUNNEL_URL` to `.env` (ngrok, tailscale funnel, etc.) is
 
 #### Scannable QR codes
 
-QR rendering is opt-in. Set `QRCODE=1` (in your shell environment or `.env`) with [`qrencode`](https://fukuchi.org/works/qrencode/) on `PATH`, and `make login` / `ahoy login` render the one-time login link as a terminal QR code below the link. Scan it to open the site - already logged in - on a phone or another device, which is most useful when the site is exposed through a public tunnel. Left unset (the default) or without `qrencode` installed, the output is unchanged.
+Render any URL as a terminal QR code with `./.devtools/qrcode <url>`. Scan it to open the URL on a phone or another device, which is most useful for a one-time login link while the site is exposed through a public tunnel. The command requires [`qrencode`](https://fukuchi.org/works/qrencode/) on `PATH` and exits with an install hint when it is missing.
 
-Any URL can also be rendered on demand with `./.devtools/qrcode <url>`, which draws the code whatever `QRCODE` is set to, because running the command is itself the opt-in.
+A QR code below the `make login` / `ahoy login` link is opt-in. Set `LOGIN_QRCODE=1` in `.env` (or in your shell environment) and both commands render the one-time login link as a QR code under the printed URL. Left unset (the default) the login output is unchanged; set with `qrencode` missing, `login` prints the link and then fails with the install hint.
 
 ### Step-debugging with XDebug
 
