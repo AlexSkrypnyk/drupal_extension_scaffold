@@ -333,7 +333,7 @@ trait MockTrait {
     $this->registerMock('exec', $namespace, function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($command, $available): bool {
       $output ??= [];
 
-      if ($available && str_contains($cmd, 'command -v ' . $command)) {
+      if ($available && $cmd === sprintf('command -v %s 2>/dev/null', $command)) {
         $output[] = '/usr/bin/' . $command;
         $code = 0;
 
