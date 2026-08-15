@@ -251,6 +251,19 @@ trait MockTrait {
   }
 
   /**
+   * Mock passthru() with no allowed calls, so any call raises.
+   *
+   * Lets a test that asserts empty output prove the command was never run,
+   * rather than passing because the output happened to be empty.
+   *
+   * @param string $namespace
+   *   Namespace to mock the functions in.
+   */
+  protected function mockPassthruNever(string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
+    $this->mockPassthruMultiple([], $namespace);
+  }
+
+  /**
    * Verify all mocked passthru responses were consumed.
    *
    * @throws \PHPUnit\Framework\AssertionFailedError
@@ -313,6 +326,37 @@ trait MockTrait {
    */
   protected function mockPosixIsattyAssertAllMocksConsumed(): void {
     $this->assertMockConsumed('posix_isatty');
+  }
+
+  /**
+   * Mock command_path() resolution through the exec() probe behind it.
+   *
+   * Any command other than the named one always resolves as missing, so a
+   * test that expects one probe cannot be satisfied by another.
+   *
+   * @param string $command
+   *   Command name to resolve.
+   * @param bool $available
+   *   TRUE to resolve the command to a stub path, FALSE to report it as
+   *   not installed.
+   * @param string $namespace
+   *   Namespace to mock the function in.
+   */
+  protected function mockCommandAvailable(string $command, bool $available, string $namespace = 'DrupalExtensionScaffold\\DevTools'): void {
+    $this->registerMock('exec', $namespace, function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($command, $available): bool {
+      $output ??= [];
+
+      if ($available && $cmd === sprintf('command -v %s 2>/dev/null', $command)) {
+        $output[] = '/usr/bin/' . $command;
+        $code = 0;
+
+        return TRUE;
+      }
+
+      $code = 1;
+
+      return FALSE;
+    });
   }
 
   /**

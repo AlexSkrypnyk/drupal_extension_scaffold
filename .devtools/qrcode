@@ -6,8 +6,10 @@
  * Render a URL as a scannable QR code in the terminal.
  *
  * Reads the URL from the first CLI argument and prints a QR code using
- * `qrencode`. A no-op when no URL is given or `qrencode` is not installed,
- * so callers can pipe an optional URL through without guarding first.
+ * `qrencode`. Invoking the command is the request, so the code is drawn
+ * regardless of any environment variable. Exits non-zero with an install
+ * hint when `qrencode` is not on PATH, and renders nothing when no URL is
+ * given.
  */
 
 declare(strict_types=1);

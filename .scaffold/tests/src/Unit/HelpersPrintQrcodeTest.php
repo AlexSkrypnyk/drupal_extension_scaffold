@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
 use function DrupalExtensionScaffold\DevTools\print_qrcode;
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Exceptions\QuitErrorException;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
@@ -30,7 +31,10 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testEmptyUrlDoesNothing(): void {
-    // An empty URL short-circuits before the opt-in check or any probe.
+    // Nothing else can stop the render, so the empty URL has to.
+    $this->mockCommandAvailable('qrencode', TRUE);
+    $this->mockPassthruNever();
+
     ob_start();
     print_qrcode('');
     $output = ob_get_clean();
@@ -39,46 +43,8 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertSame('', $output);
   }
 
-  public function testDisabledByDefaultDoesNothing(): void {
-    // QRCODE is unset in both the environment and '.env'. The feature is
-    // opt-in, so nothing is drawn and qrencode is not probed.
-    $this->envUnset('QRCODE');
-    $this->mockDotenvAbsent();
-
-    ob_start();
-    print_qrcode('https://example.com');
-    $output = ob_get_clean();
-    $this->assertIsString($output);
-
-    $this->assertSame('', $output);
-  }
-
-  public function testExplicitlyDisabledDoesNothing(): void {
-    $this->envSet('QRCODE', '0');
-
-    ob_start();
-    print_qrcode('https://example.com');
-    $output = ob_get_clean();
-    $this->assertIsString($output);
-
-    $this->assertSame('', $output);
-  }
-
-  public function testEnabledButQrencodeMissingDoesNothing(): void {
-    $this->envSet('QRCODE', '1');
-    $this->mockQrencodeAvailable(FALSE);
-
-    ob_start();
-    print_qrcode('https://example.com');
-    $output = ob_get_clean();
-    $this->assertIsString($output);
-
-    $this->assertSame('', $output);
-  }
-
-  public function testEnabledViaEnvRendersCode(): void {
-    $this->envSet('QRCODE', '1');
-    $this->mockQrencodeAvailable(TRUE);
+  public function testRendersCode(): void {
+    $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
       'output' => '[QR-CODE]',
@@ -92,11 +58,11 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
 
-  public function testEnabledViaDotenvRendersCode(): void {
-    $this->envUnset('QRCODE');
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(string $file): bool => $file === '.env');
-    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', fn(string $file): string => $file === '.env' ? "QRCODE=1\n" : '');
-    $this->mockQrencodeAvailable(TRUE);
+  public function testRendersCodeRegardlessOfLoginOptIn(): void {
+    // Whether to draw a code is decided by the caller, so the login opt-in
+    // has no bearing on this helper.
+    $this->envSet('LOGIN_QRCODE', '');
+    $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthru([
       'cmd' => "qrencode -t ANSIUTF8 'https://example.com'",
       'output' => '[QR-CODE]',
@@ -110,29 +76,26 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
     $this->assertStringContainsString('[QR-CODE]', $output);
   }
 
-  /**
-   * Mock '.env' as not present so QRCODE resolves to its default.
-   */
-  protected function mockDotenvAbsent(): void {
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
-  }
+  public function testMissingQrencodeFailsWithInstallHint(): void {
+    $this->mockCommandAvailable('qrencode', FALSE);
+    $this->mockPassthruNever();
+    $this->mockQuit(1);
 
-  /**
-   * Mock command_path('qrencode') resolution via the underlying exec().
-   */
-  protected function mockQrencodeAvailable(bool $available): void {
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($available): bool {
-      $output ??= [];
-      if ($available && str_contains($cmd, 'command -v qrencode')) {
-        $output[] = '/usr/bin/qrencode';
-        $code = 0;
+    ob_start();
+    try {
+      print_qrcode('https://example.com');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+    }
 
-        return TRUE;
-      }
-      $code = 1;
-
-      return FALSE;
-    });
+    $this->assertStringContainsString("Command 'qrencode' is not available", $output);
+    $this->assertStringContainsString('https://fukuchi.org/works/qrencode/', $output);
   }
 
 }

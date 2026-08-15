@@ -649,28 +649,21 @@ function passthru_verbose_or_fail(string $command, string $format = '', string|i
 /**
  * Render a URL as a scannable QR code in the terminal.
  *
- * Opt-in: draws nothing unless the QRCODE variable - read from the shell
- * environment or '.env' - is set to a truthy value ('1', 'true', 'yes',
- * 'on'). When enabled it uses `qrencode -t ANSIUTF8` to draw the code with
- * Unicode block glyphs, and is still a no-op when the URL is empty or the
- * `qrencode` binary is not installed, so callers may invoke it
- * unconditionally.
+ * Uses `qrencode -t ANSIUTF8` to draw the code with Unicode block glyphs.
+ * A missing `qrencode` binary fails rather than returning quietly, so a
+ * requested code never goes undrawn without explanation.
  *
  * @param string $url
- *   The URL to encode. An empty string renders nothing.
+ *   The URL to encode. An empty string renders nothing, so an optional URL
+ *   can be passed through without guarding first.
  */
 function print_qrcode(string $url): void {
   if ($url === '') {
     return;
   }
 
-  $enabled = resolve_env_value('QRCODE', '')['value'];
-  if (!in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], TRUE)) {
-    return;
-  }
-
   if (!command_path('qrencode')) {
-    return;
+    FAIL("Command 'qrencode' is not available. Install it from https://fukuchi.org/works/qrencode/ to render QR codes");
   }
 
   passthru(sprintf('qrencode -t ANSIUTF8 %s', escapeshellarg($url)));
