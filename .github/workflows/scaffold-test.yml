@@ -24,8 +24,12 @@ jobs:
 
     env:
       # In CI each job is a single project, so the pre-start step and the
-      # tests share a fixed chromedriver port.
-      WEBDRIVER_PORT: ${{ matrix.backend == 'chromedriver' && '4444' || '' }}
+      # tests share a fixed port instead of discovering one. The selenium legs
+      # must use 4444 because that is what the container step publishes. The
+      # chromedriver legs deliberately use a different port, so a run that
+      # reaches the browser proves the Mink endpoint follows WEBDRIVER_PORT
+      # rather than the literal in phpunit.xml.
+      WEBDRIVER_PORT: ${{ matrix.backend == 'chromedriver' && '4455' || '4444' }}
 
     strategy:
       fail-fast: false

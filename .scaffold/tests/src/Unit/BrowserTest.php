@@ -222,6 +222,46 @@ final class BrowserTest extends UnitTestCase {
     $this->assertStringContainsString('standalone-chromium', $run_command);
   }
 
+  public function testBrowserSeleniumStartAutoDiscoversPort(): void {
+    $this->envFileContent = "WEBSERVER_PORT=8000\n";
+    $this->envSet('WEBDRIVER_BACKEND', 'selenium');
+    $this->mockCommands(['docker' => '/usr/bin/docker']);
+    $this->mockPortsInUse([4444]);
+    $persisted = NULL;
+    $this->recordDotenvWrites($persisted);
+    $this->mockReady([FALSE, TRUE]);
+    $commands = [];
+    $this->recordPassthru($commands);
+
+    $output = $this->runBrowser('start', 0);
+
+    $this->assertStringContainsString('Selenium is ready on port 4445', $output);
+    $this->assertSame('4445', $persisted, 'The discovered port must be persisted to .env.');
+    $run_commands = array_filter($commands, fn(string $c): bool => str_contains($c, 'docker run'));
+    $this->assertNotEmpty($run_commands, 'The Selenium container must be started.');
+    $this->assertStringContainsString("'4445':4444", (string) reset($run_commands), 'The container must publish the discovered port, not the occupied default.');
+  }
+
+  public function testBrowserChromedriverStartAutoDiscoversPort(): void {
+    $this->envFileContent = "WEBSERVER_PORT=8000\n";
+    $this->mockChrome(FALSE);
+    $this->mockCommands(['google-chrome' => '/usr/bin/google-chrome', 'chromedriver' => '/usr/local/bin/chromedriver']);
+    $this->mockVersions('Google Chrome 150.0.7871.129', 'ChromeDriver 150.0.7871.129 (abc)');
+    $this->mockPortsInUse([4444]);
+    $persisted = NULL;
+    $this->recordDotenvWrites($persisted);
+    $this->mockReady([FALSE, TRUE]);
+    $commands = [];
+    $this->recordPassthru($commands);
+
+    $output = $this->runBrowser('start', 0);
+
+    $this->assertStringContainsString('chromedriver is ready on port 4445', $output);
+    $this->assertSame('4445', $persisted, 'The discovered port must be persisted to .env.');
+    $this->assertNotEmpty($commands);
+    $this->assertStringContainsString("--port='4445'", $commands[0], 'chromedriver must bind the discovered port, not the occupied default.');
+  }
+
   public function testBrowserSeleniumStartFailsWithoutDocker(): void {
     $this->envSet('WEBDRIVER_BACKEND', 'selenium');
     $this->mockCommands([]);
@@ -315,6 +355,42 @@ final class BrowserTest extends UnitTestCase {
   protected function mockReady(array $sequence): void {
     $this->readySequence = $sequence;
     $this->readyIndex = 0;
+  }
+
+  /**
+   * @param array<int, int> $ports
+   *   Ports that answer a connect probe; every other port reads as free.
+   */
+  protected function mockPortsInUse(array $ports): void {
+    $this->registerMock('stream_socket_client', 'DrupalExtensionScaffold\\DevTools', function (string $address, &$errno = NULL, &$errstr = NULL, ?float $timeout = NULL) use ($ports) {
+      if (preg_match('/:(\d+)$/', $address, $matches) !== 1 || !in_array((int) $matches[1], $ports, TRUE)) {
+        $errno = 61;
+        $errstr = 'Connection refused';
+
+        return FALSE;
+      }
+
+      $stream = fopen('php://memory', 'r');
+      if ($stream === FALSE) {
+        throw new \RuntimeException('Unable to open php://memory stream for mock.');
+      }
+
+      return $stream;
+    });
+  }
+
+  /**
+   * @param string|null $persisted
+   *   Populated by reference with the WEBDRIVER_PORT value written to '.env'.
+   */
+  protected function recordDotenvWrites(?string &$persisted): void {
+    $this->registerMock('file_put_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file, string $body) use (&$persisted): int {
+      if (preg_match('/WEBDRIVER_PORT=(\d+)/', $body, $matches) === 1) {
+        $persisted = $matches[1];
+      }
+
+      return strlen($body);
+    });
   }
 
   protected function mockChrome(bool $mac_present): void {
