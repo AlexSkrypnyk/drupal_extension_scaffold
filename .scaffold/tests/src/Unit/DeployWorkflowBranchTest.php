@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 
+use AlexSkrypnyk\drupal_extension_scaffold\Tests\Traits\DeployWorkflowTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Tests the branch the deploy workflow hands to the deploy script.
@@ -26,6 +26,8 @@ use Symfony\Component\Yaml\Yaml;
  */
 #[Group('p0')]
 final class DeployWorkflowBranchTest extends UnitTestCase {
+
+  use DeployWorkflowTrait;
 
   protected const string STEP = 'Deploy to Remote';
 
@@ -231,38 +233,13 @@ final class DeployWorkflowBranchTest extends UnitTestCase {
    *   The step's `run` script.
    */
   protected static function stepScript(): string {
-    $path = dirname(__DIR__, 4) . '/.github/workflows/deploy.yml';
-    $contents = file_get_contents($path);
+    $script = self::child(self::deployStep(self::STEP), 'run');
 
-    if ($contents === FALSE) {
-      self::fail(sprintf('Unable to read %s.', $path));
+    if (!is_string($script)) {
+      self::fail(sprintf('The "%s" step of %s runs no script.', self::STEP, basename(self::deployWorkflowPath())));
     }
 
-    $steps = self::child(self::child(self::child(Yaml::parse($contents), 'jobs'), 'deploy'), 'steps');
-
-    if (!is_array($steps)) {
-      self::fail(sprintf('The deploy job of %s declares no steps.', basename($path)));
-    }
-
-    foreach ($steps as $step) {
-      if (self::child($step, 'name') !== self::STEP) {
-        continue;
-      }
-
-      $script = self::child($step, 'run');
-
-      if (!is_string($script)) {
-        self::fail(sprintf('The "%s" step of %s runs no script.', self::STEP, basename($path)));
-      }
-
-      return $script;
-    }
-
-    self::fail(sprintf('%s has no "%s" step.', basename($path), self::STEP));
-  }
-
-  protected static function child(mixed $node, string $key): mixed {
-    return is_array($node) && array_key_exists($key, $node) ? $node[$key] : NULL;
+    return $script;
   }
 
 }

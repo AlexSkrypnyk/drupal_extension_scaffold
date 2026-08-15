@@ -12,7 +12,13 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # The checkout below names the commit that triggered the run. Only a push
+    # to this repository carries a commit meant for deployment; a pull
+    # request, fork or not, does not.
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push'
+      && github.event.workflow_run.head_repository.full_name == github.repository }}
     runs-on: ubuntu-24.04
 
     permissions:
@@ -28,6 +34,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          # `workflow_run` resolves refs against the default branch, so the
+          # tested commit is named explicitly.
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           persist-credentials: false
 
