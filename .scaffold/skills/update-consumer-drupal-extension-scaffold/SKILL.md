@@ -142,8 +142,8 @@ rm drupal_extension_scaffold.tar.gz
 
 Run init.php from the project root. Pre-fill every prompt by exporting
 `PROMPTY_*` environment variables before invoking the script. Set
-`PROMPTY_REMOVE_SELF=true` and `PROMPTY_PROCEED=true` to auto-accept the two
-yes/no confirmations:
+`PROMPTY_REMOVE_SELF=true` and `PROMPTY_PROCEED=true` to auto-accept the
+confirmations:
 
 ```bash
 PROMPTY_NAME="<Name>" \
@@ -151,10 +151,15 @@ PROMPTY_MACHINE_NAME="<machine_name>" \
 PROMPTY_TYPE="<type>" \
 PROMPTY_CI_PROVIDER="<ci_provider>" \
 PROMPTY_COMMAND_WRAPPER="<command_wrapper>" \
+PROMPTY_EXAMPLES=false \
 PROMPTY_REMOVE_SELF=true \
 PROMPTY_PROCEED=true \
 php init.php
 ```
+
+`PROMPTY_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
+restores `scripts/` from git straight after, so any hook the project actually
+tracks comes back untouched.
 
 `<command_wrapper>` accepts a comma-separated list (`ahoy`, `makefile`, or
 `ahoy,makefile`), or an empty string for neither.
