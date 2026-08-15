@@ -1,4 +1,4 @@
-@@ -90,10 +90,6 @@
+@@ -96,10 +96,6 @@
              <directory>web/themes/custom/*/tests/src/Functional</directory>
          </testsuite>
  

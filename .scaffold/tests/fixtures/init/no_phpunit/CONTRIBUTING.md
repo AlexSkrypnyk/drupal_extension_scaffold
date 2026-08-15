@@ -1,4 +1,4 @@
-@@ -129,67 +129,3 @@
+@@ -129,76 +129,3 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
@@ -45,6 +45,15 @@
 -WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
 -ahoy browser-stop
 -```
+-
+-Either backend gets its own WebDriver port: a free one is claimed starting
+-at 4444 and stored in `.env`, so several projects can run FunctionalJavascript
+-tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests
+-reach the claimed port because the base class applies it to the WebDriver
+-endpoint, so extend `ForceCrystalFunctionalJavascriptTestBase` rather than
+-`WebDriverTestBase` directly - a test that bypasses it keeps the default
+-endpoint from `phpunit.xml` unless it exports its own
+-`MINK_DRIVER_ARGS_WEBDRIVER`.
 -
 -### Running specific tests
 -

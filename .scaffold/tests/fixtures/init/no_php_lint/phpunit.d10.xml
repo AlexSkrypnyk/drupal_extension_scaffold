@@ -1,4 +1,4 @@
-@@ -103,8 +103,6 @@
+@@ -109,8 +109,6 @@
          <exclude>
              <directory>web/modules/custom/*/tests</directory>
              <directory>web/themes/custom/*/tests</directory>
