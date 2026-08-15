@@ -32,7 +32,7 @@ require_once __DIR__ . '/helpers.php';
 // by git and safe to delete.
 const CHROMEDRIVER_DIR = '.chromedriver';
 
-const SELENIUM_CONTAINER = 'selenium';
+const SELENIUM_CONTAINER_PREFIX = 'selenium';
 const SELENIUM_IMAGE = 'selenium/standalone-chromium:latest';
 
 $command = $argv[1] ?? '';
@@ -91,7 +91,7 @@ function browser_stop(): void {
 
   if (command_path('docker') !== FALSE) {
     TASK('Removing the Selenium container, if any.');
-    @passthru(sprintf('docker rm -f %s >/dev/null 2>&1', escapeshellarg(SELENIUM_CONTAINER)));
+    @passthru(sprintf('docker rm -f %s >/dev/null 2>&1', escapeshellarg(selenium_container($port))));
   }
 
   TASK('Stopping the WebDriver process on port %s, if any.', $port);
@@ -155,11 +155,11 @@ function selenium_start(): void {
   }
 
   TASK('Starting the Selenium container on port %s.', $port);
-  @passthru(sprintf('docker rm -f %s >/dev/null 2>&1', escapeshellarg(SELENIUM_CONTAINER)));
+  @passthru(sprintf('docker rm -f %s >/dev/null 2>&1', escapeshellarg(selenium_container($port))));
 
   // The default 64 MB '/dev/shm' is too small for Chromium and leads to tab
   // crashes mid-test; the Selenium images document 2g as the required size.
-  passthru_or_fail(sprintf('docker run -d --name %s --shm-size=2g -p %s:4444 %s', escapeshellarg(SELENIUM_CONTAINER), escapeshellarg($port), escapeshellarg(SELENIUM_IMAGE)), 'Failed to start the Selenium container.');
+  passthru_or_fail(sprintf('docker run -d --name %s --shm-size=2g -p %s:4444 %s', escapeshellarg(selenium_container($port)), escapeshellarg($port), escapeshellarg(SELENIUM_IMAGE)), 'Failed to start the Selenium container.');
 
   NOTE('Waiting for Selenium to be ready.');
   for ($i = 0; $i < 30; $i++) {
@@ -189,6 +189,17 @@ function webdriver_backend(): string {
   }
 
   return $backend;
+}
+
+/**
+ * Build the container name for the Selenium endpoint on the given port.
+ *
+ * The port is the per-project identity of the endpoint, so naming the
+ * container after it keeps projects running side by side from removing or
+ * overwriting each other's container.
+ */
+function selenium_container(string $port): string {
+  return SELENIUM_CONTAINER_PREFIX . '-' . $port;
 }
 
 /**
