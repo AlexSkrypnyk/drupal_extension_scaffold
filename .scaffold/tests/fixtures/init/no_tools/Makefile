@@ -16,9 +16,9 @@ WEBSERVER_PORT ?= 8000
 
 # Resolve the site URL through the shared `.devtools/info` resolver so `drush`
 # and `login` report the same tunnel-aware URL as start, provision, and info
-# (see resolve_site_url()). Lazy `=` so the probe runs only when drush/login
-# are invoked.
-DRUSH_URI = $(shell ./.devtools/info site-url)
+# (see resolve_site_url()). Lazy `=` so the probe runs only when the recipes
+# that expand it are invoked.
+DRUSH = build/vendor/bin/drush -l "$(shell ./.devtools/info site-url)"
 
 # Test environment exported to every recipe (see the blanket `export` above),
 # matching what the ahoy entrypoint exports for every command, so `make
@@ -101,10 +101,10 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
 endif
 
 drush:
-	build/vendor/bin/drush -l "$(DRUSH_URI)" $(DRUSH_RUN_ARGS)
+	$(DRUSH) $(DRUSH_RUN_ARGS)
 
 login:
-	@url="$$(build/vendor/bin/drush -l "$(DRUSH_URI)" uli)"; printf '%s\n' "$$url"; if [ -n "$$LOGIN_QRCODE" ]; then ./.devtools/qrcode "$$url"; fi
+	@url="$$($(DRUSH) uli)"; printf '%s\n' "$$url"; if [ -n "$$LOGIN_QRCODE" ]; then ./.devtools/qrcode "$$url"; fi
 
 provision:
 	./.devtools/provision
