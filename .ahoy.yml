@@ -47,12 +47,12 @@ commands:
 
   drush:
     usage: Run Drush command.
-    cmd: build/vendor/bin/drush -l "$(./.devtools/info site-url)" $*
+    cmd: build/vendor/bin/drush -l "$(./.devtools/info site-url)" "$@"
 
   login:
     usage: Login to a website.
     cmd: |
-      url="$(build/vendor/bin/drush -l "$(./.devtools/info site-url)" uli)"
+      url="$(ahoy drush uli)"
       printf '%s\n' "$url"
       if [ -n "$LOGIN_QRCODE" ]; then ./.devtools/qrcode "$url"; fi
 
