@@ -650,9 +650,8 @@ function passthru_verbose_or_fail(string $command, string $format = '', string|i
  * Render a URL as a scannable QR code in the terminal.
  *
  * Uses `qrencode -t ANSIUTF8` to draw the code with Unicode block glyphs.
- * A missing `qrencode` binary is a failure rather than a silent no-op:
- * whether to draw a code at all is decided before this point, so there is
- * no case here where drawing nothing is the intended outcome.
+ * A missing `qrencode` binary fails rather than returning quietly, so a
+ * requested code never goes undrawn without explanation.
  *
  * @param string $url
  *   The URL to encode. An empty string renders nothing, so an optional URL
