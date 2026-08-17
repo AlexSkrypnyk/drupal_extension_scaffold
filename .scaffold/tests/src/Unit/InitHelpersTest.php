@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 use function convert_string;
+use function drupal_version_default;
+use function drupal_version_options;
 use function get_files;
 use function is_binary_file;
 use function normalize_cspell_words;
@@ -121,6 +123,30 @@ final class InitHelpersTest extends UnitTestCase {
     $this->assertStringContainsString('PROMPTY_EXAMPLES', $output);
     $this->assertStringContainsString('PROMPTY_REMOVE_SELF', $output);
     $this->assertStringContainsString('PROMPTY_PROCEED', $output);
+  }
+
+  /**
+   * The Drupal version prompt starts with the latest major checked.
+   *
+   * Mirrors how the multiselect decides which options render checked: it
+   * compares each option key against the default list with strict equality,
+   * after casting the key to a string. PHP casts the numeric-string keys of
+   * 'drupal_version_options()' to integers, so a default carrying those keys
+   * verbatim matches nothing and every option renders unchecked.
+   */
+  public function testDrupalVersionDefault(): void {
+    $default = drupal_version_default();
+
+    foreach ($default as $version) {
+      $this->assertIsString($version, 'Default majors must be strings to strictly match the option keys.');
+    }
+
+    $checked = [];
+    foreach (array_keys(drupal_version_options()) as $key) {
+      $checked[(string) $key] = in_array((string) $key, $default, TRUE);
+    }
+
+    $this->assertSame(['10' => FALSE, '11' => TRUE], $checked);
   }
 
   #[DataProvider('dataProviderRemoveDir')]

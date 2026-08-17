@@ -95,8 +95,8 @@ function main(array $argv): void {
       'drupal_version' => Prompty::multiselect(
         'Target Drupal versions',
         options: drupal_version_options(),
-        default: array_keys(drupal_version_options()),
-        description: 'CI runs against every selected major. Uncheck any you do not support.',
+        default: drupal_version_default(),
+        description: 'CI runs against every selected major. Check any older major you also support.',
       ),
       'command_wrapper' => Prompty::multiselect('Command wrapper', options: [
         'ahoy' => 'Ahoy',
@@ -188,6 +188,22 @@ function drupal_version_options(): array {
 }
 
 /**
+ * Define the Drupal majors pre-selected in the 'init' prompt.
+ *
+ * A new extension targets current Drupal, so only the latest major starts
+ * checked and older ones are opted into. Values are written as strings because
+ * the multiselect strictly compares each option key against this list: the
+ * keys of 'drupal_version_options()' arrive as integers, so ints here would
+ * match nothing and leave every option unchecked.
+ *
+ * @return non-empty-array<int, string>
+ *   The majors to start checked.
+ */
+function drupal_version_default(): array {
+  return ['11'];
+}
+
+/**
  * Print help.
  */
 function print_help(): void {
@@ -207,9 +223,9 @@ Environment variables (to pre-fill prompts):
   PROMPTY_MACHINE_NAME    Extension machine name.
   PROMPTY_TYPE            Extension type: module or theme.
   PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
-  PROMPTY_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11). All
-                         are targeted by default; CI runs against every
-                         selected major. One or more of: 10, 11.
+  PROMPTY_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
+                         Drupal 11 is targeted by default; CI runs against
+                         every selected major. One or more of: 10, 11.
   PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
   PROMPTY_TOOLS           Tools to keep: comma-separated. All are kept by
                          default; list only the ones to keep to drop the rest.
