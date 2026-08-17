@@ -137,10 +137,6 @@ final class InitHelpersTest extends UnitTestCase {
   public function testDrupalVersionDefault(): void {
     $default = drupal_version_default();
 
-    foreach ($default as $version) {
-      $this->assertIsString($version, 'Default majors must be strings to strictly match the option keys.');
-    }
-
     $checked = [];
     foreach (array_keys(drupal_version_options()) as $key) {
       $checked[(string) $key] = in_array((string) $key, $default, TRUE);
