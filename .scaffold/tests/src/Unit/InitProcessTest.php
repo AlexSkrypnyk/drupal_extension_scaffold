@@ -370,7 +370,10 @@ final class InitProcessTest extends UnitTestCase {
 
     // The generic example lifecycle scripts are not Cloudflare-specific and are
     // never removed by the tunnel opt-out.
-    $this->assertFileExists(self::$sut . '/scripts/start-example.sh');
+    foreach (['assemble', 'provision', 'start', 'stop'] as $phase) {
+      $path = self::$sut . '/scripts/' . $phase . '-example.sh';
+      $this->assertFileExists($path, 'Expected to keep: ' . $path);
+    }
   }
 
   public static function dataProviderProcessCloudflare(): \Iterator {
@@ -397,7 +400,11 @@ final class InitProcessTest extends UnitTestCase {
 
     // The Cloudflare tunnel scripts are functional hooks rather than examples
     // and are never removed by the example opt-out.
-    $this->assertFileExists(self::$sut . '/scripts/start-cloudflared.sh');
+    foreach (['provision', 'start', 'stop'] as $phase) {
+      $path = self::$sut . '/scripts/' . $phase . '-cloudflared.sh';
+      $this->assertFileExists($path, 'Expected to keep: ' . $path);
+    }
+
     // The hook directory itself stays so project-local scripts have a home.
     $this->assertDirectoryExists(self::$sut . '/scripts');
   }
