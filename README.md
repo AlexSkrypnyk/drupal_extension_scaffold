@@ -277,7 +277,7 @@ Matching files are executed in lexicographic order. The current working director
 
 The directory is `export-ignore`d via `.gitattributes`, so anything under `scripts/` is excluded from distribution archives published to Drupal.org.
 
-Example scripts ship with the scaffold (`scripts/assemble-example.sh`, `scripts/provision-example.sh`, `scripts/start-example.sh`, `scripts/stop-example.sh`). Delete them, replace them, or use them as a starting point.
+Example scripts ship with the scaffold (`scripts/assemble-example.sh`, `scripts/provision-example.sh`, `scripts/start-example.sh`, `scripts/stop-example.sh`). Each one prints a marker line so you can see its phase fire. `init.php` asks whether to keep them and removes them unless you say yes, so answer yes if you want them as a starting point for your own hooks.
 
 #### Public HTTPS tunnel (Cloudflare)
 
