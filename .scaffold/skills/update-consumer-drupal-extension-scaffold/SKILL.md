@@ -140,29 +140,42 @@ rm drupal_extension_scaffold.tar.gz
 
 ## Step 6: Run init.php
 
-Run init.php from the project root. Pre-fill every prompt by exporting
-`PROMPTY_*` environment variables before invoking the script. Set
-`PROMPTY_REMOVE_SELF=true` and `PROMPTY_PROCEED=true` to auto-accept the
-confirmations:
+Run init.php from the project root. Set `DEX_REMOVE_SELF=true` and
+`DEX_PROCEED=true` to auto-accept the confirmations:
 
 ```bash
-PROMPTY_NAME="<Name>" \
-PROMPTY_MACHINE_NAME="<machine_name>" \
-PROMPTY_TYPE="<type>" \
-PROMPTY_CI_PROVIDER="<ci_provider>" \
-PROMPTY_COMMAND_WRAPPER="<command_wrapper>" \
-PROMPTY_EXAMPLES=false \
-PROMPTY_REMOVE_SELF=true \
-PROMPTY_PROCEED=true \
+DEX_NAME="<Name>" \
+DEX_MACHINE_NAME="<machine_name>" \
+DEX_TYPE="<type>" \
+DEX_CI_PROVIDER="<ci_provider>" \
+DEX_DRUPAL_VERSION="<drupal_version>" \
+DEX_COMMAND_WRAPPER="<command_wrapper>" \
+DEX_TOOLS="<tools>" \
+DEX_CLOUDFLARE=<cloudflare> \
+DEX_EXAMPLES=false \
+DEX_REMOVE_SELF=true \
+DEX_PROCEED=true \
 php init.php
 ```
 
-`PROMPTY_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
+**Every one of these variables is mandatory.** A prompt with no matching variable
+is not silently defaulted - it falls through to the interactive input loop and
+reads `STDIN`, which never returns under automation. Derive each value from the
+project's detected settings, and run `php init.php --help` for the full list and
+accepted values if the prompts change in a future release.
+
+`DEX_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
 restores `scripts/` from git straight after, so any hook the project actually
 tracks comes back untouched.
 
 `<command_wrapper>` accepts a comma-separated list (`ahoy`, `makefile`, or
 `ahoy,makefile`), or an empty string for neither.
+
+`<drupal_version>` is a comma-separated list of Drupal majors to target (e.g.
+`11` or `10,11`). `<tools>` is a comma-separated list of the tools to keep -
+list every tool the project still uses, since anything omitted is removed.
+`<cloudflare>` is `true` or `false`, and keeps or drops the Cloudflare tunnel
+scripts.
 
 ## Step 7: Restore project-specific files from git
 
@@ -375,5 +388,5 @@ Every Bash call must contain exactly ONE simple command. No exceptions.
 
 **ALWAYS:**
 - Use multiple separate Bash tool calls, one command per call
-- Use non-interactive flags or env vars for scripts that support them (e.g. `composer --no-interaction`, `PROMPTY_*` for `init.php`)
+- Use non-interactive flags or env vars for scripts that support them (e.g. `composer --no-interaction`, `DEX_*` for `init.php`)
 - For git commits, use: `git commit -m "Message here."`

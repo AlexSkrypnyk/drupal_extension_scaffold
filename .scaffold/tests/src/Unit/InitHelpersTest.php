@@ -115,14 +115,14 @@ final class InitHelpersTest extends UnitTestCase {
     $this->assertStringContainsString('Usage:', $output);
     $this->assertStringContainsString('init.php', $output);
     $this->assertStringContainsString('--help', $output);
-    $this->assertStringContainsString('PROMPTY_NAME', $output);
-    $this->assertStringContainsString('PROMPTY_MACHINE_NAME', $output);
-    $this->assertStringContainsString('PROMPTY_TYPE', $output);
-    $this->assertStringContainsString('PROMPTY_CI_PROVIDER', $output);
-    $this->assertStringContainsString('PROMPTY_COMMAND_WRAPPER', $output);
-    $this->assertStringContainsString('PROMPTY_EXAMPLES', $output);
-    $this->assertStringContainsString('PROMPTY_REMOVE_SELF', $output);
-    $this->assertStringContainsString('PROMPTY_PROCEED', $output);
+    $this->assertStringContainsString('DEX_NAME', $output);
+    $this->assertStringContainsString('DEX_MACHINE_NAME', $output);
+    $this->assertStringContainsString('DEX_TYPE', $output);
+    $this->assertStringContainsString('DEX_CI_PROVIDER', $output);
+    $this->assertStringContainsString('DEX_COMMAND_WRAPPER', $output);
+    $this->assertStringContainsString('DEX_EXAMPLES', $output);
+    $this->assertStringContainsString('DEX_REMOVE_SELF', $output);
+    $this->assertStringContainsString('DEX_PROCEED', $output);
   }
 
   /**
