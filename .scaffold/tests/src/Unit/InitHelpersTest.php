@@ -23,7 +23,6 @@ use function replace_string_content;
 use function tool_options;
 use function tool_specs;
 use function uncomment_line;
-use function validate_answers;
 
 /**
  * Unit tests for helper functions in init.php.
@@ -537,71 +536,25 @@ final class InitHelpersTest extends UnitTestCase {
   }
 
   /**
-   * @param array<string> $drupal_versions
-   * @param array<string> $command_wrapper
-   * @param array<string> $tools_keep
+   * The Drupal majors survive the round trip through option validation.
+   *
+   * PHP casts the numeric-string keys of 'drupal_version_options()' to
+   * integers, so the majors are the one option set whose key type differs from
+   * the strings the prompts are given. Pinning both outcomes here keeps a
+   * re-embed of the prompt library from silently accepting an unsupported
+   * major, which would prune every CI matrix corner from the built project.
    */
-  #[DataProvider('dataProviderValidateAnswersValid')]
-  public function testValidateAnswersValid(string $type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_keep): void {
-    $this->expectNotToPerformAssertions();
+  public function testDrupalVersionOptionsValidateDiscoveredMajors(): void {
+    ob_start();
+    $accepted = \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['10', '11']);
+    ob_end_clean();
 
-    validate_answers($type, $ci_provider, $drupal_versions, $command_wrapper, $tools_keep);
-  }
+    $this->assertSame(['10', '11'], array_map(strval(...), (array) $accepted));
 
-  public static function dataProviderValidateAnswersValid(): \Iterator {
-    // Spelled out rather than read from 'tool_specs()', because data providers
-    // run before 'setUpBeforeClass()' has required init.php.
-    // 'testToolOptionsMatchToolSpecs()' guards this list against drift.
-    $all_tools = ['phpcs', 'phpstan', 'rector', 'twigcs', 'eslint', 'stylelint', 'cspell', 'jest', 'phpunit', 'functional_javascript', 'renovate'];
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('Available options: 10, 11.');
 
-    yield 'every supported value' => ['module', 'gha', ['10', '11'], ['ahoy', 'makefile'], $all_tools];
-    yield 'theme and circleci' => ['theme', 'circleci', ['11'], ['makefile'], ['phpcs']];
-    // The keys of 'drupal_version_options()' are cast to integers by PHP, so a
-    // strict comparison against the discovered strings only matches once both
-    // sides are normalised.
-    yield 'numeric drupal majors as strings' => ['module', 'gha', ['10'], ['ahoy'], ['phpcs']];
-    yield 'empty command wrapper' => ['module', 'gha', ['11'], [], ['phpcs']];
-    yield 'empty tools' => ['module', 'gha', ['11'], ['ahoy'], []];
-  }
-
-  /**
-   * @param array<string> $drupal_versions
-   * @param array<string> $command_wrapper
-   * @param array<string> $tools_keep
-   */
-  #[DataProvider('dataProviderValidateAnswersInvalid')]
-  public function testValidateAnswersInvalid(string $type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_keep, string $expected_message): void {
-    $this->expectException(\Exception::class);
-    $this->expectExceptionMessage($expected_message);
-
-    validate_answers($type, $ci_provider, $drupal_versions, $command_wrapper, $tools_keep);
-  }
-
-  public static function dataProviderValidateAnswersInvalid(): \Iterator {
-    yield 'unsupported type' => ['widget', 'gha', ['11'], ['ahoy'], ['phpcs'], "Unsupported DEX_TYPE: 'widget'."];
-    yield 'unsupported ci provider' => ['module', 'travis', ['11'], ['ahoy'], ['phpcs'], "Unsupported DEX_CI_PROVIDER: 'travis'."];
-    yield 'unsupported drupal major' => ['module', 'gha', ['12'], ['ahoy'], ['phpcs'], "Unsupported DEX_DRUPAL_VERSION: '12'."];
-    yield 'unsupported command wrapper' => ['module', 'gha', ['11'], ['gulp'], ['phpcs'], "Unsupported DEX_COMMAND_WRAPPER: 'gulp'."];
-    yield 'misspelled tool' => ['module', 'gha', ['11'], ['ahoy'], ['phpcsx'], "Unsupported DEX_TOOLS: 'phpcsx'."];
-    yield 'several bad tools listed together' => ['module', 'gha', ['11'], ['ahoy'], ['phpcsx', 'bogus'], "Unsupported DEX_TOOLS: 'phpcsx', 'bogus'."];
-    yield 'accepted values named in message' => ['module', 'gha', ['11'], ['ahoy'], ['phpcsx'], 'Accepted values: phpcs, phpstan'];
-    yield 'valid majors kept out of the message' => ['module', 'gha', ['11', '12'], ['ahoy'], ['phpcs'], "Unsupported DEX_DRUPAL_VERSION: '12'."];
-  }
-
-  public function testValidateAnswersReportsEveryOffendingPrompt(): void {
-    try {
-      validate_answers('widget', 'travis', ['12'], ['gulp'], ['phpcsx']);
-      $this->fail('Expected an exception for the unsupported values.');
-    }
-    catch (\Exception $exception) {
-      $message = $exception->getMessage();
-    }
-
-    $this->assertStringContainsString('DEX_TYPE', $message);
-    $this->assertStringContainsString('DEX_CI_PROVIDER', $message);
-    $this->assertStringContainsString('DEX_DRUPAL_VERSION', $message);
-    $this->assertStringContainsString('DEX_COMMAND_WRAPPER', $message);
-    $this->assertStringContainsString('DEX_TOOLS', $message);
+    \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['12']);
   }
 
   public function testToolOptionsMatchToolSpecs(): void {
