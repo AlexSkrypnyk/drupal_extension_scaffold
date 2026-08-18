@@ -140,22 +140,29 @@ rm drupal_extension_scaffold.tar.gz
 
 ## Step 6: Run init.php
 
-Run init.php from the project root. Pre-fill every prompt by exporting
-`DEX_*` environment variables before invoking the script. Set
-`DEX_REMOVE_SELF=true` and `DEX_PROCEED=true` to auto-accept the
-confirmations:
+Run init.php from the project root. Set `DEX_REMOVE_SELF=true` and
+`DEX_PROCEED=true` to auto-accept the confirmations:
 
 ```bash
 DEX_NAME="<Name>" \
 DEX_MACHINE_NAME="<machine_name>" \
 DEX_TYPE="<type>" \
 DEX_CI_PROVIDER="<ci_provider>" \
+DEX_DRUPAL_VERSION="<drupal_version>" \
 DEX_COMMAND_WRAPPER="<command_wrapper>" \
+DEX_TOOLS="<tools>" \
+DEX_CLOUDFLARE=<cloudflare> \
 DEX_EXAMPLES=false \
 DEX_REMOVE_SELF=true \
 DEX_PROCEED=true \
 php init.php
 ```
+
+**Every one of these variables is mandatory.** A prompt with no matching variable
+is not silently defaulted - it falls through to the interactive input loop and
+reads `STDIN`, which never returns under automation. Derive each value from the
+project's detected settings, and run `php init.php --help` for the full list and
+accepted values if the prompts change in a future release.
 
 `DEX_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
 restores `scripts/` from git straight after, so any hook the project actually
@@ -163,6 +170,12 @@ tracks comes back untouched.
 
 `<command_wrapper>` accepts a comma-separated list (`ahoy`, `makefile`, or
 `ahoy,makefile`), or an empty string for neither.
+
+`<drupal_version>` is a comma-separated list of Drupal majors to target (e.g.
+`11` or `10,11`). `<tools>` is a comma-separated list of the tools to keep -
+list every tool the project still uses, since anything omitted is removed.
+`<cloudflare>` is `true` or `false`, and keeps or drops the Cloudflare tunnel
+scripts.
 
 ## Step 7: Restore project-specific files from git
 
