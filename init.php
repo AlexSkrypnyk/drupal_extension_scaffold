@@ -8,8 +8,8 @@
  * Environment variables:
  * - SCRIPT_RUN_SKIP: Set to '1' to skip running of the script. Useful when
  *   unit-testing or requiring this file from other files.
- * - PROMPTY_*: Set environment variables to pre-fill prompts
- *   (e.g. PROMPTY_NAME, PROMPTY_TYPE, PROMPTY_CI_PROVIDER).
+ * - DEX_*: Set environment variables to pre-fill prompts
+ *   (e.g. DEX_NAME, DEX_TYPE, DEX_CI_PROVIDER).
  *
  * Usage:
  * @code
@@ -133,7 +133,7 @@ function main(array $argv): void {
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
-    env_prefix: 'PROMPTY_',
+    env_prefix: 'DEX_',
   );
 
   if ($results === NULL || !($results['proceed'] ?? FALSE)) {
@@ -219,24 +219,24 @@ Options:
   --help                This help.
 
 Environment variables (to pre-fill prompts):
-  PROMPTY_NAME            Extension name.
-  PROMPTY_MACHINE_NAME    Extension machine name.
-  PROMPTY_TYPE            Extension type: module or theme.
-  PROMPTY_CI_PROVIDER     CI provider: gha or circleci.
-  PROMPTY_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
-                         Drupal 11 is targeted by default; CI runs against
-                         every selected major. One or more of: 10, 11.
-  PROMPTY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
-  PROMPTY_TOOLS           Tools to keep: comma-separated. All are kept by
-                         default; list only the ones to keep to drop the rest.
-                         One or more of: phpcs, phpstan, rector, twigcs, eslint,
-                         stylelint, cspell, jest, phpunit, functional_javascript,
-                         renovate.
-  PROMPTY_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
-  PROMPTY_EXAMPLES        Keep example lifecycle scripts: true or false. They
-                         are removed by default.
-  PROMPTY_REMOVE_SELF     Remove this script: true or false.
-  PROMPTY_PROCEED         Proceed with init: true or false.
+  DEX_NAME            Extension name.
+  DEX_MACHINE_NAME    Extension machine name.
+  DEX_TYPE            Extension type: module or theme.
+  DEX_CI_PROVIDER     CI provider: gha or circleci.
+  DEX_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
+                      Drupal 11 is targeted by default; CI runs against
+                      every selected major. One or more of: 10, 11.
+  DEX_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
+  DEX_TOOLS           Tools to keep: comma-separated. All are kept by
+                      default; list only the ones to keep to drop the rest.
+                      One or more of: phpcs, phpstan, rector, twigcs, eslint,
+                      stylelint, cspell, jest, phpunit, functional_javascript,
+                      renovate.
+  DEX_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
+  DEX_EXAMPLES        Keep example lifecycle scripts: true or false. They
+                      are removed by default.
+  DEX_REMOVE_SELF     Remove this script: true or false.
+  DEX_PROCEED         Proceed with init: true or false.
 
 EOF;
   print $out;

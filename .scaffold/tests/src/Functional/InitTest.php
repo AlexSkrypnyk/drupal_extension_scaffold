@@ -38,10 +38,10 @@ final class InitTest extends FunctionalTestCase {
 
     $answers = array_replace(self::defaultAnswers(), $answers);
 
-    // Build Prompty env vars to pre-fill all prompts.
+    // Build env vars to pre-fill all prompts.
     $env = [];
     foreach ($answers as $key => $value) {
-      $env['PROMPTY_' . strtoupper((string) $key)] = $value;
+      $env['DEX_' . strtoupper((string) $key)] = $value;
     }
 
     $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], [], $env);

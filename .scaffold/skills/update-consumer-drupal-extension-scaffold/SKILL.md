@@ -141,23 +141,23 @@ rm drupal_extension_scaffold.tar.gz
 ## Step 6: Run init.php
 
 Run init.php from the project root. Pre-fill every prompt by exporting
-`PROMPTY_*` environment variables before invoking the script. Set
-`PROMPTY_REMOVE_SELF=true` and `PROMPTY_PROCEED=true` to auto-accept the
+`DEX_*` environment variables before invoking the script. Set
+`DEX_REMOVE_SELF=true` and `DEX_PROCEED=true` to auto-accept the
 confirmations:
 
 ```bash
-PROMPTY_NAME="<Name>" \
-PROMPTY_MACHINE_NAME="<machine_name>" \
-PROMPTY_TYPE="<type>" \
-PROMPTY_CI_PROVIDER="<ci_provider>" \
-PROMPTY_COMMAND_WRAPPER="<command_wrapper>" \
-PROMPTY_EXAMPLES=false \
-PROMPTY_REMOVE_SELF=true \
-PROMPTY_PROCEED=true \
+DEX_NAME="<Name>" \
+DEX_MACHINE_NAME="<machine_name>" \
+DEX_TYPE="<type>" \
+DEX_CI_PROVIDER="<ci_provider>" \
+DEX_COMMAND_WRAPPER="<command_wrapper>" \
+DEX_EXAMPLES=false \
+DEX_REMOVE_SELF=true \
+DEX_PROCEED=true \
 php init.php
 ```
 
-`PROMPTY_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
+`DEX_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7
 restores `scripts/` from git straight after, so any hook the project actually
 tracks comes back untouched.
 
@@ -375,5 +375,5 @@ Every Bash call must contain exactly ONE simple command. No exceptions.
 
 **ALWAYS:**
 - Use multiple separate Bash tool calls, one command per call
-- Use non-interactive flags or env vars for scripts that support them (e.g. `composer --no-interaction`, `PROMPTY_*` for `init.php`)
+- Use non-interactive flags or env vars for scripts that support them (e.g. `composer --no-interaction`, `DEX_*` for `init.php`)
 - For git commits, use: `git commit -m "Message here."`
