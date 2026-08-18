@@ -65,47 +65,23 @@ function main(array $argv): void {
   // not suited to in-process unit testing. The functional 'InitTest'
   // exercises this path end-to-end via a subprocess.
   // @codeCoverageIgnoreStart
-  // The selectable development tools, all enabled by default.
-  $tool_options = [
-    'phpcs' => 'PHPCS',
-    'phpstan' => 'PHPStan',
-    'rector' => 'Rector',
-    'twigcs' => 'Twig CS Fixer',
-    'eslint' => 'ESLint',
-    'stylelint' => 'Stylelint',
-    'cspell' => 'CSpell',
-    'jest' => 'Jest',
-    'phpunit' => 'PHPUnit',
-    'functional_javascript' => 'FunctionalJavascript tests',
-    'renovate' => 'Renovate',
-  ];
-
   $results = Prompty::flow(
     fn(): array => [
       'name' => Prompty::text('Extension name', placeholder: 'My Extension'),
       'machine_name' => Prompty::text('Machine name', placeholder: 'my_extension'),
-      'type' => Prompty::select('Extension type', options: [
-        'module' => 'Module',
-        'theme' => 'Theme',
-      ]),
-      'ci_provider' => Prompty::select('CI provider', options: [
-        'gha' => 'GitHub Actions',
-        'circleci' => 'CircleCI',
-      ]),
+      'type' => Prompty::select('Extension type', options: extension_type_options()),
+      'ci_provider' => Prompty::select('CI provider', options: ci_provider_options()),
       'drupal_version' => Prompty::multiselect(
         'Target Drupal versions',
         options: drupal_version_options(),
         default: drupal_version_default(),
         description: 'CI runs against every selected major. Check any older major you also support.',
       ),
-      'command_wrapper' => Prompty::multiselect('Command wrapper', options: [
-        'ahoy' => 'Ahoy',
-        'makefile' => 'Makefile',
-      ]),
+      'command_wrapper' => Prompty::multiselect('Command wrapper', options: command_wrapper_options()),
       'tools' => Prompty::multiselect(
         'Tools',
-        options: $tool_options,
-        default: array_keys($tool_options),
+        options: tool_options(),
+        default: array_map(strval(...), array_keys(tool_options())),
         description: 'All tools are included by default. Uncheck any to remove from your project.',
       ),
       'cloudflare' => Prompty::confirm(
@@ -129,11 +105,11 @@ function main(array $argv): void {
       $r['ci_provider'],
       implode(', ', $r['drupal_version'] ?: ['None']),
       implode(', ', $r['command_wrapper'] ?: ['None']),
-      implode(', ', array_diff(array_keys($tool_options), array_filter((array) $r['tools'], static fn($v): bool => $v !== '')) ?: ['None']),
+      implode(', ', array_diff(array_map(strval(...), array_keys(tool_options())), array_filter((array) $r['tools'], static fn($v): bool => $v !== '')) ?: ['None']),
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
-    env_prefix: 'DEX_',
+    env_prefix: env_prefix(),
   );
 
   if ($results === NULL || !($results['proceed'] ?? FALSE)) {
@@ -150,7 +126,14 @@ function main(array $argv): void {
   $command_wrapper = array_filter((array) $results['command_wrapper'], static fn($v): bool => $v !== '');
   /** @var array<string> $tools_keep */
   $tools_keep = array_filter((array) $results['tools'], static fn($v): bool => $v !== '');
-  $tools_remove = array_values(array_diff(array_keys($tool_options), $tools_keep));
+
+  // Reject unsupported answers before anything acts on them. Prompty returns
+  // environment-discovered values verbatim, so an unsupported value would
+  // otherwise be treated as a deliberate selection: an unknown Drupal major
+  // prunes every CI matrix corner, and an unknown tool name removes every tool.
+  validate_answers($type, $ci_provider, $drupal_versions, $command_wrapper, $tools_keep);
+
+  $tools_remove = array_values(array_diff(array_map(strval(...), array_keys(tool_options())), $tools_keep));
   // The prompts ask whether to keep the tunnel and example scripts, so a 'no'
   // answer is what triggers their removal.
   $remove_cloudflare = !($results['cloudflare'] ?? FALSE);
@@ -201,6 +184,135 @@ function drupal_version_options(): array {
  */
 function drupal_version_default(): array {
   return ['11'];
+}
+
+/**
+ * Define the prefix of the environment variables that pre-fill the prompts.
+ *
+ * Shared by the prompt flow and by the validation messages, so the names the
+ * errors quote are always the names a caller actually sets.
+ *
+ * @return string
+ *   The environment variable prefix.
+ */
+function env_prefix(): string {
+  return 'DEX_';
+}
+
+/**
+ * Define the selectable extension types.
+ *
+ * @return non-empty-array<string, string>
+ *   Map of extension type to its human-readable label.
+ */
+function extension_type_options(): array {
+  return [
+    'module' => 'Module',
+    'theme' => 'Theme',
+  ];
+}
+
+/**
+ * Define the selectable CI providers.
+ *
+ * @return non-empty-array<string, string>
+ *   Map of CI provider to its human-readable label.
+ */
+function ci_provider_options(): array {
+  return [
+    'gha' => 'GitHub Actions',
+    'circleci' => 'CircleCI',
+  ];
+}
+
+/**
+ * Define the selectable command wrappers.
+ *
+ * @return non-empty-array<string, string>
+ *   Map of command wrapper to its human-readable label.
+ */
+function command_wrapper_options(): array {
+  return [
+    'ahoy' => 'Ahoy',
+    'makefile' => 'Makefile',
+  ];
+}
+
+/**
+ * Define the selectable development tools, all enabled by default.
+ *
+ * Keys mirror 'tool_specs()', which holds what each tool actually removes.
+ *
+ * @return non-empty-array<string, string>
+ *   Map of tool key to its human-readable label.
+ */
+function tool_options(): array {
+  return [
+    'phpcs' => 'PHPCS',
+    'phpstan' => 'PHPStan',
+    'rector' => 'Rector',
+    'twigcs' => 'Twig CS Fixer',
+    'eslint' => 'ESLint',
+    'stylelint' => 'Stylelint',
+    'cspell' => 'CSpell',
+    'jest' => 'Jest',
+    'phpunit' => 'PHPUnit',
+    'functional_javascript' => 'FunctionalJavascript tests',
+    'renovate' => 'Renovate',
+  ];
+}
+
+/**
+ * Reject answers that are not offered by their prompt.
+ *
+ * Only interactive runs are constrained by the widgets; values discovered from
+ * the environment are returned verbatim, so an unsupported one would be acted
+ * on as though deliberately chosen. Every offending value is collected so a
+ * scripted caller learns about all of them in a single run.
+ *
+ * Presence is not checked here - 'process()' already rejects empty required
+ * answers, and an empty selection is legitimate for the command wrapper and
+ * the tools.
+ *
+ * @param string $extension_type
+ *   The selected extension type.
+ * @param string $ci_provider
+ *   The selected CI provider.
+ * @param array<string> $drupal_versions
+ *   The selected Drupal majors.
+ * @param array<string> $command_wrapper
+ *   The selected command wrappers.
+ * @param array<string> $tools_keep
+ *   The tools to keep.
+ *
+ * @throws \Exception
+ *   When any answer is not among the values its prompt offers.
+ */
+function validate_answers(string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_keep): void {
+  $prompts = [
+    'TYPE' => [$extension_type === '' ? [] : [$extension_type], extension_type_options()],
+    'CI_PROVIDER' => [$ci_provider === '' ? [] : [$ci_provider], ci_provider_options()],
+    'DRUPAL_VERSION' => [$drupal_versions, drupal_version_options()],
+    'COMMAND_WRAPPER' => [$command_wrapper, command_wrapper_options()],
+    'TOOLS' => [$tools_keep, tool_options()],
+  ];
+
+  $errors = [];
+  foreach ($prompts as $name => [$selected, $options]) {
+    // PHP casts numeric-string array keys to integers, so the Drupal majors
+    // come back as ints and would never match the discovered strings.
+    $supported = array_map(strval(...), array_keys($options));
+    $unsupported = array_diff($selected, $supported);
+
+    if ($unsupported !== []) {
+      $quoted = array_map(static fn(string $value): string => "'" . $value . "'", $unsupported);
+      $errors[] = sprintf('Unsupported %s: %s. Accepted values: %s.', env_prefix() . $name, implode(', ', $quoted), implode(', ', $supported));
+    }
+  }
+
+  if ($errors !== []) {
+    throw new \Exception(implode(PHP_EOL, $errors));
+  }
 }
 
 /**
