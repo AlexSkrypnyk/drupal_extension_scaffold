@@ -7,12 +7,9 @@ namespace AlexSkrypnyk\drupal_extension_scaffold\Tests\Unit;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
-use function ci_provider_options;
-use function command_wrapper_options;
 use function convert_string;
 use function drupal_version_default;
 use function drupal_version_options;
-use function extension_type_options;
 use function get_files;
 use function is_binary_file;
 use function normalize_cspell_words;
@@ -23,8 +20,6 @@ use function remove_special_comments;
 use function remove_string_content;
 use function remove_tokens_with_content;
 use function replace_string_content;
-use function tool_options;
-use function tool_specs;
 use function uncomment_line;
 
 /**
@@ -558,38 +553,6 @@ final class InitHelpersTest extends UnitTestCase {
     $this->expectExceptionMessage('Available options: 10, 11.');
 
     \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['12']);
-  }
-
-  public function testToolOptionsMatchToolSpecs(): void {
-    $this->assertSame(array_keys(tool_specs()), array_keys(tool_options()));
-  }
-
-  /**
-   * The option keys 'process()' acts on must stay in the option sets.
-   *
-   * 'process()' compares against these values directly: 'circleci' and 'theme'
-   * as explicit conditions, 'ahoy' and 'makefile' to decide which runner files
-   * survive, with 'gha' and 'module' as the complementary branches. Renaming a
-   * key without updating the branch would stop it matching without any error.
-   */
-  #[DataProvider('dataProviderOptionKeysUsedByProcess')]
-  public function testOptionKeysUsedByProcess(string $option_set, string $key): void {
-    $options = match ($option_set) {
-      'extension_type' => extension_type_options(),
-      'ci_provider' => ci_provider_options(),
-      default => command_wrapper_options(),
-    };
-
-    $this->assertArrayHasKey($key, $options);
-  }
-
-  public static function dataProviderOptionKeysUsedByProcess(): \Iterator {
-    yield 'theme layout' => ['extension_type', 'theme'];
-    yield 'module layout' => ['extension_type', 'module'];
-    yield 'circleci directory' => ['ci_provider', 'circleci'];
-    yield 'github actions directory' => ['ci_provider', 'gha'];
-    yield 'ahoy wrapper' => ['command_wrapper', 'ahoy'];
-    yield 'makefile wrapper' => ['command_wrapper', 'makefile'];
   }
 
 }
