@@ -537,17 +537,18 @@ final class InitHelpersTest extends UnitTestCase {
    * The Drupal majors survive the round trip through option validation.
    *
    * PHP casts the numeric-string keys of 'drupal_version_options()' to
-   * integers, so the majors are the one option set whose key type differs from
-   * the strings the prompts are given. Pinning both outcomes here keeps a
-   * re-embed of the prompt library from silently accepting an unsupported
-   * major, which would prune every CI matrix corner from the built project.
+   * integers, making the majors the one option set whose key type differs from
+   * the strings the prompts are given. Asserting the returned majors are
+   * strings, and that an unsupported one is refused, keeps a re-embed of the
+   * prompt library from either handing back integers or accepting a major that
+   * would prune every CI matrix corner from the built project.
    */
   public function testDrupalVersionOptionsValidateDiscoveredMajors(): void {
     ob_start();
     $accepted = \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['10', '11']);
     ob_end_clean();
 
-    $this->assertSame(['10', '11'], array_map(strval(...), (array) $accepted));
+    $this->assertSame(['10', '11'], $accepted);
 
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Available options: 10, 11.');
