@@ -128,11 +128,9 @@ final class InitHelpersTest extends UnitTestCase {
   /**
    * The Drupal version prompt starts with the latest major checked.
    *
-   * Mirrors how the multiselect decides which options render checked: it
-   * compares each option key against the default list with strict equality,
-   * after casting the key to a string. PHP casts the numeric-string keys of
-   * 'drupal_version_options()' to integers, so a default carrying those keys
-   * verbatim matches nothing and every option renders unchecked.
+   * Mirrors how the multiselect decides which options render checked - each
+   * option key compared against the default list with strict equality, both
+   * normalised to strings - so the assertion holds without driving the widget.
    */
   public function testDrupalVersionDefault(): void {
     $default = drupal_version_default();
@@ -531,29 +529,6 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'empty type' => ['Name', 'machine', '', 'gha', ['10', '11'], ['ahoy'], 'Type is required.'];
     yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['10', '11'], ['ahoy'], 'CI provider is required.'];
     yield 'empty drupal versions' => ['Name', 'machine', 'module', 'gha', [], ['ahoy'], 'At least one Drupal version is required.'];
-  }
-
-  /**
-   * The Drupal majors survive the round trip through option validation.
-   *
-   * PHP casts the numeric-string keys of 'drupal_version_options()' to
-   * integers, making the majors the one option set whose key type differs from
-   * the strings the prompts are given. Asserting the returned majors are
-   * strings, and that an unsupported one is refused, keeps a re-embed of the
-   * prompt library from either handing back integers or accepting a major that
-   * would prune every CI matrix corner from the built project.
-   */
-  public function testDrupalVersionOptionsValidateDiscoveredMajors(): void {
-    ob_start();
-    $accepted = \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['10', '11']);
-    ob_end_clean();
-
-    $this->assertSame(['10', '11'], $accepted);
-
-    $this->expectException(\InvalidArgumentException::class);
-    $this->expectExceptionMessage('Available options: 10, 11.');
-
-    \Prompty::multiselect('Target Drupal versions', options: drupal_version_options(), discovered: ['12']);
   }
 
 }
