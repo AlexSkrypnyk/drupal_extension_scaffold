@@ -117,12 +117,12 @@ $build_json = (array) json_decode((string) file_get_contents($build_composer_jso
 unset($build_json['require-dev']['drupal/core-dev']);
 // Add symfony/phpunit-bridge with a version matching Drupal core's Symfony.
 $build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_major >= 11 ? '^7 || ^8' : '~6.4';
-// The Drupal 10 configs in palantirnet/drupal-rector reference set constants
-// removed in rector/rector 2.6.2. Constrained per-build so the extension's own
+// rector/rector 2.6.5 removed the set provider that
+// palantirnet/drupal-rector registers its Drupal sets through, and no
+// release ships the replacement constant. The Drupal 10 sets also reference
+// constants removed in 2.6.2. Constrained per-build so the extension's own
 // dependencies carry no upper bound.
-if ((int) $drupal_version_major < 11) {
-  $build_json['require-dev']['rector/rector'] = '^2 <2.6.2';
-}
+$build_json['require-dev']['rector/rector'] = (int) $drupal_version_major < 11 ? '^2 <2.6.2' : '^2 <2.6.5';
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
