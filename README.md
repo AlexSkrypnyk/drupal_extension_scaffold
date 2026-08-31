@@ -189,6 +189,59 @@ The two axes behave differently:
 
 Because `stable` and `canary` float, the matrix follows Drupal core on its own - a new stable minor or pre-release is picked up on the next CI run with no manual changes. The pinned `legacy` minor and the PHP versions are set-and-forget: they keep exercising the same floor indefinitely, so there is nothing you have to maintain by hand. When you want to move that floor forward as core and PHP advance, re-pull from the scaffold (see [Updating your extension](#updating-your-extension)) - this template tracks the versions Drupal core provides, so updating from it refreshes the `legacy` pin and the PHP versions for you.
 
+### Distributing tools across CI runners
+
+A test job declares which tools it runs in a single variable block at the top of the job, and each tool step reads only its own flag. Moving a tool onto a different runner is one edit in one place rather than a repeated runner-index condition spread across every step that belongs to that tool - the kind of edit where missing one step is silent, because the step then either runs on every runner (duplicated work) or on none (the tool stops running and nothing reports it).
+
+Two anchors are always declared, whichever tools are enabled:
+
+| Variable | Meaning |
+|----------|---------|
+| `CI_RUNNER_INDEX` | Zero-based index of the current runner. |
+| `CI_RUNNER_TOTAL` | How many runners the job has. |
+
+Every tool adds one flag of its own, named `CI_IS_<TOOL>_RUNNER` and declared inside that tool's block so that removing the tool removes its flag too. Use one flag per tool rather than a single shared "primary runner" flag: a shared flag reads wrong as soon as it gates tools that have nothing to do with each other, and it cannot put two tools on two different runners.
+
+**GitHub Actions.** The matrix in [`.github/workflows/test.yml`](.github/workflows/test.yml) is a Drupal and PHP matrix, so each leg is a runner covering a different version pair and every tool has to run on all of them. The flags are therefore `true`:
+
+```yaml
+env:
+  CI_RUNNER_INDEX: ${{ strategy.job-index }}
+  CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+  CI_IS_PHPUNIT_RUNNER: true
+```
+
+```yaml
+- name: Run tests
+  if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+```
+
+To shard a tool across extra runners, add a matrix dimension for the shard and compare that tool's flag against it. A matrix change that renames or duplicates an existing leg also renames its status check, so review the required checks under [branch protection](#branch-protection) first.
+
+**CircleCI.** A node is a slice of one job rather than a version pair of its own, so [`.circleci/config.yml`](.circleci/config.yml) derives the flags from the node index and pins each tool that needs a single run to node 0:
+
+```yaml
+- run:
+    name: Set test runner roles
+    command: |
+      {
+        echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+        echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+      } >> "${BASH_ENV}"
+```
+
+```yaml
+- run:
+    name: Run tests
+    command: |
+      [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
+      php -d pcov.directory=.. vendor/bin/phpunit
+```
+
+Each guard defaults to running, so a step still runs where the variable is not set at all. Add a node with `parallelism: 2` on the job: the distribution stays correct - PHPUnit runs once and coverage is uploaded once - but the extra node is idle until you give it work by pinning a tool to it with `-eq 1`. The `store_test_results` and `store_artifacts` steps take no runtime condition, so an idle node reports no results for them.
+
+One trap is worth knowing before moving a tool. Where a test runner derives a shard or profile name from the runner index, excluding runner 0 from that tool orphans the first shard, and if that shard is the catch-all then everything untagged silently stops being tested. Give such a tool the *last* runner rather than the first when it needs one to itself.
+
 ### Patching dependencies
 
 To apply patches to the dependencies, add a patch to the `patches` section of

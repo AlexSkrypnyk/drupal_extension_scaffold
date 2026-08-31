@@ -1,12 +1,20 @@
-@@ -197,11 +197,6 @@
+@@ -151,7 +151,6 @@
+       # covering one Drupal and PHP pair, so every tool runs on all of them.
+       CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      CI_IS_JEST_RUNNER: true
+       CI_IS_PHPUNIT_RUNNER: true
+ 
+     steps:
+@@ -204,11 +203,6 @@
        - name: Provision site
          run: .devtools/provision
  
 -      - name: Run JavaScript tests
--        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        if: ${{ env.CI_IS_JEST_RUNNER == 'true' && hashFiles('build/node_modules/.package-lock.json') != '' }}
 -        working-directory: build
 -        run: npm test
 -        continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  
        - name: Run tests
-         working-directory: build
+         if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
