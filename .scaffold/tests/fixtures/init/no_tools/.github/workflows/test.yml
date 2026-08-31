@@ -52,17 +52,27 @@
  
      name: ${{ matrix.name }}
  
-@@ -197,43 +168,4 @@
+@@ -151,8 +122,6 @@
+       # covering one Drupal and PHP pair, so every tool runs on all of them.
+       CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      CI_IS_JEST_RUNNER: true
+-      CI_IS_PHPUNIT_RUNNER: true
+ 
+     steps:
+       - name: Checkout code
+@@ -204,45 +173,4 @@
        - name: Provision site
          run: .devtools/provision
  
 -      - name: Run JavaScript tests
--        if: ${{ hashFiles('build/node_modules/.package-lock.json') != '' }}
+-        if: ${{ env.CI_IS_JEST_RUNNER == 'true' && hashFiles('build/node_modules/.package-lock.json') != '' }}
 -        working-directory: build
 -        run: npm test
 -        continue-on-error: ${{ vars.CI_NODEJS_TEST_IGNORE_FAILURE == '1' }}
  
 -      - name: Run tests
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        working-directory: build
 -        run: php -d pcov.directory=.. vendor/bin/phpunit
 -        continue-on-error: ${{ vars.CI_TEST_IGNORE_FAILURE == '1' }}
@@ -73,7 +83,7 @@
 -
 -      - name: Upload browser output as an artifact
 -        uses: actions/upload-artifact@__HASH__ # __VERSION__
--        if: always()
+-        if: ${{ always() && env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        with:
 -          name: Artifacts (${{ matrix.name }})
 -          path: .logs/browser_output
@@ -81,6 +91,7 @@
 -
 -      - name: Upload coverage report as an artifact
 -        uses: actions/upload-artifact@__HASH__ # __VERSION__
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        with:
 -          name: ${{ github.job }}-code-coverage-report-${{ matrix.name }}
 -          path: ./.logs/coverage
@@ -89,7 +100,7 @@
 -
 -      - name: Upload coverage report to Codecov
 -        uses: codecov/codecov-action@__HASH__ # __VERSION__
--        if: ${{ env.CODECOV_TOKEN != '' }}
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' && env.CODECOV_TOKEN != '' }}
 -        with:
 -          directory: ./.logs/coverage
 -          fail_ci_if_error: true
