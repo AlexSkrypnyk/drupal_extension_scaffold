@@ -25,9 +25,9 @@ final class CiRunnerVariablesTest extends UnitTestCase {
   /**
    * The names that anchor the declaration when every tool is removed.
    */
-  protected const ANCHORS = ['CI_RUNNER_INDEX', 'CI_RUNNER_TOTAL'];
+  protected const array ANCHORS = ['CI_RUNNER_INDEX', 'CI_RUNNER_TOTAL'];
 
-  public function testGithubActionsFlagsAreReadByAStep(): void {
+  public function testGithubActionsFlagsAreReadByStep(): void {
     $path = self::rootDir() . '/.github/workflows/test.yml';
     $contents = file_get_contents($path);
     $this->assertIsString($contents);
@@ -41,7 +41,11 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $unread = [];
 
     foreach ($parsed['jobs'] as $job_name => $job) {
-      if (!is_array($job) || !is_array($job['env'] ?? NULL)) {
+      if (!is_array($job)) {
+        continue;
+      }
+
+      if (!is_array($job['env'] ?? NULL)) {
         continue;
       }
 
@@ -51,7 +55,11 @@ final class CiRunnerVariablesTest extends UnitTestCase {
       }
 
       foreach (array_keys($job['env']) as $name) {
-        if (!is_string($name) || preg_match('/^CI_IS_[A-Z0-9]+_RUNNER$/', $name) !== 1) {
+        if (!is_string($name)) {
+          continue;
+        }
+
+        if (preg_match('/^CI_IS_[A-Z0-9]+_RUNNER$/', $name) !== 1) {
           continue;
         }
 
@@ -67,7 +75,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $this->assertSame([], $unread, sprintf('test.yml declares runner flags that no step reads: %s', implode(', ', $unread)));
   }
 
-  public function testCircleciFlagsAreGuardedByAStep(): void {
+  public function testCircleciFlagsAreGuardedByStep(): void {
     $path = self::rootDir() . '/.circleci/config.yml';
     $contents = file_get_contents($path);
     $this->assertIsString($contents);
@@ -91,7 +99,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $this->assertSame([], $unguarded, sprintf('config.yml exports runner flags that no step guards: %s', implode(', ', $unguarded)));
   }
 
-  #[DataProvider('dataProviderConfigurations')]
+  #[DataProvider('dataProviderAnchorsAreDeclaredOutsideToolBlocks')]
   public function testAnchorsAreDeclaredOutsideToolBlocks(string $path): void {
     $declared = self::declaredVariables($path);
     $blocks = self::openBlocksByLine($path);
@@ -105,7 +113,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     }
   }
 
-  #[DataProvider('dataProviderConfigurations')]
+  #[DataProvider('dataProviderFlagsAreDeclaredInsideTheirToolBlocks')]
   public function testFlagsAreDeclaredInsideTheirToolBlocks(string $path): void {
     $declared = self::declaredVariables($path);
     $blocks = self::openBlocksByLine($path);
@@ -130,7 +138,21 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $this->assertSame([], $misplaced, sprintf('%s declares runner flags outside the block that removes their tool: %s', basename($path), implode(', ', $misplaced)));
   }
 
-  public static function dataProviderConfigurations(): \Iterator {
+  public static function dataProviderAnchorsAreDeclaredOutsideToolBlocks(): \Iterator {
+    yield from self::configurationPaths();
+  }
+
+  public static function dataProviderFlagsAreDeclaredInsideTheirToolBlocks(): \Iterator {
+    yield from self::configurationPaths();
+  }
+
+  /**
+   * The configuration files both marker-block tests check.
+   *
+   * @return \Iterator<string, array{path: string}>
+   *   The dataset shared by the two marker-block data providers.
+   */
+  protected static function configurationPaths(): \Iterator {
     yield 'test.yml' => ['path' => self::rootDir() . '/.github/workflows/test.yml'];
     yield 'config.yml' => ['path' => self::rootDir() . '/.circleci/config.yml'];
   }
@@ -180,7 +202,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
         array_pop($stack);
       }
 
-      $blocks[$number] = array_values($stack);
+      $blocks[$number] = $stack;
     }
 
     return $blocks;
