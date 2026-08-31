@@ -128,11 +128,9 @@ final class InitHelpersTest extends UnitTestCase {
   /**
    * The Drupal version prompt starts with the latest major checked.
    *
-   * Mirrors how the multiselect decides which options render checked: it
-   * compares each option key against the default list with strict equality,
-   * after casting the key to a string. PHP casts the numeric-string keys of
-   * 'drupal_version_options()' to integers, so a default carrying those keys
-   * verbatim matches nothing and every option renders unchecked.
+   * Mirrors how the multiselect decides which options render checked - each
+   * option key compared against the default list with strict equality, both
+   * normalised to strings - so the assertion holds without driving the widget.
    */
   public function testDrupalVersionDefault(): void {
     $default = drupal_version_default();
