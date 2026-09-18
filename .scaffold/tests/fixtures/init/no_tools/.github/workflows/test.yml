@@ -39,7 +39,7 @@
 -        continue-on-error: ${{ vars.CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
    test:
-     runs-on: ubuntu-24.04
+     runs-on: ubuntu-26.04
 @@ -136,11 +112,6 @@
              drupal-version: 11@beta
              stability: canary
