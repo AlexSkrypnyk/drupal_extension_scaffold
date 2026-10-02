@@ -40,7 +40,7 @@ jobs:
           #;< DRUPAL_12
           - name: lint-d12
             php-version: 8.5
-            drupal-version: 12@beta
+            drupal-version: 12
 
           #;> DRUPAL_12
     name: ${{ matrix.name }}
@@ -165,11 +165,20 @@ jobs:
           #;< DRUPAL_12
           - name: test-php-min-d12-stable
             php-version: 8.5
-            drupal-version: 12@beta
+            drupal-version: 12
 
           - name: test-php-max-d12-stable
             php-version: 8.5
+            drupal-version: 12
+
+          - name: test-php-min-d12-legacy
+            php-version: 8.5
+            drupal-version: 12.0.0
+
+          - name: test-php-max-d12-canary
+            php-version: 8.5
             drupal-version: 12@beta
+            stability: canary
 
           #;> DRUPAL_12
     #;< DEV_FUNCTIONAL_JAVASCRIPT

@@ -42,15 +42,15 @@ You can specify a different version by setting the `DRUPAL_VERSION` environment
 variable before running the `make build` or `ahoy build` command:
 
 ```bash
-DRUPAL_VERSION=11 make build        # Drupal 11
-DRUPAL_VERSION=11@alpha make build  # Drupal 11 alpha
-DRUPAL_VERSION=10@beta make build   # Drupal 10 beta
-DRUPAL_VERSION=11.1 make build      # Drupal 11.1
-DRUPAL_VERSION=12@beta make build   # Drupal 12 beta
+DRUPAL_VERSION=11 make build        # Newest stable Drupal 11 release
+DRUPAL_VERSION=11.1.0 make build    # Newest Drupal 11.1.x patch release
+DRUPAL_VERSION=11@beta make build   # Newest Drupal 11 beta, release candidate or stable release
+DRUPAL_VERSION=12 make build        # Newest stable Drupal 12 release, or newest pre-release if none
 ```
 
-The `minimum-stability` setting in the `composer.json` file is
-automatically adjusted to match the specified Drupal version's stability.
+The build resolves `DRUPAL_VERSION` to an exact Drupal release, prints it and pins Drupal core to it. A version with no stable release yet resolves to its newest pre-release instead.
+
+The `minimum-stability` setting in the `composer.json` file is automatically adjusted to allow the resolved release and any stability flag in `DRUPAL_VERSION`.
 
 ### Patching dependencies
 

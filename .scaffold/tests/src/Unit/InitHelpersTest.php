@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 use function convert_string;
-use function drupal_version_constraints;
 use function drupal_version_default;
 use function drupal_version_options;
 use function get_files;
@@ -145,25 +144,12 @@ final class InitHelpersTest extends UnitTestCase {
   }
 
   /**
-   * Every selectable major assembles with a version of that same major.
-   */
-  public function testDrupalVersionConstraints(): void {
-    $constraints = drupal_version_constraints();
-
-    $this->assertSame(array_keys(drupal_version_options()), array_keys($constraints));
-
-    foreach ($constraints as $major => $constraint) {
-      $this->assertMatchesRegularExpression('/^' . $major . '(@(alpha|beta|RC))?$/', $constraint);
-    }
-  }
-
-  /**
    * The shipped assemble default builds the highest pre-selected major.
    *
    * 'process()' finds the default to rewrite by this exact value.
    */
   public function testDrupalVersionShippedAssembleDefault(): void {
-    $shipped_default = drupal_version_constraints()[max(array_map(intval(...), drupal_version_default()))];
+    $shipped_default = (string) max(array_map(intval(...), drupal_version_default()));
 
     $assemble = (string) file_get_contents(dirname(__DIR__, 4) . '/.devtools/assemble');
 

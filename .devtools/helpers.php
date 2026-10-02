@@ -801,6 +801,153 @@ function site_db_file(string $extension_name): string {
 }
 
 /**
+ * Resolve a Drupal version constraint to the release it selects.
+ *
+ * Fails when the releases cannot be listed or none matches the constraint.
+ *
+ * @param string $constraint
+ *   The constraint, such as '12', '11.1.0' or '12@beta'.
+ *
+ * @return string
+ *   The selected release, such as '12.0.0-beta1'.
+ *
+ * @see drupal_release_select()
+ */
+function drupal_release(string $constraint): string {
+  $output = [];
+  $exit_code = 0;
+  // exec() captures stdout only, so a Composer warning on stderr leaves the
+  // JSON intact.
+  exec('composer show --all --format=json drupal/recommended-project', $output, $exit_code);
+
+  $package = json_decode(implode("\n", $output), TRUE);
+  if ($exit_code !== 0 || !is_array($package) || !isset($package['versions']) || !is_array($package['versions'])) {
+    FAIL('Unable to list the Drupal releases.');
+
+    // @codeCoverageIgnoreStart
+    return '';
+    // @codeCoverageIgnoreEnd
+  }
+
+  $release = drupal_release_select($constraint, array_values(array_filter($package['versions'], is_string(...))));
+  if ($release === NULL) {
+    FAIL('No Drupal release matches %s.', $constraint);
+
+    // @codeCoverageIgnoreStart
+    return '';
+    // @codeCoverageIgnoreEnd
+  }
+
+  return $release;
+}
+
+/**
+ * Select the newest Drupal release matching a version constraint.
+ *
+ * The constraint is a major, minor or patch version with an optional
+ * stability flag. It matches like Composer's '~' operator: '12' matches all
+ * of 12.x, '12.1' matches 12.1 and later minors, and '12.1.0' matches 12.1.x.
+ *
+ * A version qualifies at or above the flag's stability, or only when stable
+ * if there is no flag. When no version qualifies, the newest pre-release is
+ * selected instead, so a major or minor without a stable release resolves.
+ *
+ * @param string $constraint
+ *   The constraint, such as '12', '11.1.0' or '12@beta'.
+ * @param array<int, string> $versions
+ *   The available versions, such as '12.0.0-beta1' or '12.0.x-dev'.
+ *
+ * @return string|null
+ *   The selected version, or NULL when no version matches the constraint.
+ */
+function drupal_release_select(string $constraint, array $versions): ?string {
+  if (preg_match('/^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:@(stable|rc|beta|alpha|dev))?$/i', $constraint, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+    return NULL;
+  }
+
+  [, $major, $minor, $patch, $flag] = $matches;
+
+  $candidates = [];
+  foreach ($versions as $version) {
+    if (preg_match('/^\d+\.(\d+|x)(\.(\d+|x))?(-(dev|(alpha|beta|rc)\d*))?$/i', $version) !== 1) {
+      continue;
+    }
+
+    // A development branch such as '12.0.x-dev' sorts above every release of
+    // its minor, as Composer orders it.
+    $normalized = str_replace('x', '9999999', strtolower($version));
+    $numbers = array_map(intval(...), explode('.', explode('-', $normalized)[0]));
+    [$version_major, $version_minor, $version_patch] = $numbers + [0, 0, 0];
+
+    $is_match = match (TRUE) {
+      $patch !== NULL => $version_major === (int) $major && $version_minor === (int) $minor && $version_patch >= (int) $patch,
+      $minor !== NULL => $version_major === (int) $major && $version_minor >= (int) $minor,
+      default => $version_major === (int) $major,
+    };
+
+    if ($is_match) {
+      $rank = stability_rank(version_stability($version));
+      $candidates[] = ['version' => $version, 'normalized' => $normalized, 'rank' => $rank];
+    }
+  }
+
+  $flag_rank = stability_rank($flag ?? 'stable');
+  $qualified = array_filter($candidates, static fn(array $candidate): bool => $candidate['rank'] <= $flag_rank);
+
+  // Development branches are not releases, so the fallback leaves them out.
+  if ($qualified === []) {
+    $qualified = array_filter($candidates, static fn(array $candidate): bool => $candidate['rank'] < stability_rank('dev'));
+  }
+
+  $selected = NULL;
+  foreach ($qualified as $candidate) {
+    if ($selected === NULL || version_compare($candidate['normalized'], $selected['normalized'], '>')) {
+      $selected = $candidate;
+    }
+  }
+
+  return $selected === NULL ? NULL : $selected['version'];
+}
+
+/**
+ * Get the Composer stability of a version.
+ *
+ * @param string $version
+ *   The version, such as '12.0.0', '12.0.0-beta1' or '12.0.x-dev'.
+ *
+ * @return string
+ *   The stability: 'stable', 'RC', 'beta', 'alpha' or 'dev'.
+ */
+function version_stability(string $version): string {
+  if (preg_match('/-(dev|alpha|beta|rc)\d*$/i', $version, $matches) !== 1) {
+    return 'stable';
+  }
+
+  $stability = strtolower($matches[1]);
+
+  return $stability === 'rc' ? 'RC' : $stability;
+}
+
+/**
+ * Rank a Composer stability from the most to the least stable.
+ *
+ * @param string $stability
+ *   The stability: 'stable', 'RC', 'beta', 'alpha' or 'dev', in any case.
+ *
+ * @return int
+ *   The rank: 0 for 'stable' up to 4 for 'dev'.
+ */
+function stability_rank(string $stability): int {
+  return match (strtolower($stability)) {
+    'rc' => 1,
+    'beta' => 2,
+    'alpha' => 3,
+    'dev' => 4,
+    default => 0,
+  };
+}
+
+/**
  * Check if debug mode is enabled.
  */
 function is_debug(): bool {

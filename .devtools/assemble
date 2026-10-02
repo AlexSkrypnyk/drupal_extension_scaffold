@@ -58,6 +58,10 @@ TASK('Validating Composer configuration.');
 passthru_or_fail('composer validate --ansi --strict');
 PASS('Composer configuration is valid.');
 
+TASK('Resolving Drupal %s release.', $drupal_version);
+$drupal_release = drupal_release($drupal_version);
+PASS('Resolved Drupal %s to %s.', $drupal_version, $drupal_release);
+
 // Reset the environment.
 if (is_dir($build_dir)) {
   TASK('Removing existing build directory.');
@@ -72,20 +76,21 @@ $drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $d
 $minimum_stability = $drupal_version_stability;
 $prefer_stable = $drupal_version_stability === 'stable';
 
+// A version with no release at its stability resolves to a pre-release, so
+// the floor drops to the stability of that release.
+if (stability_rank(version_stability($drupal_release)) > stability_rank($minimum_stability)) {
+  $minimum_stability = version_stability($drupal_release);
+}
+
 // Drupal 12 and later accept development releases but prefer stable ones, so
-// dependencies supporting the major only on a development branch resolve. The
-// stability flag on the pinned core constraint still sets the floor for core.
+// dependencies supporting the major only on a development branch resolve.
 if ((int) $drupal_version_major >= 12) {
   $minimum_stability = 'dev';
   $prefer_stable = TRUE;
 }
 
 TASK('Creating Drupal %s project.', $drupal_version);
-$create_project_failure = 'Unable to create the Drupal %1$s project.';
-if (!str_contains($drupal_version, '@')) {
-  $create_project_failure .= ' A version with no stable release needs a stability flag, such as DRUPAL_VERSION=%1$s@beta.';
-}
-passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)), $create_project_failure, $drupal_version);
+passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:' . $drupal_release)), 'Unable to create the Drupal %s project.', $drupal_release);
 @unlink($build_dir . '/composer.lock');
 PASS('Drupal project created.');
 
@@ -98,8 +103,8 @@ $build_json['config']['audit']['block-insecure'] = FALSE;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Insecure package blocking disabled.');
 
-TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
-$composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
+TASK('Pinning Drupal core packages to a specific version %s.', $drupal_release);
+$composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "' . $drupal_release . '"');
 // Print the pinned versions for verification.
 foreach (explode("\n", $composer_json_content) as $line) {
   if (preg_match('/"drupal\/core-.*":\s*"/', $line)) {

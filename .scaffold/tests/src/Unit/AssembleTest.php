@@ -20,6 +20,11 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 final class AssembleTest extends UnitTestCase {
 
   /**
+   * Versions listed for 'drupal/recommended-project'.
+   */
+  protected const array RELEASES = ['12.0.x-dev', '12.0.0-beta1', '12.0.0-alpha1', '11.x-dev', '11.5.0-beta1', '11.4.x-dev', '11.4.8', '11.4.0', '11.1.x-dev', '11.1.10', '11.1.0', '10.6.x-dev', '10.6.18', '10.6.0'];
+
+  /**
    * @var array<int, string>
    */
   protected array $capturedBuildComposerJson = [];
@@ -34,17 +39,25 @@ final class AssembleTest extends UnitTestCase {
    *
    * @param array $config
    *   Configuration with keys: extension_name, extension_type, drupal_version,
-   *   has_build_dir, has_patches,
-   *   github_token, suggestions, extension_require, extension_require_dev,
-   *   has_deprecations_disabled,
+   *   drupal_release, releases, releases_result_code, has_build_dir,
+   *   has_patches, github_token, suggestions, extension_require,
+   *   extension_require_dev, has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
-   *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap.
+   *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap,
+   *   create_project_result_code. A NULL drupal_release expects the
+   *   release resolution to fail.
+   *
+   * @return array
+   *   The configuration with defaults applied.
    */
-  protected function setupAssembleMocks(array $config): void {
+  protected function setupAssembleMocks(array $config): array {
     $config += [
       'extension_name' => 'test_extension',
       'extension_type' => 'module',
       'drupal_version' => '11',
+      'drupal_release' => '11.4.8',
+      'releases' => self::RELEASES,
+      'releases_result_code' => 0,
       'has_build_dir' => FALSE,
       'has_patches' => FALSE,
       'github_token' => '',
@@ -93,11 +106,15 @@ final class AssembleTest extends UnitTestCase {
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
-    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL): string {
+    $this->registerMock('exec', 'DrupalExtensionScaffold\\DevTools', function (string $cmd, ?array &$output = NULL, ?int &$code = NULL) use ($config): string {
       $output ??= [];
       $code = 0;
       if (str_contains($cmd, 'command -v composer')) {
         $output[] = '/usr/bin/composer';
+      }
+      if ($cmd === 'composer show --all --format=json drupal/recommended-project') {
+        $output = explode("\n", json_encode(['name' => 'drupal/recommended-project', 'versions' => $config['releases']], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+        $code = $config['releases_result_code'];
       }
       return '';
     });
@@ -217,14 +234,20 @@ final class AssembleTest extends UnitTestCase {
 
     $passthru_responses[] = ['cmd' => 'composer validate --ansi --strict'];
 
-    $drupal_version = $config['drupal_version'] ?? '11';
-    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)), 'result_code' => $config['create_project_result_code']];
+    // A failed release resolution ends the run before the project is created.
+    if ($config['drupal_release'] === NULL) {
+      $this->mockPassthruMultiple($passthru_responses);
+
+      return $config;
+    }
+
+    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:' . $config['drupal_release'])), 'result_code' => $config['create_project_result_code']];
 
     // A failed project creation ends the run.
     if ($config['create_project_result_code'] !== 0) {
       $this->mockPassthruMultiple($passthru_responses);
 
-      return;
+      return $config;
     }
 
     if ($config['has_patches']) {
@@ -261,6 +284,8 @@ final class AssembleTest extends UnitTestCase {
     }
 
     $this->mockPassthruMultiple($passthru_responses);
+
+    return $config;
   }
 
   #[DataProvider('dataProviderAssembleSuccess')]
@@ -280,7 +305,7 @@ final class AssembleTest extends UnitTestCase {
       $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
     }
 
-    $this->setupAssembleMocks($config);
+    $config = $this->setupAssembleMocks($config);
 
     // Create real directories for functions that use RecursiveDirectoryIterator
     // and cannot be mocked (copy_dir, remove_dir, chmod_recursive).
@@ -317,6 +342,7 @@ final class AssembleTest extends UnitTestCase {
     $this->assertStringContainsString('symfony/phpunit-bridge', $all_writes);
 
     $drupal_version = $env['DRUPAL_VERSION'] ?? '11';
+    $this->assertStringContainsString('Resolved Drupal ' . $drupal_version . ' to ' . $config['drupal_release'] . '.', $output);
     $this->assertStringContainsString('Creating Drupal ' . $drupal_version . ' project', $output);
 
     if ($config['has_build_dir']) {
@@ -371,6 +397,7 @@ final class AssembleTest extends UnitTestCase {
       'env' => ['DRUPAL_VERSION' => '10'],
       'config' => [
         'drupal_version' => '10',
+        'drupal_release' => '10.6.18',
         'extension_type' => 'theme',
         'github_token' => '',
         'suggestions' => [],
@@ -509,6 +536,7 @@ final class AssembleTest extends UnitTestCase {
       'env' => ['DRUPAL_VERSION' => '11@beta'],
       'config' => [
         'drupal_version' => '11@beta',
+        'drupal_release' => '11.5.0-beta1',
         'extension_type' => 'module',
         'github_token' => '',
         'suggestions' => [],
@@ -566,6 +594,7 @@ final class AssembleTest extends UnitTestCase {
       'env' => ['DRUPAL_VERSION' => '10'],
       'config' => [
         'drupal_version' => '10',
+        'drupal_release' => '10.6.18',
         'extension_type' => 'module',
         'github_token' => '',
         'suggestions' => [],
@@ -581,6 +610,7 @@ final class AssembleTest extends UnitTestCase {
       'env' => ['DRUPAL_VERSION' => '10'],
       'config' => [
         'drupal_version' => '10',
+        'drupal_release' => '10.6.18',
         'extension_type' => 'theme',
         'github_token' => 'ghp_fulltest',
         'suggestions' => ['drupal/token' => 'Token'],
@@ -597,18 +627,22 @@ final class AssembleTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * @param array<int, string> $releases
+   */
   #[DataProvider('dataProviderAssembleDependencyResolution')]
-  public function testAssembleDependencyResolution(string $drupal_version, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit, ?array $expected_preferred_install): void {
+  public function testAssembleDependencyResolution(string $drupal_version, array $releases, string $expected_release, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit, ?array $expected_preferred_install): void {
     $this->envSet('DRUPAL_VERSION', $drupal_version);
     $this->envSet('GITHUB_TOKEN', '');
     $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
 
-    $this->setupAssembleMocks(['drupal_version' => $drupal_version]);
+    $this->setupAssembleMocks(['drupal_version' => $drupal_version, 'drupal_release' => $expected_release, 'releases' => $releases]);
 
     ob_start();
     require dirname(__DIR__, 4) . '/.devtools/assemble';
     $output = (string) ob_get_clean();
 
+    $this->assertStringContainsString('Resolved Drupal ' . $drupal_version . ' to ' . $expected_release . '.', $output);
     $this->assertStringContainsString('Updating stability to ' . $expected_minimum_stability . '.', $output);
 
     $last_write = end($this->capturedBuildComposerJson);
@@ -620,27 +654,37 @@ final class AssembleTest extends UnitTestCase {
 
     $this->assertSame($expected_minimum_stability, $build_json['minimum-stability']);
     $this->assertSame($expected_prefer_stable, $build_json['prefer-stable']);
-    $this->assertSame('~' . $drupal_version, $build_json['require']['drupal/core-recommended']);
+    $this->assertSame($expected_release, $build_json['require']['drupal/core-recommended']);
+    $this->assertSame($expected_release, $build_json['require']['drupal/core-composer-scaffold']);
     $this->assertSame($expected_phpunit, $build_json['require-dev']['phpunit/phpunit'] ?? NULL);
     $this->assertSame($expected_preferred_install, $build_json['config']['preferred-install'] ?? NULL);
   }
 
   public static function dataProviderAssembleDependencyResolution(): \Iterator {
-    yield 'Drupal 10' => ['10', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11' => ['11', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11 pinned minor' => ['11.1.0', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL, NULL];
-    yield 'Drupal 12 pre-release' => ['12@beta', 'dev', TRUE, '^12', ['drupal/core' => 'source']];
-    yield 'Drupal 12' => ['12', 'dev', TRUE, '^12', ['drupal/core' => 'source']];
+    $d12_source = ['drupal/core' => 'source'];
+    // Drupal 12.0 is stable and Drupal 12.1 has a pre-release.
+    $d12_later = ['12.1.0-beta1', '12.0.2', '12.0.0', '12.0.0-beta1'];
+
+    yield 'Drupal 10' => ['10', self::RELEASES, '10.6.18', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11' => ['11', self::RELEASES, '11.4.8', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11 legacy minor' => ['11.1.0', self::RELEASES, '11.1.10', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11 canary' => ['11@beta', self::RELEASES, '11.5.0-beta1', 'beta', FALSE, NULL, NULL];
+    yield 'Drupal 11 minor without a stable release' => ['11.5.0', self::RELEASES, '11.5.0-beta1', 'beta', TRUE, NULL, NULL];
+    yield 'Drupal 12 without a stable release' => ['12', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 12 legacy minor without a stable release' => ['12.0.0', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 12 canary without a stable release' => ['12@beta', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 12 with a stable release' => ['12', $d12_later, '12.0.2', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 12 legacy minor with a stable release' => ['12.0.0', $d12_later, '12.0.2', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 12 canary with a stable release' => ['12@beta', $d12_later, '12.1.0-beta1', 'dev', TRUE, '^12', $d12_source];
   }
 
-  #[DataProvider('dataProviderAssembleCreateProjectFailure')]
-  public function testAssembleCreateProjectFailure(string $drupal_version, bool $expect_hint): void {
+  #[DataProvider('dataProviderAssembleReleaseFailure')]
+  public function testAssembleReleaseFailure(string $drupal_version, int $releases_result_code, string $expected_message): void {
     $this->envSet('DRUPAL_VERSION', $drupal_version);
     $this->envSet('GITHUB_TOKEN', '');
     $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
 
-    $this->setupAssembleMocks(['drupal_version' => $drupal_version, 'create_project_result_code' => 1]);
+    $this->setupAssembleMocks(['drupal_version' => $drupal_version, 'drupal_release' => NULL, 'releases_result_code' => $releases_result_code, 'has_build_dir' => TRUE]);
 
     $this->mockQuit(1);
 
@@ -656,21 +700,39 @@ final class AssembleTest extends UnitTestCase {
       $output = (string) ob_get_clean();
     }
 
-    $this->assertStringContainsString('Unable to create the Drupal ' . $drupal_version . ' project.', $output);
-    $this->assertStringNotContainsString('Drupal project created', $output);
-
-    if ($expect_hint) {
-      $this->assertStringContainsString('A version with no stable release needs a stability flag, such as DRUPAL_VERSION=' . $drupal_version . '@beta.', $output);
-    }
-    else {
-      $this->assertStringNotContainsString('stability flag', $output);
-    }
+    $this->assertStringContainsString($expected_message, $output);
+    $this->assertStringNotContainsString('Removing existing build directory', $output);
+    $this->assertStringNotContainsString('Creating Drupal', $output);
   }
 
-  public static function dataProviderAssembleCreateProjectFailure(): \Iterator {
-    yield 'major without a stability flag' => ['12', TRUE];
-    yield 'minor without a stability flag' => ['12.1', TRUE];
-    yield 'major with a stability flag' => ['12@beta', FALSE];
+  public static function dataProviderAssembleReleaseFailure(): \Iterator {
+    yield 'releases cannot be listed' => ['11', 1, 'Unable to list the Drupal releases.'];
+    yield 'no release matches' => ['13', 0, 'No Drupal release matches 13.'];
+  }
+
+  public function testAssembleCreateProjectFailure(): void {
+    $this->envSet('DRUPAL_VERSION', '11');
+    $this->envSet('GITHUB_TOKEN', '');
+    $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
+
+    $this->setupAssembleMocks(['create_project_result_code' => 1]);
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      require dirname(__DIR__, 4) . '/.devtools/assemble';
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = (string) ob_get_clean();
+    }
+
+    $this->assertStringContainsString('Unable to create the Drupal 11.4.8 project.', $output);
+    $this->assertStringNotContainsString('Drupal project created', $output);
   }
 
   public function testAssembleMissingComposerJson(): void {

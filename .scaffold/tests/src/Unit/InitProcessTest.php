@@ -497,7 +497,7 @@ final class InitProcessTest extends UnitTestCase {
   public static function dataProviderProcessPrunesDrupalVersions(): \Iterator {
     $d10 = ['lint-d10', 'test-php-min-d10-stable', 'test-php-max-d10-stable'];
     $d11 = ['lint-d11', 'test-php-min-d11-stable', 'test-php-max-d11-stable', 'test-php-min-d11-legacy', 'test-php-max-d11-canary'];
-    $d12 = ['lint-d12', 'test-php-min-d12-stable', 'test-php-max-d12-stable'];
+    $d12 = ['lint-d12', 'test-php-min-d12-stable', 'test-php-max-d12-stable', 'test-php-min-d12-legacy', 'test-php-max-d12-canary'];
 
     foreach (['gha' => '.github/workflows/test.yml', 'circleci' => '.circleci/config.yml'] as $ci_provider => $ci_file) {
       yield $ci_provider . ' all majors' => [$ci_provider, ['10', '11', '12'], $ci_file, array_merge($d10, $d11, $d12), []];
@@ -558,10 +558,10 @@ final class InitProcessTest extends UnitTestCase {
     yield 'd10 and d11 keep 11' => [['10', '11'], '11'];
     yield 'd11 only keeps 11' => [['11'], '11'];
     yield 'd10 only narrows to 10' => [['10'], '10'];
-    yield 'd12 only moves to the 12 pre-release' => [['12'], '12@beta'];
-    yield 'd11 and d12 move to the 12 pre-release' => [['11', '12'], '12@beta'];
-    yield 'all majors move to the 12 pre-release' => [['10', '11', '12'], '12@beta'];
-    yield 'unordered selection uses the highest major' => [['12', '10'], '12@beta'];
+    yield 'd12 only moves to 12' => [['12'], '12'];
+    yield 'd11 and d12 move to 12' => [['11', '12'], '12'];
+    yield 'all majors move to 12' => [['10', '11', '12'], '12'];
+    yield 'unordered selection uses the highest major' => [['12', '10'], '12'];
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsJson(): void {

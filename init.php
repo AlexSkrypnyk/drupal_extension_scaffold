@@ -185,8 +185,8 @@ function main(array $argv): void {
  *
  * The canonical list of supported majors, used both to build the 'init'
  * prompt and to prune the CI matrix in 'process()'. Extending support takes
- * a new entry here and in 'drupal_version_constraints()', plus the major's
- * CI corners wrapped in '#;< DRUPAL_<major>' markers.
+ * a new entry here, plus the major's CI corners wrapped in
+ * '#;< DRUPAL_<major>' markers.
  *
  * @return non-empty-array<int, string>
  *   Map of major version to its human-readable label. PHP casts the
@@ -197,25 +197,6 @@ function drupal_version_options(): array {
     '10' => 'Drupal 10',
     '11' => 'Drupal 11',
     '12' => 'Drupal 12',
-  ];
-}
-
-/**
- * Define the 'DRUPAL_VERSION' value each selectable major assembles with.
- *
- * A major with no stable release resolves through its pre-release stability
- * flag. The local-dev default in '.devtools/assemble' takes the value of the
- * highest selected major.
- *
- * @return non-empty-array<int, string>
- *   Map of major version to its 'DRUPAL_VERSION' value, keyed like
- *   'drupal_version_options()'.
- */
-function drupal_version_constraints(): array {
-  return [
-    '10' => '10',
-    '11' => '11',
-    '12' => '12@beta',
   ];
 }
 
@@ -347,9 +328,8 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Point the local-dev assemble default at the highest selected major. The
   // template ships it set to the highest pre-selected major, so a rewrite is
   // only needed when the selection tops out at a different major.
-  $constraints = drupal_version_constraints();
-  $shipped_default = $constraints[max(array_map(intval(...), drupal_version_default()))];
-  $selected_default = $constraints[max(array_map(intval(...), $selected_majors))];
+  $shipped_default = (string) max(array_map(intval(...), drupal_version_default()));
+  $selected_default = (string) max(array_map(intval(...), $selected_majors));
   if ($selected_default !== $shipped_default) {
     replace_string_content("getenv_default('DRUPAL_VERSION', '" . $shipped_default . "')", "getenv_default('DRUPAL_VERSION', '" . $selected_default . "')");
   }
