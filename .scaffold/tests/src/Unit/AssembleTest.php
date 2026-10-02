@@ -598,7 +598,7 @@ final class AssembleTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderAssembleDependencyResolution')]
-  public function testAssembleDependencyResolution(string $drupal_version, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit): void {
+  public function testAssembleDependencyResolution(string $drupal_version, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit, ?array $expected_preferred_install): void {
     $this->envSet('DRUPAL_VERSION', $drupal_version);
     $this->envSet('GITHUB_TOKEN', '');
     $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
@@ -619,15 +619,16 @@ final class AssembleTest extends UnitTestCase {
     $this->assertSame($expected_prefer_stable, $build_json['prefer-stable']);
     $this->assertSame('~' . $drupal_version, $build_json['require']['drupal/core-recommended']);
     $this->assertSame($expected_phpunit, $build_json['require-dev']['phpunit/phpunit'] ?? NULL);
+    $this->assertSame($expected_preferred_install, $build_json['config']['preferred-install'] ?? NULL);
   }
 
   public static function dataProviderAssembleDependencyResolution(): \Iterator {
-    yield 'Drupal 10' => ['10', 'stable', TRUE, NULL];
-    yield 'Drupal 11' => ['11', 'stable', TRUE, NULL];
-    yield 'Drupal 11 pinned minor' => ['11.1.0', 'stable', TRUE, NULL];
-    yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL];
-    yield 'Drupal 12 pre-release' => ['12@beta', 'dev', TRUE, '^12'];
-    yield 'Drupal 12' => ['12', 'dev', TRUE, '^12'];
+    yield 'Drupal 10' => ['10', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11' => ['11', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11 pinned minor' => ['11.1.0', 'stable', TRUE, NULL, NULL];
+    yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL, NULL];
+    yield 'Drupal 12 pre-release' => ['12@beta', 'dev', TRUE, '^12', ['drupal/core' => 'source']];
+    yield 'Drupal 12' => ['12', 'dev', TRUE, '^12', ['drupal/core' => 'source']];
   }
 
   #[DataProvider('dataProviderAssembleCreateProjectFailure')]

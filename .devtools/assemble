@@ -137,10 +137,13 @@ $build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_maj
 // constants removed in 2.6.2. Constrained per-build so the extension's own
 // dependencies carry no upper bound.
 $build_json['require-dev']['rector/rector'] = (int) $drupal_version_major < 11 ? '^2 <2.6.2' : '^2 <2.6.5';
-// Drupal 12 core requires a 'sebastian/diff' that only PHPUnit 12 accepts.
-// 'composer.dev.json' stops at PHPUnit 11, which Drupal 11 is tested with.
 if ((int) $drupal_version_major >= 12) {
+  // Drupal 12 core requires a 'sebastian/diff' that only PHPUnit 12 accepts.
+  // 'composer.dev.json' stops at PHPUnit 11, which Drupal 11 is tested with.
   $build_json['require-dev']['phpunit/phpunit'] = '^12';
+  // Drupal 12 core packages leave out the 'tests' directories that hold the
+  // test base classes and the PHPUnit bootstrap, so core installs from source.
+  $build_json['config']['preferred-install'] = ['drupal/core' => 'source'];
 }
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
