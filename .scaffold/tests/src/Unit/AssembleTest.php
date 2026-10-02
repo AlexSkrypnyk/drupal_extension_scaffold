@@ -59,6 +59,7 @@ final class AssembleTest extends UnitTestCase {
       'tool_files' => ['phpcs.xml', 'phpunit.xml'],
       'has_version_specific_phpunit' => FALSE,
       'has_polyfill_bootstrap' => FALSE,
+      'create_project_result_code' => 0,
     ];
 
     $cwd = '/test/project';
@@ -217,7 +218,14 @@ final class AssembleTest extends UnitTestCase {
     $passthru_responses[] = ['cmd' => 'composer validate --ansi --strict'];
 
     $drupal_version = $config['drupal_version'] ?? '11';
-    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version))];
+    $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)), 'result_code' => $config['create_project_result_code']];
+
+    // A failed project creation ends the run.
+    if ($config['create_project_result_code'] !== 0) {
+      $this->mockPassthruMultiple($passthru_responses);
+
+      return;
+    }
 
     if ($config['has_patches']) {
       // copy_dir() is a real function using PHP iterators and needs no mock.
@@ -620,6 +628,45 @@ final class AssembleTest extends UnitTestCase {
     yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL];
     yield 'Drupal 12 pre-release' => ['12@beta', 'dev', TRUE, '^12'];
     yield 'Drupal 12' => ['12', 'dev', TRUE, '^12'];
+  }
+
+  #[DataProvider('dataProviderAssembleCreateProjectFailure')]
+  public function testAssembleCreateProjectFailure(string $drupal_version, bool $expect_hint): void {
+    $this->envSet('DRUPAL_VERSION', $drupal_version);
+    $this->envSet('GITHUB_TOKEN', '');
+    $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
+
+    $this->setupAssembleMocks(['drupal_version' => $drupal_version, 'create_project_result_code' => 1]);
+
+    $this->mockQuit(1);
+
+    ob_start();
+    try {
+      require dirname(__DIR__, 4) . '/.devtools/assemble';
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = (string) ob_get_clean();
+    }
+
+    $this->assertStringContainsString('Unable to create the Drupal ' . $drupal_version . ' project.', $output);
+    $this->assertStringNotContainsString('Drupal project created', $output);
+
+    if ($expect_hint) {
+      $this->assertStringContainsString('A version with no stable release needs a stability flag, such as DRUPAL_VERSION=' . $drupal_version . '@beta.', $output);
+    }
+    else {
+      $this->assertStringNotContainsString('stability flag', $output);
+    }
+  }
+
+  public static function dataProviderAssembleCreateProjectFailure(): \Iterator {
+    yield 'major without a stability flag' => ['12', TRUE];
+    yield 'minor without a stability flag' => ['12.1', TRUE];
+    yield 'major with a stability flag' => ['12@beta', FALSE];
   }
 
   public function testAssembleMissingComposerJson(): void {
