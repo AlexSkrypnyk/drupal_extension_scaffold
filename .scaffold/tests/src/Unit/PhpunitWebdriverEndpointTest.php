@@ -80,9 +80,7 @@ final class PhpunitWebdriverEndpointTest extends UnitTestCase {
   protected static function phpunitConfigPaths(): \Iterator {
     $root = dirname(__DIR__, 4);
 
-    foreach (['phpunit.xml', 'phpunit.d10.xml'] as $file) {
-      yield $file => ['path' => $root . '/' . $file];
-    }
+    yield 'phpunit.xml' => ['path' => $root . '/phpunit.xml'];
   }
 
   /**

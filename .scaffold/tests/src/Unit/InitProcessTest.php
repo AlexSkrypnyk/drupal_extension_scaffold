@@ -62,7 +62,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcess')]
   public function testProcess(string $name, string $machine_name, string $type, string $ci_provider, array $command_wrapper, array $expected_exists, array $expected_not_exists, array $expected_claude_allow, bool $info_yml_has_base_theme): void {
-    process($name, $machine_name, $type, $ci_provider, ['10', '11'], $command_wrapper, [], FALSE, FALSE, FALSE);
+    process($name, $machine_name, $type, $ci_provider, ['11', '12'], $command_wrapper, [], FALSE, FALSE, FALSE);
 
     foreach ($expected_exists as $path) {
       $this->assertFileExists(self::$sut . '/' . $path, 'Expected to exist: ' . $path);
@@ -209,7 +209,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessRemovesTools')]
   public function testProcessRemovesTools(array $tools_remove, array $expected_not_exists, array $expected_composer_dev_absent, array $expected_package_json_absent, array $expected_pipeline_absent): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy', 'makefile'], $tools_remove, FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy', 'makefile'], $tools_remove, FALSE, FALSE, FALSE);
 
     foreach ($expected_not_exists as $path) {
       $this->assertFileDoesNotExist(self::$sut . '/' . $path, 'Expected removed: ' . $path);
@@ -328,7 +328,7 @@ final class InitProcessTest extends UnitTestCase {
     // Selenium deps), per the normalisation in 'remove_tools()'.
     yield 'phpunit' => [
       ['phpunit'],
-      ['phpunit.xml', 'phpunit.d10.xml', 'tests', '.devtools/browser'],
+      ['phpunit.xml', 'tests', '.devtools/browser'],
       ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream', 'lullabot/mink-selenium2-driver', 'behat/mink'],
       [],
       ['vendor/bin/phpunit', 'selenium'],
@@ -356,7 +356,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessCloudflare')]
   public function testProcessCloudflare(bool $remove_cloudflare, bool $expect_exists): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], $remove_cloudflare, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], [], $remove_cloudflare, FALSE, FALSE);
 
     foreach (['provision', 'start', 'stop'] as $phase) {
       $path = self::$sut . '/scripts/' . $phase . '-cloudflared.sh';
@@ -386,7 +386,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessExamples')]
   public function testProcessExamples(bool $remove_examples, bool $expect_exists): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], FALSE, $remove_examples, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], [], FALSE, $remove_examples, FALSE);
 
     foreach (['assemble', 'provision', 'start', 'stop'] as $phase) {
       $path = self::$sut . '/scripts/' . $phase . '-example.sh';
@@ -421,7 +421,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessRemovesWrapperDocs')]
   public function testProcessRemovesWrapperDocs(array $command_wrapper, bool $expect_make, bool $expect_ahoy): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], $command_wrapper, [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], $command_wrapper, [], FALSE, FALSE, FALSE);
 
     $agents = (string) file_get_contents(self::$sut . '/AGENTS.md');
 
@@ -449,7 +449,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessRemovesGitattributes')]
   public function testProcessRemovesGitattributes(array $tools_remove, array $expected_absent): void {
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], $tools_remove, FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], $tools_remove, FALSE, FALSE, FALSE);
 
     $gitattributes = (string) file_get_contents(self::$sut . '/.gitattributes');
     foreach ($expected_absent as $needle) {
@@ -466,7 +466,7 @@ final class InitProcessTest extends UnitTestCase {
     yield 'stylelint' => [['stylelint'], ['.stylelintrc.js']];
     yield 'cspell' => [['cspell'], ['.cspell.json']];
     yield 'jest' => [['jest'], ['jest.config.js']];
-    yield 'phpunit' => [['phpunit'], ['phpunit.xml', 'phpunit.d10.xml']];
+    yield 'phpunit' => [['phpunit'], ['phpunit.xml']];
     yield 'renovate' => [['renovate'], ['renovate.json']];
   }
 
@@ -500,10 +500,7 @@ final class InitProcessTest extends UnitTestCase {
     $d12 = ['lint-d12', 'test-php-min-d12-stable', 'test-php-max-d12-stable'];
 
     foreach (['gha' => '.github/workflows/test.yml', 'circleci' => '.circleci/config.yml'] as $ci_provider => $ci_file) {
-      yield $ci_provider . ' all majors' => [$ci_provider, ['10', '11', '12'], $ci_file, array_merge($d10, $d11, $d12), []];
-      yield $ci_provider . ' d10 and d11' => [$ci_provider, ['10', '11'], $ci_file, array_merge($d10, $d11), $d12];
-      yield $ci_provider . ' d11 and d12' => [$ci_provider, ['11', '12'], $ci_file, array_merge($d11, $d12), $d10];
-      yield $ci_provider . ' d10 only' => [$ci_provider, ['10'], $ci_file, $d10, array_merge($d11, $d12)];
+      yield $ci_provider . ' all majors' => [$ci_provider, ['11', '12'], $ci_file, array_merge($d11, $d12), $d10];
       yield $ci_provider . ' d11 only' => [$ci_provider, ['11'], $ci_file, $d11, array_merge($d10, $d12)];
       yield $ci_provider . ' d12 only' => [$ci_provider, ['12'], $ci_file, $d12, array_merge($d10, $d11)];
     }
@@ -534,8 +531,7 @@ final class InitProcessTest extends UnitTestCase {
   }
 
   public static function dataProviderProcessPrunesDrupalBadges(): \Iterator {
-    yield 'all majors' => [['10', '11', '12'], ['Drupal 10', 'Drupal 11', 'Drupal 12'], []];
-    yield 'd10 and d11' => [['10', '11'], ['Drupal 10', 'Drupal 11'], ['Drupal 12']];
+    yield 'all majors' => [['11', '12'], ['Drupal 11', 'Drupal 12'], ['Drupal 10']];
     yield 'd11 only' => [['11'], ['Drupal 11'], ['Drupal 10', 'Drupal 12']];
     yield 'd12 only' => [['12'], ['Drupal 12'], ['Drupal 10', 'Drupal 11']];
   }
@@ -555,20 +551,17 @@ final class InitProcessTest extends UnitTestCase {
   }
 
   public static function dataProviderProcessNarrowsAssembleDefault(): \Iterator {
-    yield 'd10 and d11 keep 11' => [['10', '11'], '11'];
     yield 'd11 only keeps 11' => [['11'], '11'];
-    yield 'd10 only narrows to 10' => [['10'], '10'];
     yield 'd12 only moves to the 12 pre-release' => [['12'], '12@beta'];
     yield 'd11 and d12 move to the 12 pre-release' => [['11', '12'], '12@beta'];
-    yield 'all majors move to the 12 pre-release' => [['10', '11', '12'], '12@beta'];
-    yield 'unordered selection uses the highest major' => [['12', '10'], '12@beta'];
+    yield 'unordered selection uses the highest major' => [['12', '11'], '12@beta'];
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsJson(): void {
     file_put_contents(self::$sut . '/.claude/settings.json', '{invalid json');
 
     $this->expectException(\JsonException::class);
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], [], FALSE, FALSE, FALSE);
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsStructure(): void {
@@ -576,13 +569,13 @@ final class InitProcessTest extends UnitTestCase {
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid .claude/settings.json structure.');
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], [], FALSE, FALSE, FALSE);
   }
 
   public function testProcessSkipsWhenClaudeSettingsMissing(): void {
     @unlink(self::$sut . '/.claude/settings.json');
 
-    process('My Extension', 'my_extension', 'module', 'gha', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', 'gha', ['11', '12'], ['ahoy'], [], FALSE, FALSE, FALSE);
 
     $this->assertFileExists(self::$sut . '/my_extension.info.yml');
     $this->assertFileDoesNotExist(self::$sut . '/.claude/settings.json');

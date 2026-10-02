@@ -194,7 +194,6 @@ function main(array $argv): void {
  */
 function drupal_version_options(): array {
   return [
-    '10' => 'Drupal 10',
     '11' => 'Drupal 11',
     '12' => 'Drupal 12',
   ];
@@ -213,7 +212,6 @@ function drupal_version_options(): array {
  */
 function drupal_version_constraints(): array {
   return [
-    '10' => '10',
     '11' => '11',
     '12' => '12@beta',
   ];
@@ -223,8 +221,8 @@ function drupal_version_constraints(): array {
  * Define the Drupal majors pre-selected in the 'init' prompt.
  *
  * A new extension targets current Drupal, so only the newest stable major
- * starts checked; older majors and a pre-release major are opted into. The
- * shipped '.devtools/assemble' default builds the highest of these majors.
+ * starts checked and a pre-release major is opted into. The shipped
+ * '.devtools/assemble' default builds the highest of these majors.
  *
  * @return non-empty-array<int, string>
  *   The majors to start checked.
@@ -255,7 +253,7 @@ Environment variables (to pre-fill prompts):
   DEX_CI_PROVIDER     CI provider: gha or circleci.
   DEX_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
                       Drupal 11 is targeted by default; CI runs against
-                      every selected major. One or more of: 10, 11, 12.
+                      every selected major. One or more of: 11, 12.
   DEX_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
   DEX_TOOLS           Tools to keep: comma-separated. All are kept by
                       default; list only the ones to keep to drop the rest.
@@ -284,7 +282,7 @@ EOF;
  * @param string $ci_provider
  *   The CI provider (gha or circleci).
  * @param array<string> $drupal_versions
- *   The selected Drupal major versions to target (e.g. '10', '11').
+ *   The selected Drupal major versions to target (e.g. '11', '12').
  * @param array<string> $command_wrapper
  *   The selected command wrappers ('ahoy', 'makefile', or both).
  * @param array<string> $tools_remove
@@ -550,7 +548,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', 'package.json');
   uncomment_line('.gitattributes', 'phpcs.xml');
   uncomment_line('.gitattributes', 'phpstan.neon');
-  uncomment_line('.gitattributes', 'phpunit.d10.xml');
   uncomment_line('.gitattributes', 'phpunit.xml');
   uncomment_line('.gitattributes', 'rector.php');
   uncomment_line('.gitattributes', 'renovate.json');
@@ -755,7 +752,7 @@ function tool_specs(): array {
     ],
     'phpunit' => [
       'token' => 'DEV_PHPUNIT',
-      'files' => ['phpunit.xml', 'phpunit.d10.xml'],
+      'files' => ['phpunit.xml'],
       'dirs' => ['tests'],
       'composer_dev' => ['phpunit/phpunit', 'phpspec/prophecy-phpunit', 'mikey179/vfsstream'],
       'composer_allow_plugins' => [],

@@ -123,23 +123,10 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'd10_only' => [
-      [
-        'drupal_version' => '10',
-      ],
-    ];
-
     yield 'circleci_d11_only' => [
       [
         'ci_provider' => 'circleci',
         'drupal_version' => '11',
-      ],
-    ];
-
-    yield 'circleci_d10_only' => [
-      [
-        'ci_provider' => 'circleci',
-        'drupal_version' => '10',
       ],
     ];
 
@@ -230,7 +217,7 @@ final class InitTest extends FunctionalTestCase {
       'machine_name' => 'force_crystal',
       'type' => 'module',
       'ci_provider' => 'gha',
-      'drupal_version' => '10,11',
+      'drupal_version' => '11,12',
       'command_wrapper' => 'ahoy',
       'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
       'cloudflare' => 'true',

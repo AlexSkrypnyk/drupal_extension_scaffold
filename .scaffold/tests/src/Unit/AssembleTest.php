@@ -38,7 +38,7 @@ final class AssembleTest extends UnitTestCase {
    *   github_token, suggestions, extension_require, extension_require_dev,
    *   has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
-   *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap.
+   *   tool_files, has_polyfill_bootstrap.
    */
   protected function setupAssembleMocks(array $config): void {
     $config += [
@@ -57,13 +57,11 @@ final class AssembleTest extends UnitTestCase {
       'has_nvmrc' => FALSE,
       'has_node_modules' => FALSE,
       'tool_files' => ['phpcs.xml', 'phpunit.xml'],
-      'has_version_specific_phpunit' => FALSE,
       'has_polyfill_bootstrap' => FALSE,
       'create_project_result_code' => 0,
     ];
 
     $cwd = '/test/project';
-    $drupal_version_major = explode('.', explode('@', (string) $config['drupal_version'])[0])[0];
 
     $composer_json = ['name' => 'drupal/' . $config['extension_name']];
     if ($config['extension_require'] !== []) {
@@ -113,7 +111,7 @@ final class AssembleTest extends UnitTestCase {
     });
 
     $all_tool_files = ['.eslintignore', '.eslintrc.json', '.prettierignore', '.prettierrc.json', '.stylelintrc.js', '.twig-cs-fixer.php', 'package-lock.json', 'package.json', 'phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'phpunit.xml', 'rector.php'];
-    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($config, $all_tool_files, $drupal_version_major) {
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($config, $all_tool_files) {
       if ($file === 'composer.json') {
         return TRUE;
       }
@@ -128,10 +126,6 @@ final class AssembleTest extends UnitTestCase {
       }
       if ($file === '.nvmrc') {
         return $config['has_nvmrc'];
-      }
-      $version_specific = 'phpunit.d' . $drupal_version_major . '.xml';
-      if ($file === $version_specific) {
-        return $config['has_version_specific_phpunit'];
       }
       if (str_contains($file, 'polyfill-php83/bootstrap.php')) {
         return $config['has_polyfill_bootstrap'];
@@ -367,10 +361,10 @@ final class AssembleTest extends UnitTestCase {
         'tool_files' => ['phpcs.xml', 'phpunit.xml'],
       ],
     ];
-    yield 'Drupal 10 theme with existing build dir' => [
-      'env' => ['DRUPAL_VERSION' => '10'],
+    yield 'Drupal 12 theme with existing build dir' => [
+      'env' => ['DRUPAL_VERSION' => '12@beta'],
       'config' => [
-        'drupal_version' => '10',
+        'drupal_version' => '12@beta',
         'extension_type' => 'theme',
         'github_token' => '',
         'suggestions' => [],
@@ -562,25 +556,10 @@ final class AssembleTest extends UnitTestCase {
         'tool_files' => ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'],
       ],
     ];
-    yield 'with version-specific phpunit' => [
-      'env' => ['DRUPAL_VERSION' => '10'],
-      'config' => [
-        'drupal_version' => '10',
-        'extension_type' => 'module',
-        'github_token' => '',
-        'suggestions' => [],
-        'has_build_dir' => FALSE,
-        'has_patches' => FALSE,
-        'has_package_lock' => FALSE,
-        'has_skip_npm_build' => FALSE,
-        'has_version_specific_phpunit' => TRUE,
-        'tool_files' => ['phpcs.xml', 'phpunit.xml'],
-      ],
-    ];
     yield 'full complexity: all features enabled' => [
-      'env' => ['DRUPAL_VERSION' => '10'],
+      'env' => ['DRUPAL_VERSION' => '11.1'],
       'config' => [
-        'drupal_version' => '10',
+        'drupal_version' => '11.1',
         'extension_type' => 'theme',
         'github_token' => 'ghp_fulltest',
         'suggestions' => ['drupal/token' => 'Token'],
@@ -591,7 +570,6 @@ final class AssembleTest extends UnitTestCase {
         'has_nvmrc' => TRUE,
         'has_deprecations_disabled' => TRUE,
         'has_polyfill_bootstrap' => TRUE,
-        'has_version_specific_phpunit' => TRUE,
         'tool_files' => ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'],
       ],
     ];
@@ -626,7 +604,6 @@ final class AssembleTest extends UnitTestCase {
   }
 
   public static function dataProviderAssembleDependencyResolution(): \Iterator {
-    yield 'Drupal 10' => ['10', 'stable', TRUE, NULL, NULL];
     yield 'Drupal 11' => ['11', 'stable', TRUE, NULL, NULL];
     yield 'Drupal 11 pinned minor' => ['11.1.0', 'stable', TRUE, NULL, NULL];
     yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL, NULL];

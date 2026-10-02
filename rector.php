@@ -51,10 +51,7 @@ if (!is_dir($cache_dir)) {
 
 return RectorConfig::configure()
   ->withSkip([
-    // Specific rules to skip based on project coding standards. Rector only
-    // registers `AddOverrideAttributeToOverriddenMethodsRector` on the version
-    // resolved for Drupal 10 builds and warns that the entry is unused on
-    // newer ones, so it stays listed to cover both.
+    // Specific rules to skip based on project coding standards.
     AddOverrideAttributeToOverriddenMethodsRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
