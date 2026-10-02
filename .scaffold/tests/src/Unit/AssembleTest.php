@@ -611,9 +611,12 @@ final class AssembleTest extends UnitTestCase {
 
     $this->assertStringContainsString('Updating stability to ' . $expected_minimum_stability . '.', $output);
 
-    $this->assertNotEmpty($this->capturedBuildComposerJson);
-    $build_json = json_decode((string) $this->capturedBuildComposerJson[array_key_last($this->capturedBuildComposerJson)], TRUE, 512, JSON_THROW_ON_ERROR);
+    $last_write = end($this->capturedBuildComposerJson);
+    $this->assertIsString($last_write);
+
+    $build_json = json_decode($last_write, TRUE, 512, JSON_THROW_ON_ERROR);
     $this->assertIsArray($build_json);
+    /** @var array{'minimum-stability': string, 'prefer-stable': bool, require: array<string, string>, 'require-dev': array<string, string>, config: array<string, mixed>} $build_json */
 
     $this->assertSame($expected_minimum_stability, $build_json['minimum-stability']);
     $this->assertSame($expected_prefer_stable, $build_json['prefer-stable']);
