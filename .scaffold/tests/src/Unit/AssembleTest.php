@@ -182,8 +182,10 @@ final class AssembleTest extends UnitTestCase {
       if ($file === 'composer.json') {
         return $composer_json_str;
       }
+      // Reads return the last write, so each step builds on the one before it
+      // as it does on disk.
       if ($file === 'build/composer.json') {
-        return $build_composer_json;
+        return $this->capturedBuildComposerJson === [] ? $build_composer_json : $this->capturedBuildComposerJson[array_key_last($this->capturedBuildComposerJson)];
       }
       if ($file === 'composer.dev.json') {
         return $dev_composer_json;
@@ -585,6 +587,39 @@ final class AssembleTest extends UnitTestCase {
         'tool_files' => ['phpcs.xml', 'phpstan.neon', 'phpmd.xml', 'rector.php', '.twig-cs-fixer.php', 'phpunit.xml'],
       ],
     ];
+  }
+
+  #[DataProvider('dataProviderAssembleDependencyResolution')]
+  public function testAssembleDependencyResolution(string $drupal_version, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit): void {
+    $this->envSet('DRUPAL_VERSION', $drupal_version);
+    $this->envSet('GITHUB_TOKEN', '');
+    $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
+
+    $this->setupAssembleMocks(['drupal_version' => $drupal_version]);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/assemble';
+    $output = (string) ob_get_clean();
+
+    $this->assertStringContainsString('Updating stability to ' . $expected_minimum_stability . '.', $output);
+
+    $this->assertNotEmpty($this->capturedBuildComposerJson);
+    $build_json = json_decode((string) $this->capturedBuildComposerJson[array_key_last($this->capturedBuildComposerJson)], TRUE, 512, JSON_THROW_ON_ERROR);
+    $this->assertIsArray($build_json);
+
+    $this->assertSame($expected_minimum_stability, $build_json['minimum-stability']);
+    $this->assertSame($expected_prefer_stable, $build_json['prefer-stable']);
+    $this->assertSame('~' . $drupal_version, $build_json['require']['drupal/core-recommended']);
+    $this->assertSame($expected_phpunit, $build_json['require-dev']['phpunit/phpunit'] ?? NULL);
+  }
+
+  public static function dataProviderAssembleDependencyResolution(): \Iterator {
+    yield 'Drupal 10' => ['10', 'stable', TRUE, NULL];
+    yield 'Drupal 11' => ['11', 'stable', TRUE, NULL];
+    yield 'Drupal 11 pinned minor' => ['11.1.0', 'stable', TRUE, NULL];
+    yield 'Drupal 11 pre-release' => ['11@beta', 'beta', FALSE, NULL];
+    yield 'Drupal 12 pre-release' => ['12@beta', 'dev', TRUE, '^12'];
+    yield 'Drupal 12' => ['12', 'dev', TRUE, '^12'];
   }
 
   public function testAssembleMissingComposerJson(): void {
