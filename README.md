@@ -202,6 +202,8 @@ Drupal 12 requires PHP 8.5, which is already the matrix ceiling, so both Drupal 
 
 Some of the Drupal 12 toolchain is still catching up - Drush, for one, supports Drupal 12 only on its `14.x` development branch. So `.devtools/assemble` resolves Drupal 12 builds with `minimum-stability: dev` and `prefer-stable: true`, the same pairing the [Drupal.org GitLab CI templates](https://www.drupal.org/project/gitlab_templates) use. Every package still lands on its most stable release, and one that supports Drupal 12 only on a development branch installs from that branch instead of failing the build. Core never drops below the stability in `DRUPAL_VERSION`.
 
+Drupal 12 core packages also leave out every `tests` directory, and with it the test base classes and the PHPUnit bootstrap your tests need. So Drupal 12 builds install `drupal/core` from source (a git checkout) rather than from its package archive. The checkout is bigger than the archive, so Drupal 12 builds take a little longer to assemble.
+
 Drupal 12 is opt-in when you run `init.php`: only Drupal 11 starts checked.
 
 ### Distributing tools across CI runners
