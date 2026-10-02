@@ -10,42 +10,46 @@
 +          - name: lint-d12
              php-version: 8.5
 -            drupal-version: 11
-+            drupal-version: 12@beta
++            drupal-version: 12
  
      name: ${{ matrix.name }}
  
-@@ -111,30 +107,13 @@
+@@ -111,29 +107,21 @@
  
        matrix:
          include:
 -          - name: test-php-min-d10-stable
 -            php-version: 8.3
 -            drupal-version: 10
--
++          - name: test-php-min-d12-stable
++            php-version: 8.5
++            drupal-version: 12
+ 
 -          - name: test-php-max-d10-stable
 -            php-version: 8.4
 -            drupal-version: 10
--
++          - name: test-php-max-d12-stable
++            php-version: 8.5
++            drupal-version: 12
+ 
 -          - name: test-php-min-d11-stable
 -            php-version: 8.3
 -            drupal-version: 11
 -
 -          - name: test-php-max-d11-stable
-+          - name: test-php-min-d12-stable
++          - name: test-php-min-d12-legacy
              php-version: 8.5
 -            drupal-version: 11
-+            drupal-version: 12@beta
- 
+-
 -          - name: test-php-min-d11-legacy
 -            php-version: 8.3
--            drupal-version: __VERSION__
--
+             drupal-version: __VERSION__
+ 
 -          - name: test-php-max-d11-canary
-+          - name: test-php-max-d12-stable
++          - name: test-php-max-d12-canary
              php-version: 8.5
 -            drupal-version: 11@beta
--            stability: canary
 +            drupal-version: 12@beta
+             stability: canary
  
      services:
-       chrome:

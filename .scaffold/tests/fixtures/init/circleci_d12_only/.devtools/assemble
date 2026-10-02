@@ -3,7 +3,7 @@
  
  // Drupal core version to use.
 -$drupal_version = getenv_default('DRUPAL_VERSION', '11');
-+$drupal_version = getenv_default('DRUPAL_VERSION', '12@beta');
++$drupal_version = getenv_default('DRUPAL_VERSION', '12');
  
  // -----------------------------------------------------------------------------
  

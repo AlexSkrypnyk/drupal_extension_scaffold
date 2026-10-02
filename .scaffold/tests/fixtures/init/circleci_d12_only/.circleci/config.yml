@@ -155,7 +155,7 @@ jobs:
     docker:
       - image: cimg/php:__VERSION__
     environment:
-      DRUPAL_VERSION: 12@beta
+      DRUPAL_VERSION: 12
     <<: *job-lint
 
   test-php-min-d12-stable:
@@ -164,10 +164,28 @@ jobs:
       - image: cimg/php:__VERSION__
       - *selenium_image
     environment:
-      DRUPAL_VERSION: 12@beta
+      DRUPAL_VERSION: 12
     <<: *job-test
 
   test-php-max-d12-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 12
+    <<: *job-test
+
+  test-php-min-d12-legacy:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: __VERSION__
+    <<: *job-test
+
+  test-php-max-d12-canary:
     <<: *container_config
     docker:
       - image: cimg/php:__VERSION__
@@ -209,11 +227,21 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - test-php-min-d12-legacy:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-max-d12-canary:
+          filters:
+            tags:
+              only: /.*/
       - deploy:
           requires:
             - lint-d12
             - test-php-min-d12-stable
             - test-php-max-d12-stable
+            - test-php-min-d12-legacy
+            - test-php-max-d12-canary
           filters:
             tags:
               only: /.*/
