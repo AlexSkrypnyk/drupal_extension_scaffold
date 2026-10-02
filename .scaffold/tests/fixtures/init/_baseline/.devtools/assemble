@@ -81,7 +81,11 @@ if ((int) $drupal_version_major >= 12) {
 }
 
 TASK('Creating Drupal %s project.', $drupal_version);
-passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
+$create_project_failure = 'Unable to create the Drupal %1$s project.';
+if (!str_contains($drupal_version, '@')) {
+  $create_project_failure .= ' A version with no stable release needs a stability flag, such as DRUPAL_VERSION=%1$s@beta.';
+}
+passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)), $create_project_failure, $drupal_version);
 @unlink($build_dir . '/composer.lock');
 PASS('Drupal project created.');
 
