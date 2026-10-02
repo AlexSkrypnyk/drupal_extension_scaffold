@@ -21,6 +21,7 @@
 ![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)
 ![Drupal 10](https://img.shields.io/badge/Drupal-10-009CDE.svg)
 ![Drupal 11](https://img.shields.io/badge/Drupal-11-006AA9.svg)
+![Drupal 12](https://img.shields.io/badge/Drupal-12-004B7A.svg)
 </div>
 
 ---
@@ -49,7 +50,7 @@ and push the code to [Drupal.org](https://drupal.org).
 
 - Turnkey CI configuration:
   - PHP version matrix: `8.3`, `8.4`, `8.5`.
-  - Drupal version matrix: `stable` on Drupal 10 and 11, plus `legacy` and `canary` tiers on Drupal 11.
+  - Drupal version matrix: `stable` on Drupal 10, 11 and 12, plus `legacy` and `canary` tiers on Drupal 11.
   - CI providers: [GitHub Actions](.github/workflows/test.yml)
     and [CircleCI](.circleci/config.yml)
   - Code coverage with https://github.com/krakjoe/pcov pushed to [codecov.io](https://codecov.io).
@@ -162,14 +163,16 @@ DRUPAL_VERSION=11 make build        # Drupal 11
 DRUPAL_VERSION=11@alpha make build  # Drupal 11 alpha
 DRUPAL_VERSION=10@beta make build   # Drupal 10 beta
 DRUPAL_VERSION=11.1 make build      # Drupal 11.1
+DRUPAL_VERSION=12@beta make build   # Drupal 12 beta
 ```
 
 The `minimum-stability` setting in the `composer.json` file is
 automatically adjusted to match the specified Drupal version's stability.
+Drupal 12 builds are the exception - see [Drupal 12](#drupal-12).
 
 ### CI Drupal version matrix
 
-The CI configuration ([GitHub Actions](.github/workflows/test.yml) and [CircleCI](.circleci/config.yml)) tests the extension against deliberate *role corners* rather than a full cross-product of every PHP and Drupal version. Six jobs cover the lowest and highest supported PHP on each stable Drupal major, the next minor pre-release, and one pinned older minor:
+The CI configuration ([GitHub Actions](.github/workflows/test.yml) and [CircleCI](.circleci/config.yml)) tests the extension against deliberate *role corners* rather than a full cross-product of every PHP and Drupal version. Eight jobs cover the lowest and highest supported PHP on each Drupal major, the next minor pre-release, and one pinned older minor:
 
 | Job | PHP | Drupal | Role |
 |-----|-----|--------|------|
@@ -177,10 +180,12 @@ The CI configuration ([GitHub Actions](.github/workflows/test.yml) and [CircleCI
 | `test-php-max-d10-stable` | `8.4` | `10` | Drupal 10 on the highest supported PHP |
 | `test-php-min-d11-stable` | `8.3` | `11` | Drupal 11 on the lowest supported PHP |
 | `test-php-max-d11-stable` | `8.5` | `11` | Drupal 11 on the highest supported PHP |
+| `test-php-min-d12-stable` | `8.5` | `12@beta` | Drupal 12 on the lowest supported PHP |
+| `test-php-max-d12-stable` | `8.5` | `12@beta` | Drupal 12 on the highest supported PHP |
 | `test-php-min-d11-legacy` | `8.3` | `11.1.0` | Oldest tested Drupal minor (pinned) |
 | `test-php-max-d11-canary` | `8.5` | `11@beta` | Next Drupal minor pre-release |
 
-Each job name encodes the PHP bound (`min`/`max`), the Drupal major (`d10`/`d11`) and the release tier (`stable`/`legacy`/`canary`). The exact PHP version for each job is shown in its "Setup PHP" step.
+Each job name encodes the PHP bound (`min`/`max`), the Drupal major (`d10`/`d11`/`d12`) and the release tier (`stable`/`legacy`/`canary`). The exact PHP version for each job is shown in its "Setup PHP" step.
 
 The two axes behave differently:
 
@@ -188,6 +193,16 @@ The two axes behave differently:
 - **PHP versions are pinned bounds.** Neither provider can float a PHP version - the GitHub Actions setup action and the CircleCI images both take an explicit version - so the `min` and `max` PHP values are fixed. They change rarely: `max` when a newer PHP is added, `min` only when support for an old PHP is dropped.
 
 Because `stable` and `canary` float, the matrix follows Drupal core on its own - a new stable minor or pre-release is picked up on the next CI run with no manual changes. The pinned `legacy` minor and the PHP versions are set-and-forget: they keep exercising the same floor indefinitely, so there is nothing you have to maintain by hand. When you want to move that floor forward as core and PHP advance, re-pull from the scaffold (see [Updating your extension](#updating-your-extension)) - this template tracks the versions Drupal core provides, so updating from it refreshes the `legacy` pin and the PHP versions for you.
+
+#### Drupal 12
+
+Drupal 12 has no stable release yet, so its `stable` jobs ask for `12@beta`. That serves the newest Drupal 12 beta or release candidate today and moves to 12.0.0 on its own once it ships.
+
+Drupal 12 requires PHP 8.5, which is already the matrix ceiling, so both Drupal 12 jobs run PHP 8.5 for now. They split apart as soon as a newer PHP joins the matrix.
+
+Some of the Drupal 12 toolchain is still catching up - Drush, for one, supports Drupal 12 only on its `14.x` development branch. So `.devtools/assemble` resolves Drupal 12 builds with `minimum-stability: dev` and `prefer-stable: true`, the same pairing the [Drupal.org GitLab CI templates](https://www.drupal.org/project/gitlab_templates) use. Every package still lands on its most stable release, and one that supports Drupal 12 only on a development branch installs from that branch instead of failing the build. Core never drops below the stability in `DRUPAL_VERSION`.
+
+Drupal 12 is opt-in when you run `init.php`: only Drupal 11 starts checked.
 
 ### Distributing tools across CI runners
 

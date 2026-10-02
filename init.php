@@ -109,7 +109,7 @@ function main(array $argv): void {
         'Target Drupal versions',
         options: drupal_version_options(),
         default: drupal_version_default(),
-        description: 'CI runs against every selected major. Check any older major you also support.',
+        description: 'CI runs against every selected major. Check any other major you also support.',
       ),
       'command_wrapper' => Prompty::multiselect('Command wrapper', options: [
         'ahoy' => 'Ahoy',
@@ -184,10 +184,9 @@ function main(array $argv): void {
  * Define the selectable Drupal major versions.
  *
  * The canonical list of supported majors, used both to build the 'init'
- * prompt and to prune the CI matrix in 'process()'. Adding a new major here
- * (and wrapping its CI corners in '#;< DRUPAL_<major>' markers, plus bumping
- * the 'DRUPAL_VERSION' default in '.devtools/assemble' to the new highest
- * major) is all that is needed to extend support.
+ * prompt and to prune the CI matrix in 'process()'. Extending support takes
+ * a new entry here and in 'drupal_version_constraints()', plus the major's
+ * CI corners wrapped in '#;< DRUPAL_<major>' markers.
  *
  * @return non-empty-array<int, string>
  *   Map of major version to its human-readable label. PHP casts the
@@ -197,14 +196,35 @@ function drupal_version_options(): array {
   return [
     '10' => 'Drupal 10',
     '11' => 'Drupal 11',
+    '12' => 'Drupal 12',
+  ];
+}
+
+/**
+ * Define the 'DRUPAL_VERSION' value each selectable major assembles with.
+ *
+ * A major with no stable release resolves through its pre-release stability
+ * flag. The local-dev default in '.devtools/assemble' takes the value of the
+ * highest selected major.
+ *
+ * @return non-empty-array<int, string>
+ *   Map of major version to its 'DRUPAL_VERSION' value, keyed like
+ *   'drupal_version_options()'.
+ */
+function drupal_version_constraints(): array {
+  return [
+    '10' => '10',
+    '11' => '11',
+    '12' => '12@beta',
   ];
 }
 
 /**
  * Define the Drupal majors pre-selected in the 'init' prompt.
  *
- * A new extension targets current Drupal, so only the latest major starts
- * checked and older ones are opted into.
+ * A new extension targets current Drupal, so only the newest stable major
+ * starts checked; older majors and a pre-release major are opted into. The
+ * shipped '.devtools/assemble' default builds the highest of these majors.
  *
  * @return non-empty-array<int, string>
  *   The majors to start checked.
@@ -235,7 +255,7 @@ Environment variables (to pre-fill prompts):
   DEX_CI_PROVIDER     CI provider: gha or circleci.
   DEX_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
                       Drupal 11 is targeted by default; CI runs against
-                      every selected major. One or more of: 10, 11.
+                      every selected major. One or more of: 10, 11, 12.
   DEX_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
   DEX_TOOLS           Tools to keep: comma-separated. All are kept by
                       default; list only the ones to keep to drop the rest.
@@ -296,6 +316,16 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($drupal_versions === []) {
     throw new \Exception('At least one Drupal version is required.');
   }
+  // Normalize both sides to strings: PHP casts numeric-string array keys to
+  // integers, so 'array_keys()' returns ints that would never strictly match
+  // the string selection.
+  $supported_majors = array_map(strval(...), array_keys(drupal_version_options()));
+  $selected_majors = array_map(strval(...), $drupal_versions);
+  $unsupported_majors = array_diff($selected_majors, $supported_majors);
+  if ($unsupported_majors !== []) {
+    throw new \Exception(sprintf('Unsupported Drupal version: %s.', implode(', ', $unsupported_majors)));
+  }
+
   // Remove unwanted CI provider.
   if ($ci_provider === 'circleci') {
     remove_dir('.github/workflows');
@@ -307,24 +337,21 @@ function process(string $extension_name, string $extension_machine_name, string 
   // Prune CI matrix corners for deselected Drupal majors. Each major's corners
   // are wrapped in '#;< DRUPAL_<major>' markers across the CI files; removing a
   // major strips those blocks. Markers for kept majors are cleared later by
-  // 'remove_special_comments()'. Normalize both sides to strings: PHP casts
-  // numeric-string array keys to integers, so 'array_keys()' returns ints that
-  // would never strictly match the string selection.
-  $supported_majors = array_map(strval(...), array_keys(drupal_version_options()));
-  $selected_majors = array_map(strval(...), $drupal_versions);
+  // 'remove_special_comments()'.
   foreach ($supported_majors as $major) {
     if (!in_array($major, $selected_majors, TRUE)) {
       remove_tokens_with_content('DRUPAL_' . $major);
     }
   }
 
-  // Narrow the local-dev assemble default to the highest selected major. The
-  // template ships with the default set to the highest supported major, so a
-  // rewrite is only needed when the author drops that major.
-  $highest_supported = (string) max(array_map(intval(...), $supported_majors));
-  $highest_selected = (string) max(array_map(intval(...), $selected_majors));
-  if ($highest_selected !== $highest_supported) {
-    replace_string_content("getenv_default('DRUPAL_VERSION', '" . $highest_supported . "')", "getenv_default('DRUPAL_VERSION', '" . $highest_selected . "')");
+  // Point the local-dev assemble default at the highest selected major. The
+  // template ships it set to the highest pre-selected major, so a rewrite is
+  // only needed when the selection tops out at a different major.
+  $constraints = drupal_version_constraints();
+  $shipped_default = $constraints[max(array_map(intval(...), drupal_version_default()))];
+  $selected_default = $constraints[max(array_map(intval(...), $selected_majors))];
+  if ($selected_default !== $shipped_default) {
+    replace_string_content("getenv_default('DRUPAL_VERSION', '" . $shipped_default . "')", "getenv_default('DRUPAL_VERSION', '" . $selected_default . "')");
   }
 
   // Remove unwanted command wrappers and their wrapper-specific documentation

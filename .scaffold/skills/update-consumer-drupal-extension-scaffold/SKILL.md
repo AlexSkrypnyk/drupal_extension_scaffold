@@ -172,7 +172,7 @@ tracks comes back untouched.
 `ahoy,makefile`), or an empty string for neither.
 
 `<drupal_version>` is a comma-separated list of Drupal majors to target (e.g.
-`11` or `10,11`). `<tools>` is a comma-separated list of the tools to keep -
+`11`, `10,11` or `11,12`). `<tools>` is a comma-separated list of the tools to keep -
 list every tool the project still uses, since anything omitted is removed.
 `<cloudflare>` is `true` or `false`, and keeps or drops the Cloudflare tunnel
 scripts.

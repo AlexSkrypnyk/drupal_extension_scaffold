@@ -37,6 +37,12 @@ jobs:
             drupal-version: 11
 
           #;> DRUPAL_11
+          #;< DRUPAL_12
+          - name: lint-d12
+            php-version: 8.5
+            drupal-version: 12@beta
+
+          #;> DRUPAL_12
     name: ${{ matrix.name }}
 
     env:
@@ -156,6 +162,16 @@ jobs:
             stability: canary
 
           #;> DRUPAL_11
+          #;< DRUPAL_12
+          - name: test-php-min-d12-stable
+            php-version: 8.5
+            drupal-version: 12@beta
+
+          - name: test-php-max-d12-stable
+            php-version: 8.5
+            drupal-version: 12@beta
+
+          #;> DRUPAL_12
     #;< DEV_FUNCTIONAL_JAVASCRIPT
     services:
       chrome:

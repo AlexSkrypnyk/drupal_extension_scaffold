@@ -143,6 +143,19 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
+    yield 'd12_only' => [
+      [
+        'drupal_version' => '12',
+      ],
+    ];
+
+    yield 'circleci_d12_only' => [
+      [
+        'ci_provider' => 'circleci',
+        'drupal_version' => '12',
+      ],
+    ];
+
     yield 'keep_script' => [
       [
         'remove_self' => 'false',
