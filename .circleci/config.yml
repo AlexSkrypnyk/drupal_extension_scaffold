@@ -1,5 +1,5 @@
 # @see https://github.com/AlexSkrypnyk/drupal_extension_scaffold
-version: 2
+version: 2.1
 
 aliases:
   # Default git branch name used for deploying tagged releases.
@@ -311,7 +311,6 @@ jobs:
           command: DEPLOY_BRANCH=${DEPLOY_BRANCH:-${CIRCLE_BRANCH:-${DEFAULT_BRANCH}}} .devtools/deploy
 
 workflows:
-  version: 2
   commit:
     jobs:
       #;< DRUPAL_10
