@@ -20,9 +20,9 @@
         "php": ">=8.3"
     },
     "require-dev": {
-        "drupal/autologout": "^2"
+        "drupal/masquerade": "^2.2"
     },
     "suggest": {
-        "drupal/config_ignore": "Ignore certain configuration during import."
+        "drupal/linkit": "Pick internal and external links in the text editor."
     }
 }
