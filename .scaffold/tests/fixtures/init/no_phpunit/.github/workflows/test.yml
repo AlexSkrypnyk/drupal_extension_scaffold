@@ -1,6 +1,6 @@
 @@ -136,11 +136,6 @@
-             drupal-version: 11@beta
-             stability: canary
+             php-version: 8.5
+             drupal-version: 12@beta
  
 -    services:
 -      chrome:
