@@ -69,6 +69,17 @@ if (is_dir($build_dir)) {
 $drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
 $drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
 
+$minimum_stability = $drupal_version_stability;
+$prefer_stable = $drupal_version_stability === 'stable';
+
+// Drupal 12 and later accept development releases but prefer stable ones, so
+// dependencies supporting the major only on a development branch resolve. The
+// stability flag on the pinned core constraint still sets the floor for core.
+if ((int) $drupal_version_major >= 12) {
+  $minimum_stability = 'dev';
+  $prefer_stable = TRUE;
+}
+
 TASK('Creating Drupal %s project.', $drupal_version);
 passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
 @unlink($build_dir . '/composer.lock');
@@ -93,17 +104,16 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Drupal core packages pinned.');
 
-TASK('Updating stability to %s.', $drupal_version_stability);
+TASK('Updating stability to %s.', $minimum_stability);
 // Do not rely on the values coming from the scaffold and always set them.
-$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "' . $drupal_version_stability . '"');
+$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "' . $minimum_stability . '"');
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'minimum-stability')) {
     NOTE(trim($line));
   }
 }
 
-$drupal_version_prefer_stable = $drupal_version_stability !== 'stable' ? 'false' : 'true';
-$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: ' . $drupal_version_prefer_stable);
+$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: ' . ($prefer_stable ? 'true' : 'false'));
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'prefer-stable')) {
     NOTE(trim($line));
@@ -123,6 +133,11 @@ $build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_maj
 // constants removed in __VERSION__. Constrained per-build so the extension's own
 // dependencies carry no upper bound.
 $build_json['require-dev']['rector/rector'] = (int) $drupal_version_major < 11 ? '^2 <__VERSION__' : '^2 <__VERSION__';
+// Drupal 12 core requires a 'sebastian/diff' that only PHPUnit 12 accepts.
+// 'composer.dev.json' stops at PHPUnit 11, which Drupal 11 is tested with.
+if ((int) $drupal_version_major >= 12) {
+  $build_json['require-dev']['phpunit/phpunit'] = '^12';
+}
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
