@@ -29,7 +29,7 @@
  - `build/` - Assembled Drupal codebase (symlinked extension)
  - `.devtools/` - Build and deployment scripts used by CI
 @@ -83,8 +75,6 @@
- - `DRUPAL_VERSION` - Target Drupal version (e.g., `11`, `11@alpha`, `12@beta`)
+ - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`, `12@beta`)
  - `WEBSERVER_HOST` - Development server host (default: localhost)
  - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 -- `WEBDRIVER_BACKEND` - FunctionalJavascript WebDriver backend: `chromedriver` (default, drives the locally installed Chrome with no Docker) or `selenium` (Docker container)

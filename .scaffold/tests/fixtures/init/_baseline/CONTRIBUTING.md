@@ -44,6 +44,7 @@ variable before running the `make build` or `ahoy build` command:
 ```bash
 DRUPAL_VERSION=11 make build        # Drupal 11
 DRUPAL_VERSION=11@alpha make build  # Drupal 11 alpha
+DRUPAL_VERSION=10@beta make build   # Drupal 10 beta
 DRUPAL_VERSION=11.1 make build      # Drupal 11.1
 DRUPAL_VERSION=12@beta make build   # Drupal 12 beta
 ```

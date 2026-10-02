@@ -1,4 +1,4 @@
-@@ -111,12 +111,6 @@
+@@ -112,12 +112,6 @@
  
  The `make lint` or `ahoy lint` command checks the codebase using multiple
  tools:
@@ -11,7 +11,7 @@
  
  The configuration files for these tools are located in the root of the codebase.
  
-@@ -129,76 +123,3 @@
+@@ -130,76 +124,3 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.

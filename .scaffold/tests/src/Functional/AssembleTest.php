@@ -37,7 +37,7 @@ final class AssembleTest extends DevtoolsTestCase {
 
   public static function dataProviderAssemble(): \Iterator {
     yield ['', 'Creating Drupal 11 project'];
-    yield ['11.1', 'Creating Drupal 11.1 project'];
+    yield ['10', 'Creating Drupal 10 project'];
   }
 
 }

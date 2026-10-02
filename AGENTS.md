@@ -185,7 +185,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 ## Environment Variables
 
-- `DRUPAL_VERSION` - Target Drupal version (e.g., `11`, `11@alpha`, `12@beta`)
+- `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`, `12@beta`)
 - `WEBSERVER_HOST` - Development server host (default: localhost)
 - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
@@ -226,7 +226,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 - **GitHub Actions**: `.github/workflows/test.yml` and deployment
 - **CircleCI**: `.circleci/config.yml` configuration
-- **Matrix testing**: PHP 8.3-8.5, Drupal 11-12
+- **Matrix testing**: PHP 8.3-8.5, Drupal 10-12
 - **Automated deployment**: Mirror to Drupal.org on release
 
 ## Important Notes

@@ -150,6 +150,32 @@ job-test: &job-test
           fi
 
 jobs:
+  lint-d10:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-lint
+
+  test-php-min-d10-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-test
+
+  test-php-max-d10-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:__VERSION__
+      - *selenium_image
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-test
+
   lint-d11:
     <<: *container_config
     docker:
@@ -194,32 +220,6 @@ jobs:
       DRUPAL_VERSION: 11@beta
     <<: *job-test
 
-  lint-d12:
-    <<: *container_config
-    docker:
-      - image: cimg/php:__VERSION__
-    environment:
-      DRUPAL_VERSION: 12@beta
-    <<: *job-lint
-
-  test-php-min-d12-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:__VERSION__
-      - *selenium_image
-    environment:
-      DRUPAL_VERSION: 12@beta
-    <<: *job-test
-
-  test-php-max-d12-stable:
-    <<: *container_config
-    docker:
-      - image: cimg/php:__VERSION__
-      - *selenium_image
-    environment:
-      DRUPAL_VERSION: 12@beta
-    <<: *job-test
-
   deploy:
     <<: *container_config
 
@@ -241,6 +241,18 @@ jobs:
 workflows:
   commit:
     jobs:
+      - lint-d10:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-min-d10-stable:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-max-d10-stable:
+          filters:
+            tags:
+              only: /.*/
       - lint-d11:
           filters:
             tags:
@@ -261,28 +273,16 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - lint-d12:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-min-d12-stable:
-          filters:
-            tags:
-              only: /.*/
-      - test-php-max-d12-stable:
-          filters:
-            tags:
-              only: /.*/
       - deploy:
           requires:
+            - lint-d10
+            - test-php-min-d10-stable
+            - test-php-max-d10-stable
             - lint-d11
             - test-php-min-d11-stable
             - test-php-max-d11-stable
             - test-php-min-d11-legacy
             - test-php-max-d11-canary
-            - lint-d12
-            - test-php-min-d12-stable
-            - test-php-max-d12-stable
           filters:
             tags:
               only: /.*/

@@ -174,6 +174,38 @@ job-test: &job-test
     #;> DEV_PHPUNIT
 
 jobs:
+  #;< DRUPAL_10
+  lint-d10:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.4-browsers
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-lint
+
+  test-php-min-d10-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.3-browsers
+      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - *selenium_image
+      #;> DEV_FUNCTIONAL_JAVASCRIPT
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-test
+
+  test-php-max-d10-stable:
+    <<: *container_config
+    docker:
+      - image: cimg/php:8.4-browsers
+      #;< DEV_FUNCTIONAL_JAVASCRIPT
+      - *selenium_image
+      #;> DEV_FUNCTIONAL_JAVASCRIPT
+    environment:
+      DRUPAL_VERSION: 10
+    <<: *job-test
+
+  #;> DRUPAL_10
   #;< DRUPAL_11
   lint-d11:
     <<: *container_config
@@ -281,6 +313,20 @@ jobs:
 workflows:
   commit:
     jobs:
+      #;< DRUPAL_10
+      - lint-d10:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-min-d10-stable:
+          filters:
+            tags:
+              only: /.*/
+      - test-php-max-d10-stable:
+          filters:
+            tags:
+              only: /.*/
+      #;> DRUPAL_10
       #;< DRUPAL_11
       - lint-d11:
           filters:
@@ -319,6 +365,11 @@ workflows:
       #;> DRUPAL_12
       - deploy:
           requires:
+            #;< DRUPAL_10
+            - lint-d10
+            - test-php-min-d10-stable
+            - test-php-max-d10-stable
+            #;> DRUPAL_10
             #;< DRUPAL_11
             - lint-d11
             - test-php-min-d11-stable

@@ -41,8 +41,8 @@
    test:
      runs-on: ubuntu-26.04
 @@ -136,11 +112,6 @@
-             php-version: 8.5
-             drupal-version: 12@beta
+             drupal-version: 11@beta
+             stability: canary
  
 -    services:
 -      chrome:

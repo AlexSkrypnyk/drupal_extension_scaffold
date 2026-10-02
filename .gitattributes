@@ -44,6 +44,7 @@
 # phpstan.neon       export-ignore
 #;> DEV_PHPSTAN
 #;< DEV_PHPUNIT
+# phpunit.d10.xml    export-ignore
 # phpunit.xml        export-ignore
 #;> DEV_PHPUNIT
 #;< DEV_RECTOR

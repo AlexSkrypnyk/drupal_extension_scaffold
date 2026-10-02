@@ -2,7 +2,7 @@ name: Your Extension
 type: module
 description: Drupal extension scaffold example.
 package: Testing
-core_version_requirement: ^11 || ^12
+core_version_requirement: ^10 || ^11 || ^12
 
 dependencies:
   - drupal:config

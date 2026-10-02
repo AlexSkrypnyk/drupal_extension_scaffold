@@ -141,7 +141,7 @@ final class InitHelpersTest extends UnitTestCase {
       $checked[(string) $key] = in_array((string) $key, $default, TRUE);
     }
 
-    $this->assertSame(['11' => TRUE, '12' => FALSE], $checked);
+    $this->assertSame(['10' => FALSE, '11' => TRUE, '12' => FALSE], $checked);
   }
 
   /**
@@ -547,17 +547,16 @@ final class InitHelpersTest extends UnitTestCase {
   }
 
   public static function dataProviderProcessValidation(): \Iterator {
-    yield 'empty name' => ['', 'machine', 'module', 'gha', ['11', '12'], ['ahoy'], 'Name is required.'];
-    yield 'empty machine name' => ['Name', '', 'module', 'gha', ['11', '12'], ['ahoy'], 'Machine name is required.'];
-    yield 'machine name with hyphen' => ['Name', 'my-name', 'module', 'gha', ['11', '12'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name with uppercase' => ['Name', 'MyName', 'module', 'gha', ['11', '12'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name starting with digit' => ['Name', '1name', 'module', 'gha', ['11', '12'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name with special char' => ['Name', 'name!', 'module', 'gha', ['11', '12'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'empty type' => ['Name', 'machine', '', 'gha', ['11', '12'], ['ahoy'], 'Type is required.'];
-    yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['11', '12'], ['ahoy'], 'CI provider is required.'];
+    yield 'empty name' => ['', 'machine', 'module', 'gha', ['10', '11'], ['ahoy'], 'Name is required.'];
+    yield 'empty machine name' => ['Name', '', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name is required.'];
+    yield 'machine name with hyphen' => ['Name', 'my-name', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with uppercase' => ['Name', 'MyName', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name starting with digit' => ['Name', '1name', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with special char' => ['Name', 'name!', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'empty type' => ['Name', 'machine', '', 'gha', ['10', '11'], ['ahoy'], 'Type is required.'];
+    yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['10', '11'], ['ahoy'], 'CI provider is required.'];
     yield 'empty drupal versions' => ['Name', 'machine', 'module', 'gha', [], ['ahoy'], 'At least one Drupal version is required.'];
     yield 'unsupported drupal version' => ['Name', 'machine', 'module', 'gha', ['11', '9'], ['ahoy'], 'Unsupported Drupal version: 9.'];
-    yield 'drupal 10' => ['Name', 'machine', 'module', 'gha', ['10', '11'], ['ahoy'], 'Unsupported Drupal version: 10.'];
     yield 'unsupported drupal versions' => ['Name', 'machine', 'module', 'gha', ['9', '13'], ['ahoy'], 'Unsupported Drupal version: 9, 13.'];
   }
 

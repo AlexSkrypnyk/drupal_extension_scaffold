@@ -35,5 +35,12 @@ parameters:
         - '#.* no value type specified in iterable type array#'
         - '#.* has no return type specified#'
       reportUnmatched: false
+    -
+      # PHP resolves attribute classes lazily and PHPUnit 9.6 reads doc-comment
+      # metadata, so these are inert rather than broken on a Drupal 10 build.
+      # Rector writes them from the Drupal 11 set.
+      messages:
+        - '#^Attribute class PHPUnit\\Framework\\Attributes\\.+ does not exist\.$#'
+      reportUnmatched: false
 
   reportUnmatchedIgnoredErrors: false

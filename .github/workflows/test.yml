@@ -25,6 +25,12 @@ jobs:
 
       matrix:
         include:
+          #;< DRUPAL_10
+          - name: lint-d10
+            php-version: 8.4
+            drupal-version: 10
+
+          #;> DRUPAL_10
           #;< DRUPAL_11
           - name: lint-d11
             php-version: 8.5
@@ -127,6 +133,16 @@ jobs:
 
       matrix:
         include:
+          #;< DRUPAL_10
+          - name: test-php-min-d10-stable
+            php-version: 8.3
+            drupal-version: 10
+
+          - name: test-php-max-d10-stable
+            php-version: 8.4
+            drupal-version: 10
+
+          #;> DRUPAL_10
           #;< DRUPAL_11
           - name: test-php-min-d11-stable
             php-version: 8.3
@@ -209,7 +225,7 @@ jobs:
           coverage: pcov
 
       # Disable Symfony deprecations helper for PHP 8.4+ until minor
-      # versions of Drupal 11 and 12 fully support newer PHP versions.
+      # versions of Drupal 10 and 11 fully support newer PHP versions.
       # @see https://www.drupal.org/project/drupal/issues/1267246
       - name: Update SYMFONY_DEPRECATIONS_HELPER for PHP 8.4+
         run: |
