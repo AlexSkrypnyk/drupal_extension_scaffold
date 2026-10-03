@@ -16,7 +16,7 @@
          cacheResult="false"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
     <php>
-        <!-- Set error reporting to E_ALL && ~E_DEPRECATED. -->
+        <!-- Set error reporting to E_ALL & ~E_DEPRECATED. -->
         <ini name="error_reporting" value="24575"/>
         <!-- Do not limit the amount of memory tests take to run. -->
         <ini name="memory_limit" value="-1"/>

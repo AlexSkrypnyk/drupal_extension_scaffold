@@ -286,7 +286,8 @@ PASS("Extension's code symlinked.");
 // Install front-end dependencies and run the build in the build directory.
 // The extension's source files are available via symlink at this point.
 // Add a .skip_npm_build file to the project root to skip this step, which
-// will also disable JS/CSS linting (ESLint, Stylelint, Prettier).
+// will also disable JS/CSS linting (ESLint, Stylelint, Prettier) and the Jest
+// tests.
 if (file_exists($build_dir . '/package-lock.json') && !file_exists('.skip_npm_build')) {
   TASK('Processing front-end dependencies.');
 

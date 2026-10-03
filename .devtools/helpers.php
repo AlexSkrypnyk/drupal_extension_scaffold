@@ -201,7 +201,7 @@ function dotenv_write_var(string $key, string $value, string $dotenv_file = '.en
  *   Value to return when neither env nor the dotenv file provides a
  *   non-empty value. May be an empty string when callers want to
  *   detect that case and apply their own fallback (for example,
- *   start's auto-discovery branch).
+ *   resolve_port_value() when auto-discovery is requested).
  * @param string $dotenv_file
  *   Path to the dotenv file to consult.
  *

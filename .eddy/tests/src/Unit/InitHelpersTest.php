@@ -94,8 +94,8 @@ final class InitHelpersTest extends UnitTestCase {
 
   public function testIsBinaryFileMissing(): void {
     // The defensive 'fopen() === FALSE' branch is unreachable from production
-    // code (callers always pass paths returned by 'get_files()'), so 'fopen()'
-    // is allowed to warn. Suppress 'E_WARNING' so PHPUnit's
+    // code (the only caller, 'get_files()', passes files it has just found), so
+    // 'fopen()' is allowed to warn. Suppress 'E_WARNING' so PHPUnit's
     // 'failOnWarning' does not abort the test.
     set_error_handler(static fn(): bool => TRUE, E_WARNING);
     try {
@@ -125,7 +125,7 @@ final class InitHelpersTest extends UnitTestCase {
   }
 
   /**
-   * The Drupal version prompt starts with the latest major checked.
+   * The Drupal version prompt starts with the newest stable major checked.
    *
    * The loop mirrors how the multiselect decides which options render checked.
    * Each option key is compared strictly against the default list, both

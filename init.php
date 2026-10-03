@@ -1126,7 +1126,7 @@ function remove_tokens_with_content(string $token): void {
 }
 
 /**
- * Uncomment a line in a file by removing the "# " prefix.
+ * Uncomment every line in a file that starts with "# " and the given string.
  *
  * @param string $file
  *   The file to modify.

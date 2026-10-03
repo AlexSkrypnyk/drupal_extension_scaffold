@@ -184,8 +184,7 @@ final class DeployWorkflowBranchTest extends UnitTestCase {
     return match ($name) {
       'tagged' => $this->git($repository, ['rev-parse', self::DEFAULT_BRANCH . '~1']),
       'tip' => $this->git($repository, ['rev-parse', self::DEFAULT_BRANCH]),
-      // A commit the deploy clone does not hold, as happens for a run
-      // triggered from a fork.
+      // A commit the deploy clone does not hold.
       'unknown' => str_repeat('0', 40),
       default => self::fail(sprintf('Unknown commit "%s".', $name)),
     };

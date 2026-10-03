@@ -437,8 +437,8 @@ final class InfoTest extends UnitTestCase {
   }
 
   public function testInfoFieldModeBypassedForFlagLikeArg(): void {
-    // PHPUnit may pass its own argv (e.g. '--no-coverage') through to the
-    // included script. Args starting with '-' must not trigger field mode.
+    // Arguments starting with '-' are flags, not field names, so they must not
+    // trigger field mode.
     $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
       files: [],

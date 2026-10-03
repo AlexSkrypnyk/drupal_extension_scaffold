@@ -187,10 +187,6 @@ final class AssembleTest extends UnitTestCase {
       if ($path === 'build/web/modules/custom' || $path === 'build/web/themes/custom') {
         return FALSE;
       }
-      if (str_contains($path, '/custom')) {
-        // The symlink section calls remove_dir() on the custom directory.
-        return TRUE;
-      }
       if ($path === 'build/node_modules') {
         return $config['has_node_modules'];
       }
@@ -313,8 +309,8 @@ final class AssembleTest extends UnitTestCase {
 
     $config = $this->setupAssembleMocks($config);
 
-    // Create real directories for functions that use RecursiveDirectoryIterator
-    // and cannot be mocked (copy_dir, remove_dir, chmod_recursive).
+    // Create a real 'patches' directory for copy_dir(), which uses
+    // RecursiveDirectoryIterator and cannot be mocked.
     $temp_dirs = [];
     if ($config['has_patches'] ?? FALSE) {
       @mkdir('patches');

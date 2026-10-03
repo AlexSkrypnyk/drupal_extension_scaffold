@@ -241,7 +241,7 @@ trait MockTrait {
    * Mock single passthru call.
    *
    * @param array{cmd:string, output?: string, result_code?: int, return?: NULL|FALSE} $response
-   *   Response with output and exit_code.
+   *   Response with output and result_code.
    * @param string $namespace
    *   Namespace to mock the functions in.
    */
@@ -270,7 +270,10 @@ trait MockTrait {
   }
 
   /**
-   * Mock quit() function to throw QuitErrorException instead of terminating.
+   * Mock quit() to throw an exception instead of terminating.
+   *
+   * A non-zero code throws QuitErrorException, and 0 throws
+   * QuitSuccessException.
    *
    * @param int $code
    *   Exit code to expect (0 for success, non-zero for error).

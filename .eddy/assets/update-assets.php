@@ -8,9 +8,8 @@
  * Records terminal sessions for init, build, lint, and test commands,
  * then converts the recordings to animated SVGs for use in README.md.
  *
- * Supports parallel execution: when run without arguments, the lint and
- * test recordings are launched as parallel worker processes for faster
- * generation.
+ * Supports parallel execution: the lint and test recordings are launched as
+ * parallel worker processes for faster generation.
  *
  * Init and build run sequentially (init initialises the workspace, build
  * assembles the Drupal codebase), then lint and test run in parallel on
