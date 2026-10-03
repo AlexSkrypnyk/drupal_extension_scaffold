@@ -115,13 +115,13 @@ final class InitHelpersTest extends UnitTestCase {
     $this->assertStringContainsString('Usage:', $output);
     $this->assertStringContainsString('init.php', $output);
     $this->assertStringContainsString('--help', $output);
-    $this->assertStringContainsString('DEX_NAME', $output);
-    $this->assertStringContainsString('DEX_MACHINE_NAME', $output);
-    $this->assertStringContainsString('DEX_TYPE', $output);
-    $this->assertStringContainsString('DEX_COMMAND_WRAPPER', $output);
-    $this->assertStringContainsString('DEX_EXAMPLES', $output);
-    $this->assertStringContainsString('DEX_REMOVE_SELF', $output);
-    $this->assertStringContainsString('DEX_PROCEED', $output);
+    $this->assertStringContainsString('EDDY_NAME', $output);
+    $this->assertStringContainsString('EDDY_MACHINE_NAME', $output);
+    $this->assertStringContainsString('EDDY_TYPE', $output);
+    $this->assertStringContainsString('EDDY_COMMAND_WRAPPER', $output);
+    $this->assertStringContainsString('EDDY_EXAMPLES', $output);
+    $this->assertStringContainsString('EDDY_REMOVE_SELF', $output);
+    $this->assertStringContainsString('EDDY_PROCEED', $output);
   }
 
   /**

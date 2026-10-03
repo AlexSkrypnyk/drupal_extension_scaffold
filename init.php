@@ -8,8 +8,8 @@
  * Environment variables:
  * - SCRIPT_RUN_SKIP: Set to '1' to skip running of the script. Useful when
  *   unit-testing or requiring this file from other files.
- * - DEX_*: Set environment variables to pre-fill prompts
- *   (e.g. DEX_NAME, DEX_TYPE, DEX_DRUPAL_VERSION).
+ * - EDDY_*: Set environment variables to pre-fill prompts
+ *   (e.g. EDDY_NAME, EDDY_TYPE, EDDY_DRUPAL_VERSION).
  *
  * Usage:
  * @code
@@ -141,7 +141,7 @@ function main(array $argv): void {
     ),
     cancelled: 'Cancelled.',
     numbering: TRUE,
-    env_prefix: 'DEX_',
+    env_prefix: 'EDDY_',
   );
 
   if ($results === NULL || !($results['proceed'] ?? FALSE)) {
@@ -224,23 +224,23 @@ Options:
   --help                This help.
 
 Environment variables (to pre-fill prompts):
-  DEX_NAME            Extension name.
-  DEX_MACHINE_NAME    Extension machine name.
-  DEX_TYPE            Extension type: module or theme.
-  DEX_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
-                      Drupal 11 is targeted by default; CI runs against
-                      every selected major. One or more of: 10, 11, 12.
-  DEX_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
-  DEX_TOOLS           Tools to keep: comma-separated. All are kept by
-                      default; list only the ones to keep to drop the rest.
-                      One or more of: phpcs, phpstan, rector, twigcs, eslint,
-                      stylelint, cspell, jest, phpunit, functional_javascript,
-                      renovate.
-  DEX_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
-  DEX_EXAMPLES        Keep example lifecycle scripts: true or false. They
-                      are removed by default.
-  DEX_REMOVE_SELF     Remove this script: true or false.
-  DEX_PROCEED         Proceed with init: true or false.
+  EDDY_NAME            Extension name.
+  EDDY_MACHINE_NAME    Extension machine name.
+  EDDY_TYPE            Extension type: module or theme.
+  EDDY_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
+                       Drupal 11 is targeted by default; CI runs against
+                       every selected major. One or more of: 10, 11, 12.
+  EDDY_COMMAND_WRAPPER Command wrapper: ahoy, makefile, or both (comma-separated).
+  EDDY_TOOLS           Tools to keep: comma-separated. All are kept by
+                       default; list only the ones to keep to drop the rest.
+                       One or more of: phpcs, phpstan, rector, twigcs, eslint,
+                       stylelint, cspell, jest, phpunit, functional_javascript,
+                       renovate.
+  EDDY_CLOUDFLARE      Keep Cloudflare tunnel support: true or false.
+  EDDY_EXAMPLES        Keep example lifecycle scripts: true or false. They
+                       are removed by default.
+  EDDY_REMOVE_SELF     Remove this script: true or false.
+  EDDY_PROCEED         Proceed with init: true or false.
 
 EOF;
   print $out;
