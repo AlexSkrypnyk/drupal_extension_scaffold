@@ -753,11 +753,9 @@ function drush(string $command, mixed $args = NULL, ?int &$exit_code = NULL): st
   }
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    // Surface the captured output on a quiet run so the failure is diagnosable;
-    // in debug mode it already streamed live.
-    if (!is_debug()) {
-      echo $output;
-    }
+    // Surface the captured output so the failure is diagnosable. In debug mode
+    // it holds only stdout, because stderr already streamed live.
+    echo $output;
 
     FAIL('Drush command failed: %s', $command);
   }
