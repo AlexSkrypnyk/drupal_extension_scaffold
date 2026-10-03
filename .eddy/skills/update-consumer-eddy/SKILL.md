@@ -45,7 +45,10 @@ Read the project to determine the init.php answers:
 2. **Machine name**: The `*.info.yml` filename without extension.
 3. **Type**: `module` or `theme` - from the `type` field in `*.info.yml`.
 4. **CI provider**: `gha` if `.github/workflows/` exists, `circleci` if `.circleci/` exists.
-5. **Command wrapper**: `ahoy` if `.ahoy.yml` exists, `makefile` if only `Makefile` exists, `none` otherwise.
+5. **Command wrapper**: `ahoy` if `.ahoy.yml` exists and `makefile` if `Makefile` exists - `ahoy,makefile` when both exist, and an empty string when neither does.
+6. **Drupal versions**: the Drupal majors in the CI matrix - the `drupal-version` values in `.github/workflows/test.yml` or the `DRUPAL_VERSION` values in `.circleci/config.yml` - as a comma-separated list (e.g. `10,11`).
+7. **Tools**: every tool whose file still exists - `phpcs` (`phpcs.xml`), `phpstan` (`phpstan.neon`), `rector` (`rector.php`), `twigcs` (`.twig-cs-fixer.php`), `eslint` (`.eslintrc.json`), `stylelint` (`.stylelintrc.js`), `cspell` (`.cspell.json`), `jest` (`jest.config.js`), `phpunit` (`phpunit.xml`), `functional_javascript` (`.devtools/browser`) and `renovate` (`renovate.json`).
+8. **Cloudflare**: `true` if `scripts/start-cloudflared.sh` exists, `false` otherwise.
 
 Also detect the **default branch** of the repository (not the current checkout):
 
@@ -218,7 +221,7 @@ Use `git diff` and `git status` to review all changes. Pay attention to:
 - **Removed files**: If `git status` shows deleted files that were old scaffold infrastructure (e.g., `phpmd.xml`), confirm they are intentionally removed in the new scaffold version.
 - **New files**: Review any new files from the scaffold to ensure they are infrastructure, not placeholder stubs. Anything the example extension missed in Step 8 - a generic service class, form class or test stub - is removed here, under the same guard: untracked only, and only when the file is demonstrably scaffold boilerplate rather than project code.
 
-### README.md handling
+### README.md and CONTRIBUTING.md handling
 
 The `README.md` must follow the scaffold template structure exactly. Do NOT simply patch path references - instead, rebuild it from the scaffold's `README.md` template:
 
@@ -227,9 +230,9 @@ The `README.md` must follow the scaffold template structure exactly. Do NOT simp
    - Badge URLs (GitHub org/repo).
    - Logo URL or image.
    - Project title/description (from `*.info.yml` and existing README).
-3. Insert project-specific content sections (e.g., "Use case", "How it works", "Installation") between the header and the "Local development" section.
-4. Keep all scaffold development sections verbatim (Local development, Building website, Drupal versions, Coding standards, Testing, etc.).
-5. Adjust command references to match the chosen command wrapper (e.g., remove `make` references if the project uses `ahoy` only, or vice versa).
+3. Insert project-specific content sections (e.g., "Use case", "How it works", "Installation") between the header and the "Contributing" section.
+4. Keep the scaffold's development sections verbatim. They live in `CONTRIBUTING.md` (Local development, Building website, Drupal versions, Coding standards, Testing), which `init.php` regenerates from the scaffold: carry over any project-specific notes from the previous version (`git show HEAD:CONTRIBUTING.md`).
+5. Adjust command references in `CONTRIBUTING.md` to match the chosen command wrapper (e.g., remove `make` references if the project uses `ahoy` only, or vice versa).
 6. Remove badges for tools not used (e.g., CircleCI badge if using GHA).
 7. Fix the Eddy link at the bottom to point to the Eddy repo, not the project repo.
 

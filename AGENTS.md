@@ -87,7 +87,9 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 - `ahoy build` - Complete build process
 - `ahoy assemble` - Assemble codebase
 - `ahoy start` - Start development server
+- `ahoy stop` - Stop development server
 - `ahoy provision` - Provision Drupal site
+- `ahoy reset` - Clean build directory and logs (aliases: `ahoy delete`, `ahoy destroy`)
 <!-- #;> DEV_AHOY -->
 
 ### Code Quality
@@ -226,7 +228,7 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 - **GitHub Actions**: `.github/workflows/test.yml` and deployment
 - **Matrix testing**: PHP 8.3-8.5, Drupal 10-12
-- **Automated deployment**: Mirror to Drupal.org on release
+- **Automated deployment**: Mirror to Drupal.org after CI passes
 
 ## Important Notes
 

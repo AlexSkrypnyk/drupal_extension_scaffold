@@ -9,6 +9,7 @@ This file documents how to regenerate the scaffold's own artefacts (animated REA
 - `.eddy/assets/` - Source files for animated SVG demos used in the root `README.md` (`init.svg`, `build.svg`, `lint.svg`, `test.svg`) plus the `update-assets.php` generator and a small `svg-term` Node wrapper.
 - `.eddy/tests/` - PHPUnit suite that validates the scaffold itself: the `init.php` interactive flow, the `.devtools/*` PHP helpers, and the resulting project structure. Snapshots live under `.eddy/tests/fixtures/init/`.
 - `.eddy/skills/update-consumer-eddy/` - the update skill that consumer projects fetch through the "Updating the scaffold" section of their `AGENTS.md`.
+
 ## Test groups
 
 PHPUnit tests are tagged with `#[Group('p0'..'p5')]` so CI can shard them across parallel jobs:
@@ -24,7 +25,7 @@ PHPUnit tests are tagged with `#[Group('p0'..'p5')]` so CI can shard them across
 
 ## Running the tests
 
-All commands run from `.eddy/tests/`. Install dependencies once with `composer --working-dir=.eddy/tests install`.
+All commands run from the repository root. Install dependencies once with `composer --working-dir=.eddy/tests install`.
 
 | Action                        | Command                                                          |
 |-------------------------------|------------------------------------------------------------------|
@@ -35,7 +36,7 @@ All commands run from `.eddy/tests/`. Install dependencies once with `composer -
 | Lint (phpcs, phpstan, rector) | `composer --working-dir=.eddy/tests lint`                        |
 | Lint autofix                  | `composer --working-dir=.eddy/tests lint-fix`                    |
 
-`p2`-`p5` exercise the full build pipeline and need a Drupal-friendly PHP setup; `p3` additionally needs Selenium. These are the same jobs the GitHub Actions matrix runs (`.github/workflows/scaffold-test.yml`).
+`p2`-`p5` exercise the full build pipeline and need a Drupal-friendly PHP setup; `p3` and `p4` also need a WebDriver backend: a Selenium container or a local Chrome driven by chromedriver. These are the same jobs the GitHub Actions matrix runs (`.github/workflows/scaffold-test.yml`).
 
 ## Regenerating snapshot fixtures
 
@@ -89,4 +90,4 @@ Set `SCRIPT_QUIET=1` to suppress verbose progress messages. To record a single a
 
 ## CI
 
-`.github/workflows/scaffold-test.yml` runs the suite across the `p0`-`p5` groups and validates `composer.json` (validate + normalize) plus the PHP lint step in `p0`. A second job (`scaffold-test-actions`) lints the workflow YAML with `yamllint` and `actionlint`.
+`.github/workflows/scaffold-test.yml` runs the suite across the `p0`-`p5` groups on Ubuntu and macOS, runs `p3` and `p4` once per WebDriver backend (Selenium on Ubuntu only, chromedriver on both), and validates `composer.json` (validate + normalize) plus the PHP lint step in `p0`. A second job (`scaffold-test-actions`) lints the workflow YAML with `yamllint` and `actionlint` and checks it for security issues with Zizmor.

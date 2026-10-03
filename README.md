@@ -4,7 +4,7 @@
 </p>
 
 <h1 align="center">Eddy</h1>
-<h3 align="center">Drupal extension scaffold</h3>
+<h3 align="center">Template for contributed Drupal modules and themes</h3>
 
 <div align="center">
 
@@ -26,11 +26,9 @@
 
 ---
 
-**Eddy** is a template for a contributed Drupal module or theme, with CI and mirroring to Drupal.org. It's the little brother of [Vortex](https://github.com/drevops/vortex), the Drupal project template: Vortex sets up a whole site, and Eddy sets up the modules and themes that go into one. The name says as much - an eddy is a small vortex, the calm water behind a rock where a kayaker pulls in to rest.
+**Eddy** is a template for maintaining a contributed Drupal module or theme on GitHub. Start your extension from it and you get CI on GitHub Actions, a local Drupal site to develop and test against, coding standards checks, and mirroring of the code to [Drupal.org](https://drupal.org).
 
-## Use case
-
-Develop a module or theme on GitHub, test it using GitHub Actions, and push the code to [Drupal.org](https://drupal.org).
+Eddy isn't for building websites. To stand up a Drupal site, use [Vortex](https://github.com/drevops/vortex) instead. The two are separate templates for separate jobs: Vortex builds consumer websites, Eddy maintains contributed modules and themes, and a repository uses one or the other, never both.
 
 ## Index
 
@@ -62,30 +60,31 @@ Develop a module or theme on GitHub, test it using GitHub Actions, and push the 
   - Additional dependencies can be added for integration testing between extensions: add dependencies into `suggest` section of `composer.json` and they will be included into the assembled codebase.
   - Patches can be applied to the dependencies: add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
   - Command wrappers using `make` and [Ahoy](https://github.com/ahoy-cli/ahoy) for common tasks.
-- Codings standards checking:
+- Coding standards checking:
   - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
-  - PHP code static analysis with PHPStan ( including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
+  - PHP code static analysis with PHPStan (including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
   - PHP deprecated code analysis and auto-fixing with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
   - Twig code analysis with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
   - JavaScript code analysis with [ESLint](https://eslint.org/).
   - CSS code analysis with [Stylelint](https://stylelint.io/).
   - Spell checking with [CSpell](https://cspell.org/).
   - Code formatting with [Prettier](https://prettier.io/).
-- PHPUnit testing support
-- [Renovate](#renovate) configuration to keep dependencies up-to-date with a single grouped PR.
-- [README.md](README.dist.md) template
+- PHPUnit tests: Unit, Kernel, Functional and FunctionalJavascript (in a local Chrome or a Selenium container).
+- JavaScript unit tests with [Jest](https://jestjs.io/).
+- [Renovate](#renovate) configuration to keep dependencies up-to-date with grouped PRs.
+- [README.md](README.dist.md) and [CONTRIBUTING.md](CONTRIBUTING.dist.md) templates for your extension.
 - Deployment:
-  - Mirroring of the repo to Drupal.org (or any other git repo) on release.
+  - Mirroring of the repo to Drupal.org (or any other git repo) after CI passes.
   - Deploy to a destination branch different from the source branch.
   - Tags mirroring.
-- This template is tested in the same way as a project using it. See an example of the deployment destination repository for [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
+- This template is tested in the same way as a project using it. See an example of the deployment destination repository for [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github).
 
 ## Setup overview
 
-1. Download this extension's code by pressing 'Clone or download' button in GitHub UI.
+1. Download this template's code with **Code** -> **Download ZIP** in the GitHub UI.
 2. Expand into a new directory.
 3. Run the initial [codebase setup](#codebase-setup) script: `php init.php`.
-4. If you already have an existing extension code, copy it into the directory created in step 2.
+4. If you already have existing extension code, copy it into the directory created in step 2.
 5. [Build website](#building-website) with `make build` or `ahoy build` to check that everything is set up correctly.
 6. [Check coding standards](#coding-standards) with `make lint` or `ahoy lint`.
 7. [Run tests](#testing) with `make test` or `ahoy test`.
@@ -98,7 +97,7 @@ See the sections below for more details.
 
 ## Codebase setup
 
-The initial codebase setup script `php init.php` will ask you for some information and update the codebase to reflect your extension's name and other details.
+The initial codebase setup script `php init.php` will ask you for some information and update the codebase to reflect your extension's name and other details. It asks for the extension name, machine name and type, the Drupal versions to target, the command wrapper, the tools to keep, and whether to keep the Cloudflare tunnel and example lifecycle scripts. Each answer can be pre-filled with a `DEX_*` environment variable for an unattended run - `php init.php --help` lists them.
 
 ![Init process](.eddy/assets/init.svg)
 
@@ -121,21 +120,28 @@ ahoy provision    # Provision the Drupal website
 
 The `provision` command is useful for re-installing the Drupal website without re-assembling the codebase.
 
-See [README.md](README.dist.md) for more development commands.
+Your extension documents the same commands for its own contributors in [CONTRIBUTING.md](CONTRIBUTING.dist.md).
 
 ![Build process](.eddy/assets/build.svg)
 
 ### Drupal versions
 
-The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to the latest stable version.
+The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to `11`, the newest stable Drupal 11 release. `init.php` changes that default to the highest Drupal major you select.
 
 You can specify a different version by setting the `DRUPAL_VERSION` environment variable before running the `make build` or `ahoy build` command:
 
 ```bash
-DRUPAL_VERSION=11 make build        # Newest stable Drupal 11 release
-DRUPAL_VERSION=11.1.0 make build    # Newest Drupal 11.1.x patch release
-DRUPAL_VERSION=11@beta make build   # Newest Drupal 11 beta, release candidate or stable release
-DRUPAL_VERSION=12 make build        # Newest stable Drupal 12 release, or newest pre-release if none
+# Newest stable Drupal 11 release.
+DRUPAL_VERSION=11 make build
+
+# Newest Drupal 11.1.x patch release.
+DRUPAL_VERSION=11.1.0 make build
+
+# Newest Drupal 11 beta, release candidate or stable release.
+DRUPAL_VERSION=11@beta make build
+
+# Newest stable Drupal 12 release, or newest pre-release if none.
+DRUPAL_VERSION=12 make build
 ```
 
 #### How versions are resolved
@@ -224,7 +230,7 @@ One trap is worth knowing before moving a tool. Where a test runner derives a sh
 
 ### Patching dependencies
 
-To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
+To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory. The patches are applied by [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches), which neither the scaffold nor Drupal's recommended project installs.
 
 ### Providing `GITHUB_TOKEN`
 
@@ -247,7 +253,7 @@ If your extension requires additional dependencies for integration testing betwe
 
 If your extension requires frontend dependencies for testing, add them to the `package.json` file. The `package-lock.json` file is expected to be committed to the repository.
 
-The `assemble` command installs (`npm ci`) and builds (`npm run build`) the frontend dependencies within the `build` directory. You can add and commit a `.skip_npm_build` file to skip all Node.js processing, which will also disable JS/CSS linting (ESLint, Stylelint, Prettier).
+The `assemble` command installs (`npm ci`) and builds (`npm run build`) the frontend dependencies within the `build` directory. You can add and commit a `.skip_npm_build` file to skip all Node.js processing, which will also disable JS/CSS linting (ESLint, Stylelint, Prettier) and the Jest tests.
 
 ### Provisioning the website
 
@@ -313,12 +319,14 @@ A QR code below the `make login` / `ahoy login` link is opt-in. Set `LOGIN_QRCOD
 PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then toggle it on the development server:
 
 ```bash
-make debug      # restart with XDebug enabled (aliases: debug-on, xdebug, xdebug-on)
+make debug      # restart with XDebug enabled
 ahoy debug      # same, with ahoy
 
-make start      # restart without XDebug (aliases: debug-off, xdebug-off)
+make start      # restart without XDebug
 ahoy start      # same, with ahoy
 ```
+
+`debug` is also available as `debug-on`, `xdebug` and `xdebug-on`, and `start` as `debug-off` and `xdebug-off`.
 
 The `debug` command probes the running PHP server's command line for `xdebug.mode=debug` and skips the restart if XDebug is already enabled. Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
 
@@ -392,13 +400,13 @@ Either backend gets its own WebDriver port: a free one is claimed starting at 44
 
 ### Running specific tests
 
-You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
+You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command. PHPUnit runs inside `build`, so a test path starts at your extension's symlink in the assembled site (`web/themes/custom/` for a theme):
 
 ```bash
-make test-unit tests/src/Unit/MyUnitTest.php
+make test-unit web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
 make test-unit -- --group=wip
 
-ahoy test-unit tests/src/Unit/MyUnitTest.php
+ahoy test-unit web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
 ahoy test-unit -- --group=wip
 ```
 
@@ -406,29 +414,28 @@ You may also run tests using the `phpunit` command directly:
 
 ```bash
 cd build
-./vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
-./vendor/bin/phpunit --group=wip
+php -d pcov.directory=.. vendor/bin/phpunit \
+  web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
+php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 ```
 
 ### Deprecated code testing
 
-The tests are configured to check for deprecated code usage and fail if any is found. You can fix the deprecated code or suppress the test by adding `.deprecation-ignore.txt` file to the root of the codebase and updating the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml`. See https://www.drupal.org/node/3285162 for more details.
+The tests are configured to check for deprecated code usage and fail if any is found. You can fix the deprecated code or ignore the deprecations by adding a `.deprecation-ignore.txt` file to the root of the codebase and updating the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml`. See https://www.drupal.org/node/3285162 for more details.
 
-Note that the CI configuration has jobs that run the unstable `canary` versions of Drupal which may have different deprecations. These versions have the `SYMFONY_DEPRECATIONS_HELPER` environment variable set to `disable` to ignore deprecation errors. You may want to adjust this CI configuration for your project depending on your deprecated code policy.
+Note that the CI test jobs that run PHP 8.4 or newer set the `SYMFONY_DEPRECATIONS_HELPER` environment variable to `disabled` to ignore deprecation errors, because not every Drupal 10 and 11 minor fully supports the newer PHP versions yet. You may want to adjust this CI configuration for your project depending on your deprecated code policy.
 
 ## Branch protection
 
 You should configure [branch protection rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule) in GitHub to ensure that the code tests pass before merging.
 
-Make sure to add all jobs for your default branch:
+Add every `lint-*` and `test-php-*` job as a required status check for your default branch. The job list depends on the Drupal versions you selected in `init.php`, so yours may differ from this example:
 
 ![GitHub branch protection jobs](.eddy/assets/github-branch-protection.png)
 
 ## Deployment
 
-The CI supports deployment of the code via mirroring of main branches (`1.x`, `10.x-1.x` etc.) to Drupal.org repository.
-
-The `deploy` job runs when commits are pushed to main branches (`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created. This means that out-of-the-box, the deployment job will not run for other branches or pull requests, but you can adjust the CI configuration to suit your needs.
+The CI mirrors the code to your extension's Drupal.org repository (or any other git remote) once the tests pass. It deploys pushes to the `1.x` branch and release tags, and pull requests never deploy. To deploy another branch, such as `2.x`, add it to the `push` branches in `.github/workflows/test.yml`.
 
 The code pushed to the destination repository is the commit that CI tested, so a release tag deploys the tagged commit rather than the tip of the branch it was cut from.
 
@@ -449,12 +456,12 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
 2. Add **public** key to your [Drupal.org account](https://git.drupalcode.org/-/user_settings/ssh_keys)
 3. Add **private** key to your CI:
   - GitHub Actions:
-    - Go to your project -> **Settings** -> **Secrets**
+    - Go to your project -> **Settings** -> **Secrets and variables** -> **Actions**
     - Add a new secret with the `DEPLOY_SSH_KEY` name and the private key as the value.
 
 4. In CI, use UI to add the following variables as secrets:
 
-- `DEPLOY_REMOTE` - your extension's Drupal.org repository ( i.e. `git@git.drupal.org:project/myextension.git`).
+- `DEPLOY_REMOTE` - your extension's Drupal.org repository (for example, `git@git.drupal.org:project/myextension.git`).
 - `DEPLOY_USER_NAME` - the name of the user who commits to the remote repository (i.e., your name on Drupal.org).
 - `DEPLOY_USER_EMAIL` - the email address of the user who commits to the remote repository (i.e., your email on Drupal.org).
 - `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to deploy. Without this variable, the deployment job will run but will not push the code. This is useful for testing the deployment job.
@@ -482,7 +489,7 @@ If you use Claude Code, the bundled [`update-consumer-eddy`](.eddy/skills/update
 
 For a manual update, follow these steps:
 
-1. Download the latest version of this codebase by pressing 'Clone or download' button in GitHub UI.
+1. Download the latest version of this template's code with **Code** -> **Download ZIP** in the GitHub UI.
 2. Expand into a new directory.
 3. Run the initial [codebase setup](#codebase-setup) script: `php init.php` and repeat the answers you provided during the initial setup.
 4. Create a new branch in your extension's repository.
@@ -502,23 +509,22 @@ This template includes a [Renovate](https://docs.renovatebot.com/) configuration
 
 ### What is updated
 
-| Source                                   | Dependencies                  | Examples                                                                          |
-|------------------------------------------|-------------------------------|-----------------------------------------------------------------------------------|
-| [`composer.dev.json`](composer.dev.json) | Development Composer packages | `drupal/coder`, `mglaman/phpstan-drupal`, `vincentlanglet/twig-cs-fixer`          |
-| [`package.json`](package.json)           | npm packages                  | `eslint`, `stylelint`, `prettier`                                                 |
-| `.github/workflows/*.yml`                | GitHub Actions                | `actions/checkout`, `actions/upload-artifact`, `codecov/codecov-action`           |
+| Source                         | Dependencies                                  | Examples                                                                     |
+|--------------------------------|-----------------------------------------------|------------------------------------------------------------------------------|
+| [`package.json`](package.json) | npm packages                                  | `eslint`, `stylelint`, `prettier`                                            |
+| `.github/workflows/*.yml`      | GitHub Actions and the Docker images they use | `actions/checkout`, `codecov/codecov-action`, `selenium/standalone-chromium` |
 
 ### What is NOT updated
 
-- **`composer.json`** — contains the extension's production dependencies (`require` and `require-dev`) which should be updated manually to ensure compatibility with Drupal.org packaging.
-- **Major versions** — major version bumps are disabled for all dependencies and should be updated manually to avoid breaking changes.
+- **Composer packages** - Renovate's Composer manager is not enabled, so neither `composer.json` nor `composer.dev.json` is updated. `composer.json` contains the extension's production dependencies (`require` and `require-dev`), which should be updated manually to ensure compatibility with Drupal.org packaging. Every build resolves the `composer.dev.json` ranges to the newest releases they allow (see [How versions are resolved](#how-versions-are-resolved)).
+- **Major npm versions** - major npm updates are disabled and should be applied manually to avoid breaking changes.
 
 ### How it works
 
-- **Single PR**: all minor and patch dependency updates are grouped into a single pull request titled "Update all dependencies".
+- **Grouped PRs**: all minor and patch updates share 1 pull request on the `deps/all` branch, and major GitHub Actions updates share another on `deps/major-all`.
 - **Automerge**: PRs are automatically merged when all CI checks pass.
-- **Digest pinning**: GitHub Actions are pinned to SHA digests for reproducibility and security.
-- **Range strategy**: version ranges in `package.json` and `composer.dev.json` are bumped to the latest version (e.g., `^1.2` becomes `^1.3`).
+- **Digest pinning**: GitHub Actions and Docker images are pinned to SHA digests for reproducibility and security.
+- **Range strategy**: version ranges in `package.json` are bumped to the latest version (e.g., `^1.2` becomes `^1.3`).
 - **Dependency Dashboard**: an issue is created in the repository to track pending updates, approval requests, and detected problems.
 
 See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/) for all available options.

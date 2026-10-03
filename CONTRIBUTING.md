@@ -11,6 +11,7 @@ The repository is a working Drupal extension - the demo extension in the project
 - `init.php` - the interactive script that renames, rewrites and prunes the template files for a new project.
 - `.devtools/` - build and provisioning scripts shared with generated projects and used by CI.
 - `.eddy/` - everything used to develop and test the scaffold itself. It is removed from generated projects.
+
 ## Building and testing the demo extension
 
 The scaffold builds and tests itself exactly like a generated project, so the commands documented in [`README.md`](README.md) apply here too: `make build` or `ahoy build` to assemble the site, `make lint` or `ahoy lint` to check coding standards, and `make test` or `ahoy test` to run the extension tests.
@@ -23,7 +24,7 @@ The scaffold builds and tests itself exactly like a generated project, so the co
 
 ## Running the scaffold self-tests
 
-Run these from the `.eddy/tests` directory. Install the dependencies once:
+Run these from the repository root. Install the dependencies once:
 
 ```bash
 composer --working-dir=.eddy/tests install
@@ -36,7 +37,7 @@ composer --working-dir=.eddy/tests install
 | A single class   | `composer --working-dir=.eddy/tests test -- --filter=InitTest` |
 | Coding standards | `composer --working-dir=.eddy/tests lint`                      |
 
-Tests are tagged `p0` to `p5` so CI can run them as parallel jobs. `p0` is the in-process unit suite, `p1` is the `init.php` snapshot test, and `p2` to `p5` exercise the full build pipeline and need a Drupal-friendly PHP setup.
+Tests are tagged `p0` to `p5` so CI can run them as parallel jobs. `p0` is the in-process unit suite, `p1` is the `init.php` snapshot test, and `p2` to `p5` exercise the full build pipeline and need a Drupal-friendly PHP setup. `p3` and `p4` also need a WebDriver backend: a Selenium container or a local Chrome driven by chromedriver.
 
 ## Regenerating snapshot fixtures
 

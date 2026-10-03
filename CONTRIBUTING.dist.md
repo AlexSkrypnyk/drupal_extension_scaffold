@@ -29,15 +29,22 @@ The `provision` command is useful for re-installing the Drupal website without r
 
 ### Drupal versions
 
-The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to the latest stable version.
+The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to the highest Drupal major this extension targets.
 
 You can specify a different version by setting the `DRUPAL_VERSION` environment variable before running the `make build` or `ahoy build` command:
 
 ```bash
-DRUPAL_VERSION=11 make build        # Newest stable Drupal 11 release
-DRUPAL_VERSION=11.1.0 make build    # Newest Drupal 11.1.x patch release
-DRUPAL_VERSION=11@beta make build   # Newest Drupal 11 beta, release candidate or stable release
-DRUPAL_VERSION=12 make build        # Newest stable Drupal 12 release, or newest pre-release if none
+# Newest stable Drupal 11 release.
+DRUPAL_VERSION=11 make build
+
+# Newest Drupal 11.1.x patch release.
+DRUPAL_VERSION=11.1.0 make build
+
+# Newest Drupal 11 beta, release candidate or stable release.
+DRUPAL_VERSION=11@beta make build
+
+# Newest stable Drupal 12 release, or newest pre-release if none.
+DRUPAL_VERSION=12 make build
 ```
 
 The build pins Drupal core to the newest release matching `DRUPAL_VERSION` and prints it. A version with no stable release yet resolves to its newest pre-release.
@@ -46,7 +53,7 @@ Every other dependency installs its most stable release that supports that core.
 
 ### Patching dependencies
 
-To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
+To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory. The patches are applied by [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches), which the build does not install on its own.
 
 ### Providing `GITHUB_TOKEN`
 
@@ -75,12 +82,14 @@ A one-time login link will be printed to the console.
 PHP step-debugging is supported via [XDebug](https://xdebug.org/docs/install). Install the XDebug PHP extension on your host (`php -v` should mention `with Xdebug`), then toggle it on the development server:
 
 ```bash
-make debug      # restart with XDebug enabled (aliases: debug-on, xdebug, xdebug-on)
+make debug      # restart with XDebug enabled
 ahoy debug      # same, with ahoy
 
-make start      # restart without XDebug (aliases: debug-off, xdebug-off)
+make start      # restart without XDebug
 ahoy start      # same, with ahoy
 ```
+
+`debug` is also available as `debug-on`, `xdebug` and `xdebug-on`, and `start` as `debug-off` and `xdebug-off`.
 
 The `debug` command probes the running PHP server's command line for `xdebug.mode=debug` and skips the restart if XDebug is already enabled. Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
 
@@ -166,13 +175,13 @@ Either backend gets its own WebDriver port: a free one is claimed starting at 44
 <!-- #;< DEV_PHPUNIT -->
 ### Running specific tests
 
-You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
+You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command. PHPUnit runs inside `build`, so a test path starts at the extension's symlink in the assembled site (`web/themes/custom/` for a theme):
 
 ```bash
-make test-unit tests/src/Unit/MyUnitTest.php
+make test-unit web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
 make test-unit -- --group=wip
 
-ahoy test-unit tests/src/Unit/MyUnitTest.php
+ahoy test-unit web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
 ahoy test-unit -- --group=wip
 ```
 
@@ -180,7 +189,8 @@ You may also run tests using the `phpunit` command directly:
 
 ```bash
 cd build
-php -d pcov.directory=.. vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
+php -d pcov.directory=.. vendor/bin/phpunit \
+  web/modules/custom/your_extension/tests/src/Unit/MyUnitTest.php
 php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 ```
 <!-- #;> DEV_PHPUNIT -->
