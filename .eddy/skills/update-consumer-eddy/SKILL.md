@@ -52,7 +52,7 @@ Read the project to determine the init.php answers:
 1. **Name**: Read from `*.info.yml` - the `name` field.
 2. **Machine name**: The `*.info.yml` filename without extension.
 3. **Type**: `module` or `theme` - from the `type` field in `*.info.yml`.
-4. **Command wrapper**: `ahoy` if `.ahoy.yml` exists, `makefile` if only `Makefile` exists, `none` otherwise.
+4. **Command wrapper**: `ahoy` if `.ahoy.yml` exists and `makefile` if `Makefile` exists, checked independently and comma-joined when both do (`ahoy,makefile`); an empty string when neither exists.
 
 Also detect the **default branch** of the repository (not the current checkout):
 
