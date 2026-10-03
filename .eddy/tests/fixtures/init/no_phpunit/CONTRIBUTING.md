@@ -1,4 +1,4 @@
-@@ -114,63 +114,3 @@
+@@ -128,63 +128,3 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
