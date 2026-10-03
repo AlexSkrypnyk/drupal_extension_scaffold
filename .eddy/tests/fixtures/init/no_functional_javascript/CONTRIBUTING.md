@@ -1,4 +1,4 @@
-@@ -122,37 +122,11 @@
+@@ -136,37 +136,11 @@
  make test-unit                    # Run Unit tests
  make test-kernel                  # Run Kernel tests
  make test-functional              # Run Functional tests
