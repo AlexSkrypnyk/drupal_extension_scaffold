@@ -31,7 +31,7 @@
  
  **Using Ahoy (alternative):**
  - `ahoy build` - Complete build process
-@@ -35,10 +53,20 @@
+@@ -37,10 +55,20 @@
  ### Code Quality
  
  **Linting:**
@@ -52,7 +52,7 @@
  - `ahoy test` - Run all tests
  - `ahoy test-unit` - Run unit tests only
  - `ahoy test-kernel` - Run kernel tests only
-@@ -50,11 +78,14 @@
+@@ -52,11 +80,14 @@
  
  ### Drupal Commands
  

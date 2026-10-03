@@ -13,10 +13,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 /**
  * Tests for find_free_port() helper.
  *
- * The helper uses a client connect probe rather than a server bind probe,
- * so the test mocks stream_socket_client. Each mocked call reports a
- * listener as present or absent on one candidate port.
- *
  * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

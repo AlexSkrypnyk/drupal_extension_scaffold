@@ -1,12 +1,9 @@
-@@ -130,76 +130,3 @@
+@@ -114,63 +114,3 @@
  ## Testing
  
  The `make test` or `ahoy test` command runs the tests for this extension.
 -
--The tests are located in the `tests/src` directory. The `phpunit.xml` file
--configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
--`web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running
--the tests.
+-The tests are located in the `tests/src` directory. The `phpunit.xml` file configures PHPUnit to run the tests. It uses Drupal core's bootstrap file `web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running the tests.
 -
 -The `test` command is a wrapper for multiple test commands:
 -```bash
@@ -23,10 +20,7 @@
 -
 -### Running FunctionalJavascript tests
 -
--FunctionalJavascript tests need a real browser driven via WebDriver. By
--default they use the Google Chrome already installed on your machine - a
--matching `chromedriver` is downloaded automatically on first run, so no
--Docker is required:
+-FunctionalJavascript tests need a real browser driven via WebDriver. By default they use the Google Chrome already installed on your machine - a matching `chromedriver` is downloaded automatically on first run, so no Docker is required:
 -
 -```bash
 -ahoy start
@@ -35,9 +29,7 @@
 -ahoy browser-stop
 -```
 -
--To run the browser in a Docker Selenium container instead, set
--`WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's
--`localhost`, so start the webserver on all interfaces:
+-To run the browser in a Docker Selenium container instead, set `WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's `localhost`, so start the webserver on all interfaces:
 -
 -```bash
 -WEBSERVER_HOST=__VERSION__.0 ahoy start
@@ -46,25 +38,19 @@
 -ahoy browser-stop
 -```
 -
--Either backend gets its own WebDriver port: a free one is claimed starting
--at 4444 and stored in `.env`, so several projects can run FunctionalJavascript
--tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests
--reach the claimed port because the base class applies it to the WebDriver
--endpoint, so extend `ForceCrystalFunctionalJavascriptTestBase` rather than
--`WebDriverTestBase` directly - a test that bypasses it keeps the default
--endpoint from `phpunit.xml` unless it exports its own
--`MINK_DRIVER_ARGS_WEBDRIVER`.
+-The browser reaches the webserver at `localhost` with the default backend, and at `host.docker.internal` (macOS) or `__VERSION__.1` (other systems) from the Selenium container. Set `WEBDRIVER_HOST` to use a different address.
+-
+-Either backend gets its own WebDriver port: a free one is claimed starting at 4444 and stored in `.env`, so several projects can run FunctionalJavascript tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests reach the claimed port because the base class applies it to the WebDriver endpoint, so extend `ForceCrystalFunctionalJavascriptTestBase` rather than `WebDriverTestBase` directly - a test that bypasses it keeps the default endpoint from `phpunit.xml` unless it exports its own `MINK_DRIVER_ARGS_WEBDRIVER`.
 -
 -### Running specific tests
 -
--You can run specific tests by passing a path to the test file or PHPUnit CLI
--option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
+-You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command. PHPUnit runs inside `build`, so a test path starts at the extension's symlink in the assembled site (`web/themes/custom/` for a theme):
 -
 -```bash
--make test-unit tests/src/Unit/MyUnitTest.php
+-make test-unit web/modules/custom/force_crystal/tests/src/Unit/MyUnitTest.php
 -make test-unit -- --group=wip
 -
--ahoy test-unit tests/src/Unit/MyUnitTest.php
+-ahoy test-unit web/modules/custom/force_crystal/tests/src/Unit/MyUnitTest.php
 -ahoy test-unit -- --group=wip
 -```
 -
@@ -72,6 +58,7 @@
 -
 -```bash
 -cd build
--php -d pcov.directory=.. vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
+-php -d pcov.directory=.. vendor/bin/phpunit \
+-  web/modules/custom/force_crystal/tests/src/Unit/MyUnitTest.php
 -php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 -```

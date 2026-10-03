@@ -1,4 +1,4 @@
-@@ -10,52 +10,54 @@
+@@ -10,54 +10,54 @@
  
  **HARD RULE - use the provided command wrappers, never the tool binaries directly.** When `make` or `ahoy` exposes a command for a task, use that command; do not call the underlying binary directly. Each wrapper `chdir`s into `build/` and runs the tool with the config, plugins, and environment that CI uses, so a raw invocation from the repository root silently diverges from CI - it can pass locally while CI fails (or vice versa), or crash outright when a relative path resolves against the wrong directory. If no wrapped command covers what you need, extend the `make` / `ahoy` target rather than making a one-off raw call; if that is not feasible, stop and ask.
  
@@ -39,7 +39,9 @@
 -- `ahoy build` - Complete build process
 -- `ahoy assemble` - Assemble codebase
 -- `ahoy start` - Start development server
+-- `ahoy stop` - Stop development server
 -- `ahoy provision` - Provision Drupal site
+-- `ahoy reset` - Clean build directory and logs (aliases: `ahoy delete`, `ahoy destroy`)
  
  ### Code Quality
  

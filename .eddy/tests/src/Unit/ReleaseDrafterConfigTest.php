@@ -11,10 +11,11 @@ use Symfony\Component\Yaml\Yaml;
  * Tests the version increment the release drafter configuration resolves.
  *
  * Release Drafter resolves the increment through `categories` and warns that
- * the top-level `version-resolver` block is deprecated. Once that block is
- * removed upstream, a configuration still relying on it silently falls back to
- * the built-in `patch` increment and the next draft is named after the wrong
- * release.
+ * the top-level `version-resolver` block is deprecated.
+ *
+ * Once that block is removed upstream, a configuration still relying on it
+ * silently falls back to the built-in `patch` increment. The next draft is
+ * then named after the wrong release.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

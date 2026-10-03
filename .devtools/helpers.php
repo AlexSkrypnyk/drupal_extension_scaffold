@@ -201,7 +201,7 @@ function dotenv_write_var(string $key, string $value, string $dotenv_file = '.en
  *   Value to return when neither env nor the dotenv file provides a
  *   non-empty value. May be an empty string when callers want to
  *   detect that case and apply their own fallback (for example,
- *   start's auto-discovery branch).
+ *   resolve_port_value() when auto-discovery is requested).
  * @param string $dotenv_file
  *   Path to the dotenv file to consult.
  *
@@ -462,7 +462,7 @@ function find_free_port(int $start = 8000, int $max_attempts = 100): int {
  *   The TCP port to free.
  */
 function kill_port(int|string $port): void {
-  @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg((string) $port)));
+  @passthru(sprintf('lsof -ti:%s 2>/dev/null | xargs kill -9 2>/dev/null', escapeshellarg((string) $port)));
 }
 
 /**
@@ -753,11 +753,9 @@ function drush(string $command, mixed $args = NULL, ?int &$exit_code = NULL): st
   }
 
   if (!$exit_code_provided && $exit_code !== 0) {
-    // Surface the captured output on a quiet run so the failure is diagnosable;
-    // in debug mode it already streamed live.
-    if (!is_debug()) {
-      echo $output;
-    }
+    // Surface the captured output so the failure is diagnosable. In debug mode
+    // it holds only stdout, because stderr already streamed live.
+    echo $output;
 
     FAIL('Drush command failed: %s', $command);
   }

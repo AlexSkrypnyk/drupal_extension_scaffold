@@ -6,8 +6,6 @@ namespace DrevOps\Eddy\Tests\Exceptions;
 
 /**
  * Exception thrown when mocked quit() is called with exit code 0.
- *
- * This allows tests to verify exit codes without actually terminating.
  */
 class QuitSuccessException extends \Exception {
 

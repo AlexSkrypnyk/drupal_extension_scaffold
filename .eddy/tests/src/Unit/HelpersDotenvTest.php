@@ -149,8 +149,6 @@ final class HelpersDotenvTest extends UnitTestCase {
 
     dotenv_write_var('FOO', 'new', $file);
 
-    // The last assignment is the effective one per dotenv_read() semantics,
-    // so the write replaces it (not the first).
     $this->assertSame("FOO=first\nBAR=keep\nFOO=new\n", file_get_contents($file));
   }
 

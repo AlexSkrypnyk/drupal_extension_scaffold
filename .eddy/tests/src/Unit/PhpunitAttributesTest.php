@@ -14,13 +14,16 @@ use Symfony\Component\Yaml\Yaml;
  * Rector writes `PHPUnit\Framework\Attributes\*` alongside the doc-comment
  * metadata it converts, and those classes first exist in PHPUnit 10. Drupal 10
  * resolves PHPUnit 9.6, so on a Drupal 10 build PHPStan reports each one as
- * `attribute.notFound` while the tests themselves keep passing - PHP resolves
- * attribute classes lazily, and PHPUnit 9.6 reads the doc-comment.
+ * `attribute.notFound`.
  *
- * `phpstan.neon` therefore ignores that message, and this test pins the two
- * halves together: an attribute added to the shipped tests without a matching
- * ignore pattern breaks the Drupal 10 lint, and the failure otherwise surfaces
- * only after a full Drupal 10 assemble in CI.
+ * The tests themselves still pass on that build, because PHP resolves
+ * attribute classes lazily and PHPUnit 9.6 reads the doc-comment.
+ * `phpstan.neon` therefore ignores that message.
+ *
+ * This test checks each attribute in the shipped tests against the
+ * `phpstan.neon` ignore patterns. An unmatched attribute breaks the Drupal 10
+ * lint, and without this test the failure appears only after a full Drupal 10
+ * assemble in CI.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -39,8 +42,8 @@ final class PhpunitAttributesTest extends UnitTestCase {
     $uncovered = [];
 
     foreach (array_unique($matches[1]) as $name) {
-      // The message is the one PHPStan emits verbatim, so a pattern that stops
-      // matching it is caught here rather than on the next Drupal 10 build.
+      // $message is the text PHPStan emits verbatim, so a pattern that stops
+      // matching it is caught here, not on the next Drupal 10 build.
       $message = sprintf('Attribute class PHPUnit\Framework\Attributes\%s does not exist.', $name);
 
       foreach ($patterns as $pattern) {
@@ -83,7 +86,7 @@ final class PhpunitAttributesTest extends UnitTestCase {
    *   The patterns, in declaration order.
    */
   protected static function ignorePatterns(): array {
-    // NEON is a superset of the YAML this file stays within, and the parser
+    // NEON is a superset of the YAML that `phpstan.neon` uses, and the parser
     // preserves the backslash escaping the patterns rely on.
     $parsed = Yaml::parseFile(self::rootDir() . '/phpstan.neon');
 

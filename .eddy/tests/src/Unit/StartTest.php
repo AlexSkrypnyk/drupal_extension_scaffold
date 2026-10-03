@@ -35,7 +35,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg($expected_port))],
+      ['cmd' => sprintf('lsof -ti:%s 2>/dev/null | xargs kill -9 2>/dev/null', escapeshellarg($expected_port))],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg($expected_host), escapeshellarg($expected_port), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -95,7 +95,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -129,7 +129,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -165,7 +165,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -199,7 +199,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -242,7 +242,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -300,7 +300,7 @@ final class StartTest extends UnitTestCase {
     });
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8123' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8123' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8123'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -358,7 +358,7 @@ final class StartTest extends UnitTestCase {
     });
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8001' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8001' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8001'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -400,7 +400,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('file_get_contents', 'DrevOps\\Eddy\\DevTools', fn(): string => "WEBSERVER_PORT=8000\nTUNNEL_URL=" . $tunnel_url . "\n");
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 
@@ -433,7 +433,7 @@ final class StartTest extends UnitTestCase {
     $this->registerMock('getcwd', 'DrevOps\\Eddy\\DevTools', fn(): string => $cwd);
 
     $this->mockPassthruMultiple([
-      ['cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null"],
+      ['cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null"],
       ['cmd' => sprintf('nohup php -S %s:%s -t %s/build/web %s/build/web/.ht.router.php >/tmp/php.log 2>&1 &', escapeshellarg('localhost'), escapeshellarg('8000'), escapeshellarg($cwd), escapeshellarg($cwd))],
     ]);
 

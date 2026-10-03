@@ -12,10 +12,11 @@ use PHPUnit\Framework\Attributes\Group;
  * Tests the commit the deploy workflow publishes.
  *
  * A `workflow_run` event resolves refs against the default branch, so a
- * checkout that names no ref holds default-branch code while the deploy
- * script pushes it under the triggering branch's name. Naming the tested
- * commit is only safe while the job is gated on a push from this repository,
- * because the deployment key is in scope for whatever was checked out.
+ * checkout that names no ref holds default-branch code. The deploy script then
+ * pushes that code under the triggering branch's name.
+ *
+ * Naming the tested commit is safe only while the job is gated on a push from
+ * this repository. The deployment key is in scope for whatever is checked out.
  *
  * Neither half can be executed locally, so both are read out of the workflow.
  *

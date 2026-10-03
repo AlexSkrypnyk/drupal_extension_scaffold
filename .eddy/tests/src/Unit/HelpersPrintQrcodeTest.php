@@ -31,7 +31,7 @@ final class HelpersPrintQrcodeTest extends UnitTestCase {
   }
 
   public function testEmptyUrlDoesNothing(): void {
-    // Nothing else can stop the render, so the empty URL has to.
+    // With qrencode available, only the empty URL can stop the render.
     $this->mockCommandAvailable('qrencode', TRUE);
     $this->mockPassthruNever();
 

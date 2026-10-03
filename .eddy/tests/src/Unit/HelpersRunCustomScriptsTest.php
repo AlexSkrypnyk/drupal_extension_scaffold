@@ -78,8 +78,8 @@ final class HelpersRunCustomScriptsTest extends UnitTestCase {
   public function testSkipsDirectoriesMatchingPrefix(): void {
     $dir = self::$tmp . '/scripts_' . uniqid();
     mkdir($dir, 0755, TRUE);
-    // A directory whose name matches the glob; run_custom_scripts must
-    // skip it instead of trying to exec it.
+    // The directory name matches the glob, but run_custom_scripts() must skip
+    // it, not execute it.
     mkdir($dir . '/assemble-rogue.sh', 0755, TRUE);
     file_put_contents($dir . '/assemble-real.sh', 'echo real');
 

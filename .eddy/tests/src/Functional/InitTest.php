@@ -41,7 +41,7 @@ final class InitTest extends FunctionalTestCase {
     // Build env vars to pre-fill all prompts.
     $env = [];
     foreach ($answers as $key => $value) {
-      $env['DEX_' . strtoupper((string) $key)] = $value;
+      $env['EDDY_' . strtoupper((string) $key)] = $value;
     }
 
     $this->processRun(self::$sut . DIRECTORY_SEPARATOR . 'init.php', [], [], $env);
@@ -196,8 +196,7 @@ final class InitTest extends FunctionalTestCase {
       ->addVersionReplacements()
       ->addExclusions(['127.0.0.1'])
       // Increase max replacements to handle large files with many version
-      // strings (GHA workflows, lock files, etc). This value was empirically
-      // derived through repeated trials.
+      // strings (GHA workflows, lock files, etc). The value is empirical.
       ->setMaxReplacements(5)
       ->replaceInDir($dir);
   }

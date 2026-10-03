@@ -79,11 +79,10 @@ return RectorConfig::configure()
     RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class,
-    // The prompt library is embedded verbatim between the '@embed-start' and
-    // '@embed-end' markers and is replaced wholesale on every update, so any
-    // rewrite of it is discarded. Rector has no notion of a region, so the
-    // rules its minified form trips are skipped for the whole file; the rest
-    // of 'init.php' stays covered by every other rule.
+    // Each update replaces the verbatim copy of the prompt library between
+    // the '@embed-start' and '@embed-end' markers, so any rewrite there is
+    // discarded. Rector cannot skip a region, so only the rules that the
+    // minified library triggers are skipped for the whole of 'init.php'.
     NullToStrictStringFuncCallArgRector::class => [
       __DIR__ . '/../../init.php',
     ],

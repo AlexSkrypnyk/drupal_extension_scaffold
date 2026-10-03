@@ -29,7 +29,8 @@ parameters:
   ignoreErrors:
     -
       # Tests and data providers do not require parameter docblocks, so the
-      # parameter type cannot be specified.
+      # parameter type cannot be specified. The ignore has no 'paths', so it
+      # also covers the '.devtools' scripts and 'init.php'.
       message: '#.*no value type specified in iterable type array.#'
       reportUnmatched: false
     -

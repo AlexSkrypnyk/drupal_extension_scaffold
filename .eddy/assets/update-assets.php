@@ -8,9 +8,8 @@
  * Records terminal sessions for init, build, lint, and test commands,
  * then converts the recordings to animated SVGs for use in README.md.
  *
- * Supports parallel execution: when run without arguments, the lint and
- * test recordings are launched as parallel worker processes for faster
- * generation.
+ * Supports parallel execution: the lint and test recordings are launched as
+ * parallel worker processes for faster generation.
  *
  * Init and build run sequentially (init initialises the workspace, build
  * assembles the Drupal codebase), then lint and test run in parallel on
@@ -28,7 +27,7 @@
  * php .eddy/assets/update-assets.php --record init --workspace /tmp/ws
  * @endcode
  *
- * Passing one or more asset names (init, build, lint, test) regenerates only
+ * Passing 1 or more asset names (init, build, lint, test) regenerates only
  * those assets; with none, every asset is regenerated.
  */
 
@@ -460,12 +459,6 @@ expect "Machine name" {
 
 # Select: Extension type - first option "Module" is pre-selected.
 expect "Extension type" {
-    sleep {$delay}
-    wait_and_enter
-}
-
-# Select: CI provider - first option "GitHub Actions" is pre-selected.
-expect "CI provider" {
     sleep {$delay}
     wait_and_enter
 }

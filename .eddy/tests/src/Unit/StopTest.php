@@ -26,7 +26,7 @@ final class StopTest extends UnitTestCase {
     $this->registerMock('file_exists', 'DrevOps\\Eddy\\DevTools', fn(): false => FALSE);
 
     $this->mockPassthru([
-      'cmd' => "lsof -ti:'8000' | xargs kill -9 2>/dev/null",
+      'cmd' => "lsof -ti:'8000' 2>/dev/null | xargs kill -9 2>/dev/null",
     ]);
     $this->mockSleep();
 
@@ -45,7 +45,7 @@ final class StopTest extends UnitTestCase {
     $this->envSet('WEBSERVER_PORT', '9000');
 
     $this->mockPassthru([
-      'cmd' => "lsof -ti:'9000' | xargs kill -9 2>/dev/null",
+      'cmd' => "lsof -ti:'9000' 2>/dev/null | xargs kill -9 2>/dev/null",
     ]);
     $this->mockSleep();
 
@@ -64,7 +64,7 @@ final class StopTest extends UnitTestCase {
     $this->registerMock('file_get_contents', 'DrevOps\\Eddy\\DevTools', fn(): string => "WEBSERVER_PORT=8123\n");
 
     $this->mockPassthru([
-      'cmd' => "lsof -ti:'8123' | xargs kill -9 2>/dev/null",
+      'cmd' => "lsof -ti:'8123' 2>/dev/null | xargs kill -9 2>/dev/null",
     ]);
     $this->mockSleep();
 

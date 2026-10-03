@@ -34,9 +34,9 @@ abstract class ForceCrystalFunctionalJavascriptTestBase extends WebDriverTestBas
     // is reachable as-is. With the 'selenium' backend the browser runs
     // inside a container that cannot reach the host's 'localhost', so a
     // host-reachable address is used instead (host.docker.internal on
-    // macOS, the docker bridge IP on Linux). WEBDRIVER_HOST overrides the
-    // resolved host. In CircleCI all containers share the network
-    // namespace, so no override is needed.
+    // macOS, the default docker bridge IP elsewhere). WEBDRIVER_HOST
+    // overrides the resolved host. In CircleCI all containers share the
+    // network namespace, so no override is needed.
     if (!getenv('CIRCLECI')) {
       $port = getenv('WEBSERVER_PORT') ?: '8000';
       $host = getenv('WEBDRIVER_HOST');

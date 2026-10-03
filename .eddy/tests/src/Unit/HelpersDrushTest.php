@@ -91,6 +91,28 @@ final class HelpersDrushTest extends UnitTestCase {
     $this->assertSame(2, $exit_code);
   }
 
+  public function testDrushFailurePrintsCapturedOutputInDebugMode(): void {
+    $this->envSet('DEBUG', '1');
+    $cwd = getcwd();
+    $expected_cmd = 'build/vendor/bin/drush -r ' . escapeshellarg($cwd . '/build/web') . ' -y bad-command';
+    $this->mockPassthru(['cmd' => $expected_cmd, 'output' => 'Command "bad-command" is not defined.', 'result_code' => 1]);
+    $this->mockQuit(1);
+    ob_start();
+    try {
+      drush('bad-command');
+      $this->fail('Expected QuitErrorException to be thrown.');
+    }
+    catch (QuitErrorException $e) {
+      $this->assertSame(1, $e->getCode());
+    }
+    finally {
+      $output = ob_get_clean();
+      $this->assertIsString($output);
+      $this->assertStringContainsString('Command "bad-command" is not defined.', $output);
+      $this->assertStringContainsString('Drush command failed', $output);
+    }
+  }
+
   public function testDrushStreamsLiveInDebugMode(): void {
     $this->envSet('DEBUG', '1');
     $cwd = getcwd();

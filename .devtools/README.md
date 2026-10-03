@@ -14,10 +14,10 @@ This directory contains scripts used for development. These can be used locally 
 
 ## Verbose output
 
-By default the scripts print only their own `[TASK]`/`[ OK ]` progress and suppress the output of the tools they run (Composer, npm, Drush). When a tool fails, its captured output is shown so the failure is diagnosable. Set `DEBUG=1` to stream the full output of every tool live, for example `DEBUG=1 make build` or `DEBUG=1 ahoy build`.
+By default the scripts print only their own `[TASK]`/`[ OK ]` progress and suppress the output of the tools they run (Composer, npm, Drush). When a tool fails, its captured output is shown so the failure is diagnosable. The output of the project's own commands - `npm run build` and the custom scripts below - is always shown. Set `DEBUG=1` to stream the full output of every tool live, for example `DEBUG=1 make build` or `DEBUG=1 ahoy build`.
 
 ## Custom scripts
 
-`assemble` and `provision` both look for `scripts/<prefix>-*.sh` in the project root and run any matches at the end of the phase. `assemble-*.sh` for post-assemble, `provision-*.sh` for post-provision. Scripts run in lexicographic order, inherit the parent environment, and a non-zero exit aborts the parent. See the "Custom assemble and provision scripts" section in the root `README.md` for the full convention.
+`assemble`, `provision`, `start` and `stop` each look for `scripts/<prefix>-*.sh` in the project root and run any matches: `assemble-*.sh` and `provision-*.sh` at the end of their phase, `start-*.sh` once the webserver is serving, and `stop-*.sh` before the webserver stops. Scripts run in lexicographic order from the project root, inherit the parent environment, and a non-zero exit aborts the parent.
 
-See the root `README.md` for higher-level workflow documentation.
+See `CONTRIBUTING.md` in the project root for the development workflow.

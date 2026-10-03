@@ -1,9 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// Discover js/ directories in custom modules and themes, resolving symlinks
-// to real paths. Jest resolves symlinks internally, so roots must use real
-// paths for test files to be matched.
+// Discover js/ directories in custom modules and themes.
 const dirs = ['web/modules/custom', 'web/themes/custom'];
 const roots = [];
 
@@ -19,8 +17,9 @@ dirs.forEach((dir) => {
 });
 
 module.exports = {
-  // V8 tracks files outside rootDir only when rootDir contains them, so
-  // anchor at the project root rather than the build directory.
+  // V8 coverage tracks only files inside rootDir, and the sources load from
+  // their real paths outside the build directory, so anchor at the project
+  // root rather than the build directory.
   rootDir: path.resolve(__dirname, '..'),
   testEnvironment: 'jsdom',
   roots,
