@@ -17,8 +17,13 @@ mkdir -p .claude/skills/update-consumer-eddy
 ```
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md -o .claude/skills/update-consumer-eddy/SKILL.md
+curl -fsSL https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md -o .claude/skills/update-consumer-eddy/SKILL.md
 ```
+
+Read `.claude/skills/update-consumer-eddy/SKILL.md` and confirm its frontmatter
+declares `name: update-consumer-eddy`. If the download failed or the file holds
+anything else, stop here and tell the user. Leave this skill in place, so the
+next attempt starts over from Step 1.
 
 ## Step 2: Remove this skill
 
