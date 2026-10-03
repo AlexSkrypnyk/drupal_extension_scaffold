@@ -1,4 +1,4 @@
-@@ -14,7 +14,6 @@
+@@ -13,7 +13,6 @@
  [![codecov](https://codecov.io/gh/force_crystal/force_crystal/graph/badge.svg)](https://codecov.io/gh/force_crystal/force_crystal)
  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/force_crystal/force_crystal)
  ![LICENSE](https://img.shields.io/github/license/force_crystal/force_crystal)
