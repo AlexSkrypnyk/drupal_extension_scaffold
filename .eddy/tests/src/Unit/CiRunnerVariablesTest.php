@@ -123,7 +123,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
   }
 
   /**
-   * The CI configuration both marker-block tests check.
+   * The configuration files both marker-block tests check.
    *
    * @return \Iterator<string, array{path: string}>
    *   The dataset shared by the two marker-block data providers.
@@ -135,6 +135,9 @@ final class CiRunnerVariablesTest extends UnitTestCase {
   /**
    * Find the runner variables a configuration declares.
    *
+   * Covers both spellings: a GitHub Actions `env` entry and a CircleCI shell
+   * export.
+   *
    * @param string $path
    *   The configuration to read.
    *
@@ -145,7 +148,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $declared = [];
 
     foreach (self::lines($path) as $number => $line) {
-      if (preg_match('/^\s*(CI_IS_[A-Z0-9]+_RUNNER|CI_RUNNER_[A-Z]+)\s*:/', $line, $matches) === 1) {
+      if (preg_match('/^\s*(?:echo "export )?(CI_IS_[A-Z0-9]+_RUNNER|CI_RUNNER_[A-Z]+)\s*[:=]/', $line, $matches) === 1) {
         $declared[$matches[1]] = $number;
       }
     }

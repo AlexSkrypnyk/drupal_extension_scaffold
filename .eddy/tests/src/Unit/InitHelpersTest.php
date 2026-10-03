@@ -335,9 +335,9 @@ final class InitHelpersTest extends UnitTestCase {
     ];
 
     yield 'remove comment instruction line' => [
-      "# Uncomment the lines below in your project.\n.ahoy.yml export-ignore\n.cspell.json export-ignore",
+      "# Uncomment the lines below in your project.\n.ahoy.yml export-ignore\n.circleci export-ignore",
       '# Uncomment the lines below in your project.',
-      ".ahoy.yml export-ignore\n.cspell.json export-ignore",
+      ".ahoy.yml export-ignore\n.circleci export-ignore",
     ];
   }
 
@@ -407,9 +407,9 @@ final class InitHelpersTest extends UnitTestCase {
     ];
 
     yield 'only uncomments matching line' => [
-      "# .ahoy.yml export-ignore\n# .cspell.json export-ignore\n# .devtools export-ignore",
-      '.cspell.json',
-      "# .ahoy.yml export-ignore\n.cspell.json export-ignore\n# .devtools export-ignore",
+      "# .ahoy.yml export-ignore\n# .circleci export-ignore\n# .devtools export-ignore",
+      '.circleci',
+      "# .ahoy.yml export-ignore\n.circleci export-ignore\n# .devtools export-ignore",
     ];
 
     yield 'no match leaves content unchanged' => [

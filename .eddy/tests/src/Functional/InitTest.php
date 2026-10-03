@@ -72,19 +72,19 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'makefile' => [
+    yield 'gha_makefile' => [
       [
         'command_wrapper' => 'makefile',
       ],
     ];
 
-    yield 'both_wrappers' => [
+    yield 'gha_both_wrappers' => [
       [
         'command_wrapper' => 'ahoy,makefile',
       ],
     ];
 
-    yield 'no_command_wrapper' => [
+    yield 'gha_no_command_wrapper' => [
       [
         'command_wrapper' => '',
       ],

@@ -134,10 +134,10 @@ final class InitProcessTest extends UnitTestCase {
       'tests/scaffold',
     ];
 
-    yield 'module, ahoy' => [
+    yield 'module, gha, ahoy' => [
       'My Extension', 'my_extension', 'module', ['ahoy'],
       array_merge($module_exists, ['.github/workflows', '.ahoy.yml']),
-      array_merge($module_not_exists, ['Makefile']),
+      array_merge($module_not_exists, ['.circleci', 'Makefile']),
       ['Bash(ahoy:*)', 'Bash(composer:*)'],
       FALSE,
     ];
@@ -160,32 +160,33 @@ final class InitProcessTest extends UnitTestCase {
         'my_theme.services.yml',
         'my_theme.links.menu.yml',
         'src/MyThemeService.php',
+        '.circleci',
         'Makefile',
       ],
       ['Bash(ahoy:*)', 'Bash(composer:*)'],
       TRUE,
     ];
 
-    yield 'module, makefile only' => [
+    yield 'module, gha, makefile only' => [
       'My Extension', 'my_extension', 'module', ['makefile'],
       array_merge($module_exists, ['.github/workflows', 'Makefile']),
-      array_merge($module_not_exists, ['.ahoy.yml']),
+      array_merge($module_not_exists, ['.circleci', '.ahoy.yml']),
       ['Bash(composer:*)', 'Bash(make:*)'],
       FALSE,
     ];
 
-    yield 'module, both wrappers' => [
+    yield 'module, gha, both wrappers' => [
       'My Extension', 'my_extension', 'module', ['ahoy', 'makefile'],
       array_merge($module_exists, ['.github/workflows', '.ahoy.yml', 'Makefile']),
-      $module_not_exists,
+      array_merge($module_not_exists, ['.circleci']),
       ['Bash(ahoy:*)', 'Bash(composer:*)', 'Bash(make:*)'],
       FALSE,
     ];
 
-    yield 'module, no wrappers' => [
+    yield 'module, gha, no wrappers' => [
       'My Extension', 'my_extension', 'module', [],
       array_merge($module_exists, ['.github/workflows']),
-      array_merge($module_not_exists, ['.ahoy.yml', 'Makefile']),
+      array_merge($module_not_exists, ['.circleci', '.ahoy.yml', 'Makefile']),
       ['Bash(composer:*)'],
       FALSE,
     ];
@@ -469,20 +470,20 @@ final class InitProcessTest extends UnitTestCase {
    * @param array<string> $expected_absent
    */
   #[DataProvider('dataProviderProcessPrunesDrupalVersions')]
-  public function testProcessPrunesDrupalVersions(array $drupal_versions, array $expected_present, array $expected_absent): void {
+  public function testProcessPrunesDrupalVersions(array $drupal_versions, string $ci_file, array $expected_present, array $expected_absent): void {
     process('My Extension', 'my_extension', 'module', $drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
 
-    $content = (string) file_get_contents(self::$sut . '/.github/workflows/test.yml');
+    $content = (string) file_get_contents(self::$sut . '/' . $ci_file);
 
     foreach ($expected_present as $needle) {
-      $this->assertStringContainsString($needle, $content, 'test.yml should contain corner: ' . $needle);
+      $this->assertStringContainsString($needle, $content, $ci_file . ' should contain corner: ' . $needle);
     }
 
     foreach ($expected_absent as $needle) {
-      $this->assertStringNotContainsString($needle, $content, 'test.yml should not contain corner: ' . $needle);
+      $this->assertStringNotContainsString($needle, $content, $ci_file . ' should not contain corner: ' . $needle);
     }
 
-    $this->assertStringNotContainsString('#;', $content, 'test.yml should not retain special-comment markers.');
+    $this->assertStringNotContainsString('#;', $content, $ci_file . ' should not retain special-comment markers.');
   }
 
   public static function dataProviderProcessPrunesDrupalVersions(): \Iterator {
@@ -490,12 +491,14 @@ final class InitProcessTest extends UnitTestCase {
     $d11 = ['lint-d11', 'test-php-min-d11-stable', 'test-php-max-d11-stable', 'test-php-min-d11-legacy', 'test-php-max-d11-canary'];
     $d12 = ['lint-d12', 'test-php-min-d12-stable', 'test-php-max-d12-stable', 'test-php-min-d12-legacy', 'test-php-max-d12-canary'];
 
-    yield 'all majors' => [['10', '11', '12'], array_merge($d10, $d11, $d12), []];
-    yield 'd10 and d11' => [['10', '11'], array_merge($d10, $d11), $d12];
-    yield 'd11 and d12' => [['11', '12'], array_merge($d11, $d12), $d10];
-    yield 'd10 only' => [['10'], $d10, array_merge($d11, $d12)];
-    yield 'd11 only' => [['11'], $d11, array_merge($d10, $d12)];
-    yield 'd12 only' => [['12'], $d12, array_merge($d10, $d11)];
+    $ci_file = '.github/workflows/test.yml';
+
+    yield 'all majors' => [['10', '11', '12'], $ci_file, array_merge($d10, $d11, $d12), []];
+    yield 'd10 and d11' => [['10', '11'], $ci_file, array_merge($d10, $d11), $d12];
+    yield 'd11 and d12' => [['11', '12'], $ci_file, array_merge($d11, $d12), $d10];
+    yield 'd10 only' => [['10'], $ci_file, $d10, array_merge($d11, $d12)];
+    yield 'd11 only' => [['11'], $ci_file, $d11, array_merge($d10, $d12)];
+    yield 'd12 only' => [['12'], $ci_file, $d12, array_merge($d10, $d11)];
   }
 
   /**
