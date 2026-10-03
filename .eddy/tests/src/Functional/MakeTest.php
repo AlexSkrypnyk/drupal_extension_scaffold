@@ -119,16 +119,9 @@ final class MakeTest extends DevtoolsTestCase {
 
     $this->runLint();
 
-    // `make test` runs every PHPUnit suite in the consumer project, including
-    // FunctionalJavascript. Skip on CI environments without Docker (macOS).
-    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
-      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping `make test` (includes FunctionalJavascript).' . PHP_EOL);
-    }
-    else {
-      $this->processRun('make', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
-      $this->assertProcessSuccessful();
-      $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
-    }
+    $this->processRun('make', ['test'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
+    $this->assertProcessSuccessful();
+    $this->assertDirectoryExists(self::$sut . '/build/web/sites/simpletest/browser_output');
 
     $this->runJavascriptTests();
 
@@ -256,14 +249,6 @@ final class MakeTest extends DevtoolsTestCase {
   }
 
   protected function runFunctionalJavascriptTests(): void {
-    // Allow CI environments without Docker (e.g. GitHub Actions macOS runners)
-    // to opt out of the Selenium-backed FunctionalJavascript step.
-    if (getenv('SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT') === '1') {
-      fwrite(STDERR, 'SCAFFOLD_SKIP_FUNCTIONAL_JAVASCRIPT=1: skipping FunctionalJavascript step.' . PHP_EOL);
-
-      return;
-    }
-
     $this->processRun('make', ['test-functional-javascript'], [], [], $this->longTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
 
