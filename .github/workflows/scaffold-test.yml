@@ -124,27 +124,27 @@ jobs:
 
       - name: Install PHP test dependencies
         run: composer install --no-interaction
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
 
       - name: Validate composer.json
         if: matrix.group == 'p0'
         run: composer validate --strict
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
 
       - name: Check composer.json is normalized
         if: matrix.group == 'p0'
         run: composer normalize --dry-run
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
 
       - name: Lint PHP tests
         if: matrix.group == 'p0'
         run: composer lint
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
 
       - name: Run PHP tests with coverage
         if: matrix.group != 'p5'
         run: composer test-coverage -- --group="${GROUP}"
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
         env:
           GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -156,7 +156,7 @@ jobs:
       - name: Run PHP tests
         if: matrix.group == 'p5'
         run: composer test -- --group="${GROUP}"
-        working-directory: .scaffold/tests
+        working-directory: .eddy/tests
         env:
           GROUP: ${{ matrix.group }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,7 +166,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ github.job }}-code-coverage-report-${{ matrix.os }}-${{ matrix.group }}-${{ matrix.backend }}
-          path: .scaffold/tests/.logs
+          path: .eddy/tests/.logs
           include-hidden-files: true
           if-no-files-found: error
 
@@ -174,7 +174,7 @@ jobs:
         if: ${{ env.CODECOV_TOKEN != '' && matrix.group != 'p5' }}
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
-          directory: .scaffold/tests/.logs
+          directory: .eddy/tests/.logs
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
@@ -195,7 +195,7 @@ jobs:
           persist-credentials: false
 
       - name: Check coding standards with yamllint
-        run: yamllint --config-file .scaffold/tests/.yamllint-for-gha.yml .github/workflows
+        run: yamllint --config-file .eddy/tests/.yamllint-for-gha.yml .github/workflows
         continue-on-error: ${{ vars.DREVOPS_CI_YAMLLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check coding standards with actionlint
@@ -205,5 +205,5 @@ jobs:
       - name: Check GitHub Actions security with Zizmor
         uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
         with:
-          config: .scaffold/tests/zizmor.yml
+          config: .eddy/tests/zizmor.yml
         continue-on-error: ${{ vars.CI_ZIZMOR_IGNORE_FAILURE == '1' }}

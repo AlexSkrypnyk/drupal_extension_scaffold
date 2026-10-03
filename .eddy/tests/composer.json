@@ -1,0 +1,69 @@
+{
+    "name": "drevops/eddy-tests",
+    "description": "Tests for Eddy project functionality.",
+    "license": "GPL-2.0-or-later",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drevops.com",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://github.com/drevops/eddy",
+    "support": {
+        "issues": "https://github.com/drevops/eddy/issues",
+        "source": "https://github.com/drevops/eddy"
+    },
+    "require": {
+        "php": ">=8.3",
+        "alexskrypnyk/file": "^0.19",
+        "alexskrypnyk/phpunit-helpers": "^0.15",
+        "alexskrypnyk/snapshot": "^1.3.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+        "drevops/phpcs-standard": "^0.6.2",
+        "drupal/coder": "^8.3.31",
+        "ergebnis/composer-normalize": "^2.52.0",
+        "laravel/serializable-closure": "^2.0.13",
+        "php-mock/php-mock-phpunit": "^2.15",
+        "phpstan/phpstan": "^2.2.2",
+        "phpunit/phpunit": "^12.5.29",
+        "rector/rector": "^2.4.5",
+        "symfony/filesystem": "^7.4.11",
+        "symfony/finder": "^7.4.8",
+        "symfony/process": "^7.4.13",
+        "symfony/yaml": "^7.4.15"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\Eddy\\Tests\\": "src"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true
+        },
+        "bump-after-update": true,
+        "discard-changes": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": [
+            "phpcs",
+            "phpstan",
+            "rector --clear-cache --dry-run"
+        ],
+        "lint-fix": [
+            "rector --clear-cache",
+            "phpcbf"
+        ],
+        "test": "phpunit --no-coverage",
+        "test-coverage": "php -d pcov.directory=../.. vendor/bin/phpunit $@",
+        "update-assets": "php ../assets/update-assets.php",
+        "update-snapshots": "./vendor/bin/update-snapshots --test-dir=src testInit fixtures/init $@"
+    }
+}

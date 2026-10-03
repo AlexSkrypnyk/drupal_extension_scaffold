@@ -30,7 +30,7 @@
 
 declare(strict_types=1);
 
-namespace DrupalExtensionScaffold\DevTools;
+namespace DrevOps\Eddy\DevTools;
 
 /**
  * Get environment variable with fallback and default value.
@@ -1074,7 +1074,7 @@ function link_browser_output(string $webroot, string $logs_dir): void {
 // defined quit() in a namespace because mocking of global functions can only
 // be done if they are defined in a namespace.
 // @codeCoverageIgnoreStart
-if (!function_exists('DrupalExtensionScaffold\DevTools\quit') && !class_exists('PHPUnit\\Framework\\TestCase')) {
+if (!function_exists('DrevOps\Eddy\DevTools\quit') && !class_exists('PHPUnit\\Framework\\TestCase')) {
 
   /**
    * Exit script with given code.

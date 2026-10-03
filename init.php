@@ -133,7 +133,7 @@ function main(array $argv): void {
       'remove_self' => Prompty::confirm('Remove this script'),
       'proceed' => Prompty::confirm('Proceed with project init'),
     ],
-    intro: 'Drupal Extension Scaffold',
+    intro: 'Eddy - Drupal extension scaffold',
     outro: fn(array $r): string => sprintf(
       "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nDrupal: %s\nWrapper: %s\nRemoved tools: %s",
       $r['name'],
@@ -220,8 +220,8 @@ function drupal_version_default(): array {
 function print_help(): void {
   $script_name = basename(__FILE__);
   $out = <<<EOF
-Drupal Extension Scaffold - project initialization.
-----------------------------------------------------
+Eddy - project initialization.
+------------------------------
 
 Usage:
   php {$script_name}
@@ -459,24 +459,23 @@ function process_internal(string $extension_name, string $extension_machine_name
   $extension_machine_name_class = convert_string($extension_machine_name, 'class_name');
 
   // Protect the scaffold attribution link from bulk replacements.
-  $scaffold_link = '[Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold)';
+  $scaffold_link = '[Eddy](https://github.com/drevops/eddy)';
   $scaffold_link_token = '__SCAFFOLD_ATTRIBUTION_LINK__';
   replace_string_content($scaffold_link, $scaffold_link_token);
 
   // Protect the plain scaffold repository URL from bulk replacements
   // (e.g. backlink comment in '.circleci/config.yml').
-  $scaffold_url = 'https://github.com/AlexSkrypnyk/drupal_extension_scaffold';
+  $scaffold_url = 'https://github.com/drevops/eddy';
   $scaffold_url_token = '__SCAFFOLD_URL__';
   replace_string_content($scaffold_url, $scaffold_url_token);
 
   // Protect the update skill URL from bulk replacements.
-  $update_skill_url = 'https://raw.githubusercontent.com/AlexSkrypnyk/drupal_extension_scaffold/1.x/.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md';
+  $update_skill_url = 'https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md';
   $update_skill_url_token = '__SCAFFOLD_UPDATE_SKILL_URL__';
   replace_string_content($update_skill_url, $update_skill_url_token);
 
   replace_string_content('YourNamespace', $extension_machine_name);
   replace_string_content('yournamespace', $extension_machine_name);
-  replace_string_content('AlexSkrypnyk', $extension_machine_name);
   replace_string_content('alexskrypnyk', $extension_machine_name);
   replace_string_content('yourproject', $extension_machine_name);
   replace_string_content('Yourproject logo', $extension_name . ' logo');
@@ -490,7 +489,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   replace_string_content('drupal-module', 'drupal-' . $extension_type);
   replace_string_content('Drupal module scaffold FE example used for template testing', 'Provides ' . $extension_machine_name . ' functionality.');
   replace_string_content('Drupal extension scaffold', $extension_name);
-  replace_string_content('drupal_extension_scaffold', $extension_machine_name);
   replace_string_content('type: module', 'type: ' . $extension_type);
   replace_string_content('[EXTENSION_NAME]', $extension_machine_name);
 
@@ -567,7 +565,7 @@ function process_internal(string $extension_name, string $extension_machine_name
   foreach (glob('.github/workflows/scaffold*.yml') ?: [] as $file) {
     @unlink($file);
   }
-  remove_dir('.scaffold');
+  remove_dir('.eddy');
 
   // Remove scaffold-only Claude skills placeholder and its gitignore entry.
   remove_dir('.claude/skills');
