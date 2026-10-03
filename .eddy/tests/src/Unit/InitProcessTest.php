@@ -131,7 +131,6 @@ final class InitProcessTest extends UnitTestCase {
       'SECURITY.md',
       '.eddy',
       '.claude/skills',
-      'tests/scaffold',
     ];
 
     yield 'module, gha, ahoy' => [
