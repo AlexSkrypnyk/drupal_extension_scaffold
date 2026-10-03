@@ -328,7 +328,7 @@ ahoy start      # same, with ahoy
 
 `debug` is also available as `debug-on`, `xdebug` and `xdebug-on`, and `start` as `debug-off` and `xdebug-off`.
 
-The `debug` command probes the running PHP server's command line for `xdebug.mode=debug` and skips the restart if XDebug is already enabled. Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because `xdebug.mode=debug` does not include `coverage`.
+The `debug` command probes the running PHP server's command line for `xdebug.mode=debug` and skips the restart if XDebug is already enabled. Code coverage stays on [pcov](https://github.com/krakjoe/pcov) because the XDebug settings apply only to the development server, not to the test commands.
 
 To start and stop debug sessions from the browser, install the Xdebug Helper extension: [Chrome](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm) / [Firefox](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/).
 
@@ -423,17 +423,21 @@ php -d pcov.directory=.. vendor/bin/phpunit --group=wip
 
 ### Deprecated code testing
 
-The tests are configured to check for deprecated code usage and fail if any is found. You can fix the deprecated code or ignore the deprecations by adding a `.deprecation-ignore.txt` file to the root of the codebase and updating the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml`. See https://www.drupal.org/node/3285162 for more details.
+The tests are configured to check for deprecated code usage and fail if any is found. You can fix the deprecated code or ignore the deprecations by adding a `.deprecation-ignore.txt` file to the root of the codebase and setting the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml` to `ignoreFile=../.deprecation-ignore.txt`. PHPUnit runs from the `build` directory, so the path is relative to it. See https://www.drupal.org/node/3285162 for more details.
 
-Note that the CI test jobs that run PHP 8.4 or newer set the `SYMFONY_DEPRECATIONS_HELPER` environment variable to `disabled` to ignore deprecation errors, because not every Drupal 10 and 11 minor fully supports the newer PHP versions yet. You may want to adjust this CI configuration for your project depending on your deprecated code policy.
+Note that the CI test jobs that run PHP 8.4 or newer set the `SYMFONY_DEPRECATIONS_HELPER` environment variable to `disabled` to ignore deprecation errors, because not every tested Drupal version fully supports the newer PHP versions yet. You may want to adjust this CI configuration for your project depending on your deprecated code policy.
 
 ## Branch protection
 
 You should configure [branch protection rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule) in GitHub to ensure that the code tests pass before merging.
 
-Add every `lint-*` and `test-php-*` job as a required status check for your default branch. The job list depends on the Drupal versions you selected in `init.php`, so yours may differ from this example:
+Add the jobs for every Drupal major you selected in `init.php` as required status checks for your default branch:
 
-![GitHub branch protection jobs](.eddy/assets/github-branch-protection.png)
+| Drupal | Required jobs |
+|--------|---------------|
+| 10 | `lint-d10`, `test-php-min-d10-stable`, `test-php-max-d10-stable` |
+| 11 | `lint-d11`, `test-php-min-d11-stable`, `test-php-max-d11-stable`, `test-php-min-d11-legacy`, `test-php-max-d11-canary` |
+| 12 | `lint-d12`, `test-php-min-d12-stable`, `test-php-max-d12-stable`, `test-php-min-d12-legacy`, `test-php-max-d12-canary` |
 
 ## Deployment
 
