@@ -507,7 +507,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessPrunesDrupalBadges')]
   public function testProcessPrunesDrupalBadges(array $drupal_versions, array $expected_present, array $expected_absent): void {
-    process('My Extension', 'my_extension', 'module',$drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', $drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
 
     $readme = (string) file_get_contents(self::$sut . '/README.md');
 
@@ -536,7 +536,7 @@ final class InitProcessTest extends UnitTestCase {
    */
   #[DataProvider('dataProviderProcessNarrowsAssembleDefault')]
   public function testProcessNarrowsAssembleDefault(array $drupal_versions, string $expected_default): void {
-    process('My Extension', 'my_extension', 'module',$drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', $drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
 
     $assemble = (string) file_get_contents(self::$sut . '/.devtools/assemble');
     $this->assertStringContainsString("getenv_default('DRUPAL_VERSION', '" . $expected_default . "')", $assemble);
@@ -557,7 +557,7 @@ final class InitProcessTest extends UnitTestCase {
     file_put_contents(self::$sut . '/.claude/settings.json', '{invalid json');
 
     $this->expectException(\JsonException::class);
-    process('My Extension', 'my_extension', 'module',['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsStructure(): void {
@@ -565,13 +565,13 @@ final class InitProcessTest extends UnitTestCase {
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Invalid .claude/settings.json structure.');
-    process('My Extension', 'my_extension', 'module',['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
   }
 
   public function testProcessSkipsWhenClaudeSettingsMissing(): void {
     @unlink(self::$sut . '/.claude/settings.json');
 
-    process('My Extension', 'my_extension', 'module',['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
+    process('My Extension', 'my_extension', 'module', ['10', '11'], ['ahoy'], [], FALSE, FALSE, FALSE);
 
     $this->assertFileExists(self::$sut . '/my_extension.info.yml');
     $this->assertFileDoesNotExist(self::$sut . '/.claude/settings.json');
