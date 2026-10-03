@@ -140,7 +140,20 @@ final class InitHelpersTest extends UnitTestCase {
       $checked[(string) $key] = in_array((string) $key, $default, TRUE);
     }
 
-    $this->assertSame(['10' => FALSE, '11' => TRUE], $checked);
+    $this->assertSame(['10' => FALSE, '11' => TRUE, '12' => FALSE], $checked);
+  }
+
+  /**
+   * The shipped assemble default builds the highest pre-selected major.
+   *
+   * 'process()' finds the default to rewrite by this exact value.
+   */
+  public function testDrupalVersionShippedAssembleDefault(): void {
+    $shipped_default = (string) max(array_map(intval(...), drupal_version_default()));
+
+    $assemble = (string) file_get_contents(dirname(__DIR__, 4) . '/.devtools/assemble');
+
+    $this->assertStringContainsString("getenv_default('DRUPAL_VERSION', '" . $shipped_default . "')", $assemble);
   }
 
   #[DataProvider('dataProviderRemoveDir')]
@@ -529,6 +542,8 @@ final class InitHelpersTest extends UnitTestCase {
     yield 'empty type' => ['Name', 'machine', '', 'gha', ['10', '11'], ['ahoy'], 'Type is required.'];
     yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['10', '11'], ['ahoy'], 'CI provider is required.'];
     yield 'empty drupal versions' => ['Name', 'machine', 'module', 'gha', [], ['ahoy'], 'At least one Drupal version is required.'];
+    yield 'unsupported drupal version' => ['Name', 'machine', 'module', 'gha', ['11', '9'], ['ahoy'], 'Unsupported Drupal version: 9.'];
+    yield 'unsupported drupal versions' => ['Name', 'machine', 'module', 'gha', ['9', '13'], ['ahoy'], 'Unsupported Drupal version: 9, 13.'];
   }
 
 }

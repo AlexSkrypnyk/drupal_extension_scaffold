@@ -801,6 +801,119 @@ function site_db_file(string $extension_name): string {
 }
 
 /**
+ * Resolve a Drupal version constraint to the release it selects.
+ *
+ * Fails when the releases cannot be listed or none matches the constraint.
+ *
+ * @param string $constraint
+ *   The constraint, such as '12', '__VERSION__' or '12@beta'.
+ *
+ * @return string
+ *   The selected release, such as '__VERSION__'.
+ *
+ * @see drupal_release_select()
+ */
+function drupal_release(string $constraint): string {
+  $output = [];
+  $exit_code = 0;
+  // exec() captures stdout only, so a Composer warning on stderr leaves the
+  // JSON intact.
+  exec('composer show --all --format=json drupal/recommended-project', $output, $exit_code);
+
+  $package = json_decode(implode("\n", $output), TRUE);
+  if ($exit_code !== 0 || !is_array($package) || !isset($package['versions']) || !is_array($package['versions'])) {
+    FAIL('Unable to list the Drupal releases.');
+
+    // @codeCoverageIgnoreStart
+    return '';
+    // @codeCoverageIgnoreEnd
+  }
+
+  $release = drupal_release_select($constraint, array_values(array_filter($package['versions'], is_string(...))));
+  if ($release === NULL) {
+    FAIL('No Drupal release matches %s.', $constraint);
+
+    // @codeCoverageIgnoreStart
+    return '';
+    // @codeCoverageIgnoreEnd
+  }
+
+  return $release;
+}
+
+/**
+ * Select the newest Drupal release matching a version constraint.
+ *
+ * The major is fixed, and so is every number before the last: '__VERSION__'
+ * matches 12.1.x, while '12' and '12.1' match all of 12.x.
+ *
+ * Only stable releases qualify, or releases down to the stability flag in a
+ * constraint such as '12@beta'. When none qualifies, the newest pre-release
+ * is selected, so a version without a stable release still resolves.
+ *
+ * @param string $constraint
+ *   The constraint, such as '12', '__VERSION__' or '12@beta'.
+ * @param array<int, string> $versions
+ *   The available versions. Development branches, such as '12.0.x-dev', are
+ *   skipped.
+ *
+ * @return string|null
+ *   The selected release, or NULL when no release matches the constraint.
+ */
+function drupal_release_select(string $constraint, array $versions): ?string {
+  if (preg_match('/^(\d+(?:\.\d+){0,2})(?:@(stable|rc|beta|alpha))?$/i', $constraint, $matches) !== 1) {
+    return NULL;
+  }
+
+  // Keep the major, and every number before the last.
+  $numbers = explode('.', $matches[1]);
+  $prefix = implode('.', array_slice($numbers, 0, max(1, count($numbers) - 1))) . '.';
+
+  $ranks = ['stable' => 0, 'rc' => 1, 'beta' => 2, 'alpha' => 3];
+  $floor = $ranks[strtolower($matches[2] ?? 'stable')] ?? 0;
+
+  $releases = [];
+  foreach ($versions as $version) {
+    if (str_starts_with($version, $prefix) && preg_match('/^\d+\.\d+\.\d+(?:-(rc|beta|alpha)\d+)?$/i', $version, $parts) === 1) {
+      $releases[$version] = $ranks[strtolower($parts[1] ?? 'stable')] ?? 0;
+    }
+  }
+
+  $qualified = array_keys(array_filter($releases, static fn(int $rank): bool => $rank <= $floor)) ?: array_keys($releases);
+
+  $newest = NULL;
+  foreach ($qualified as $release) {
+    if ($newest === NULL || version_compare($release, $newest, '>')) {
+      $newest = $release;
+    }
+  }
+
+  return $newest;
+}
+
+/**
+ * List the packages a Composer lock file installs from development branches.
+ *
+ * @param string $lock_file
+ *   The path to the lock file.
+ *
+ * @return array<string, string>
+ *   The branch versions keyed by package name, such as '14.x-dev' or
+ *   'dev-main'.
+ */
+function dev_branch_packages(string $lock_file): array {
+  $lock = json_decode((string) @file_get_contents($lock_file), TRUE);
+  if (!is_array($lock)) {
+    return [];
+  }
+
+  /** @var array<string, string> $versions */
+  $versions = array_column(array_merge((array) ($lock['packages'] ?? []), (array) ($lock['packages-dev'] ?? [])), 'version', 'name');
+
+  return array_filter($versions, static fn(string $version): bool => str_starts_with($version, 'dev-') || str_ends_with($version, '-dev'));
+}
+
+/**
  * Check if debug mode is enabled.
  */
 function is_debug(): bool {

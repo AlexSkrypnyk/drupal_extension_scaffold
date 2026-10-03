@@ -58,6 +58,10 @@ TASK('Validating Composer configuration.');
 passthru_or_fail('composer validate --ansi --strict');
 PASS('Composer configuration is valid.');
 
+TASK('Resolving Drupal %s release.', $drupal_version);
+$drupal_release = drupal_release($drupal_version);
+PASS('Resolved Drupal %s to %s.', $drupal_version, $drupal_release);
+
 // Reset the environment.
 if (is_dir($build_dir)) {
   TASK('Removing existing build directory.');
@@ -67,10 +71,9 @@ if (is_dir($build_dir)) {
 }
 
 $drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
-$drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
 
 TASK('Creating Drupal %s project.', $drupal_version);
-passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:~' . $drupal_version)));
+passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:' . $drupal_release)), 'Unable to create the Drupal %s project.', $drupal_release);
 @unlink($build_dir . '/composer.lock');
 PASS('Drupal project created.');
 
@@ -83,8 +86,8 @@ $build_json['config']['audit']['block-insecure'] = FALSE;
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Insecure package blocking disabled.');
 
-TASK('Pinning Drupal core packages to a specific version %s.', $drupal_version);
-$composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "~' . $drupal_version . '"');
+TASK('Pinning Drupal core packages to a specific version %s.', $drupal_release);
+$composer_json_content = replace_in_file($build_composer_json, '/("drupal\/core[^"]*")\s*:\s*"[^"]*"/', '$1: "' . $drupal_release . '"');
 // Print the pinned versions for verification.
 foreach (explode("\n", $composer_json_content) as $line) {
   if (preg_match('/"drupal\/core-.*":\s*"/', $line)) {
@@ -93,17 +96,18 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Drupal core packages pinned.');
 
-TASK('Updating stability to %s.', $drupal_version_stability);
-// Do not rely on the values coming from the scaffold and always set them.
-$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "' . $drupal_version_stability . '"');
+TASK('Updating stability.');
+// Core is pinned to an exact release, so these settings only steer the other
+// dependencies. Each takes its most stable release that fits, falling back to
+// a pre-release or a development branch only when no stable release does.
+$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "dev"');
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'minimum-stability')) {
     NOTE(trim($line));
   }
 }
 
-$drupal_version_prefer_stable = $drupal_version_stability !== 'stable' ? 'false' : 'true';
-$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: ' . $drupal_version_prefer_stable);
+$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: true');
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'prefer-stable')) {
     NOTE(trim($line));
@@ -123,6 +127,14 @@ $build_json['require-dev']['symfony/phpunit-bridge'] = (int) $drupal_version_maj
 // constants removed in __VERSION__. Constrained per-build so the extension's own
 // dependencies carry no upper bound.
 $build_json['require-dev']['rector/rector'] = (int) $drupal_version_major < 11 ? '^2 <__VERSION__' : '^2 <__VERSION__';
+if ((int) $drupal_version_major >= 12) {
+  // Drupal 12 core requires a 'sebastian/diff' that only PHPUnit 12 accepts.
+  // 'composer.dev.json' stops at PHPUnit 11, which Drupal 11 is tested with.
+  $build_json['require-dev']['phpunit/phpunit'] = '^12';
+  // Drupal 12 core packages leave out the 'tests' directories that hold the
+  // test base classes and the PHPUnit bootstrap, so core installs from source.
+  $build_json['config']['preferred-install'] = ['drupal/core' => 'source'];
+}
 file_put_contents($build_composer_json, json_encode($build_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 PASS('Test dependencies configured.');
 
@@ -187,6 +199,16 @@ if (isset($ext_json['suggest']) && is_array($ext_json['suggest'])) {
   }
 }
 PASS('Suggested dependencies installed.');
+
+// A dependency with no release that fits installs from a development branch,
+// so the build output names each one.
+$dev_branch_packages = dev_branch_packages($build_dir . '/composer.lock');
+if ($dev_branch_packages !== []) {
+  INFO('Dependencies installed from development branches:');
+  foreach ($dev_branch_packages as $name => $version) {
+    NOTE('%s %s', $name, $version);
+  }
+}
 
 // Some versions of Drupal enforce maximum verbosity for errors by default. This
 // leads to functional tests failing due to deprecation notices showing up in

@@ -1,4 +1,4 @@
-@@ -111,10 +111,6 @@
+@@ -112,10 +112,6 @@
  
  The `make lint` or `ahoy lint` command checks the codebase using multiple
  tools:

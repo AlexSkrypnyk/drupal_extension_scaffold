@@ -495,15 +495,49 @@ final class InitProcessTest extends UnitTestCase {
   }
 
   public static function dataProviderProcessPrunesDrupalVersions(): \Iterator {
-    $d10 = ['test-php-min-d10-stable', 'test-php-max-d10-stable'];
-    $d11 = ['test-php-min-d11-stable', 'test-php-max-d11-stable', 'test-php-min-d11-legacy', 'test-php-max-d11-canary'];
+    $d10 = ['lint-d10', 'test-php-min-d10-stable', 'test-php-max-d10-stable'];
+    $d11 = ['lint-d11', 'test-php-min-d11-stable', 'test-php-max-d11-stable', 'test-php-min-d11-legacy', 'test-php-max-d11-canary'];
+    $d12 = ['lint-d12', 'test-php-min-d12-stable', 'test-php-max-d12-stable', 'test-php-min-d12-legacy', 'test-php-max-d12-canary'];
 
-    yield 'gha both' => ['gha', ['10', '11'], '.github/workflows/test.yml', array_merge($d10, $d11), []];
-    yield 'gha d11 only' => ['gha', ['11'], '.github/workflows/test.yml', $d11, $d10];
-    yield 'gha d10 only' => ['gha', ['10'], '.github/workflows/test.yml', $d10, $d11];
-    yield 'circleci both' => ['circleci', ['10', '11'], '.circleci/config.yml', array_merge($d10, $d11), []];
-    yield 'circleci d11 only' => ['circleci', ['11'], '.circleci/config.yml', $d11, $d10];
-    yield 'circleci d10 only' => ['circleci', ['10'], '.circleci/config.yml', $d10, $d11];
+    foreach (['gha' => '.github/workflows/test.yml', 'circleci' => '.circleci/config.yml'] as $ci_provider => $ci_file) {
+      yield $ci_provider . ' all majors' => [$ci_provider, ['10', '11', '12'], $ci_file, array_merge($d10, $d11, $d12), []];
+      yield $ci_provider . ' d10 and d11' => [$ci_provider, ['10', '11'], $ci_file, array_merge($d10, $d11), $d12];
+      yield $ci_provider . ' d11 and d12' => [$ci_provider, ['11', '12'], $ci_file, array_merge($d11, $d12), $d10];
+      yield $ci_provider . ' d10 only' => [$ci_provider, ['10'], $ci_file, $d10, array_merge($d11, $d12)];
+      yield $ci_provider . ' d11 only' => [$ci_provider, ['11'], $ci_file, $d11, array_merge($d10, $d12)];
+      yield $ci_provider . ' d12 only' => [$ci_provider, ['12'], $ci_file, $d12, array_merge($d10, $d11)];
+    }
+  }
+
+  /**
+   * Deselecting a Drupal major drops its README badge.
+   *
+   * @param array<string> $drupal_versions
+   * @param array<string> $expected_present
+   * @param array<string> $expected_absent
+   */
+  #[DataProvider('dataProviderProcessPrunesDrupalBadges')]
+  public function testProcessPrunesDrupalBadges(array $drupal_versions, array $expected_present, array $expected_absent): void {
+    process('My Extension', 'my_extension', 'module', 'gha', $drupal_versions, ['ahoy'], [], FALSE, FALSE, FALSE);
+
+    $readme = (string) file_get_contents(self::$sut . '/README.md');
+
+    foreach ($expected_present as $badge) {
+      $this->assertStringContainsString('![' . $badge . '](', $readme, 'README.md should contain badge: ' . $badge);
+    }
+
+    foreach ($expected_absent as $badge) {
+      $this->assertStringNotContainsString('![' . $badge . '](', $readme, 'README.md should not contain badge: ' . $badge);
+    }
+
+    $this->assertStringNotContainsString('#;', $readme, 'README.md should not retain special-comment markers.');
+  }
+
+  public static function dataProviderProcessPrunesDrupalBadges(): \Iterator {
+    yield 'all majors' => [['10', '11', '12'], ['Drupal 10', 'Drupal 11', 'Drupal 12'], []];
+    yield 'd10 and d11' => [['10', '11'], ['Drupal 10', 'Drupal 11'], ['Drupal 12']];
+    yield 'd11 only' => [['11'], ['Drupal 11'], ['Drupal 10', 'Drupal 12']];
+    yield 'd12 only' => [['12'], ['Drupal 12'], ['Drupal 10', 'Drupal 11']];
   }
 
   /**
@@ -517,12 +551,17 @@ final class InitProcessTest extends UnitTestCase {
 
     $assemble = (string) file_get_contents(self::$sut . '/.devtools/assemble');
     $this->assertStringContainsString("getenv_default('DRUPAL_VERSION', '" . $expected_default . "')", $assemble);
+    $this->assertSame(1, substr_count($assemble, "getenv_default('DRUPAL_VERSION',"));
   }
 
   public static function dataProviderProcessNarrowsAssembleDefault(): \Iterator {
-    yield 'both keep 11' => [['10', '11'], '11'];
+    yield 'd10 and d11 keep 11' => [['10', '11'], '11'];
     yield 'd11 only keeps 11' => [['11'], '11'];
     yield 'd10 only narrows to 10' => [['10'], '10'];
+    yield 'd12 only moves to 12' => [['12'], '12'];
+    yield 'd11 and d12 move to 12' => [['11', '12'], '12'];
+    yield 'all majors move to 12' => [['10', '11', '12'], '12'];
+    yield 'unordered selection uses the highest major' => [['12', '10'], '12'];
   }
 
   public function testProcessThrowsOnInvalidClaudeSettingsJson(): void {

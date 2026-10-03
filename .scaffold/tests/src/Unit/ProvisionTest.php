@@ -108,6 +108,7 @@ final class ProvisionTest extends UnitTestCase {
     }
 
     $site_url = sprintf('http://%s:%s', $expected_host, $expected_port);
+    $passthru_responses[] = ['cmd' => $prefix . 'status --field=drush-version', 'output' => '13.8.0'];
     $passthru_responses[] = ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($site_url)), 'output' => $site_url . '/user/reset/1/abc/login'];
 
     $this->mockPassthruMultiple($passthru_responses);
@@ -236,6 +237,7 @@ final class ProvisionTest extends UnitTestCase {
       ['cmd' => $prefix . 'status'],
       ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
       ['cmd' => $prefix . 'cr'],
+      ['cmd' => $prefix . 'status --field=drush-version', 'output' => '13.8.0'],
       ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($site_url)), 'output' => $site_url . '/user/reset/1/abc/login'],
     ]);
 
@@ -245,6 +247,58 @@ final class ProvisionTest extends UnitTestCase {
 
     $this->assertIsString($output);
     $this->assertStringContainsString('http://' . $expected_host . ':' . $expected_port, $output);
+  }
+
+  #[DataProvider('dataProviderProvisionLoginLinkOptions')]
+  public function testProvisionLoginLinkOptions(string $drush_version, string $expected_options): void {
+    $extension_name = 'test_extension';
+    $cwd = '/test/project';
+    $site_url = 'http://localhost:8000';
+
+    $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
+    $this->registerMock('glob', 'DrupalExtensionScaffold\\DevTools', fn(): array => [$extension_name . '.info.yml']);
+
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file): string {
+      if (str_ends_with($file, '.info.yml')) {
+        return "name: Test\ntype: module\n";
+      }
+      if ($file === 'composer.json') {
+        return json_encode(['suggest' => []], JSON_THROW_ON_ERROR);
+      }
+      if (str_starts_with($file, 'http://')) {
+        return '<html></html>';
+      }
+
+      return '';
+    });
+
+    $this->registerMock('file_exists', 'DrupalExtensionScaffold\\DevTools', fn(): bool => FALSE);
+
+    $prefix = self::drushPrefix($cwd);
+    $db_file = site_db_file($extension_name);
+    $this->mockPassthruMultiple([
+      ['cmd' => $prefix . 'status --field=db-status', 'output' => ''],
+      ['cmd' => $prefix . sprintf('site-install %s -y --db-url=%s --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL', escapeshellarg('standard'), escapeshellarg('sqlite://localhost/' . $db_file))],
+      ['cmd' => $prefix . 'status'],
+      ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
+      ['cmd' => $prefix . 'cr'],
+      ['cmd' => $prefix . 'status --field=drush-version', 'output' => $drush_version . "\n"],
+      ['cmd' => $prefix . sprintf('uli -l %s', escapeshellarg($site_url)) . $expected_options, 'output' => $site_url . '/user/reset/1/abc/login'],
+    ]);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/provision';
+    $output = ob_get_clean();
+
+    $this->assertIsString($output);
+    $this->assertStringContainsString('One-time login link: ' . $site_url . '/user/reset/1/abc/login', $output);
+  }
+
+  public static function dataProviderProvisionLoginLinkOptions(): \Iterator {
+    yield 'Drush 12' => ['12.5.3', ' --no-browser'];
+    yield 'Drush 13' => ['13.8.0', ' --no-browser'];
+    yield 'Drush 14' => ['14.0.0', ''];
+    yield 'Drush 14 development branch' => ['14.x-dev', ''];
   }
 
   public function testProvisionDisplaysTunnelUrlWhenSet(): void {
@@ -285,6 +339,7 @@ final class ProvisionTest extends UnitTestCase {
       ['cmd' => $prefix . 'status'],
       ['cmd' => $prefix . 'pm:enable ' . escapeshellarg($extension_name)],
       ['cmd' => $prefix . 'cr'],
+      ['cmd' => $prefix . 'status --field=drush-version', 'output' => '13.8.0'],
       ['cmd' => $prefix . sprintf('uli -l %s --no-browser', escapeshellarg($tunnel_url)), 'output' => $tunnel_url . '/user/reset/1/abc/login'],
     ]);
 

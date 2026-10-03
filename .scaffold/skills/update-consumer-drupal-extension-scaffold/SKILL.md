@@ -172,7 +172,7 @@ tracks comes back untouched.
 `ahoy,makefile`), or an empty string for neither.
 
 `<drupal_version>` is a comma-separated list of Drupal majors to target (e.g.
-`11` or `10,11`). `<tools>` is a comma-separated list of the tools to keep -
+`11`, `10,11` or `11,12`). `<tools>` is a comma-separated list of the tools to keep -
 list every tool the project still uses, since anything omitted is removed.
 `<cloudflare>` is `true` or `false`, and keeps or drops the Cloudflare tunnel
 scripts.
@@ -336,13 +336,7 @@ proceeding. Fix the issues and create additional commits.
 
 ### PHPUnit doc-comment deprecations
 
-PHPUnit 11 (used by Drupal 11) reports deprecations about `@covers` and
-`@group` doc-comment annotations, suggesting PHP attributes instead. **Do NOT
-convert these to PHP attributes** - Drupal 10 uses PHPUnit 10 which does not
-have these attribute classes, and PHPStan will fail with "Attribute class does
-not exist" errors. Keep using doc-comment annotations (`@covers`, `@group`)
-for cross-version compatibility. The PHPUnit deprecation warnings are
-acceptable.
+Drupal 10 runs PHPUnit 9.6, which reads only doc-comment annotations such as `@covers`, `@group` and `@dataProvider`. PHPUnit 11 (used by Drupal 11) reports those annotations as deprecated, and PHPUnit 12 (used by Drupal 12) ignores them entirely. **Keep both forms**, the way the scaffold's example tests do: the doc-comment annotation for Drupal 10 and the matching PHP attribute (`#[Group]`, `#[DataProvider]`, and so on) for Drupal 11 and 12. Do not drop the attributes: a test that relies on a doc-comment `@dataProvider` alone loses its data provider on Drupal 12. The `phpstan.neon` ignore for missing `PHPUnit\Framework\Attributes` classes keeps the Drupal 10 lint passing.
 
 ## Step 12: Open PR
 

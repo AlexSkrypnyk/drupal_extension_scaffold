@@ -20,9 +20,9 @@
         "php": "__VERSION__"
     },
     "require-dev": {
-        "drupal/autologout": "__VERSION__"
+        "drupal/masquerade": "__VERSION__"
     },
     "suggest": {
-        "drupal/config_ignore": "Ignore certain configuration during import."
+        "drupal/linkit": "Pick internal and external links in the text editor."
     }
 }
