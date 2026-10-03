@@ -27,7 +27,7 @@
 
 ---
 
-**Eddy** is a template for a contributed Drupal module or theme, with CI and mirroring to Drupal.org. It sits next to [Vortex](https://github.com/drevops/vortex), the Drupal project template: Vortex sets up a whole site, and Eddy sets up the modules and themes that go into one. The name fits - an eddy is a small vortex, the calm water behind a rock where a kayaker pulls in to rest.
+**Eddy** is a template for a contributed Drupal module or theme, with CI and mirroring to Drupal.org. It's the little brother of [Vortex](https://github.com/drevops/vortex), the Drupal project template: Vortex sets up a whole site, and Eddy sets up the modules and themes that go into one. The name says as much - an eddy is a small vortex, the calm water behind a rock where a kayaker pulls in to rest.
 
 ## Use case
 
