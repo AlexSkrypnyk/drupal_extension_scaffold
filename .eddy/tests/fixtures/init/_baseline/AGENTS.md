@@ -121,20 +121,20 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 
 ## Updating the scaffold
 
-When the user asks to update this project's scaffold (e.g. "update scaffold"), fetch the update skill from GitHub into the local `.claude/skills/` directory, then invoke it:
+When the user asks to update this project's scaffold (e.g. "update scaffold" or "update Eddy"), fetch the update skill from GitHub into the local `.claude/skills/` directory, then invoke it:
 
 1. Create the target directory if it does not exist:
 
    ```bash
-   mkdir -p .claude/skills/update-consumer-drupal-extension-scaffold
+   mkdir -p .claude/skills/update-consumer-eddy
    ```
 
 2. Download the skill:
 
    ```bash
-   curl -sSL https://raw.githubusercontent.com/AlexSkrypnyk/drupal_extension_scaffold/1.x/.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md -o .claude/skills/update-consumer-drupal-extension-scaffold/SKILL.md
+   curl -sSL https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md -o .claude/skills/update-consumer-eddy/SKILL.md
    ```
 
-3. Invoke the `update-consumer-drupal-extension-scaffold` skill and follow its steps.
+3. Invoke the `update-consumer-eddy` skill and follow its steps.
 
 The skill directory is git-ignored - it is fetched on demand and not committed to the project.
