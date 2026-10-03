@@ -462,7 +462,7 @@ function find_free_port(int $start = 8000, int $max_attempts = 100): int {
  *   The TCP port to free.
  */
 function kill_port(int|string $port): void {
-  @passthru(sprintf('lsof -ti:%s | xargs kill -9 2>/dev/null', escapeshellarg((string) $port)));
+  @passthru(sprintf('lsof -ti:%s 2>/dev/null | xargs kill -9 2>/dev/null', escapeshellarg((string) $port)));
 }
 
 /**
