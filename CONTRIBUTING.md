@@ -18,7 +18,7 @@ project root - plus the tooling that turns it into a reusable template:
   and used by CI.
 - `.eddy/` - everything used to develop and test the scaffold itself. It is
   removed from generated projects.
-- `.scaffold/` - only the update skill stub at the path that projects initialized before the move to `drevops/eddy` still fetch. It's removed from generated projects too.
+- `.scaffold/` - only the update skill stub at the path that existing projects' `AGENTS.md` still fetch. It's removed from generated projects too.
 
 ## Building and testing the demo extension
 
