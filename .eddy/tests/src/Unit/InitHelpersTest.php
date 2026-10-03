@@ -118,7 +118,6 @@ final class InitHelpersTest extends UnitTestCase {
     $this->assertStringContainsString('DEX_NAME', $output);
     $this->assertStringContainsString('DEX_MACHINE_NAME', $output);
     $this->assertStringContainsString('DEX_TYPE', $output);
-    $this->assertStringContainsString('DEX_CI_PROVIDER', $output);
     $this->assertStringContainsString('DEX_COMMAND_WRAPPER', $output);
     $this->assertStringContainsString('DEX_EXAMPLES', $output);
     $this->assertStringContainsString('DEX_REMOVE_SELF', $output);
@@ -336,9 +335,9 @@ final class InitHelpersTest extends UnitTestCase {
     ];
 
     yield 'remove comment instruction line' => [
-      "# Uncomment the lines below in your project.\n.ahoy.yml export-ignore\n.circleci export-ignore",
+      "# Uncomment the lines below in your project.\n.ahoy.yml export-ignore\n.cspell.json export-ignore",
       '# Uncomment the lines below in your project.',
-      ".ahoy.yml export-ignore\n.circleci export-ignore",
+      ".ahoy.yml export-ignore\n.cspell.json export-ignore",
     ];
   }
 
@@ -408,9 +407,9 @@ final class InitHelpersTest extends UnitTestCase {
     ];
 
     yield 'only uncomments matching line' => [
-      "# .ahoy.yml export-ignore\n# .circleci export-ignore\n# .devtools export-ignore",
-      '.circleci',
-      "# .ahoy.yml export-ignore\n.circleci export-ignore\n# .devtools export-ignore",
+      "# .ahoy.yml export-ignore\n# .cspell.json export-ignore\n# .devtools export-ignore",
+      '.cspell.json',
+      "# .ahoy.yml export-ignore\n.cspell.json export-ignore\n# .devtools export-ignore",
     ];
 
     yield 'no match leaves content unchanged' => [
@@ -526,24 +525,23 @@ final class InitHelpersTest extends UnitTestCase {
    * @param array<string> $wrapper
    */
   #[DataProvider('dataProviderProcessValidation')]
-  public function testProcessValidation(string $extension_name, string $machine_name, string $type, string $ci, array $drupal_versions, array $wrapper, string $expected_message): void {
+  public function testProcessValidation(string $extension_name, string $machine_name, string $type, array $drupal_versions, array $wrapper, string $expected_message): void {
     $this->expectException(\Exception::class);
     $this->expectExceptionMessage($expected_message);
-    process($extension_name, $machine_name, $type, $ci, $drupal_versions, $wrapper, [], FALSE, FALSE, FALSE);
+    process($extension_name, $machine_name, $type, $drupal_versions, $wrapper, [], FALSE, FALSE, FALSE);
   }
 
   public static function dataProviderProcessValidation(): \Iterator {
-    yield 'empty name' => ['', 'machine', 'module', 'gha', ['10', '11'], ['ahoy'], 'Name is required.'];
-    yield 'empty machine name' => ['Name', '', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name is required.'];
-    yield 'machine name with hyphen' => ['Name', 'my-name', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name with uppercase' => ['Name', 'MyName', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name starting with digit' => ['Name', '1name', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'machine name with special char' => ['Name', 'name!', 'module', 'gha', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
-    yield 'empty type' => ['Name', 'machine', '', 'gha', ['10', '11'], ['ahoy'], 'Type is required.'];
-    yield 'empty ci provider' => ['Name', 'machine', 'module', '', ['10', '11'], ['ahoy'], 'CI provider is required.'];
-    yield 'empty drupal versions' => ['Name', 'machine', 'module', 'gha', [], ['ahoy'], 'At least one Drupal version is required.'];
-    yield 'unsupported drupal version' => ['Name', 'machine', 'module', 'gha', ['11', '9'], ['ahoy'], 'Unsupported Drupal version: 9.'];
-    yield 'unsupported drupal versions' => ['Name', 'machine', 'module', 'gha', ['9', '13'], ['ahoy'], 'Unsupported Drupal version: 9, 13.'];
+    yield 'empty name' => ['', 'machine', 'module', ['10', '11'], ['ahoy'], 'Name is required.'];
+    yield 'empty machine name' => ['Name', '', 'module', ['10', '11'], ['ahoy'], 'Machine name is required.'];
+    yield 'machine name with hyphen' => ['Name', 'my-name', 'module', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with uppercase' => ['Name', 'MyName', 'module', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name starting with digit' => ['Name', '1name', 'module', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'machine name with special char' => ['Name', 'name!', 'module', ['10', '11'], ['ahoy'], 'Machine name must start with a lowercase letter'];
+    yield 'empty type' => ['Name', 'machine', '', ['10', '11'], ['ahoy'], 'Type is required.'];
+    yield 'empty drupal versions' => ['Name', 'machine', 'module', [], ['ahoy'], 'At least one Drupal version is required.'];
+    yield 'unsupported drupal version' => ['Name', 'machine', 'module', ['11', '9'], ['ahoy'], 'Unsupported Drupal version: 9.'];
+    yield 'unsupported drupal versions' => ['Name', 'machine', 'module', ['9', '13'], ['ahoy'], 'Unsupported Drupal version: 9, 13.'];
   }
 
 }

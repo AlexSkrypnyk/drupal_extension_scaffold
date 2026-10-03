@@ -10,7 +10,6 @@
 [![GitHub Issues](https://img.shields.io/github/issues/YourNamespace/your_extension.svg)](https://github.com/YourNamespace/your_extension/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/YourNamespace/your_extension.svg)](https://github.com/YourNamespace/your_extension/pulls)
 [![Build, test and deploy](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml/badge.svg)](https://github.com/YourNamespace/your_extension/actions/workflows/test.yml)
-[![CircleCI](https://circleci.com/gh/YourNamespace/your_extension.svg?style=shield)](https://circleci.com/gh/YourNamespace/your_extension)
 <!-- #;< DEV_PHPUNIT -->
 [![codecov](https://codecov.io/gh/YourNamespace/your_extension/graph/badge.svg)](https://codecov.io/gh/YourNamespace/your_extension)
 <!-- #;> DEV_PHPUNIT -->

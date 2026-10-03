@@ -75,30 +75,6 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $this->assertSame([], $unread, sprintf('test.yml declares runner flags that no step reads: %s', implode(', ', $unread)));
   }
 
-  public function testCircleciFlagsAreGuardedByStep(): void {
-    $path = self::rootDir() . '/.circleci/config.yml';
-    $contents = file_get_contents($path);
-    $this->assertIsString($contents);
-
-    $flags = [];
-    $unguarded = [];
-
-    foreach (array_keys(self::declaredVariables($path)) as $name) {
-      if (preg_match('/^CI_IS_[A-Z0-9]+_RUNNER$/', $name) !== 1) {
-        continue;
-      }
-
-      $flags[] = $name;
-
-      if (!str_contains($contents, sprintf('[ "${%s:-1}" = "1" ] || exit 0', $name))) {
-        $unguarded[] = $name;
-      }
-    }
-
-    $this->assertNotSame([], $flags, 'config.yml declares no runner flags.');
-    $this->assertSame([], $unguarded, sprintf('config.yml exports runner flags that no step guards: %s', implode(', ', $unguarded)));
-  }
-
   #[DataProvider('dataProviderAnchorsAreDeclaredOutsideToolBlocks')]
   public function testAnchorsAreDeclaredOutsideToolBlocks(string $path): void {
     $declared = self::declaredVariables($path);
@@ -147,21 +123,17 @@ final class CiRunnerVariablesTest extends UnitTestCase {
   }
 
   /**
-   * The configuration files both marker-block tests check.
+   * The CI configuration both marker-block tests check.
    *
    * @return \Iterator<string, array{path: string}>
    *   The dataset shared by the two marker-block data providers.
    */
   protected static function configurationPaths(): \Iterator {
     yield 'test.yml' => ['path' => self::rootDir() . '/.github/workflows/test.yml'];
-    yield 'config.yml' => ['path' => self::rootDir() . '/.circleci/config.yml'];
   }
 
   /**
    * Find the runner variables a configuration declares.
-   *
-   * Covers both spellings: a GitHub Actions `env` entry and a CircleCI shell
-   * export.
    *
    * @param string $path
    *   The configuration to read.
@@ -173,7 +145,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
     $declared = [];
 
     foreach (self::lines($path) as $number => $line) {
-      if (preg_match('/^\s*(?:echo "export )?(CI_IS_[A-Z0-9]+_RUNNER|CI_RUNNER_[A-Z]+)\s*[:=]/', $line, $matches) === 1) {
+      if (preg_match('/^\s*(CI_IS_[A-Z0-9]+_RUNNER|CI_RUNNER_[A-Z]+)\s*:/', $line, $matches) === 1) {
         $declared[$matches[1]] = $number;
       }
     }
