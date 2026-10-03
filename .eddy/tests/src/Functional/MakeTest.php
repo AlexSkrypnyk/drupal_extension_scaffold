@@ -47,8 +47,6 @@ final class MakeTest extends DevtoolsTestCase {
     file_put_contents(self::$sut . '/templates/your_extension.html.twig', '{{content}}' . PHP_EOL);
     symlink(self::$sut . '/templates', self::$sut . '/build/web/modules/custom/your_extension/templates');
 
-    // twig-cs-fixer only sees the template if it follows the symlink, so lint
-    // must now fail and name the offending template.
     $this->processRun('make', ['lint'], [], [], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessFailed();
     $this->assertProcessAnyOutputContains('your_extension.html.twig');

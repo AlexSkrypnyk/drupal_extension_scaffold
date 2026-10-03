@@ -127,9 +127,9 @@ final class InitHelpersTest extends UnitTestCase {
   /**
    * The Drupal version prompt starts with the latest major checked.
    *
-   * Mirrors how the multiselect decides which options render checked - each
-   * option key compared against the default list with strict equality, both
-   * normalised to strings - so the assertion holds without driving the widget.
+   * The loop mirrors how the multiselect decides which options render checked.
+   * Each option key is compared strictly against the default list, both
+   * normalised to strings, so the assertion holds without driving the widget.
    */
   public function testDrupalVersionDefault(): void {
     $default = drupal_version_default();

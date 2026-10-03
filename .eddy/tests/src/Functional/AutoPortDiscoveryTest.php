@@ -11,11 +11,11 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Functional tests for auto-port discovery across multiple projects.
  *
- * Each "project" is a minimal sandbox containing only the .devtools scripts
- * and a stubbed build/web tree. The real PHP webserver is started in each
- * sandbox and the resolved WEBSERVER_PORT is read from the generated .env
- * file. This verifies the end-to-end resolution + persistence behavior, not
- * just the unit-level helpers.
+ * Each "project" is a minimal sandbox holding only the .devtools scripts and
+ * a stubbed build/web tree. The test starts the real PHP webserver in each
+ * sandbox and reads the resolved WEBSERVER_PORT from the generated .env file.
+ *
+ * This verifies port resolution and .env persistence end to end.
  *
  * phpcs:disable Drupal.Classes.FullyQualifiedNamespace.UseStatementMissing
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
@@ -66,7 +66,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $this->buildMinimalSut($this->sut1);
     $this->buildMinimalSut($this->sut2);
 
-    // Start project 1; auto-discovery picks a free port and writes it to .env.
     $this->processCwd = $this->sut1;
     $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -80,8 +79,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     // Wait for the backgrounded server to become ready before probing.
     sleep(1);
 
-    // Start project 2; port from project 1 is in use, so a different free
-    // port must be picked.
     $this->processCwd = $this->sut2;
     $this->processRun('php', ['./.devtools/start'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -93,8 +90,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $this->assertNotSame($port1, $port2, 'Second project must auto-discover a port different from the first project.');
     $this->assertProcessAnyOutputContains('http://localhost:' . $port2);
 
-    // Stop project 2, then re-start it. Persisted .env port must be reused;
-    // auto-discovery must not run again.
     $this->processCwd = $this->sut2;
     $this->processRun('php', ['./.devtools/stop'], [], ['WEBSERVER_HOST' => 'localhost'], $this->defaultTimeout, $this->defaultIdleTimeout);
     $this->assertProcessSuccessful();
@@ -130,7 +125,6 @@ final class AutoPortDiscoveryTest extends UnitTestCase {
     $this->startedPorts[] = $preset_port;
     $this->assertProcessAnyOutputContains('http://localhost:' . $preset_port);
 
-    // .env must be untouched: same content, same port, comment preserved.
     $this->assertSame($original_env, file_get_contents($sut . '/.env'), '.env must not be rewritten when WEBSERVER_PORT is already set.');
   }
 

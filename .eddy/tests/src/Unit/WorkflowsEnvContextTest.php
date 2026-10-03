@@ -11,9 +11,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Tests that workflows define every environment variable they read.
  *
- * The `env` context resolves to an empty string for a name that was never
- * defined, so a typo or a self-reference silently disables the value instead
- * of failing the run. Neither actionlint nor Zizmor reports it.
+ * The `env` context resolves an undefined name to an empty string. A typo or a
+ * self-reference then silently disables the value instead of failing the run.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

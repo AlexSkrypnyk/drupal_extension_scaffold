@@ -42,8 +42,8 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
   }
 
   public function testFailureWithMessage(): void {
-    // A result code other than 1 proves the real exit code is passed through
-    // the failure-message branch instead of being replaced by a hardcoded 1.
+    // A result code other than 1 proves the failure-message branch passes the
+    // real exit code through, not a hardcoded 1.
     $this->mockPassthru(['cmd' => 'false', 'result_code' => 42]);
     $this->mockQuit(42);
     ob_start();
@@ -62,8 +62,8 @@ final class HelpersPassthruOrFailTest extends UnitTestCase {
   }
 
   public function testFailureWithFormatArgs(): void {
-    // A result code other than 1 proves the real exit code is passed through
-    // the failure-message branch instead of being replaced by a hardcoded 1.
+    // A result code other than 1 proves the failure-message branch passes the
+    // real exit code through, not a hardcoded 1.
     $this->mockPassthru(['cmd' => 'curl http://example.com', 'result_code' => 7]);
     $this->mockQuit(7);
     ob_start();

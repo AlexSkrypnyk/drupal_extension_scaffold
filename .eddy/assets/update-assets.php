@@ -28,7 +28,7 @@
  * php .eddy/assets/update-assets.php --record init --workspace /tmp/ws
  * @endcode
  *
- * Passing one or more asset names (init, build, lint, test) regenerates only
+ * Passing 1 or more asset names (init, build, lint, test) regenerates only
  * those assets; with none, every asset is regenerated.
  */
 

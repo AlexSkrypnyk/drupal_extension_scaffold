@@ -11,18 +11,17 @@ use function main;
 use function process;
 
 /**
- * Class InitProcessTest.
+ * In-process tests for the high-level orchestration functions in init.php.
  *
- * In-process tests for the high-level orchestration functions in init.php:
- * 'process()', 'process_readme()' and 'process_internal()'.
+ * The tests cover 'process()', 'process_readme()' and 'process_internal()'.
  *
  * The functional 'InitTest' exercises these paths end-to-end via a
  * subprocess and PCOV cannot capture coverage from there. The tests in
  * this class run the same logic in-process so PCOV records it.
  *
  * 'remove_self' is always passed as FALSE: '__FILE__' inside 'init.php'
- * resolves to the loaded path of the script (the project root copy), not
- * the copy inside SUT. Passing TRUE would delete the source 'init.php'.
+ * resolves to the path of the loaded project root copy, not the copy inside
+ * SUT. Passing TRUE would delete the source 'init.php'.
  */
 #[Group('p0')]
 final class InitProcessTest extends UnitTestCase {
@@ -359,8 +358,6 @@ final class InitProcessTest extends UnitTestCase {
       }
     }
 
-    // The generic example lifecycle scripts are not Cloudflare-specific and are
-    // never removed by the tunnel opt-out.
     foreach (['assemble', 'provision', 'start', 'stop'] as $phase) {
       $path = self::$sut . '/scripts/' . $phase . '-example.sh';
       $this->assertFileExists($path, 'Expected to keep: ' . $path);
@@ -389,14 +386,12 @@ final class InitProcessTest extends UnitTestCase {
       }
     }
 
-    // The Cloudflare tunnel scripts are functional hooks rather than examples
-    // and are never removed by the example opt-out.
     foreach (['provision', 'start', 'stop'] as $phase) {
       $path = self::$sut . '/scripts/' . $phase . '-cloudflared.sh';
       $this->assertFileExists($path, 'Expected to keep: ' . $path);
     }
 
-    // The hook directory itself stays so project-local scripts have a home.
+    // The 'scripts' directory stays as the location for project-local scripts.
     $this->assertDirectoryExists(self::$sut . '/scripts');
   }
 

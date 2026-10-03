@@ -24,9 +24,8 @@ final class InfoTest extends UnitTestCase {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
 
-    // CI workflows pre-populate WEBSERVER_HOST and related variables in the
-    // job environment. Strip them so each test starts from a known state and
-    // sees only the values it sets explicitly via envSet().
+    // Unset these so each test starts from a known state and sees only the
+    // values it sets explicitly via envSet().
     $this->envUnset('WEBSERVER_HOST');
     $this->envUnset('WEBSERVER_PORT');
     $this->envUnset('DRUPAL_PROFILE');
@@ -172,8 +171,8 @@ final class InfoTest extends UnitTestCase {
 
     $output = $this->runInfo();
 
-    // Host and port still report the local values; only the site URL follows
-    // the tunnel.
+    // Host and port still report the local values; only the site URL uses the
+    // tunnel.
     $this->assertStringContainsString('Webserver port:     8000 (.env)', $output);
     $this->assertStringContainsString('Site URL:           ' . $tunnel_url, $output);
   }
@@ -438,7 +437,7 @@ final class InfoTest extends UnitTestCase {
   }
 
   public function testInfoFieldModeBypassedForFlagLikeArg(): void {
-    // phpunit may pass its own argv (e.g. '--no-coverage') through to the
+    // PHPUnit may pass its own argv (e.g. '--no-coverage') through to the
     // included script. Args starting with '-' must not trigger field mode.
     $this->setupInfoMocks(
       shell_exec_map: ['*' => ''],
@@ -472,8 +471,8 @@ final class InfoTest extends UnitTestCase {
   protected function runInfoField(string $field, int $expected_exit_code): string {
     $this->mockQuit($expected_exit_code);
 
-    // Set $argv in this method's scope so the included info script,
-    // which inherits the calling scope, sees the field argument.
+    // The included info script inherits this method's scope, so it reads the
+    // field argument from $argv.
     $argv = ['info', $field];
 
     ob_start();

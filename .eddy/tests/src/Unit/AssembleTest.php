@@ -244,7 +244,6 @@ final class AssembleTest extends UnitTestCase {
 
     $passthru_responses[] = ['cmd' => 'composer validate --ansi --strict'];
 
-    // A failed release resolution ends the run before the project is created.
     if ($config['drupal_release'] === NULL) {
       $this->mockPassthruMultiple($passthru_responses);
 
@@ -253,7 +252,6 @@ final class AssembleTest extends UnitTestCase {
 
     $passthru_responses[] = ['cmd' => sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:' . $config['drupal_release'])), 'result_code' => $config['create_project_result_code']];
 
-    // A failed project creation ends the run.
     if ($config['create_project_result_code'] !== 0) {
       $this->mockPassthruMultiple($passthru_responses);
 
@@ -271,8 +269,6 @@ final class AssembleTest extends UnitTestCase {
 
     $passthru_responses[] = ['cmd' => 'composer --working-dir=build install'];
 
-    // Entries already present in the extension's require or require-dev are
-    // skipped, so no composer require call is expected for them.
     foreach (array_keys($config['suggestions']) as $suggest) {
       if (isset($config['extension_require'][$suggest])) {
         continue;

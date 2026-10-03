@@ -10,10 +10,12 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests that documentation stays consistent with the files it describes.
  *
- * A script can be added to `.devtools/` without ever reaching its README
- * table, and a path can be copied into a PHPUnit config without being rebased
- * onto the build root. Neither drift is reported by a linter, because each
- * file stays individually valid while the two disagree.
+ * A script can be added to `.devtools/` without a row in its README table.
+ * A path can be copied into a PHPUnit config without being rebased onto the
+ * build root.
+ *
+ * Neither drift is reported by a linter, because each file stays individually
+ * valid while the 2 files disagree.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort
@@ -54,9 +56,9 @@ final class DocumentationTest extends UnitTestCase {
     $contents = file_get_contents($path);
     $this->assertIsString($contents);
 
-    // These configs run from the build root rather than from the Drupal root,
-    // so the docroot prefix carried by `bootstrap` applies to every other
-    // core-relative path in the file, comments included.
+    // These configs are run from the build root, not the Drupal root, so the
+    // docroot prefix in `bootstrap` applies to every other core-relative path.
+    // Paths inside comments are included.
     preg_match('/bootstrap="([^"]+)"/', $contents, $bootstrap);
     $bootstrap_path = $bootstrap[1] ?? '';
 

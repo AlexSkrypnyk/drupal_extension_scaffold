@@ -10,16 +10,16 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Process\Process;
 
 /**
- * Tests the branch the deploy workflow hands to the deploy script.
+ * Tests the branch the deploy workflow passes to the deploy script.
  *
  * A tag push reports the tag name as the head branch, so the workflow clears
- * it and falls back to the default branch. Git allows a branch and a tag to
- * share a name, so the head branch is only cleared when a tag of that name
- * sits on the commit the run was triggered by.
+ * it and falls back to the default branch. Git allows a tag to share a
+ * branch's name, so the head branch is cleared only when that tag points at
+ * the triggering commit.
  *
  * The step's shell is read out of the workflow and executed against a
- * purpose-built repository, so these assertions cover the script the runner
- * would execute rather than a re-implementation of it.
+ * purpose-built repository, so these assertions cover that script, not a
+ * re-implementation.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

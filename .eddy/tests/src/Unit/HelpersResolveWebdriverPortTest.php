@@ -26,7 +26,6 @@ final class HelpersResolveWebdriverPortTest extends UnitTestCase {
     parent::setUp();
     require_once dirname(__DIR__, 4) . '/.devtools/helpers.php';
 
-    // Each test starts from a known baseline.
     $this->envUnset('WEBDRIVER_PORT');
   }
 

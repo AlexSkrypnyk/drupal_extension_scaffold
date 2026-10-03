@@ -211,12 +211,11 @@ trait MockTrait {
 
       /** @var array{cmd: string, output: string, result_code: int, return: NULL|FALSE} $response */
 
-      // The quiet-mode command runners - passthru_or_fail() and drush() without
-      // DEBUG - wrap the command in a brace group ("{ <cmd>; } 2>&1") so a
-      // normal run captures stdout and stderr together. Strip that wrapper
-      // before matching so expectations assert the logical command regardless
-      // of whether the runner is capturing or streaming (DEBUG=1) it. The
-      // wrapper format itself is asserted in HelpersPassthruCaptureTest.
+      // Without DEBUG, passthru_or_fail() and drush() wrap the command in a
+      // brace group, "{ <cmd>; } 2>&1", to capture stdout and stderr together.
+      // Strip the wrapper before matching so expectations use the logical
+      // command in both captured and streamed (DEBUG=1) runs;
+      // HelpersPassthruCaptureTest asserts the wrapper format.
       $matched = $command;
       if (str_starts_with($matched, '{ ') && str_ends_with($matched, '; } 2>&1')) {
         $matched = substr($matched, 2, -8);
@@ -252,9 +251,6 @@ trait MockTrait {
 
   /**
    * Mock passthru() with no allowed calls, so any call raises.
-   *
-   * Lets a test that asserts empty output prove the command was never run,
-   * rather than passing because the output happened to be empty.
    *
    * @param string $namespace
    *   Namespace to mock the functions in.

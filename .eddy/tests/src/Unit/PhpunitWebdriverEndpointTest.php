@@ -10,10 +10,11 @@ use PHPUnit\Framework\Attributes\Group;
 /**
  * Tests that the WebDriver endpoint follows the resolved WEBDRIVER_PORT.
  *
- * The shipped PHPUnit configs carry the WebDriver endpoint as a literal, but
- * the port that both backends actually bind is resolved at run time and
- * persisted to '.env' so several projects can run FunctionalJavascript tests
- * at once. Two rules keep the literal from becoming authoritative:
+ * The shipped PHPUnit configs carry the WebDriver endpoint as a literal. Both
+ * backends bind a port resolved at run time and persisted to '.env', so
+ * several projects can run FunctionalJavascript tests at once.
+ *
+ * 2 rules keep the literal from becoming authoritative:
  *
  * - The FunctionalJavascript base class rewrites the endpoint from
  *   WEBDRIVER_PORT, so every test that extends it reaches the browser
@@ -21,8 +22,9 @@ use PHPUnit\Framework\Attributes\Group;
  * - The env entry is not forced, so a project whose tests do not extend that
  *   base class can still export its own MINK_DRIVER_ARGS_WEBDRIVER.
  *
- * Dropping either one leaves the tests dialling 4444 while the browser
- * listens elsewhere, which surfaces only on a machine where 4444 is busy.
+ * If either rule is removed, the tests connect to 4444 while the browser
+ * listens on another port. The tests then fail only on a machine where 4444 is
+ * busy.
  *
  * phpcs:disable Drupal.Commenting.FunctionComment.Missing
  * phpcs:disable Drupal.Commenting.DocComment.MissingShort

@@ -196,8 +196,7 @@ final class InitTest extends FunctionalTestCase {
       ->addVersionReplacements()
       ->addExclusions(['127.0.0.1'])
       // Increase max replacements to handle large files with many version
-      // strings (GHA workflows, lock files, etc). This value was empirically
-      // derived through repeated trials.
+      // strings (GHA workflows, lock files, etc). The value is empirical.
       ->setMaxReplacements(5)
       ->replaceInDir($dir);
   }

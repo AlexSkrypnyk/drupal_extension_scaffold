@@ -326,10 +326,6 @@ final class BrowserTest extends UnitTestCase {
     $this->assertTrue((bool) array_filter($commands, fn(string $c): bool => str_contains($c, "lsof -ti:'4444'")), 'The WebDriver process on the resolved port must be terminated.');
   }
 
-  // ---------------------------------------------------------------------------
-  // Helpers.
-  // ---------------------------------------------------------------------------
-
   protected function runBrowser(string $subcommand, int $expected_exit): string {
     $this->mockQuit($expected_exit);
 

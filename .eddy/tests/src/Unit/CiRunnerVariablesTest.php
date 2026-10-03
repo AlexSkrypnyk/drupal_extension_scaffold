@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Tests the runner role variables that decide which tools run where.
+ * Tests the runner role variables that determine which tools run where.
  *
  * Each tool reads a `CI_IS_<TOOL>_RUNNER` flag declared once at the top of the
  * job. A flag that no step reads leaves the tool running everywhere, and a flag
@@ -123,10 +123,7 @@ final class CiRunnerVariablesTest extends UnitTestCase {
   }
 
   /**
-   * The configuration files both marker-block tests check.
-   *
    * @return \Iterator<string, array{path: string}>
-   *   The dataset shared by the two marker-block data providers.
    */
   protected static function configurationPaths(): \Iterator {
     yield 'test.yml' => ['path' => self::rootDir() . '/.github/workflows/test.yml'];
