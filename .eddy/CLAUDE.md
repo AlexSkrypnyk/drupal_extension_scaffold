@@ -11,8 +11,6 @@ apply to consumer projects produced by running `init.php`.
 - `.eddy/assets/` - Source files for animated SVG demos used in the root `README.md` (`init.svg`, `build.svg`, `lint.svg`, `test.svg`) plus the `update-assets.php` generator and a small `svg-term` Node wrapper.
 - `.eddy/tests/` - PHPUnit suite that validates the scaffold itself: the `init.php` interactive flow, the `.devtools/*` PHP helpers, and the resulting project structure. Snapshots live under `.eddy/tests/fixtures/init/`.
 - `.eddy/skills/update-consumer-eddy/` - the update skill that consumer projects fetch through the "Updating the scaffold" section of their `AGENTS.md`.
-- `.scaffold/skills/update-consumer-drupal-extension-scaffold/` - a stub at the update-skill path that existing projects' `AGENTS.md` still fetch. It installs `update-consumer-eddy` and hands over to it, and the first update then gives the project Eddy's `AGENTS.md`. Keep it for the whole 5.x line.
-
 ## Test groups
 
 PHPUnit tests are tagged with `#[Group('p0'..'p5')]` so CI can shard them across parallel jobs:

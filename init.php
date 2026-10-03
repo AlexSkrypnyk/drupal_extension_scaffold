@@ -566,8 +566,6 @@ function process_internal(string $extension_name, string $extension_machine_name
     @unlink($file);
   }
   remove_dir('.eddy');
-  // '.scaffold' holds only the update skill stub existing projects fetch.
-  remove_dir('.scaffold');
 
   // Remove scaffold-only Claude skills placeholder and its gitignore entry.
   remove_dir('.claude/skills');

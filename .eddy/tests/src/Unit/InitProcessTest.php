@@ -130,7 +130,6 @@ final class InitProcessTest extends UnitTestCase {
       'LICENSE.txt',
       'SECURITY.md',
       '.eddy',
-      '.scaffold',
       '.claude/skills',
       'tests/scaffold',
     ];
