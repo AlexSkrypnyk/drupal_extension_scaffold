@@ -91,9 +91,7 @@ up to date, then create a feature branch.
 git status --porcelain
 ```
 
-Every line must be under `.claude/` or `.idea/`, the only paths Step 4 keeps.
-Anything else - a modified tracked file or an untracked one - would be deleted
-in Step 4, so stop and ask the user to commit or stash it first.
+Every line must be under `.claude/` or `.idea/`, the only paths Step 4 keeps. Anything else - a modified tracked file or an untracked one - would be deleted in Step 4, so stop and ask the user to commit or stash it first.
 
 2. Switch to the default (main) branch detected in Step 1:
 
@@ -168,10 +166,7 @@ DEX_PROCEED=true \
 php init.php
 ```
 
-Wrap every value in single quotes, never double quotes. The values come from the
-project's own files, and double quotes still expand `$(...)`, backticks and
-`$VAR`. Write a single quote inside a value as `'\''`, so `O'Brien` becomes
-`'O'\''Brien'`.
+Wrap every value in single quotes, never double quotes. The values come from the project's own files, and double quotes still expand `$(...)`, backticks and `$VAR`. Write a single quote inside a value as `'\''`, so `O'Brien` becomes `'O'\''Brien'`.
 
 **Every one of these variables is mandatory.** A prompt with no matching variable
 is not silently defaulted - it falls through to the interactive input loop and
