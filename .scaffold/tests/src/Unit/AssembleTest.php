@@ -44,8 +44,8 @@ final class AssembleTest extends UnitTestCase {
    *   extension_require_dev, has_deprecations_disabled,
    *   has_package_lock, has_skip_npm_build, has_nvmrc, has_node_modules,
    *   tool_files, has_version_specific_phpunit, has_polyfill_bootstrap,
-   *   create_project_result_code. A NULL drupal_release expects the
-   *   release resolution to fail.
+   *   create_project_result_code, installed_packages. A NULL drupal_release
+   *   expects the release resolution to fail.
    *
    * @return array
    *   The configuration with defaults applied.
@@ -73,6 +73,7 @@ final class AssembleTest extends UnitTestCase {
       'has_version_specific_phpunit' => FALSE,
       'has_polyfill_bootstrap' => FALSE,
       'create_project_result_code' => 0,
+      'installed_packages' => [],
     ];
 
     $cwd = '/test/project';
@@ -103,6 +104,12 @@ final class AssembleTest extends UnitTestCase {
     ], JSON_THROW_ON_ERROR);
 
     $dev_composer_json = json_encode(['require-dev' => ['drupal/coder' => '^8']], JSON_THROW_ON_ERROR);
+
+    $installed_packages = [];
+    foreach ($config['installed_packages'] as $name => $version) {
+      $installed_packages[] = ['name' => $name, 'version' => $version];
+    }
+    $build_composer_lock = json_encode(['packages' => $installed_packages], JSON_THROW_ON_ERROR);
 
     $this->registerMock('getcwd', 'DrupalExtensionScaffold\\DevTools', fn(): string => $cwd);
 
@@ -193,7 +200,7 @@ final class AssembleTest extends UnitTestCase {
     $this->registerMock('mkdir', 'DrupalExtensionScaffold\\DevTools', fn(): true => TRUE);
 
     $info_content = $config['extension_type'] === 'theme' ? "name: Test\ntype: theme\n" : "name: Test\ntype: module\n";
-    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content, $composer_json_str, $build_composer_json, $dev_composer_json) {
+    $this->registerMock('file_get_contents', 'DrupalExtensionScaffold\\DevTools', function (string $file) use ($info_content, $composer_json_str, $build_composer_json, $dev_composer_json, $build_composer_lock) {
       if (str_ends_with($file, '.info.yml')) {
         return $info_content;
       }
@@ -204,6 +211,9 @@ final class AssembleTest extends UnitTestCase {
       // as it does on disk.
       if ($file === 'build/composer.json') {
         return $this->capturedBuildComposerJson === [] ? $build_composer_json : $this->capturedBuildComposerJson[array_key_last($this->capturedBuildComposerJson)];
+      }
+      if ($file === 'build/composer.lock') {
+        return $build_composer_lock;
       }
       if ($file === 'composer.dev.json') {
         return $dev_composer_json;
@@ -631,7 +641,7 @@ final class AssembleTest extends UnitTestCase {
    * @param array<int, string> $releases
    */
   #[DataProvider('dataProviderAssembleDependencyResolution')]
-  public function testAssembleDependencyResolution(string $drupal_version, array $releases, string $expected_release, string $expected_minimum_stability, bool $expected_prefer_stable, ?string $expected_phpunit, ?array $expected_preferred_install): void {
+  public function testAssembleDependencyResolution(string $drupal_version, array $releases, string $expected_release, ?string $expected_phpunit, ?array $expected_preferred_install): void {
     $this->envSet('DRUPAL_VERSION', $drupal_version);
     $this->envSet('GITHUB_TOKEN', '');
     $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
@@ -643,7 +653,6 @@ final class AssembleTest extends UnitTestCase {
     $output = (string) ob_get_clean();
 
     $this->assertStringContainsString('Resolved Drupal ' . $drupal_version . ' to ' . $expected_release . '.', $output);
-    $this->assertStringContainsString('Updating stability to ' . $expected_minimum_stability . '.', $output);
 
     $last_write = end($this->capturedBuildComposerJson);
     $this->assertIsString($last_write);
@@ -652,8 +661,8 @@ final class AssembleTest extends UnitTestCase {
     $this->assertIsArray($build_json);
     /** @var array{'minimum-stability': string, 'prefer-stable': bool, require: array<string, string>, 'require-dev': array<string, string>, config: array<string, mixed>} $build_json */
 
-    $this->assertSame($expected_minimum_stability, $build_json['minimum-stability']);
-    $this->assertSame($expected_prefer_stable, $build_json['prefer-stable']);
+    $this->assertSame('dev', $build_json['minimum-stability']);
+    $this->assertTrue($build_json['prefer-stable']);
     $this->assertSame($expected_release, $build_json['require']['drupal/core-recommended']);
     $this->assertSame($expected_release, $build_json['require']['drupal/core-composer-scaffold']);
     $this->assertSame($expected_phpunit, $build_json['require-dev']['phpunit/phpunit'] ?? NULL);
@@ -665,17 +674,53 @@ final class AssembleTest extends UnitTestCase {
     // Drupal 12.0 is stable and Drupal 12.1 has a pre-release.
     $d12_later = ['12.1.0-beta1', '12.0.2', '12.0.0', '12.0.0-beta1'];
 
-    yield 'Drupal 10' => ['10', self::RELEASES, '10.6.18', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11' => ['11', self::RELEASES, '11.4.8', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11 legacy minor' => ['11.1.0', self::RELEASES, '11.1.10', 'stable', TRUE, NULL, NULL];
-    yield 'Drupal 11 canary' => ['11@beta', self::RELEASES, '11.5.0-beta1', 'beta', FALSE, NULL, NULL];
-    yield 'Drupal 11 minor without a stable release' => ['11.5.0', self::RELEASES, '11.5.0-beta1', 'beta', TRUE, NULL, NULL];
-    yield 'Drupal 12 without a stable release' => ['12', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
-    yield 'Drupal 12 legacy minor without a stable release' => ['12.0.0', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
-    yield 'Drupal 12 canary without a stable release' => ['12@beta', self::RELEASES, '12.0.0-beta1', 'dev', TRUE, '^12', $d12_source];
-    yield 'Drupal 12 with a stable release' => ['12', $d12_later, '12.0.2', 'dev', TRUE, '^12', $d12_source];
-    yield 'Drupal 12 legacy minor with a stable release' => ['12.0.0', $d12_later, '12.0.2', 'dev', TRUE, '^12', $d12_source];
-    yield 'Drupal 12 canary with a stable release' => ['12@beta', $d12_later, '12.1.0-beta1', 'dev', TRUE, '^12', $d12_source];
+    yield 'Drupal 10' => ['10', self::RELEASES, '10.6.18', NULL, NULL];
+    yield 'Drupal 11' => ['11', self::RELEASES, '11.4.8', NULL, NULL];
+    yield 'Drupal 11 legacy minor' => ['11.1.0', self::RELEASES, '11.1.10', NULL, NULL];
+    yield 'Drupal 11 canary' => ['11@beta', self::RELEASES, '11.5.0-beta1', NULL, NULL];
+    yield 'Drupal 11 minor without a stable release' => ['11.5.0', self::RELEASES, '11.5.0-beta1', NULL, NULL];
+    yield 'Drupal 12 without a stable release' => ['12', self::RELEASES, '12.0.0-beta1', '^12', $d12_source];
+    yield 'Drupal 12 legacy minor without a stable release' => ['12.0.0', self::RELEASES, '12.0.0-beta1', '^12', $d12_source];
+    yield 'Drupal 12 canary without a stable release' => ['12@beta', self::RELEASES, '12.0.0-beta1', '^12', $d12_source];
+    yield 'Drupal 12 with a stable release' => ['12', $d12_later, '12.0.2', '^12', $d12_source];
+    yield 'Drupal 12 legacy minor with a stable release' => ['12.0.0', $d12_later, '12.0.2', '^12', $d12_source];
+    yield 'Drupal 12 canary with a stable release' => ['12@beta', $d12_later, '12.1.0-beta1', '^12', $d12_source];
+  }
+
+  /**
+   * @param array<string, string> $installed_packages
+   * @param array<int, string> $expected_lines
+   */
+  #[DataProvider('dataProviderAssembleListsDevelopmentBranches')]
+  public function testAssembleListsDevelopmentBranches(array $installed_packages, array $expected_lines): void {
+    $this->envSet('DRUPAL_VERSION', '12');
+    $this->envSet('GITHUB_TOKEN', '');
+    $this->envSet('SYMFONY_DEPRECATIONS_HELPER', '');
+
+    $this->setupAssembleMocks(['drupal_version' => '12', 'drupal_release' => '12.0.0-beta1', 'installed_packages' => $installed_packages]);
+
+    ob_start();
+    require dirname(__DIR__, 4) . '/.devtools/assemble';
+    $output = (string) ob_get_clean();
+
+    if ($expected_lines === []) {
+      $this->assertStringNotContainsString('Dependencies installed from development branches', $output);
+
+      return;
+    }
+
+    $this->assertStringContainsString('Dependencies installed from development branches:', $output);
+    foreach ($expected_lines as $expected_line) {
+      $this->assertStringContainsString($expected_line, $output);
+    }
+  }
+
+  public static function dataProviderAssembleListsDevelopmentBranches(): \Iterator {
+    yield 'development branches' => [
+      ['drupal/core' => '12.0.0-beta1', 'drush/drush' => '14.x-dev', 'grasmash/yaml-cli' => '4.x-dev'],
+      ['drush/drush 14.x-dev', 'grasmash/yaml-cli 4.x-dev'],
+    ];
+    yield 'releases only' => [['drupal/core' => '12.0.0-beta1', 'drush/drush' => '14.0.0'], []];
   }
 
   #[DataProvider('dataProviderAssembleReleaseFailure')]

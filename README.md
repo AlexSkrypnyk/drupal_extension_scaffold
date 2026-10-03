@@ -165,9 +165,20 @@ DRUPAL_VERSION=11@beta make build   # Newest Drupal 11 beta, release candidate o
 DRUPAL_VERSION=12 make build        # Newest stable Drupal 12 release, or newest pre-release if none
 ```
 
-The build resolves `DRUPAL_VERSION` to an exact Drupal release, prints it (for example, `Resolved Drupal 12 to 12.0.0-beta1.`) and pins Drupal core to it. A version with no stable release yet resolves to its newest pre-release instead.
+#### How versions are resolved
 
-The `minimum-stability` setting in the `composer.json` file is automatically adjusted to allow the resolved release and any stability flag in `DRUPAL_VERSION`. Drupal 12 builds are the exception - see [Drupal 12](#drupal-12).
+The build resolves versions in 2 steps, so nothing needs editing as Drupal and its tools publish new releases:
+
+1. **Drupal core is pinned to one exact release.** The build picks the newest release matching `DRUPAL_VERSION`, prints it and pins core to it. A version with no stable release yet resolves to its newest pre-release.
+2. **Every other dependency gets its most stable release that fits.** The build sets `minimum-stability: dev` with `prefer-stable: true`, so `composer.dev.json` and your `composer.json` only say which versions are acceptable. A dependency falls back to a pre-release or a development branch only when no stable release supports the chosen core, and the build output lists every dependency installed from a development branch.
+
+For example, as of October 2026:
+
+| `DRUPAL_VERSION` | Drupal core | Drush |
+|------------------|-------------|-------|
+| `11` | `11.4.8` | `13.8.0` |
+| `11@beta` | `11.4.8`, then the 11.5 pre-releases once they exist | `13.8.0` |
+| `12` | `12.0.0-beta1`, then `12.0.0` once it ships | `14.x-dev`, then `14.0.0` once it's tagged |
 
 ### CI Drupal version matrix
 
@@ -201,7 +212,7 @@ Drupal 12 has no stable release yet, but its jobs use the same kind of values as
 
 Drupal 12 requires PHP 8.5, which is already the matrix ceiling, so every Drupal 12 job runs PHP 8.5 for now. The `min` and `max` jobs split apart as soon as a newer PHP joins the matrix.
 
-Some of the Drupal 12 toolchain is still catching up - Drush, for one, supports Drupal 12 only on its `14.x` development branch. So `.devtools/assemble` resolves Drupal 12 builds with `minimum-stability: dev` and `prefer-stable: true`, the same pairing the [Drupal.org GitLab CI templates](https://www.drupal.org/project/gitlab_templates) use. Every package still lands on its most stable release, and one that supports Drupal 12 only on a development branch installs from that branch instead of failing the build. Drupal core stays pinned to the exact resolved release, so this never changes which core a job tests.
+Some of the Drupal 12 toolchain is still catching up - Drush, for one, supports Drupal 12 only on its `14.x` development branch. Drupal 12 builds install that branch for now and move to Drush 14.0.0 on their own once it's tagged - see [How versions are resolved](#how-versions-are-resolved).
 
 Drupal 12 core packages also leave out every `tests` directory, and with it the test base classes and the PHPUnit bootstrap your tests need. So Drupal 12 builds install `drupal/core` from source (a git checkout) rather than from its package archive. The checkout is bigger than the archive, so Drupal 12 builds take a little longer to assemble.
 

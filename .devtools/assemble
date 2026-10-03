@@ -71,23 +71,6 @@ if (is_dir($build_dir)) {
 }
 
 $drupal_version_major = explode('.', explode('@', $drupal_version)[0])[0];
-$drupal_version_stability = str_contains($drupal_version, '@') ? explode('@', $drupal_version)[1] : 'stable';
-
-$minimum_stability = $drupal_version_stability;
-$prefer_stable = $drupal_version_stability === 'stable';
-
-// A version with no release at its stability resolves to a pre-release, so
-// the floor drops to the stability of that release.
-if (stability_rank(version_stability($drupal_release)) > stability_rank($minimum_stability)) {
-  $minimum_stability = version_stability($drupal_release);
-}
-
-// Drupal 12 and later accept development releases but prefer stable ones, so
-// dependencies supporting the major only on a development branch resolve.
-if ((int) $drupal_version_major >= 12) {
-  $minimum_stability = 'dev';
-  $prefer_stable = TRUE;
-}
 
 TASK('Creating Drupal %s project.', $drupal_version);
 passthru_or_fail(sprintf('composer create-project %s build --no-install --no-interaction', escapeshellarg('drupal/recommended-project:' . $drupal_release)), 'Unable to create the Drupal %s project.', $drupal_release);
@@ -113,16 +96,18 @@ foreach (explode("\n", $composer_json_content) as $line) {
 }
 PASS('Drupal core packages pinned.');
 
-TASK('Updating stability to %s.', $minimum_stability);
-// Do not rely on the values coming from the scaffold and always set them.
-$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "' . $minimum_stability . '"');
+TASK('Updating stability.');
+// Core is pinned to an exact release, so these settings only steer the other
+// dependencies. Each takes its most stable release that fits, falling back to
+// a pre-release or a development branch only when no stable release does.
+$composer_json_content = replace_in_file($build_composer_json, '/("minimum-stability")\s*:\s*"[^"]*"/', '$1: "dev"');
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'minimum-stability')) {
     NOTE(trim($line));
   }
 }
 
-$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: ' . ($prefer_stable ? 'true' : 'false'));
+$composer_json_content = replace_in_file($build_composer_json, '/("prefer-stable")\s*:\s*\w+/', '$1: true');
 foreach (explode("\n", $composer_json_content) as $line) {
   if (str_contains($line, 'prefer-stable')) {
     NOTE(trim($line));
@@ -214,6 +199,16 @@ if (isset($ext_json['suggest']) && is_array($ext_json['suggest'])) {
   }
 }
 PASS('Suggested dependencies installed.');
+
+// A dependency with no release that fits installs from a development branch,
+// so the build output names each one.
+$dev_branch_packages = dev_branch_packages($build_dir . '/composer.lock');
+if ($dev_branch_packages !== []) {
+  INFO('Dependencies installed from development branches:');
+  foreach ($dev_branch_packages as $name => $version) {
+    NOTE('%s %s', $name, $version);
+  }
+}
 
 // Some versions of Drupal enforce maximum verbosity for errors by default. This
 // leads to functional tests failing due to deprecation notices showing up in
