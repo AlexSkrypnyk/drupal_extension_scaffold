@@ -247,13 +247,19 @@ Updated scaffold to <version>.
 
 ## Step 11: Build, lint, and test
 
-Run the full build pipeline to verify nothing is broken:
+Run the full build pipeline through the command wrapper detected in Step 1 to verify nothing is broken. With Ahoy, alone or next to a Makefile:
 
 ```bash
 ahoy build
 ```
 
-If `ahoy` is not available, run the devtools scripts as separate commands:
+For a Makefile-only project:
+
+```bash
+make build
+```
+
+With neither wrapper, run the devtools scripts as separate commands:
 
 ```bash
 .devtools/assemble
@@ -267,7 +273,7 @@ If `ahoy` is not available, run the devtools scripts as separate commands:
 .devtools/provision
 ```
 
-Then run linting and tests:
+Then run linting and tests through the same wrapper - `ahoy lint` and `ahoy test`, or `make lint` and `make test` for a Makefile-only project:
 
 ```bash
 ahoy lint
@@ -276,6 +282,8 @@ ahoy lint
 ```bash
 ahoy test
 ```
+
+A project with neither wrapper has no local lint or test command, so its lint and tests run only in the pull request's CI (Step 12).
 
 Both lint **warnings** and **errors** must be fixed - warnings are not accepted. Same applies to tests: all warnings and failures must be resolved before proceeding. Fix the issues and create additional commits.
 
