@@ -249,7 +249,7 @@ When the user asks to update this project's scaffold (e.g. "update scaffold" or 
 2. Download the skill:
 
    ```bash
-   curl -sSL https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md -o .claude/skills/update-consumer-eddy/SKILL.md
+   curl -fsSL https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md -o .claude/skills/update-consumer-eddy/SKILL.md
    ```
 
 3. Invoke the `update-consumer-eddy` skill and follow its steps.
