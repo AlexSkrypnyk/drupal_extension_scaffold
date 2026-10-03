@@ -85,19 +85,29 @@ invoking the skill, use that version verbatim and skip the lookup.
 Before making any changes, ensure the working tree is on the default branch and
 up to date, then create a feature branch.
 
-1. Switch to the default (main) branch detected in Step 1:
+1. Check that the update can't destroy uncommitted work:
+
+```bash
+git status --porcelain
+```
+
+Every line must be under `.claude/` or `.idea/`, the only paths Step 4 keeps.
+Anything else - a modified tracked file or an untracked one - would be deleted
+in Step 4, so stop and ask the user to commit or stash it first.
+
+2. Switch to the default (main) branch detected in Step 1:
 
 ```bash
 git checkout <main_branch>
 ```
 
-2. Pull the latest changes:
+3. Pull the latest changes:
 
 ```bash
 git pull
 ```
 
-3. Create and switch to a new feature branch. Use the release tag verbatim, as
+4. Create and switch to a new feature branch. Use the release tag verbatim, as
    printed in Step 2 (e.g., `5.0.0`):
 
 ```bash
