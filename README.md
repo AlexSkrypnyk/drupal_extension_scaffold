@@ -535,7 +535,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
 
 2. Add **public** key to your [Drupal.org account](https://git.drupalcode.org/-/user_settings/ssh_keys)
 3. Add the **private** key to GitHub Actions:
-   - Go to your project -> **Settings** -> **Secrets**
+   - Go to your project -> **Settings** -> **Secrets and variables** -> **Actions** -> **Secrets**
    - Add a new secret with the `DEPLOY_SSH_KEY` name and the private key as the value.
 
 4. In CI, use UI to add the following variables as secrets:
