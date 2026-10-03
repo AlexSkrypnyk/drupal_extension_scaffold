@@ -463,12 +463,6 @@ expect "Extension type" {
     wait_and_enter
 }
 
-# Select: CI provider - first option "GitHub Actions" is pre-selected.
-expect "CI provider" {
-    sleep {$delay}
-    wait_and_enter
-}
-
 # Multi-select: Target Drupal versions - all pre-checked by default; confirm
 # with enter to keep all majors.
 expect "Target Drupal versions" {

@@ -44,9 +44,9 @@ Read the project to determine the init.php answers:
 1. **Name**: Read from `*.info.yml` - the `name` field.
 2. **Machine name**: The `*.info.yml` filename without extension.
 3. **Type**: `module` or `theme` - from the `type` field in `*.info.yml`.
-4. **CI provider**: `gha` if `.github/workflows/` exists, `circleci` if `.circleci/` exists.
+4. **CI provider** (4.x releases only): `gha` if `.github/workflows/` exists, `circleci` if `.circleci/` exists. Later releases support only GitHub Actions and do not ask.
 5. **Command wrapper**: `ahoy` if `.ahoy.yml` exists and `makefile` if `Makefile` exists - `ahoy,makefile` when both exist, and an empty string when neither does.
-6. **Drupal versions**: the Drupal majors in the CI matrix - the `drupal-version` values in `.github/workflows/test.yml` or the `DRUPAL_VERSION` values in `.circleci/config.yml` - as a comma-separated list (e.g. `10,11`).
+6. **Drupal versions**: the Drupal majors in the CI matrix - the `drupal-version` values in `.github/workflows/test.yml`, or the `DRUPAL_VERSION` values in `.circleci/config.yml` for a project that still uses CircleCI - as a comma-separated list (e.g. `10,11`).
 7. **Tools**: every tool whose file still exists - `phpcs` (`phpcs.xml`), `phpstan` (`phpstan.neon`), `rector` (`rector.php`), `twigcs` (`.twig-cs-fixer.php`), `eslint` (`.eslintrc.json`), `stylelint` (`.stylelintrc.js`), `cspell` (`.cspell.json`), `jest` (`jest.config.js`), `phpunit` (`phpunit.xml`), `functional_javascript` (`.devtools/browser`) and `renovate` (`renovate.json`).
 8. **Cloudflare**: `true` if `scripts/start-cloudflared.sh` exists, `false` otherwise.
 
@@ -136,7 +136,6 @@ Run init.php from the project root. Set `EDDY_REMOVE_SELF=true` and `EDDY_PROCEE
 EDDY_NAME='<Name>' \
 EDDY_MACHINE_NAME='<machine_name>' \
 EDDY_TYPE='<type>' \
-EDDY_CI_PROVIDER='<ci_provider>' \
 EDDY_DRUPAL_VERSION='<drupal_version>' \
 EDDY_COMMAND_WRAPPER='<command_wrapper>' \
 EDDY_TOOLS='<tools>' \
@@ -151,7 +150,7 @@ Wrap every value in single quotes, never double quotes. The values come from the
 
 **Every one of these variables is mandatory.** A prompt with no matching variable is not silently defaulted - it falls through to the interactive input loop and reads `STDIN`, which never returns under automation. Derive each value from the project's detected settings, and run `php init.php --help` for the full list and accepted values if the prompts change in a future release.
 
-The `EDDY_` prefix applies to releases after 4.x. When the tag from Step 2 is a 4.x release, run `php init.php --help` first and use the prefix it lists instead (`DEX_` in 4.19.0, `PROMPTY_` before it).
+The `EDDY_` prefix applies to releases after 4.x. When the tag from Step 2 is a 4.x release, run `php init.php --help` first and use the prefix it lists instead (`DEX_` in 4.19.0, `PROMPTY_` before it). 4.x releases also ask for the CI provider, so pass that variable too, with the value from Step 1.
 
 `EDDY_EXAMPLES=false` drops the scaffold's example lifecycle scripts. Step 7 restores `scripts/` from git straight after, so any hook the project actually tracks comes back untouched.
 
@@ -235,7 +234,7 @@ The `README.md` must follow the scaffold template structure exactly. Do NOT simp
 3. Insert project-specific content sections (e.g., "Use case", "How it works", "Installation") between the header and the "Contributing" section.
 4. Keep the scaffold's development sections verbatim. They live in `CONTRIBUTING.md` (Local development, Building website, Drupal versions, Coding standards, Testing), which `init.php` regenerates from the scaffold: carry over any project-specific notes from the previous version (`git show HEAD:CONTRIBUTING.md`).
 5. Adjust command references in `CONTRIBUTING.md` to match the chosen command wrapper (e.g., remove `make` references if the project uses `ahoy` only, or vice versa).
-6. Remove badges for tools not used (e.g., CircleCI badge if using GHA).
+6. Remove badges for tools the project does not use.
 7. Fix the Eddy link at the bottom to point to the Eddy repo, not the project repo.
 
 ## Step 10: Commit
