@@ -29,8 +29,8 @@ $webserver_wait_timeout = (int) getenv_default('WEBSERVER_WAIT_TIMEOUT', '5');
 
 // Enable XDebug when XDebug env var is set. XDebug extension must be installed
 // and configured on host environment (php -v should show `with Xdebug`).
-// Coverage stays on pcov in test commands because xdebug.mode=debug does
-// not include "coverage", so pcov remains the active coverage driver.
+// The flags apply only to the development server, so test commands keep pcov
+// as the coverage driver.
 $xdebug_enabled = getenv_default('XDEBUG', '') !== '';
 $xdebug_flags = $xdebug_enabled ? ' -d xdebug.mode=debug -d xdebug.start_with_request=yes' : '';
 

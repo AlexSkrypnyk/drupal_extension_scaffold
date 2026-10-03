@@ -30,7 +30,7 @@
  
  **Using Ahoy (alternative):**
  - `ahoy build` - Complete build process
-@@ -35,26 +37,25 @@
+@@ -37,26 +39,25 @@
  ### Code Quality
  
  **Linting:**
@@ -63,7 +63,7 @@
  - `ahoy info` - Print a read-only summary of PHP/Drupal/Composer/Drush/Node versions, webserver host/port (with source), XDebug state, build directory, database path, and active profile. (alias: `ahoy describe`)
  
  ## Project Structure
-@@ -61,7 +62,6 @@
+@@ -63,7 +64,6 @@
  
  **Key Directories:**
  - `src/` - Extension source code (services, forms, etc.)
@@ -71,16 +71,17 @@
  - `config/schema/` - Configuration schema definitions
  - `build/` - Assembled Drupal codebase (symlinked extension)
  - `.devtools/` - Build and deployment scripts used by CI
-@@ -83,8 +83,6 @@
+@@ -85,9 +85,6 @@
  - `DRUPAL_VERSION` - Target Drupal version (e.g., `10`, `11`, `11@alpha`, `12@beta`)
  - `WEBSERVER_HOST` - Development server host (default: localhost)
  - `WEBSERVER_PORT` - Development server port. Auto-discovered from range 8000-8099 and written to `.env` if not already set
 -- `WEBDRIVER_BACKEND` - FunctionalJavascript WebDriver backend: `chromedriver` (default, drives the locally installed Chrome with no Docker) or `selenium` (Docker container)
 -- `WEBDRIVER_PORT` - Port for the WebDriver endpoint (both backends). Auto-discovered from 4444 and written to `.env` if not already set, so several projects can run FunctionalJavascript tests simultaneously. The endpoint in `phpunit.xml` is the default for port 4444; tests reach the resolved port because the FunctionalJavascript base class rewrites the port in `MINK_DRIVER_ARGS_WEBDRIVER` from this variable, so FunctionalJavascript tests must extend that base class (or export their own `MINK_DRIVER_ARGS_WEBDRIVER`)
+-- `WEBDRIVER_HOST` - Address the FunctionalJavascript browser uses to reach the PHP webserver. Defaults to `localhost` with `chromedriver`, and to `host.docker.internal` (macOS) or `__VERSION__.1` (other systems) with `selenium`
  - `GITHUB_TOKEN` - GitHub API token to avoid rate limits
  - `DEBUG` - Set to `1` to stream the full output of the underlying commands (Composer, npm, Drush). By default this output is suppressed and shown only when a command fails
  
-@@ -99,11 +97,6 @@
+@@ -102,11 +99,6 @@
  
  ## Code Quality Tools
  
