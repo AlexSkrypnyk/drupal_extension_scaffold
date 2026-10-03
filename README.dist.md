@@ -49,4 +49,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for local development, building the
 site, checking coding standards, and running the tests.
 
 ---
-_This repository was created using the [Drupal Extension Scaffold](https://github.com/AlexSkrypnyk/drupal_extension_scaffold) project template_
+_This repository was created using the [Eddy](https://github.com/drevops/eddy) project template_

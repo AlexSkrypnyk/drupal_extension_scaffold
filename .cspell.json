@@ -123,9 +123,9 @@
         "*.cast",
         "LICENSE.txt",
         "LICENSE",
-        ".scaffold/tests/fixtures/",
-        ".scaffold/tests/vendor/",
-        ".scaffold/assets/node_modules/"
+        ".eddy/tests/fixtures/",
+        ".eddy/tests/vendor/",
+        ".eddy/assets/node_modules/"
     ],
     "useGitignore": true,
     "overrides": [

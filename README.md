@@ -1,19 +1,20 @@
 <p align="center">
   <a href="" rel="noopener">
-  <img width=200px height=200px src="https://github.com/AlexSkrypnyk/drupal_extension_scaffold/assets/378794/31658686-7a8a-4203-9c8b-a8bc0b99f002" alt="Drupal extension scaffold"></a>
+  <img width=200px height=200px src="https://github.com/drevops/eddy/assets/378794/31658686-7a8a-4203-9c8b-a8bc0b99f002" alt="Eddy logo"></a>
 </p>
 
-<h1 align="center">Template for a contributed Drupal module or theme with CI and mirroring to Drupal.org</h1>
+<h1 align="center">Eddy</h1>
+<h3 align="center">Drupal extension scaffold</h3>
 
 <div align="center">
 
-[![GitHub Issues](https://img.shields.io/github/issues/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/AlexSkrypnyk/drupal_extension_scaffold.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/pulls)
-[![Build, test and deploy](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/actions/workflows/test.yml/badge.svg)](https://github.com/AlexSkrypnyk/drupal_extension_scaffold/actions/workflows/test.yml)
-[![CircleCI](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold.svg?style=shield)](https://circleci.com/gh/AlexSkrypnyk/drupal_extension_scaffold)
-[![codecov](https://codecov.io/gh/AlexSkrypnyk/drupal_extension_scaffold/graph/badge.svg?token=GSXTND4VOC&cachebust=123)](https://codecov.io/gh/AlexSkrypnyk/drupal_extension_scaffold)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/AlexSkrypnyk/drupal_extension_scaffold)
-![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/drupal_extension_scaffold)
+[![GitHub Issues](https://img.shields.io/github/issues/drevops/eddy.svg)](https://github.com/drevops/eddy/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/drevops/eddy.svg)](https://github.com/drevops/eddy/pulls)
+[![Build, test and deploy](https://github.com/drevops/eddy/actions/workflows/test.yml/badge.svg)](https://github.com/drevops/eddy/actions/workflows/test.yml)
+[![CircleCI](https://circleci.com/gh/drevops/eddy.svg?style=shield)](https://circleci.com/gh/drevops/eddy)
+[![codecov](https://codecov.io/gh/drevops/eddy/graph/badge.svg)](https://codecov.io/gh/drevops/eddy)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/eddy)
+![LICENSE](https://img.shields.io/github/license/drevops/eddy)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
@@ -25,6 +26,8 @@
 </div>
 
 ---
+
+**Eddy** is a template for a contributed Drupal module or theme, with CI and mirroring to Drupal.org. It sits next to [Vortex](https://github.com/drevops/vortex), the Drupal project template: Vortex sets up a whole site, and Eddy sets up the modules and themes that go into one. The name fits - an eddy is a small vortex, the calm water behind a rock where a kayaker pulls in to rest.
 
 ## Use case
 
@@ -43,7 +46,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Deployment](#deployment)
 - [Updating your extension](#updating-your-extension)
 - [Renovate](#renovate)
-- [Projects using this scaffold](#projects-using-this-scaffold)
+- [Projects using Eddy](#projects-using-eddy)
 - [Contributing](#contributing)
 
 ## Features
@@ -120,7 +123,7 @@ See the sections below for more details.
 The initial codebase setup script `php init.php` will ask you for some information
 and update the codebase to reflect your extension's name and other details.
 
-![Init process](.scaffold/assets/init.svg)
+![Init process](.eddy/assets/init.svg)
 
 ## Building website
 
@@ -148,7 +151,7 @@ re-assembling the codebase.
 
 See [README.md](README.dist.md) for more development commands.
 
-![Build process](.scaffold/assets/build.svg)
+![Build process](.eddy/assets/build.svg)
 
 ### Drupal versions
 
@@ -413,7 +416,7 @@ tools:
 
 The configuration files for these tools are located in the root of the codebase.
 
-![Lint process](.scaffold/assets/lint.svg)
+![Lint process](.eddy/assets/lint.svg)
 
 ### Fixing coding standards issues
 
@@ -482,7 +485,7 @@ endpoint, so extend `YourExtensionFunctionalJavascriptTestBase` rather than
 endpoint from `phpunit.xml` unless it exports its own
 `MINK_DRIVER_ARGS_WEBDRIVER`.
 
-![Test process](.scaffold/assets/test.svg)
+![Test process](.eddy/assets/test.svg)
 
 ### Running specific tests
 
@@ -527,7 +530,7 @@ in GitHub to ensure that the code tests pass before merging.
 
 Make sure to add all jobs for your default branch:
 
-![GitHub branch protection jobs](.scaffold/assets/github-branch-protection.png)
+![GitHub branch protection jobs](.eddy/assets/github-branch-protection.png)
 
 ## Deployment
 
@@ -618,7 +621,7 @@ When this template is updated, you can merge the changes into your extension
 codebase.
 
 If you use Claude Code, the bundled
-[`update-consumer-drupal-extension-scaffold`](.scaffold/skills/update-consumer-drupal-extension-scaffold/SKILL.md)
+[`update-consumer-eddy`](.eddy/skills/update-consumer-eddy/SKILL.md)
 skill automates this process: in your initialised project, ask Claude to
 "update scaffold" and it will fetch the skill, download the latest scaffold,
 re-run `init.php` with your original answers, restore project-specific files
@@ -681,7 +684,7 @@ dependencies up-to-date.
 See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/)
 for all available options.
 
-## Projects using this scaffold
+## Projects using Eddy
 
 - [Testmode](https://github.com/AlexSkrypnyk/testmode) - Drupal module to alter existing site content and other configurations when running tests.
 - [Generated Content](https://github.com/AlexSkrypnyk/generated_content) - Drupal module to programmatically generate content.

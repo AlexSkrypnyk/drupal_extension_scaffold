@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace DrupalExtensionScaffold\DevTools;
+namespace DrevOps\Eddy\DevTools;
 
 require_once __DIR__ . '/helpers.php';
 
