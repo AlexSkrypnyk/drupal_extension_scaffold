@@ -52,7 +52,8 @@ Read the project to determine the init.php answers:
 1. **Name**: Read from `*.info.yml` - the `name` field.
 2. **Machine name**: The `*.info.yml` filename without extension.
 3. **Type**: `module` or `theme` - from the `type` field in `*.info.yml`.
-4. **Command wrapper**: `ahoy` if `.ahoy.yml` exists and `makefile` if `Makefile` exists, checked independently and comma-joined when both do (`ahoy,makefile`); an empty string when neither exists.
+4. **CI provider**: `gha` if `.github/workflows/` exists, `circleci` if `.circleci/` exists.
+5. **Command wrapper**: `ahoy` if `.ahoy.yml` exists, `makefile` if only `Makefile` exists, `none` otherwise.
 
 Also detect the **default branch** of the repository (not the current checkout):
 
@@ -154,6 +155,7 @@ Run init.php from the project root. Set `DEX_REMOVE_SELF=true` and
 DEX_NAME='<Name>' \
 DEX_MACHINE_NAME='<machine_name>' \
 DEX_TYPE='<type>' \
+DEX_CI_PROVIDER='<ci_provider>' \
 DEX_DRUPAL_VERSION='<drupal_version>' \
 DEX_COMMAND_WRAPPER='<command_wrapper>' \
 DEX_TOOLS='<tools>' \
@@ -294,7 +296,7 @@ simply patch path references - instead, rebuild it from the scaffold's
    website, Drupal versions, Coding standards, Testing, etc.).
 5. Adjust command references to match the chosen command wrapper (e.g., remove
    `make` references if the project uses `ahoy` only, or vice versa).
-6. Remove badges for tools the project doesn't use.
+6. Remove badges for tools not used (e.g., CircleCI badge if using GHA).
 7. Fix the Eddy link at the bottom to point to the Eddy repo, not the
    project repo.
 

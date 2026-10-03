@@ -118,7 +118,7 @@ function main(array $only = []): void {
     $jobs = array_intersect_key($jobs, array_flip($only));
   }
 
-  $tmp_dir = get_tmp_dir($workspace_dir);
+  $tmp_dir = $workspace_dir . '/tmp';
   if (!is_dir($tmp_dir)) {
     mkdir($tmp_dir, 0755, TRUE);
   }
@@ -213,7 +213,6 @@ function main(array $only = []): void {
   info('');
   info('Cleaning up workspace: ' . $workspace_dir);
   remove_dir($workspace_dir);
-  remove_dir($tmp_dir);
 
   if (!empty($failed)) {
     info('');
@@ -278,7 +277,7 @@ function process_one(string $name, string $workspace_dir): void {
     throw new \RuntimeException('Unknown job: ' . $name);
   }
 
-  $tmp_dir = get_tmp_dir($workspace_dir);
+  $tmp_dir = $workspace_dir . '/tmp';
   $cast_file = $tmp_dir . '/' . $name . '.cast';
   $expect_script = $tmp_dir . '/' . $name . '.exp';
   $svg_file = $assets_dir . '/' . $name . '.svg';
@@ -363,22 +362,6 @@ function create_workspace(string $project_dir): string {
   }
 
   return $workspace_dir;
-}
-
-/**
- * Get the directory for a workspace's expect scripts and recordings.
- *
- * 'init.php' rewrites every text file under its working directory, so the
- * directory sits beside the workspace rather than inside it.
- *
- * @param string $workspace_dir
- *   Path to the workspace directory.
- *
- * @return string
- *   Path to the scratch directory.
- */
-function get_tmp_dir(string $workspace_dir): string {
-  return $workspace_dir . '-tmp';
 }
 
 /**
@@ -481,8 +464,14 @@ expect "Extension type" {
     wait_and_enter
 }
 
-# Multi-select: Target Drupal versions - confirm the pre-checked default with
-# enter.
+# Select: CI provider - first option "GitHub Actions" is pre-selected.
+expect "CI provider" {
+    sleep {$delay}
+    wait_and_enter
+}
+
+# Multi-select: Target Drupal versions - all pre-checked by default; confirm
+# with enter to keep all majors.
 expect "Target Drupal versions" {
     sleep {$delay}
     safe_send "\\r"
@@ -501,18 +490,6 @@ expect "Command wrapper" {
 expect "Tools" {
     sleep {$delay}
     safe_send "\\r"
-}
-
-# Confirm: Keep Cloudflare tunnel support - accept the default.
-expect "Keep Cloudflare tunnel support" {
-    sleep {$delay}
-    wait_and_enter
-}
-
-# Confirm: Keep example lifecycle scripts - accept the default.
-expect "Keep example lifecycle scripts" {
-    sleep {$delay}
-    wait_and_enter
 }
 
 # Confirm: Remove this script - type "y" to confirm.
