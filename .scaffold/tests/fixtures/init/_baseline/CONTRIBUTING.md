@@ -48,9 +48,9 @@ DRUPAL_VERSION=11@beta make build   # Newest Drupal 11 beta, release candidate o
 DRUPAL_VERSION=12 make build        # Newest stable Drupal 12 release, or newest pre-release if none
 ```
 
-The build resolves `DRUPAL_VERSION` to an exact Drupal release, prints it and pins Drupal core to it. A version with no stable release yet resolves to its newest pre-release instead.
+The build pins Drupal core to the newest release matching `DRUPAL_VERSION` and prints it. A version with no stable release yet resolves to its newest pre-release.
 
-The `minimum-stability` setting in the `composer.json` file is automatically adjusted to allow the resolved release and any stability flag in `DRUPAL_VERSION`.
+Every other dependency installs its most stable release that supports that core. A dependency falls back to a pre-release or a development branch only when no stable release fits, and the build output lists every dependency installed from a development branch.
 
 ### Patching dependencies
 

@@ -844,107 +844,73 @@ function drupal_release(string $constraint): string {
 /**
  * Select the newest Drupal release matching a version constraint.
  *
- * The constraint is a major, minor or patch version with an optional
- * stability flag. It matches like Composer's '~' operator: '12' matches all
- * of 12.x, '12.1' matches 12.1 and later minors, and '__VERSION__' matches 12.1.x.
+ * The major is fixed, and so is every number before the last: '__VERSION__'
+ * matches 12.1.x, while '12' and '12.1' match all of 12.x.
  *
- * A version qualifies at or above the flag's stability, or only when stable
- * if there is no flag. When no version qualifies, the newest pre-release is
- * selected instead, so a major or minor without a stable release resolves.
+ * Only stable releases qualify, or releases down to the stability flag in a
+ * constraint such as '12@beta'. When none qualifies, the newest pre-release
+ * is selected, so a version without a stable release still resolves.
  *
  * @param string $constraint
  *   The constraint, such as '12', '__VERSION__' or '12@beta'.
  * @param array<int, string> $versions
- *   The available versions, such as '__VERSION__' or '12.0.x-dev'.
+ *   The available versions. Development branches, such as '12.0.x-dev', are
+ *   skipped.
  *
  * @return string|null
- *   The selected version, or NULL when no version matches the constraint.
+ *   The selected release, or NULL when no release matches the constraint.
  */
 function drupal_release_select(string $constraint, array $versions): ?string {
-  if (preg_match('/^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:@(stable|rc|beta|alpha|dev))?$/i', $constraint, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
+  if (preg_match('/^(\d+(?:\.\d+){0,2})(?:@(stable|rc|beta|alpha))?$/i', $constraint, $matches) !== 1) {
     return NULL;
   }
 
-  [, $major, $minor, $patch, $flag] = $matches;
+  // Keep the major, and every number before the last.
+  $numbers = explode('.', $matches[1]);
+  $prefix = implode('.', array_slice($numbers, 0, max(1, count($numbers) - 1))) . '.';
 
-  $candidates = [];
+  $ranks = ['stable' => 0, 'rc' => 1, 'beta' => 2, 'alpha' => 3];
+  $floor = $ranks[strtolower($matches[2] ?? 'stable')] ?? 0;
+
+  $releases = [];
   foreach ($versions as $version) {
-    if (preg_match('/^\d+\.(\d+|x)(\.(\d+|x))?(-(dev|(alpha|beta|rc)\d*))?$/i', $version) !== 1) {
-      continue;
-    }
-
-    // A development branch such as '12.0.x-dev' sorts above every release of
-    // its minor, as Composer orders it.
-    $normalized = str_replace('x', '9999999', strtolower($version));
-    $numbers = array_map(intval(...), explode('.', explode('-', $normalized)[0]));
-    [$version_major, $version_minor, $version_patch] = $numbers + [0, 0, 0];
-
-    $is_match = match (TRUE) {
-      $patch !== NULL => $version_major === (int) $major && $version_minor === (int) $minor && $version_patch >= (int) $patch,
-      $minor !== NULL => $version_major === (int) $major && $version_minor >= (int) $minor,
-      default => $version_major === (int) $major,
-    };
-
-    if ($is_match) {
-      $rank = stability_rank(version_stability($version));
-      $candidates[] = ['version' => $version, 'normalized' => $normalized, 'rank' => $rank];
+    if (str_starts_with($version, $prefix) && preg_match('/^\d+\.\d+\.\d+(?:-(rc|beta|alpha)\d+)?$/i', $version, $parts) === 1) {
+      $releases[$version] = $ranks[strtolower($parts[1] ?? 'stable')] ?? 0;
     }
   }
 
-  $flag_rank = stability_rank($flag ?? 'stable');
-  $qualified = array_filter($candidates, static fn(array $candidate): bool => $candidate['rank'] <= $flag_rank);
+  $qualified = array_keys(array_filter($releases, static fn(int $rank): bool => $rank <= $floor)) ?: array_keys($releases);
 
-  // Development branches are not releases, so the fallback leaves them out.
-  if ($qualified === []) {
-    $qualified = array_filter($candidates, static fn(array $candidate): bool => $candidate['rank'] < stability_rank('dev'));
-  }
-
-  $selected = NULL;
-  foreach ($qualified as $candidate) {
-    if ($selected === NULL || version_compare($candidate['normalized'], $selected['normalized'], '>')) {
-      $selected = $candidate;
+  $newest = NULL;
+  foreach ($qualified as $release) {
+    if ($newest === NULL || version_compare($release, $newest, '>')) {
+      $newest = $release;
     }
   }
 
-  return $selected === NULL ? NULL : $selected['version'];
+  return $newest;
 }
 
 /**
- * Get the Composer stability of a version.
+ * List the packages a Composer lock file installs from development branches.
  *
- * @param string $version
- *   The version, such as '__VERSION__', '__VERSION__' or '12.0.x-dev'.
+ * @param string $lock_file
+ *   The path to the lock file.
  *
- * @return string
- *   The stability: 'stable', 'RC', 'beta', 'alpha' or 'dev'.
+ * @return array<string, string>
+ *   The branch versions keyed by package name, such as '14.x-dev' or
+ *   'dev-main'.
  */
-function version_stability(string $version): string {
-  if (preg_match('/-(dev|alpha|beta|rc)\d*$/i', $version, $matches) !== 1) {
-    return 'stable';
+function dev_branch_packages(string $lock_file): array {
+  $lock = json_decode((string) @file_get_contents($lock_file), TRUE);
+  if (!is_array($lock)) {
+    return [];
   }
 
-  $stability = strtolower($matches[1]);
+  /** @var array<string, string> $versions */
+  $versions = array_column(array_merge((array) ($lock['packages'] ?? []), (array) ($lock['packages-dev'] ?? [])), 'version', 'name');
 
-  return $stability === 'rc' ? 'RC' : $stability;
-}
-
-/**
- * Rank a Composer stability from the most to the least stable.
- *
- * @param string $stability
- *   The stability: 'stable', 'RC', 'beta', 'alpha' or 'dev', in any case.
- *
- * @return int
- *   The rank: 0 for 'stable' up to 4 for 'dev'.
- */
-function stability_rank(string $stability): int {
-  return match (strtolower($stability)) {
-    'rc' => 1,
-    'beta' => 2,
-    'alpha' => 3,
-    'dev' => 4,
-    default => 0,
-  };
+  return array_filter($versions, static fn(string $version): bool => str_starts_with($version, 'dev-') || str_ends_with($version, '-dev'));
 }
 
 /**
