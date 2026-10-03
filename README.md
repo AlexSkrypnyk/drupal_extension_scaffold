@@ -30,8 +30,7 @@
 
 ## Use case
 
-Develop a module or theme on GitHub, test it using GitHub Actions,
-and push the code to [Drupal.org](https://drupal.org).
+Develop a module or theme on GitHub, test it using GitHub Actions, and push the code to [Drupal.org](https://drupal.org).
 
 ## Index
 
@@ -56,31 +55,18 @@ and push the code to [Drupal.org](https://drupal.org).
   - CI provider: [GitHub Actions](.github/workflows/test.yml)
   - Code coverage with https://github.com/krakjoe/pcov pushed to [codecov.io](https://codecov.io).
   - Compatible with Drupal.org GitLab CI ([DrupalCI](#drupalorg-ci-drupalci)).
-- Develop locally using PHP running on your host using
-  identical [`.devtools`](.devtools) scripts as in CI:
-  - Uses [drupal/recommended-project](https://www.drupal.org/docs/develop/using-composer/starting-a-site-using-drupal-composer-project-templates)
-    to create Drupal site structure.
-  - Additional development dependencies provided in [`composer.dev.json`](composer.dev.json).
-    These are merged during the codebase assembly.
-  - The extension can be installed as a module or a theme: modify `type`
-    property set in the `info.yml` file.
-  - Additional dependencies can be added for integration testing
-    between extensions: add dependencies into `suggest` section
-    of `composer.json` and they will be included into the assembled codebase.
-  - Patches can be applied to the dependencies: add a patch to the
-    `patches` section of `composer.json`. Local patches are sourced from
-    the `patches` directory.
-  - Command wrappers using `make` and [Ahoy](https://github.com/ahoy-cli/ahoy)
-    for common tasks.
+- Develop locally using PHP running on your host using identical [`.devtools`](.devtools) scripts as in CI:
+  - Uses [drupal/recommended-project](https://www.drupal.org/docs/develop/using-composer/starting-a-site-using-drupal-composer-project-templates) to create Drupal site structure.
+  - Additional development dependencies provided in [`composer.dev.json`](composer.dev.json). These are merged during the codebase assembly.
+  - The extension can be installed as a module or a theme: modify `type` property set in the `info.yml` file.
+  - Additional dependencies can be added for integration testing between extensions: add dependencies into `suggest` section of `composer.json` and they will be included into the assembled codebase.
+  - Patches can be applied to the dependencies: add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
+  - Command wrappers using `make` and [Ahoy](https://github.com/ahoy-cli/ahoy) for common tasks.
 - Codings standards checking:
   - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
-  - PHP code static analysis
-    with PHPStan (
-    including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
-  - PHP deprecated code analysis and auto-fixing
-    with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
-  - Twig code analysis
-    with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
+  - PHP code static analysis with PHPStan ( including [PHPStan Drupal](https://github.com/mglaman/phpstan-drupal)).
+  - PHP deprecated code analysis and auto-fixing with [Drupal Rector](https://github.com/palantirnet/drupal-rector).
+  - Twig code analysis with [Twig CS Fixer](https://github.com/VincentLanglet/Twig-CS-Fixer).
   - JavaScript code analysis with [ESLint](https://eslint.org/).
   - CSS code analysis with [Stylelint](https://stylelint.io/).
   - Spell checking with [CSpell](https://cspell.org/).
@@ -89,22 +75,18 @@ and push the code to [Drupal.org](https://drupal.org).
 - [Renovate](#renovate) configuration to keep dependencies up-to-date with a single grouped PR.
 - [README.md](README.dist.md) template
 - Deployment:
-  - Mirroring of the repo to Drupal.org (or any other git
-    repo) on release.
+  - Mirroring of the repo to Drupal.org (or any other git repo) on release.
   - Deploy to a destination branch different from the source branch.
   - Tags mirroring.
 - This template is tested in the same way as a project using it. See an example of the deployment destination repository for [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
 
 ## Setup overview
 
-1. Download this extension's code by pressing 'Clone or download' button in
-   GitHub UI.
+1. Download this extension's code by pressing 'Clone or download' button in GitHub UI.
 2. Expand into a new directory.
 3. Run the initial [codebase setup](#codebase-setup) script: `php init.php`.
-4. If you already have an existing extension code, copy it into the directory
-   created in step 2.
-5. [Build website](#building-website) with `make build` or `ahoy build`
-   to check that everything is set up correctly.
+4. If you already have an existing extension code, copy it into the directory created in step 2.
+5. [Build website](#building-website) with `make build` or `ahoy build` to check that everything is set up correctly.
 6. [Check coding standards](#coding-standards) with `make lint` or `ahoy lint`.
 7. [Run tests](#testing) with `make test` or `ahoy test`.
 8. Create your extension's repository on GitHub.
@@ -116,20 +98,15 @@ See the sections below for more details.
 
 ## Codebase setup
 
-The initial codebase setup script `php init.php` will ask you for some information
-and update the codebase to reflect your extension's name and other details.
+The initial codebase setup script `php init.php` will ask you for some information and update the codebase to reflect your extension's name and other details.
 
 ![Init process](.eddy/assets/init.svg)
 
 ## Building website
 
-`make build` or `ahoy build` assembles the codebase, starts the PHP server
-and provisions the Drupal website with your extension enabled. These operations
-are executed using scripts within [`.devtools`](.devtools) directory. CI uses
-the same scripts to build and test your extension.
+`make build` or `ahoy build` assembles the codebase, starts the PHP server and provisions the Drupal website with your extension enabled. These operations are executed using scripts within [`.devtools`](.devtools) directory. CI uses the same scripts to build and test your extension.
 
-The resulting codebase is then placed in the `build` directory. Your extension
-files are symlinked into the Drupal site structure.
+The resulting codebase is then placed in the `build` directory. Your extension files are symlinked into the Drupal site structure.
 
 The `build` command is a wrapper for more granular commands:
 ```bash
@@ -142,8 +119,7 @@ ahoy start        # Start the PHP server
 ahoy provision    # Provision the Drupal website
 ```
 
-The `provision` command is useful for re-installing the Drupal website without
-re-assembling the codebase.
+The `provision` command is useful for re-installing the Drupal website without re-assembling the codebase.
 
 See [README.md](README.dist.md) for more development commands.
 
@@ -151,11 +127,9 @@ See [README.md](README.dist.md) for more development commands.
 
 ### Drupal versions
 
-The Drupal version used for the codebase assembly is determined by the
-`DRUPAL_VERSION` variable and defaults to the latest stable version.
+The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to the latest stable version.
 
-You can specify a different version by setting the `DRUPAL_VERSION` environment
-variable before running the `make build` or `ahoy build` command:
+You can specify a different version by setting the `DRUPAL_VERSION` environment variable before running the `make build` or `ahoy build` command:
 
 ```bash
 DRUPAL_VERSION=11 make build        # Newest stable Drupal 11 release
@@ -250,19 +224,15 @@ One trap is worth knowing before moving a tool. Where a test runner derives a sh
 
 ### Patching dependencies
 
-To apply patches to the dependencies, add a patch to the `patches` section of
-`composer.json`. Local patches are sourced from the `patches` directory.
+To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
 
 ### Providing `GITHUB_TOKEN`
 
-To overcome GitHub API rate limits, you may provide a `GITHUB_TOKEN` environment
-variable with a personal access token.
+To overcome GitHub API rate limits, you may provide a `GITHUB_TOKEN` environment variable with a personal access token.
 
 ### Debugging command output
 
-The output of the underlying commands (Composer, npm, Drush) is suppressed by
-default and shown only when a command fails. Set `DEBUG=1` to stream the full
-output of every command:
+The output of the underlying commands (Composer, npm, Drush) is suppressed by default and shown only when a command fails. Set `DEBUG=1` to stream the full output of every command:
 
 ```bash
 DEBUG=1 make build   # stream all command output
@@ -271,55 +241,33 @@ DEBUG=1 ahoy build   # same, with ahoy
 
 ### Optional dependencies
 
-If your extension requires additional dependencies for integration testing
-between extensions, add the dependency into the `suggest` section of
-`composer.json`. The dependency is included in the assembled codebase and
-enabled in the Drupal website.
+If your extension requires additional dependencies for integration testing between extensions, add the dependency into the `suggest` section of `composer.json`. The dependency is included in the assembled codebase and enabled in the Drupal website.
 
 ### Frontend dependencies
 
-If your extension requires frontend dependencies for testing, add them to the
-`package.json` file. The `package-lock.json` file is expected to be committed to
-the repository.
+If your extension requires frontend dependencies for testing, add them to the `package.json` file. The `package-lock.json` file is expected to be committed to the repository.
 
-The `assemble` command installs (`npm ci`) and builds (`npm run build`) the
-frontend dependencies within the `build` directory. You can add and commit a
-`.skip_npm_build` file to skip all Node.js processing, which will also
-disable JS/CSS linting (ESLint, Stylelint, Prettier).
+The `assemble` command installs (`npm ci`) and builds (`npm run build`) the frontend dependencies within the `build` directory. You can add and commit a `.skip_npm_build` file to skip all Node.js processing, which will also disable JS/CSS linting (ESLint, Stylelint, Prettier).
 
 ### Provisioning the website
 
-The `provision` command installs the Drupal website from the `standard`
-profile with your extension (and any `suggest`'ed extensions) enabled. The
-profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
+The `provision` command installs the Drupal website from the `standard` profile with your extension (and any `suggest`'ed extensions) enabled. The profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
 
-The website will be available at http://localhost:8000 by default. The
-hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
+The website will be available at http://localhost:8000 by default. The hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
 
 #### Webserver port
 
 The `WEBSERVER_PORT` is resolved with the following precedence:
 
-1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off
-   runs: `WEBSERVER_PORT=9000 make build`.
-2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is.
-   The `start` script does not modify `.env` when this entry is already
-   present, so the same port is reused across `start`, `stop`, `provision`,
-   `drush` and `login` commands.
-3. **Neither is set** - the `start` script discovers the first free port in
-   the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`.
-   Subsequent commands read this value from `.env`.
+1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off runs: `WEBSERVER_PORT=9000 make build`.
+2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is. The `start` script does not modify `.env` when this entry is already present, so the same port is reused across `start`, `stop`, `provision`, `drush` and `login` commands.
+3. **Neither is set** - the `start` script discovers the first free port in the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`. Subsequent commands read this value from `.env`.
 
-The `.env` file is loaded automatically by `make` (via `-include .env` and
-`export`) and `ahoy` (via the native `env:` field), so all wrapper commands
-see the resolved port without further configuration. The file is gitignored.
+The `.env` file is loaded automatically by `make` (via `-include .env` and `export`) and `ahoy` (via the native `env:` field), so all wrapper commands see the resolved port without further configuration. The file is gitignored.
 
-To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in
-it) and re-run `make start` / `ahoy start`.
+To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in it) and re-run `make start` / `ahoy start`.
 
-An SQLite database is created in `/tmp/site_[EXTENSION_NAME].sqlite` file.
-You can browse the contents of the created SQLite database using
-[DB Browser for SQLite](https://sqlitebrowser.org/).
+An SQLite database is created in `/tmp/site_[EXTENSION_NAME].sqlite` file. You can browse the contents of the created SQLite database using [DB Browser for SQLite](https://sqlitebrowser.org/).
 
 A one-time login link will be printed to the console.
 
@@ -378,8 +326,7 @@ To start and stop debug sessions from the browser, install the Xdebug Helper ext
 
 ## Coding standards
 
-The `make lint` or `ahoy lint` command checks the codebase using multiple
-tools:
+The `make lint` or `ahoy lint` command checks the codebase using multiple tools:
 - Spell checking with CSpell.
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 - PHP code static analysis with PHPStan.
@@ -394,21 +341,15 @@ The configuration files for these tools are located in the root of the codebase.
 
 ### Fixing coding standards issues
 
-To fix coding standards issues automatically, run the `make lint-fix` or
-`ahoy lint-fix`. This runs the same tools as `lint` command but with the
-`--fix` option (for the tools that support it).
+To fix coding standards issues automatically, run the `make lint-fix` or `ahoy lint-fix`. This runs the same tools as `lint` command but with the `--fix` option (for the tools that support it).
 
-If automatic fixes are not accurate, you can adjust the configuration files
-to either suppress the issue or adjust the fix.
+If automatic fixes are not accurate, you can adjust the configuration files to either suppress the issue or adjust the fix.
 
 ## Testing
 
 The `make test` or `ahoy test` command runs the PHPUnit tests for your extension.
 
-The tests are located in the `tests/src` directory. The `phpunit.xml` file
-configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
-`web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running
-the tests.
+The tests are located in the `tests/src` directory. The `phpunit.xml` file configures PHPUnit to run the tests. It uses Drupal core's bootstrap file `web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running the tests.
 
 The `test` command is a wrapper for multiple test commands:
 ```bash
@@ -427,10 +368,7 @@ ahoy test-javascript              # Run JavaScript unit tests (Jest)
 
 ### Running FunctionalJavascript tests
 
-FunctionalJavascript tests need a real browser driven via WebDriver. By
-default they use the Google Chrome already installed on your machine - a
-matching `chromedriver` is downloaded automatically on first run, so no
-Docker is required:
+FunctionalJavascript tests need a real browser driven via WebDriver. By default they use the Google Chrome already installed on your machine - a matching `chromedriver` is downloaded automatically on first run, so no Docker is required:
 
 ```bash
 ahoy start
@@ -439,9 +377,7 @@ ahoy test-functional-javascript
 ahoy browser-stop
 ```
 
-To run the browser in a Docker Selenium container instead, set
-`WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's
-`localhost`, so start the webserver on all interfaces:
+To run the browser in a Docker Selenium container instead, set `WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's `localhost`, so start the webserver on all interfaces:
 
 ```bash
 WEBSERVER_HOST=0.0.0.0 ahoy start
@@ -450,21 +386,13 @@ WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
 ahoy browser-stop
 ```
 
-Either backend gets its own WebDriver port: a free one is claimed starting
-at 4444 and stored in `.env`, so several projects can run FunctionalJavascript
-tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests
-reach the claimed port because the base class applies it to the WebDriver
-endpoint, so extend `YourExtensionFunctionalJavascriptTestBase` rather than
-`WebDriverTestBase` directly - a test that bypasses it keeps the default
-endpoint from `phpunit.xml` unless it exports its own
-`MINK_DRIVER_ARGS_WEBDRIVER`.
+Either backend gets its own WebDriver port: a free one is claimed starting at 4444 and stored in `.env`, so several projects can run FunctionalJavascript tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests reach the claimed port because the base class applies it to the WebDriver endpoint, so extend `YourExtensionFunctionalJavascriptTestBase` rather than `WebDriverTestBase` directly - a test that bypasses it keeps the default endpoint from `phpunit.xml` unless it exports its own `MINK_DRIVER_ARGS_WEBDRIVER`.
 
 ![Test process](.eddy/assets/test.svg)
 
 ### Running specific tests
 
-You can run specific tests by passing a path to the test file or PHPUnit CLI
-option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
+You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
 
 ```bash
 make test-unit tests/src/Unit/MyUnitTest.php
@@ -484,23 +412,13 @@ cd build
 
 ### Deprecated code testing
 
-The tests are configured to check for deprecated code usage and fail if any
-is found. You can fix the deprecated code or suppress the test by adding
-`.deprecation-ignore.txt` file to the root of the codebase and updating
-the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml`.
-See https://www.drupal.org/node/3285162 for more details.
+The tests are configured to check for deprecated code usage and fail if any is found. You can fix the deprecated code or suppress the test by adding `.deprecation-ignore.txt` file to the root of the codebase and updating the `SYMFONY_DEPRECATIONS_HELPER` environment variable in the `phpunit.xml`. See https://www.drupal.org/node/3285162 for more details.
 
-Note that the CI configuration has jobs that run the unstable `canary` versions
-of Drupal which may have different deprecations. These versions have the
-`SYMFONY_DEPRECATIONS_HELPER` environment variable set to `disable` to ignore
-deprecation errors. You may want to adjust this CI configuration for your
-project depending on your deprecated code policy.
+Note that the CI configuration has jobs that run the unstable `canary` versions of Drupal which may have different deprecations. These versions have the `SYMFONY_DEPRECATIONS_HELPER` environment variable set to `disable` to ignore deprecation errors. You may want to adjust this CI configuration for your project depending on your deprecated code policy.
 
 ## Branch protection
 
-You should configure [branch
-protection rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule)
-in GitHub to ensure that the code tests pass before merging.
+You should configure [branch protection rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule) in GitHub to ensure that the code tests pass before merging.
 
 Make sure to add all jobs for your default branch:
 
@@ -508,24 +426,15 @@ Make sure to add all jobs for your default branch:
 
 ## Deployment
 
-The CI supports deployment of the code via mirroring of main branches
-(`1.x`, `10.x-1.x` etc.) to Drupal.org repository.
+The CI supports deployment of the code via mirroring of main branches (`1.x`, `10.x-1.x` etc.) to Drupal.org repository.
 
-The `deploy` job runs when commits are pushed to main branches
-(`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created. This means
-that out-of-the-box, the deployment job will not run for other branches or
-pull requests, but you can adjust the CI configuration to suit your needs.
+The `deploy` job runs when commits are pushed to main branches (`1.x`, `2.x`, `10.x-1.x` etc.) or when release tags are created. This means that out-of-the-box, the deployment job will not run for other branches or pull requests, but you can adjust the CI configuration to suit your needs.
 
-The code pushed to the destination repository is the commit that CI tested,
-so a release tag deploys the tagged commit rather than the tip of the branch
-it was cut from.
+The code pushed to the destination repository is the commit that CI tested, so a release tag deploys the tagged commit rather than the tip of the branch it was cut from.
 
-See this example of the deployment destination repository:
-[GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
+See this example of the deployment destination repository: [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
 
-CI will use the SSH key to push the code to the destination repository. The
-public part of the SSH key should be added to your [Drupal.org account](https://git.drupalcode.org/-/user_settings/ssh_keys).
-The private part of the SSH key should be added to the CI provider.
+CI will use the SSH key to push the code to the destination repository. The public part of the SSH key should be added to your [Drupal.org account](https://git.drupalcode.org/-/user_settings/ssh_keys). The private part of the SSH key should be added to the CI provider.
 
 It is a good practice to use a dedicated SSH key for every project.
 
@@ -541,39 +450,24 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
 3. Add **private** key to your CI:
   - GitHub Actions:
     - Go to your project -> **Settings** -> **Secrets**
-    - Add a new secret with the `DEPLOY_SSH_KEY` name and the private key as
-      the value.
+    - Add a new secret with the `DEPLOY_SSH_KEY` name and the private key as the value.
 
 4. In CI, use UI to add the following variables as secrets:
 
-- `DEPLOY_REMOTE` - your extension's Drupal.org repository (
-  i.e. `git@git.drupal.org:project/myextension.git`).
-- `DEPLOY_USER_NAME` - the name of the user who commits to the
-  remote repository (i.e., your name on Drupal.org).
-- `DEPLOY_USER_EMAIL` - the email address of the user who commits
-  to the remote repository (i.e., your email on Drupal.org).
-- `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to
-  deploy. Without this variable, the deployment job will run but will not
-  push the code. This is useful for testing the deployment job.
+- `DEPLOY_REMOTE` - your extension's Drupal.org repository ( i.e. `git@git.drupal.org:project/myextension.git`).
+- `DEPLOY_USER_NAME` - the name of the user who commits to the remote repository (i.e., your name on Drupal.org).
+- `DEPLOY_USER_EMAIL` - the email address of the user who commits to the remote repository (i.e., your email on Drupal.org).
+- `DEPLOY_PROCEED` - set to `1` once CI is working, and you are ready to deploy. Without this variable, the deployment job will run but will not push the code. This is useful for testing the deployment job.
 
 5. Optionally, set `DEPLOY_BRANCH` to the branch to push to in the destination repository. It is not a secret: add it as a repository variable in GitHub Actions (**Settings** -> **Secrets and variables** -> **Actions** -> **Variables**). Without it, the code is pushed to the branch that triggered the build, and a tagged release is pushed to the repository default branch.
 
 ### Drupal.org CI (DrupalCI)
 
-Once your extension is mirrored to Drupal.org, its GitLab CI ("DrupalCI") runs
-automatically. The scaffold's configuration is compatible with DrupalCI out of
-the box - the PHPStan error suppressions resolve correctly even though DrupalCI
-runs the analysis from within the module directory.
+Once your extension is mirrored to Drupal.org, its GitLab CI ("DrupalCI") runs automatically. The scaffold's configuration is compatible with DrupalCI out of the box - the PHPStan error suppressions resolve correctly even though DrupalCI runs the analysis from within the module directory.
 
-PHPUnit needs one override: disable code coverage on DrupalCI. DrupalCI symlinks
-your project back into the built site's `web/modules/custom/<name>/` directory,
-so PHPUnit's coverage scan follows that recursive symlink into
-`web/core/node_modules` and exhausts the available file descriptors. Coverage is
-already collected by GitHub Actions, so turning it off on DrupalCI
-is safe.
+PHPUnit needs one override: disable code coverage on DrupalCI. DrupalCI symlinks your project back into the built site's `web/modules/custom/<name>/` directory, so PHPUnit's coverage scan follows that recursive symlink into `web/core/node_modules` and exhausts the available file descriptors. Coverage is already collected by GitHub Actions, so turning it off on DrupalCI is safe.
 
-Add the [standard DrupalCI includes](https://git.drupalcode.org/project/gitlab_templates)
-to a `.gitlab-ci.yml` in your project root and set the override:
+Add the [standard DrupalCI includes](https://git.drupalcode.org/project/gitlab_templates) to a `.gitlab-ci.yml` in your project root and set the override:
 
 ```yaml
 variables:
@@ -582,29 +476,19 @@ variables:
 
 ## Updating your extension
 
-When this template is updated, you can merge the changes into your extension
-codebase.
+When this template is updated, you can merge the changes into your extension codebase.
 
-If you use Claude Code, the bundled
-[`update-consumer-eddy`](.eddy/skills/update-consumer-eddy/SKILL.md)
-skill automates this process: in your initialised project, ask Claude to
-"update scaffold" and it will fetch the skill, download the latest scaffold,
-re-run `init.php` with your original answers, restore project-specific files
-from git, and reconcile differences.
+If you use Claude Code, the bundled [`update-consumer-eddy`](.eddy/skills/update-consumer-eddy/SKILL.md) skill automates this process: in your initialised project, ask Claude to "update scaffold" and it will fetch the skill, download the latest scaffold, re-run `init.php` with your original answers, restore project-specific files from git, and reconcile differences.
 
 For a manual update, follow these steps:
 
-1. Download the latest version of this codebase by pressing 'Clone or download'
-   button in GitHub UI.
+1. Download the latest version of this codebase by pressing 'Clone or download' button in GitHub UI.
 2. Expand into a new directory.
-3. Run the initial [codebase setup](#codebase-setup) script: `php init.php` and
-   repeat the answers you provided during the initial setup.
+3. Run the initial [codebase setup](#codebase-setup) script: `php init.php` and repeat the answers you provided during the initial setup.
 4. Create a new branch in your extension's repository.
 5. Copy all files into your extension's directory and override the existing files.
-6. Resolve any conflicts between the new files and your extension's files. Refer
-   to the release notes for any breaking changes and accept/reject them as needed.
-7. [Build website](#building-website) with `make build` or `ahoy build`
-   to check that everything is set up correctly.
+6. Resolve any conflicts between the new files and your extension's files. Refer to the release notes for any breaking changes and accept/reject them as needed.
+7. [Build website](#building-website) with `make build` or `ahoy build` to check that everything is set up correctly.
 8. [Check coding standards](#coding-standards) with `make lint` or `ahoy lint`.
 9. [Run tests](#testing) with `make test` or `ahoy test`.
 10. Commit and push to your new GitHub repo.
@@ -614,9 +498,7 @@ For a manual update, follow these steps:
 
 ## Renovate
 
-This template includes a [Renovate](https://docs.renovatebot.com/)
-configuration ([`renovate.json`](renovate.json)) to automatically keep
-dependencies up-to-date.
+This template includes a [Renovate](https://docs.renovatebot.com/) configuration ([`renovate.json`](renovate.json)) to automatically keep dependencies up-to-date.
 
 ### What is updated
 
@@ -628,26 +510,18 @@ dependencies up-to-date.
 
 ### What is NOT updated
 
-- **`composer.json`** — contains the extension's production dependencies
-  (`require` and `require-dev`) which should be updated manually to ensure
-  compatibility with Drupal.org packaging.
-- **Major versions** — major version bumps are disabled for all dependencies
-  and should be updated manually to avoid breaking changes.
+- **`composer.json`** — contains the extension's production dependencies (`require` and `require-dev`) which should be updated manually to ensure compatibility with Drupal.org packaging.
+- **Major versions** — major version bumps are disabled for all dependencies and should be updated manually to avoid breaking changes.
 
 ### How it works
 
-- **Single PR**: all minor and patch dependency updates are grouped into a
-  single pull request titled "Update all dependencies".
+- **Single PR**: all minor and patch dependency updates are grouped into a single pull request titled "Update all dependencies".
 - **Automerge**: PRs are automatically merged when all CI checks pass.
-- **Digest pinning**: GitHub Actions are pinned to SHA digests
-  for reproducibility and security.
-- **Range strategy**: version ranges in `package.json` and `composer.dev.json`
-  are bumped to the latest version (e.g., `^1.2` becomes `^1.3`).
-- **Dependency Dashboard**: an issue is created in the repository to track
-  pending updates, approval requests, and detected problems.
+- **Digest pinning**: GitHub Actions are pinned to SHA digests for reproducibility and security.
+- **Range strategy**: version ranges in `package.json` and `composer.dev.json` are bumped to the latest version (e.g., `^1.2` becomes `^1.3`).
+- **Dependency Dashboard**: an issue is created in the repository to track pending updates, approval requests, and detected problems.
 
-See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/)
-for all available options.
+See the [Renovate documentation](https://docs.renovatebot.com/configuration-options/) for all available options.
 
 ## Projects using Eddy
 
@@ -661,6 +535,4 @@ for all available options.
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
-build and test the scaffold, run its self-tests, and regenerate the snapshot
-fixtures.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to build and test the scaffold, run its self-tests, and regenerate the snapshot fixtures.

@@ -1,7 +1,6 @@
 # Contributing
 
-This document explains how to set up a local development environment, build
-the site, check coding standards, and run the tests for this extension.
+This document explains how to set up a local development environment, build the site, check coding standards, and run the tests for this extension.
 
 ## Local development
 
@@ -11,13 +10,9 @@ the site, check coding standards, and run the tests for this extension.
 
 ## Building website
 
-`make build` or `ahoy build` assembles the codebase, starts the PHP server
-and provisions the Drupal website with this extension enabled. These operations
-are executed using scripts within [`.devtools`](.devtools) directory. CI uses
-the same scripts to build and test this extension.
+`make build` or `ahoy build` assembles the codebase, starts the PHP server and provisions the Drupal website with this extension enabled. These operations are executed using scripts within [`.devtools`](.devtools) directory. CI uses the same scripts to build and test this extension.
 
-The resulting codebase is then placed in the `build` directory. The extension
-files are symlinked into the Drupal site structure.
+The resulting codebase is then placed in the `build` directory. The extension files are symlinked into the Drupal site structure.
 
 The `build` command is a wrapper for more granular commands:
 ```bash
@@ -30,16 +25,13 @@ ahoy start        # Start the PHP server
 ahoy provision    # Provision the Drupal website
 ```
 
-The `provision` command is useful for re-installing the Drupal website without
-re-assembling the codebase.
+The `provision` command is useful for re-installing the Drupal website without re-assembling the codebase.
 
 ### Drupal versions
 
-The Drupal version used for the codebase assembly is determined by the
-`DRUPAL_VERSION` variable and defaults to the latest stable version.
+The Drupal version used for the codebase assembly is determined by the `DRUPAL_VERSION` variable and defaults to the latest stable version.
 
-You can specify a different version by setting the `DRUPAL_VERSION` environment
-variable before running the `make build` or `ahoy build` command:
+You can specify a different version by setting the `DRUPAL_VERSION` environment variable before running the `make build` or `ahoy build` command:
 
 ```bash
 DRUPAL_VERSION=11 make build        # Newest stable Drupal 11 release
@@ -54,41 +46,27 @@ Every other dependency installs its most stable release that supports that core.
 
 ### Patching dependencies
 
-To apply patches to the dependencies, add a patch to the `patches` section of
-`composer.json`. Local patches are sourced from the `patches` directory.
+To apply patches to the dependencies, add a patch to the `patches` section of `composer.json`. Local patches are sourced from the `patches` directory.
 
 ### Providing `GITHUB_TOKEN`
 
-To overcome GitHub API rate limits, you may provide a `GITHUB_TOKEN` environment
-variable with a personal access token.
+To overcome GitHub API rate limits, you may provide a `GITHUB_TOKEN` environment variable with a personal access token.
 
 ### Provisioning the website
 
-The `provision` command installs the Drupal website from the `standard`
-profile with the extension (and any `suggest`'ed extensions) enabled. The
-profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
+The `provision` command installs the Drupal website from the `standard` profile with the extension (and any `suggest`'ed extensions) enabled. The profile can be changed by setting the `DRUPAL_PROFILE` environment variable.
 
-The website will be available at http://localhost:8000 by default. The
-hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
+The website will be available at http://localhost:8000 by default. The hostname can be changed by setting the `WEBSERVER_HOST` environment variable.
 
 The `WEBSERVER_PORT` is resolved with the following precedence:
 
-1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off
-   runs: `WEBSERVER_PORT=9000 make build`.
-2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is.
-   The `start` script does not modify `.env` when this entry is already
-   present, so the same port is reused across `start`, `stop`, `provision`,
-   `drush` and `login` commands.
-3. **Neither is set** - the `start` script discovers the first free port in
-   the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`.
-   Subsequent commands read this value from `.env`.
+1. **`WEBSERVER_PORT` exported in the shell** - used as-is. Useful for one-off runs: `WEBSERVER_PORT=9000 make build`.
+2. **`WEBSERVER_PORT` line in the project-root `.env` file** - used as-is. The `start` script does not modify `.env` when this entry is already present, so the same port is reused across `start`, `stop`, `provision`, `drush` and `login` commands.
+3. **Neither is set** - the `start` script discovers the first free port in the range `8000-8099` and writes it to `.env` as `WEBSERVER_PORT=NNNN`. Subsequent commands read this value from `.env`.
 
-To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in
-it) and re-run `make start` / `ahoy start`.
+To force re-discovery, delete `.env` (or just the `WEBSERVER_PORT` line in it) and re-run `make start` / `ahoy start`.
 
-An SQLite database is created in `/tmp/site_[EXTENSION_NAME].sqlite` file.
-You can browse the contents of the created SQLite database using
-[DB Browser for SQLite](https://sqlitebrowser.org/).
+An SQLite database is created in `/tmp/site_[EXTENSION_NAME].sqlite` file. You can browse the contents of the created SQLite database using [DB Browser for SQLite](https://sqlitebrowser.org/).
 
 A one-time login link will be printed to the console.
 
@@ -110,8 +88,7 @@ To start and stop debug sessions from the browser, install the Xdebug Helper ext
 
 ## Coding standards
 
-The `make lint` or `ahoy lint` command checks the codebase using multiple
-tools:
+The `make lint` or `ahoy lint` command checks the codebase using multiple tools:
 <!-- #;< DEV_PHPCS -->
 - PHP code standards checking against `Drupal` and `DrupalPractice` standards.
 <!-- #;> DEV_PHPCS -->
@@ -135,19 +112,14 @@ The configuration files for these tools are located in the root of the codebase.
 
 ### Fixing coding standards issues
 
-To fix coding standards issues automatically, run the `make lint-fix` or
-`ahoy lint-fix`. This runs the same tools as `lint` command but with the
-`--fix` option (for the tools that support it).
+To fix coding standards issues automatically, run the `make lint-fix` or `ahoy lint-fix`. This runs the same tools as `lint` command but with the `--fix` option (for the tools that support it).
 
 ## Testing
 
 The `make test` or `ahoy test` command runs the tests for this extension.
 <!-- #;< DEV_PHPUNIT -->
 
-The tests are located in the `tests/src` directory. The `phpunit.xml` file
-configures PHPUnit to run the tests. It uses Drupal core's bootstrap file
-`web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running
-the tests.
+The tests are located in the `tests/src` directory. The `phpunit.xml` file configures PHPUnit to run the tests. It uses Drupal core's bootstrap file `web/core/tests/bootstrap.php` to bootstrap the Drupal environment before running the tests.
 
 The `test` command is a wrapper for multiple test commands:
 ```bash
@@ -170,10 +142,7 @@ ahoy test-functional-javascript   # Run FunctionalJavascript tests
 <!-- #;< DEV_FUNCTIONAL_JAVASCRIPT -->
 ### Running FunctionalJavascript tests
 
-FunctionalJavascript tests need a real browser driven via WebDriver. By
-default they use the Google Chrome already installed on your machine - a
-matching `chromedriver` is downloaded automatically on first run, so no
-Docker is required:
+FunctionalJavascript tests need a real browser driven via WebDriver. By default they use the Google Chrome already installed on your machine - a matching `chromedriver` is downloaded automatically on first run, so no Docker is required:
 
 ```bash
 ahoy start
@@ -182,9 +151,7 @@ ahoy test-functional-javascript
 ahoy browser-stop
 ```
 
-To run the browser in a Docker Selenium container instead, set
-`WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's
-`localhost`, so start the webserver on all interfaces:
+To run the browser in a Docker Selenium container instead, set `WEBDRIVER_BACKEND=selenium`. The container cannot reach the host's `localhost`, so start the webserver on all interfaces:
 
 ```bash
 WEBSERVER_HOST=0.0.0.0 ahoy start
@@ -193,21 +160,13 @@ WEBDRIVER_BACKEND=selenium ahoy test-functional-javascript
 ahoy browser-stop
 ```
 
-Either backend gets its own WebDriver port: a free one is claimed starting
-at 4444 and stored in `.env`, so several projects can run FunctionalJavascript
-tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests
-reach the claimed port because the base class applies it to the WebDriver
-endpoint, so extend `YourExtensionFunctionalJavascriptTestBase` rather than
-`WebDriverTestBase` directly - a test that bypasses it keeps the default
-endpoint from `phpunit.xml` unless it exports its own
-`MINK_DRIVER_ARGS_WEBDRIVER`.
+Either backend gets its own WebDriver port: a free one is claimed starting at 4444 and stored in `.env`, so several projects can run FunctionalJavascript tests at the same time. Set `WEBDRIVER_PORT` to pin a specific one. Tests reach the claimed port because the base class applies it to the WebDriver endpoint, so extend `YourExtensionFunctionalJavascriptTestBase` rather than `WebDriverTestBase` directly - a test that bypasses it keeps the default endpoint from `phpunit.xml` unless it exports its own `MINK_DRIVER_ARGS_WEBDRIVER`.
 
 <!-- #;> DEV_FUNCTIONAL_JAVASCRIPT -->
 <!-- #;< DEV_PHPUNIT -->
 ### Running specific tests
 
-You can run specific tests by passing a path to the test file or PHPUnit CLI
-option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
+You can run specific tests by passing a path to the test file or PHPUnit CLI option (`--filter`, `--group`, etc.) to the `make test` or `ahoy test` command:
 
 ```bash
 make test-unit tests/src/Unit/MyUnitTest.php

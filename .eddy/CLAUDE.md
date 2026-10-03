@@ -2,9 +2,7 @@
 
 Maintenance guide for the Eddy template itself.
 
-This file documents how to regenerate the scaffold's own artefacts (animated
-README SVGs, snapshot fixtures) and how to run its self-tests. It does **not**
-apply to consumer projects produced by running `init.php`.
+This file documents how to regenerate the scaffold's own artefacts (animated README SVGs, snapshot fixtures) and how to run its self-tests. It does **not** apply to consumer projects produced by running `init.php`.
 
 ## Layout
 
