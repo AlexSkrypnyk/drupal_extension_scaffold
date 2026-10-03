@@ -9,7 +9,7 @@
  * - SCRIPT_RUN_SKIP: Set to '1' to skip running of the script. Useful when
  *   unit-testing or requiring this file from other files.
  * - DEX_*: Set environment variables to pre-fill prompts
- *   (e.g. DEX_NAME, DEX_TYPE, DEX_CI_PROVIDER).
+ *   (e.g. DEX_NAME, DEX_TYPE, DEX_DRUPAL_VERSION).
  *
  * Usage:
  * @code
@@ -101,10 +101,6 @@ function main(array $argv): void {
         'module' => 'Module',
         'theme' => 'Theme',
       ]),
-      'ci_provider' => Prompty::select('CI provider', options: [
-        'gha' => 'GitHub Actions',
-        'circleci' => 'CircleCI',
-      ]),
       'drupal_version' => Prompty::multiselect(
         'Target Drupal versions',
         options: drupal_version_options(),
@@ -135,11 +131,10 @@ function main(array $argv): void {
     ],
     intro: 'Eddy - Drupal extension scaffold',
     outro: fn(array $r): string => sprintf(
-      "Name: %s\nMachine name: %s\nType: %s\nCI: %s\nDrupal: %s\nWrapper: %s\nRemoved tools: %s",
+      "Name: %s\nMachine name: %s\nType: %s\nDrupal: %s\nWrapper: %s\nRemoved tools: %s",
       $r['name'],
       $r['machine_name'],
       $r['type'],
-      $r['ci_provider'],
       implode(', ', $r['drupal_version'] ?: ['None']),
       implode(', ', $r['command_wrapper'] ?: ['None']),
       implode(', ', array_diff(array_keys($tool_options), array_filter((array) $r['tools'], static fn($v): bool => $v !== '')) ?: ['None']),
@@ -156,7 +151,6 @@ function main(array $argv): void {
   $name = (string) $results['name'];
   $machine_name = (string) $results['machine_name'];
   $type = (string) $results['type'];
-  $ci_provider = (string) $results['ci_provider'];
   /** @var array<string> $drupal_versions */
   $drupal_versions = array_filter((array) $results['drupal_version'], static fn($v): bool => $v !== '');
   /** @var array<string> $command_wrapper */
@@ -176,7 +170,7 @@ function main(array $argv): void {
     $machine_name = convert_string($name, 'file_name');
   }
 
-  process($name, $machine_name, $type, $ci_provider, $drupal_versions, $command_wrapper, $tools_remove, $remove_cloudflare, $remove_examples, $remove_self);
+  process($name, $machine_name, $type, $drupal_versions, $command_wrapper, $tools_remove, $remove_cloudflare, $remove_examples, $remove_self);
   // @codeCoverageIgnoreEnd
 }
 
@@ -233,7 +227,6 @@ Environment variables (to pre-fill prompts):
   DEX_NAME            Extension name.
   DEX_MACHINE_NAME    Extension machine name.
   DEX_TYPE            Extension type: module or theme.
-  DEX_CI_PROVIDER     CI provider: gha or circleci.
   DEX_DRUPAL_VERSION  Target Drupal majors: comma-separated (e.g. 11).
                       Drupal 11 is targeted by default; CI runs against
                       every selected major. One or more of: 10, 11, 12.
@@ -262,8 +255,6 @@ EOF;
  *   The machine name of the extension.
  * @param string $extension_type
  *   The extension type (module or theme).
- * @param string $ci_provider
- *   The CI provider (gha or circleci).
  * @param array<string> $drupal_versions
  *   The selected Drupal major versions to target (e.g. '10', '11').
  * @param array<string> $command_wrapper
@@ -277,7 +268,7 @@ EOF;
  * @param bool $remove_self
  *   Whether to remove this script.
  */
-function process(string $extension_name, string $extension_machine_name, string $extension_type, string $ci_provider, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_examples, bool $remove_self): void {
+function process(string $extension_name, string $extension_machine_name, string $extension_type, array $drupal_versions, array $command_wrapper, array $tools_remove, bool $remove_cloudflare, bool $remove_examples, bool $remove_self): void {
   // Validate required values.
   if ($extension_name === '') {
     throw new \Exception('Name is required.');
@@ -291,9 +282,6 @@ function process(string $extension_name, string $extension_machine_name, string 
   if ($extension_type === '') {
     throw new \Exception('Type is required.');
   }
-  if ($ci_provider === '') {
-    throw new \Exception('CI provider is required.');
-  }
   if ($drupal_versions === []) {
     throw new \Exception('At least one Drupal version is required.');
   }
@@ -305,14 +293,6 @@ function process(string $extension_name, string $extension_machine_name, string 
   $unsupported_majors = array_diff($selected_majors, $supported_majors);
   if ($unsupported_majors !== []) {
     throw new \Exception(sprintf('Unsupported Drupal version: %s.', implode(', ', $unsupported_majors)));
-  }
-
-  // Remove unwanted CI provider.
-  if ($ci_provider === 'circleci') {
-    remove_dir('.github/workflows');
-  }
-  else {
-    remove_dir('.circleci');
   }
 
   // Prune CI matrix corners for deselected Drupal majors. Each major's corners
@@ -463,12 +443,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   $scaffold_link_token = '__SCAFFOLD_ATTRIBUTION_LINK__';
   replace_string_content($scaffold_link, $scaffold_link_token);
 
-  // Protect the plain scaffold repository URL from bulk replacements
-  // (e.g. backlink comment in '.circleci/config.yml').
-  $scaffold_url = 'https://github.com/drevops/eddy';
-  $scaffold_url_token = '__SCAFFOLD_URL__';
-  replace_string_content($scaffold_url, $scaffold_url_token);
-
   // Protect the update skill URL from bulk replacements.
   $update_skill_url = 'https://raw.githubusercontent.com/drevops/eddy/1.x/.eddy/skills/update-consumer-eddy/SKILL.md';
   $update_skill_url_token = '__SCAFFOLD_UPDATE_SKILL_URL__';
@@ -495,9 +469,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   // Restore the scaffold attribution link.
   replace_string_content($scaffold_link_token, $scaffold_link);
 
-  // Restore the plain scaffold repository URL.
-  replace_string_content($scaffold_url_token, $scaffold_url);
-
   // Restore the update skill URL.
   replace_string_content($update_skill_url_token, $update_skill_url);
 
@@ -506,7 +477,6 @@ function process_internal(string $extension_name, string $extension_machine_name
   uncomment_line('.gitattributes', 'CLAUDE.md');
   uncomment_line('.gitattributes', '.claude');
   uncomment_line('.gitattributes', '.ahoy.yml');
-  uncomment_line('.gitattributes', '.circleci');
   uncomment_line('.gitattributes', '.cspell.json');
   uncomment_line('.gitattributes', '.devtools');
   uncomment_line('.gitattributes', '.editorconfig');

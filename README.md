@@ -11,7 +11,6 @@
 [![GitHub Issues](https://img.shields.io/github/issues/drevops/eddy.svg)](https://github.com/drevops/eddy/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/drevops/eddy.svg)](https://github.com/drevops/eddy/pulls)
 [![Build, test and deploy](https://github.com/drevops/eddy/actions/workflows/test.yml/badge.svg)](https://github.com/drevops/eddy/actions/workflows/test.yml)
-[![CircleCI](https://circleci.com/gh/drevops/eddy.svg?style=shield)](https://circleci.com/gh/drevops/eddy)
 [![codecov](https://codecov.io/gh/drevops/eddy/graph/badge.svg)](https://codecov.io/gh/drevops/eddy)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/drevops/eddy)
 ![LICENSE](https://img.shields.io/github/license/drevops/eddy)
@@ -31,7 +30,7 @@
 
 ## Use case
 
-Develop a module or theme on GitHub, test it using GitHub Actions or CircleCI,
+Develop a module or theme on GitHub, test it using GitHub Actions,
 and push the code to [Drupal.org](https://drupal.org).
 
 ## Index
@@ -54,8 +53,7 @@ and push the code to [Drupal.org](https://drupal.org).
 - Turnkey CI configuration:
   - PHP version matrix: `8.3`, `8.4`, `8.5`.
   - Drupal version matrix: `stable` on Drupal 10, 11 and 12, plus `legacy` and `canary` tiers on Drupal 11 and 12.
-  - CI providers: [GitHub Actions](.github/workflows/test.yml)
-    and [CircleCI](.circleci/config.yml)
+  - CI provider: [GitHub Actions](.github/workflows/test.yml)
   - Code coverage with https://github.com/krakjoe/pcov pushed to [codecov.io](https://codecov.io).
   - Compatible with Drupal.org GitLab CI ([DrupalCI](#drupalorg-ci-drupalci)).
 - Develop locally using PHP running on your host using
@@ -95,7 +93,7 @@ and push the code to [Drupal.org](https://drupal.org).
     repo) on release.
   - Deploy to a destination branch different from the source branch.
   - Tags mirroring.
-- This template is tested in the same way as a project using it. See examples of the deployment destination repositories for [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github) and [CircleCI](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_circleci)
+- This template is tested in the same way as a project using it. See an example of the deployment destination repository for [GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
 
 ## Setup overview
 
@@ -111,10 +109,8 @@ and push the code to [Drupal.org](https://drupal.org).
 7. [Run tests](#testing) with `make test` or `ahoy test`.
 8. Create your extension's repository on GitHub.
 9. Commit and push to your new GitHub repo.
-10. If using CircleCI, login and add your new GitHub repository. Your project
-    build will start momentarily.
-11. [Configure branch protection in GitHub](#branch-protection).
-12. [Configure deployment](#deployment) to Drupal.org.
+10. [Configure branch protection in GitHub](#branch-protection).
+11. [Configure deployment](#deployment) to Drupal.org.
 
 See the sections below for more details.
 
@@ -185,7 +181,7 @@ For example, as of October 2026:
 
 ### CI Drupal version matrix
 
-The CI configuration ([GitHub Actions](.github/workflows/test.yml) and [CircleCI](.circleci/config.yml)) tests the extension against deliberate *role corners* rather than a full cross-product of every PHP and Drupal version. 10 jobs cover the lowest and highest supported PHP on each Drupal major, plus the next minor pre-release and the oldest tested minor of Drupal 11 and 12:
+The CI configuration ([GitHub Actions](.github/workflows/test.yml)) tests the extension against deliberate *role corners* rather than a full cross-product of every PHP and Drupal version. 10 jobs cover the lowest and highest supported PHP on each Drupal major, plus the next minor pre-release and the oldest tested minor of Drupal 11 and 12:
 
 | Job | PHP | Drupal | Role |
 |-----|-----|--------|------|
@@ -205,7 +201,7 @@ Each job name encodes the PHP bound (`min`/`max`), the Drupal major (`d10`/`d11`
 The two axes behave differently:
 
 - **Drupal versions float, except for the pinned `legacy` minors.** `stable` (`10`, `11`, `12`) resolves to the newest stable release, and `canary` (`11@beta`, `12@beta`) to the newest release at beta stability or above - the next minor's beta or release candidate when there is one, otherwise the current stable release. A major or minor with no stable release yet resolves to its newest pre-release instead. The `legacy` minors (`11.1.0` and `12.0.0`, each resolving to the newest patch of its minor) are pinned on purpose so the jobs genuinely exercise an older minor.
-- **PHP versions are pinned bounds.** Neither provider can float a PHP version - the GitHub Actions setup action and the CircleCI images both take an explicit version - so the `min` and `max` PHP values are fixed. They change rarely: `max` when a newer PHP is added, `min` only when support for an old PHP is dropped.
+- **PHP versions are pinned bounds.** The GitHub Actions setup action can't float a PHP version - it takes an explicit version - so the `min` and `max` PHP values are fixed. They change rarely: `max` when a newer PHP is added, `min` only when support for an old PHP is dropped.
 
 Because `stable` and `canary` float, the matrix follows Drupal core on its own - a new stable minor or pre-release is picked up on the next CI run with no manual changes. The pinned `legacy` minors and the PHP versions are set-and-forget: they keep exercising the same floor indefinitely, so there is nothing you have to maintain by hand. When you want to move that floor forward as core and PHP advance, re-pull from the scaffold (see [Updating your extension](#updating-your-extension)) - this template tracks the versions Drupal core provides, so updating from it refreshes the `legacy` pins and the PHP versions for you.
 
@@ -249,28 +245,6 @@ env:
 ```
 
 To shard a tool across extra runners, add a matrix dimension for the shard and compare that tool's flag against it. A matrix change that renames or duplicates an existing leg also renames its status check, so review the required checks under [branch protection](#branch-protection) first.
-
-**CircleCI.** A node is a slice of one job rather than a version pair of its own, so [`.circleci/config.yml`](.circleci/config.yml) derives the flags from the node index and pins each tool that needs a single run to node 0:
-
-```yaml
-- run:
-    name: Set test runner roles
-    command: |
-      {
-        echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
-        echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-      } >> "${BASH_ENV}"
-```
-
-```yaml
-- run:
-    name: Run tests
-    command: |
-      [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
-      php -d pcov.directory=.. vendor/bin/phpunit
-```
-
-Each guard defaults to running, so a step still runs where the variable is not set at all. Add a node with `parallelism: 2` on the job: the distribution stays correct - PHPUnit runs once and coverage is uploaded once - but the extra node is idle until you give it work by pinning a tool to it with `-eq 1`. The `store_test_results` and `store_artifacts` steps take no runtime condition, so an idle node reports no results for them.
 
 One trap is worth knowing before moving a tool. Where a test runner derives a shard or profile name from the runner index, excluding runner 0 from that tool orphans the first shard, and if that shard is the catch-all then everything untagged silently stops being tested. Give such a tool the *last* runner rather than the first when it needs one to itself.
 
@@ -524,7 +498,7 @@ project depending on your deprecated code policy.
 
 ## Branch protection
 
-Whether you are using GitHub Actions or CircleCI, you should configure [branch
+You should configure [branch
 protection rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule)
 in GitHub to ensure that the code tests pass before merging.
 
@@ -546,9 +520,8 @@ The code pushed to the destination repository is the commit that CI tested,
 so a release tag deploys the tagged commit rather than the tip of the branch
 it was cut from.
 
-See these examples of the deployment destination repository:
-[GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github) and
-[CircleCI](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_circleci)
+See this example of the deployment destination repository:
+[GitHub Actions](https://github.com/AlexSkrypnyk/drupal_extension_scaffold_destination_github)
 
 CI will use the SSH key to push the code to the destination repository. The
 public part of the SSH key should be added to your [Drupal.org account](https://git.drupalcode.org/-/user_settings/ssh_keys).
@@ -571,14 +544,6 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
     - Add a new secret with the `DEPLOY_SSH_KEY` name and the private key as
       the value.
 
-  - CircleCI:
-    - Go to your project -> **Settings** -> **SSH Permissions**
-    - Put your private SSH key into the box. Leave **Hostname** empty.
-    - Copy the fingerprint string from the CircleCI User Interface. Then,
-      replace the `deploy_ssh_key_fingerprint` value in the `.circleci/config.yml`
-      file with this copied fingerprint string.
-    - Push the code to your repository.
-
 4. In CI, use UI to add the following variables as secrets:
 
 - `DEPLOY_REMOTE` - your extension's Drupal.org repository (
@@ -591,7 +556,7 @@ ssh-keygen -m PEM -t rsa -b 4096 -C "your_email+project_name@example.com"
   deploy. Without this variable, the deployment job will run but will not
   push the code. This is useful for testing the deployment job.
 
-5. Optionally, set `DEPLOY_BRANCH` to the branch to push to in the destination repository. It is not a secret: add it as a repository variable in GitHub Actions (**Settings** -> **Secrets and variables** -> **Actions** -> **Variables**) and as a project environment variable in CircleCI. Without it, the code is pushed to the branch that triggered the build, and a tagged release is pushed to the default branch - the repository default branch in GitHub Actions, and the `default_branch` alias in `.circleci/config.yml` in CircleCI.
+5. Optionally, set `DEPLOY_BRANCH` to the branch to push to in the destination repository. It is not a secret: add it as a repository variable in GitHub Actions (**Settings** -> **Secrets and variables** -> **Actions** -> **Variables**). Without it, the code is pushed to the branch that triggered the build, and a tagged release is pushed to the repository default branch.
 
 ### Drupal.org CI (DrupalCI)
 
@@ -604,7 +569,7 @@ PHPUnit needs one override: disable code coverage on DrupalCI. DrupalCI symlinks
 your project back into the built site's `web/modules/custom/<name>/` directory,
 so PHPUnit's coverage scan follows that recursive symlink into
 `web/core/node_modules` and exhausts the available file descriptors. Coverage is
-already collected by GitHub Actions and CircleCI, so turning it off on DrupalCI
+already collected by GitHub Actions, so turning it off on DrupalCI
 is safe.
 
 Add the [standard DrupalCI includes](https://git.drupalcode.org/project/gitlab_templates)

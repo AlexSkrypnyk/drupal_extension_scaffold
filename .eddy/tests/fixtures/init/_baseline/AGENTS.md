@@ -108,7 +108,6 @@ Run each tool through its `ahoy` wrapper, never the binary directly:
 ## CI/CD Support
 
 - **GitHub Actions**: `.github/workflows/test.yml` and deployment
-- **CircleCI**: `.circleci/config.yml` configuration
 - **Matrix testing**: PHP 8.3-8.5, Drupal 10-12
 - **Automated deployment**: Mirror to Drupal.org on release
 

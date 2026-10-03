@@ -72,12 +72,6 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'circleci' => [
-      [
-        'ci_provider' => 'circleci',
-      ],
-    ];
-
     yield 'gha_makefile' => [
       [
         'command_wrapper' => 'makefile',
@@ -96,27 +90,6 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'circleci_makefile' => [
-      [
-        'ci_provider' => 'circleci',
-        'command_wrapper' => 'makefile',
-      ],
-    ];
-
-    yield 'circleci_both_wrappers' => [
-      [
-        'ci_provider' => 'circleci',
-        'command_wrapper' => 'ahoy,makefile',
-      ],
-    ];
-
-    yield 'circleci_no_command_wrapper' => [
-      [
-        'ci_provider' => 'circleci',
-        'command_wrapper' => '',
-      ],
-    ];
-
     yield 'd11_only' => [
       [
         'drupal_version' => '11',
@@ -129,29 +102,8 @@ final class InitTest extends FunctionalTestCase {
       ],
     ];
 
-    yield 'circleci_d11_only' => [
-      [
-        'ci_provider' => 'circleci',
-        'drupal_version' => '11',
-      ],
-    ];
-
-    yield 'circleci_d10_only' => [
-      [
-        'ci_provider' => 'circleci',
-        'drupal_version' => '10',
-      ],
-    ];
-
     yield 'd12_only' => [
       [
-        'drupal_version' => '12',
-      ],
-    ];
-
-    yield 'circleci_d12_only' => [
-      [
-        'ci_provider' => 'circleci',
         'drupal_version' => '12',
       ],
     ];
@@ -229,7 +181,6 @@ final class InitTest extends FunctionalTestCase {
       'name' => 'Force Crystal',
       'machine_name' => 'force_crystal',
       'type' => 'module',
-      'ci_provider' => 'gha',
       'drupal_version' => '10,11',
       'command_wrapper' => 'ahoy',
       'tools' => 'phpcs,phpstan,rector,twigcs,eslint,stylelint,cspell,jest,phpunit,functional_javascript,renovate',
