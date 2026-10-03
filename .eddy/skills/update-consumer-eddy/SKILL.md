@@ -144,19 +144,24 @@ Run init.php from the project root. Set `DEX_REMOVE_SELF=true` and
 `DEX_PROCEED=true` to auto-accept the confirmations:
 
 ```bash
-DEX_NAME="<Name>" \
-DEX_MACHINE_NAME="<machine_name>" \
-DEX_TYPE="<type>" \
-DEX_CI_PROVIDER="<ci_provider>" \
-DEX_DRUPAL_VERSION="<drupal_version>" \
-DEX_COMMAND_WRAPPER="<command_wrapper>" \
-DEX_TOOLS="<tools>" \
+DEX_NAME='<Name>' \
+DEX_MACHINE_NAME='<machine_name>' \
+DEX_TYPE='<type>' \
+DEX_CI_PROVIDER='<ci_provider>' \
+DEX_DRUPAL_VERSION='<drupal_version>' \
+DEX_COMMAND_WRAPPER='<command_wrapper>' \
+DEX_TOOLS='<tools>' \
 DEX_CLOUDFLARE=<cloudflare> \
 DEX_EXAMPLES=false \
 DEX_REMOVE_SELF=true \
 DEX_PROCEED=true \
 php init.php
 ```
+
+Wrap every value in single quotes, never double quotes. The values come from the
+project's own files, and double quotes still expand `$(...)`, backticks and
+`$VAR`. Write a single quote inside a value as `'\''`, so `O'Brien` becomes
+`'O'\''Brien'`.
 
 **Every one of these variables is mandatory.** A prompt with no matching variable
 is not silently defaulted - it falls through to the interactive input loop and
