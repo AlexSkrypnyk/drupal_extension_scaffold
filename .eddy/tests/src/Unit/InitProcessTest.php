@@ -423,12 +423,19 @@ final class InitProcessTest extends UnitTestCase {
     $this->assertSame($expect_ahoy, str_contains($agents, $ahoy_command), 'AGENTS.md ahoy command list presence mismatch.');
   }
 
+  public static function dataProviderProcessRemovesWrapperDocs(): \Iterator {
+    yield 'both wrappers' => [['ahoy', 'makefile'], TRUE, TRUE];
+    yield 'ahoy only' => [['ahoy'], FALSE, TRUE];
+    yield 'makefile only' => [['makefile'], TRUE, FALSE];
+    yield 'no wrappers' => [[], FALSE, FALSE];
+  }
+
   /**
    * The 'CONTRIBUTING.md' commands follow the command wrapper selection.
    *
    * @param array<string> $command_wrapper
    */
-  #[DataProvider('dataProviderProcessRemovesWrapperDocs')]
+  #[DataProvider('dataProviderProcessPrunesContributingCommands')]
   public function testProcessPrunesContributingCommands(array $command_wrapper, bool $expect_make, bool $expect_ahoy): void {
     process('My Extension', 'my_extension', 'module', ['10', '11'], $command_wrapper, [], FALSE, FALSE, FALSE);
 
@@ -443,11 +450,8 @@ final class InitProcessTest extends UnitTestCase {
     $this->assertStringNotContainsString('#;', $contributing, 'CONTRIBUTING.md keeps a marker line.');
   }
 
-  public static function dataProviderProcessRemovesWrapperDocs(): \Iterator {
-    yield 'both wrappers' => [['ahoy', 'makefile'], TRUE, TRUE];
-    yield 'ahoy only' => [['ahoy'], FALSE, TRUE];
-    yield 'makefile only' => [['makefile'], TRUE, FALSE];
-    yield 'no wrappers' => [[], FALSE, FALSE];
+  public static function dataProviderProcessPrunesContributingCommands(): \Iterator {
+    yield from self::dataProviderProcessRemovesWrapperDocs();
   }
 
   /**
